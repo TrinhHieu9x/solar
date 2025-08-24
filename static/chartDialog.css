@@ -1,0 +1,44 @@
+.chartDialog .panel, .chartDialog .window-shadow {
+    left: 190px !important;
+    top: 32px !important;
+}
+.colorDialog .panel,.colorDialog .window-shadow {
+    left: 322px !important;
+    top: 32px !important;
+}
+.chartDialogBar .panel, .chartDialogBar .window-shadow {
+    left: auto !important;
+    right: 0;
+    top: 35px !important;
+}
+.chartDialog .checkBox,.colorDialog .checkBox {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+}
+.colorDialog label {
+    display: flex;
+    margin-right: 20px;
+    cursor: pointer;
+}
+.colorDialog label input {
+    margin-top: 0;
+    margin-right: 6px;
+}
+.chartDialog .checkBoxItem {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+    margin-bottom: 10px;
+}
+.chartDialog .checkBoxItem input {
+    margin: 0 4px;
+}
+.chartDialog .checkBoxItem label {
+    margin: 0;
+}
+.chartDialog .setBtn, .colorDialog .setBtn {
+    position: absolute;
+    right: 20px;
+    bottom: 10px;
+}
