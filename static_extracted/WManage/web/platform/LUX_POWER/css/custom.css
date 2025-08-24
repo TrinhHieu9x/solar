@@ -1,0 +1,44 @@
+body>header {
+	background-color: rgba(99, 173, 130, 1)!important;
+}
+
+.topLeftLogoHolder {
+	float: left;
+	height: 48px;
+	background-color: rgba(99, 173, 130, 1)
+}
+
+#companyLogoTopLeftImg {
+	height: 36px!important;
+	margin: 21px 0 0 32px;
+}
+
+.op-ebase-leftMenu .menuItem.level-leaf.selected, .op-ebase-leftMenu .menuItem.level-leaf:hover {
+	border-left: none!important;
+	background: rgba(99, 173, 130, 1);
+    color: white!important;
+}
+
+.default_border {
+	border: solid 1px #63C099 !important;
+}
+
+.default_box_shadow::-webkit-slider-thumb {
+	box-shadow: -407px 0 0 400px #7EC8BB !important;
+}
+
+.default_gradientLine{
+	border: none !important;
+	background: linear-gradient(to right, #EFF2B6, #7EC8BB) !important;
+}
+
+.customScrollbar>.colorBlock:first-child{
+	background: linear-gradient(to right, rgb(245, 250, 178), rgb(191, 225, 184)) !important;
+}
+
+.customScrollbar>.colorBlock:nth-child(2){
+	background: linear-gradient(to right, rgb(197, 227, 184), rgb(127, 200, 187)) !important;
+}
+/*.paramsTab .activeTab, .paramsTab li:hover {*/
+/*	background: rgba(99, 173, 130, 1) !important;*/
+/*}*/
