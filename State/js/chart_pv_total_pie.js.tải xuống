@@ -57,9 +57,9 @@ function initPvTotalPieChart() {
 
 function reloadPvTotalPieChart(pvLoadTotal, pvChargeTotal, pvExportTotal) {
 	var data = new Array();
-	data.push({ name: pvLoadTotalText, y: pvLoadTotal / 10 });
-	data.push({ name: pvChargeTotalText, y: pvChargeTotal / 10 });
-	data.push({ name: pvExportTotalText, y: pvExportTotal / 10 });
+	data.push({ name: pvLoadTotalText, y: pvLoadTotal * 1000 });
+	data.push({ name: pvChargeTotalText, y: pvChargeTotal / 100 });
+	data.push({ name: pvExportTotalText, y: pvExportTotal / 1000 });
 	if(pvTotalPieChart) {
 		pvTotalPieChart.series[0].setData(data);
 	}
