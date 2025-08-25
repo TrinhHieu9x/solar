@@ -852,9 +852,12 @@
 	var customCompany = '';
 
 	function changeLocale(language) {
-		$.post(baseUrl + '/locale', { language: language }, function(response) {
-			window.location.reload();
-		});
+	    $.post(baseUrl + '/locale', { language: language }, function(response) {
+	        // Chỉ reload nếu server báo OK
+	        if (response && response.success) {
+	            window.location.reload();
+	        }
+	    });
 	}
 
 /*	$('.op-ebase-topMenu .menu-list .item').hover(
