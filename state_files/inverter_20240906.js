@@ -1,4 +1,4 @@
-var currentSerialNum = false;
+var currentSerialNum = 1234567890;
 
 var lastLoadInfoPlantId = -1;
 var alreadyInitPowerChart = false;
