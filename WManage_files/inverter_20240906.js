@@ -1058,7 +1058,7 @@ function refreshInverterInformationParallel(snForRefreshInfo) {
 			$('.phase3ParallelGridTextHolder').hide();
 			$('.consumptionPhase3TextHolder').hide();
 			$('.epsPhase3TextHolder').hide();
-			var gridPower = 1;
+			var gridPower = 0;
 
 			var usingGenerator = false;
 			var $gridImage = $('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] img.gridImg');
@@ -1918,9 +1918,9 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 }
 
 function getGridPowerText(gridPower) {
-	if(gridPower > 0) {
+	if(gridPower < 0) {
 		return ' (Import)';
-	} else if(gridPower < 0) {
+	} else if(gridPower > 0) {
 		return ' (Export)';
 	}
 	return '';
