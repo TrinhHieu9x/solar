@@ -492,7 +492,7 @@ function getParallelGroupDetails() {
 							}
 
 							trHtml += '<td>' + (element.lost || (!element.soc && element.soc != 0) ? '' : element.soc + '%') + '</td>';
-							trHtml += '<td>' + (element.lost || (!element.vBat && element.vBat != 0) ? '' : (element.vBat / 10) + 'V') + '</td>';
+							trHtml += '<td>' + (element.lost || (!element.vBat && element.vBat != 0) ? '' : (element.vBat ) + 'V') + '</td>';
 							trHtml += '<td>' + (element.lost || (!element.pCharge && element.pCharge != 0) ? '' : element.pCharge + 'W') + '</td>';
 							trHtml += '<td>' + (element.lost || (!element.pDisCharge && element.pDisCharge != 0) ? '' : element.pDisCharge + 'W') + '</td>';
 							trHtml += '<td>' + (element.lost || (!element.peps && element.peps != 0) ? '' : element.peps + 'W') + '</td>';
@@ -871,7 +871,7 @@ function refreshInverterInformationParallel(snForRefreshInfo) {
 			} else {
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vbatHolder').hide();
 			}
-			$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vbatText').text(response.vBat / 10);
+			$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vbatText').text(response.vBat );
 
 			var hasCustomBatteryEnergyIcon = false;
 			if(response.batteryType == 'LITHIUM') {
@@ -1133,10 +1133,10 @@ function refreshInverterInformationParallel(snForRefreshInfo) {
 
 				if(response._12KUsingGenerator) {
 					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase1ParallelGridTextHolder .phase1VacText').text(response.genVolt / 10);
-					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase1ParallelGridTextHolder .phase1FacText').text(response.genFreq / 100);
+					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase1ParallelGridTextHolder .phase1FacText').text(response.genFreq / 10);
 				} else {
 					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase1ParallelGridTextHolder .phase1VacText').text(response.vac / 10);
-					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase1ParallelGridTextHolder .phase1FacText').text(response.fac / 100);
+					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase1ParallelGridTextHolder .phase1FacText').text(response.fac );
 				}
 
 				if(isType6Series && response._12KUsingGenerator) {
@@ -1207,16 +1207,16 @@ function refreshInverterInformationParallel(snForRefreshInfo) {
 				}
 
 				if(response._12KUsingGenerator) {
-					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3VacrText').text(response.genVoltr / 10);
-					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3VacsText').text(response.genVolts / 10);
-					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3VactText').text(response.genVoltt / 10);
+					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3VacrText').text(response.genVoltr );
+					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3VacsText').text(response.genVolts );
+					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3VactText').text(response.genVoltt );
 					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3FacrText').text(response.genFreqr / 100);
 					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3FacsText').text(response.genFreqs / 100);
 					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3FactText').text(response.genFreqt / 100);
 				} else {
-					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3VacrText').text(response.vacr / 10);
-					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3VacsText').text(response.vacs / 10);
-					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3VactText').text(response.vact / 10);
+					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3VacrText').text(response.vacr );
+					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3VacsText').text(response.vacs );
+					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3VactText').text(response.vact );
 					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3FacrText').text(response.facr / 100);
 					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3FacsText').text(response.facs / 100);
 					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase3ParallelGridTextHolder .phase3FactText').text(response.fact / 100);
@@ -1460,7 +1460,7 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 			} else {
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .socHolder').show().find('.monitorDataText').text(response.soc);
 			}
-			$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vbatText').text(response.vBat / 10);
+			$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vbatText').text(response.vBat );
 
 			var hasCustomBatteryEnergyIcon = false;
 			if(response.batteryType == 'LITHIUM') {
@@ -1677,7 +1677,7 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 
 					$gridImage.attr('src', gridImageDirPath + 'generator.png');
 
-					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3VacrText').text(response.genVolt / 10);
+					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3VacrText').text(response.genVolt );
 					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3VacsText').text(response.genVolts / 10);
 					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3VactText').text(response.genVoltt / 10);
 					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3FacrText').text(response.genFreq / 100);
@@ -1696,12 +1696,12 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 						$('.phase3PacTotalDataHolder').text(getGridPowerText(gridPower).replace(/\(/,'').replace(/\)/,'')+": ")
 					}
 				} else {
-					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3VacrText').text(response.vacr / 10);
+					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3VacrText').text(response.vacr );
 					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3VacsText').text(response.vacs / 10);
 					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3VactText').text(response.vact / 10);
-					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3FacrText').text(response.fac / 100);
-					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3FacsText').text(response.fac / 100);
-					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3FactText').text(response.fac / 100);
+					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3FacrText').text(response.fac );
+					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3FacsText').text(response.fac );
+					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3FactText').text(response.fac );
 
 					var gridPowerr = response.pToGrid - response.pToUser;
 					var gridPowers = response.pToGrids - response.pToUsers;
@@ -1722,8 +1722,8 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 			} else {
 				$gridImage.attr('src', gridImageDirPath + 'icon_grid.png');
 
-				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vacText').text(response.vacr / 10);
-				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .facText').text(response.fac / 100);
+				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vacText').text(response.vacr );
+				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .facText').text(response.fac );
 			}
 
 			$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .gridPowerText').text(Math.abs(gridPower));
