@@ -1918,9 +1918,9 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 }
 
 function getGridPowerText(gridPower) {
-	if(gridPower < 0) {
+	if(gridPower > 0) {
 		return ' (Import)';
-	} else if(gridPower > 0) {
+	} else if(gridPower < 0) {
 		return ' (Export)';
 	}
 	return '';
