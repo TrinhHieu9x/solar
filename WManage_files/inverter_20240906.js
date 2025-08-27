@@ -1058,7 +1058,7 @@ function refreshInverterInformationParallel(snForRefreshInfo) {
 			$('.phase3ParallelGridTextHolder').hide();
 			$('.consumptionPhase3TextHolder').hide();
 			$('.epsPhase3TextHolder').hide();
-			var gridPower = 0;
+			var gridPower = 1;
 
 			var usingGenerator = false;
 			var $gridImage = $('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] img.gridImg');
