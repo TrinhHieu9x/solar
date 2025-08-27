@@ -1136,7 +1136,7 @@ function refreshInverterInformationParallel(snForRefreshInfo) {
 					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase1ParallelGridTextHolder .phase1FacText').text(response.genFreq / 10);
 				} else {
 					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase1ParallelGridTextHolder .phase1VacText').text(response.vac / 10);
-					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase1ParallelGridTextHolder .phase1FacText').text(response.fac / 10);
+					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .phase1ParallelGridTextHolder .phase1FacText').text(response.fac );
 				}
 
 				if(isType6Series && response._12KUsingGenerator) {
@@ -1699,9 +1699,9 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3VacrText').text(response.vacr );
 					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3VacsText').text(response.vacs / 10);
 					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3VactText').text(response.vact / 10);
-					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3FacrText').text(response.fac / 10);
-					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3FacsText').text(response.fac / 10);
-					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3FactText').text(response.fac / 10);
+					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3FacrText').text(response.fac );
+					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3FacsText').text(response.fac );
+					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3FactText').text(response.fac );
 
 					var gridPowerr = response.pToGrid - response.pToUser;
 					var gridPowers = response.pToGrids - response.pToUsers;
@@ -1723,7 +1723,7 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 				$gridImage.attr('src', gridImageDirPath + 'icon_grid.png');
 
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vacText').text(response.vacr );
-				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .facText').text(response.fac / 10);
+				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .facText').text(response.fac );
 			}
 
 			$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .gridPowerText').text(Math.abs(gridPower));
