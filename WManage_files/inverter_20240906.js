@@ -482,9 +482,9 @@ function getParallelGroupDetails() {
 							var trHtml = '<tr>';
 							trHtml += '<td>' + element.serialNum + '</td>';
 							trHtml += '<td>' + (element.lost || (!element.vpv1 && element.vpv1 != 0) ? '' : (element.vpv1 ) + 'V') + '</td>';
-							trHtml += '<td>' + (element.lost || (!element.ppv1 && element.ppv1 != 0) ? '' : element.ppv1.toFix(2)*1000 + 'W') + '</td>';
+							trHtml += '<td>' + (element.lost || (!element.ppv1 && element.ppv1 != 0) ? '' : element.ppv1 + 'W') + '</td>';
 							trHtml += '<td>' + (element.lost || (!element.vpv2 && element.vpv2 != 0) ? '' : (element.vpv2 ) + 'V') + '</td>';
-							trHtml += '<td>' + (element.lost || (!element.ppv2 && element.ppv2 != 0) ? '' : element.ppv2.toFix(2)*1000 + 'W') + '</td>';
+							trHtml += '<td>' + (element.lost || (!element.ppv2 && element.ppv2 != 0) ? '' : element.ppv2 + 'W') + '</td>';
 
 							if(checkShowPv3ViewByDevice()) {
 								trHtml += '<td class="_12KParallelPv3Column">' + (element.lost || (!element.vpv3 && element.vpv3 != 0) ? '' : (element.vpv3 /10) + 'V') + '</td>';
@@ -1591,7 +1591,7 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 			if(currentDeviceType == 2) {				//AC Charger
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] img.pvArrowImg').hide();
 
-				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .acPvPowerText').text(response.ppv1 *1000);
+				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .acPvPowerText').text(response.ppv1);
 				if(response.ppv1 < 30) {
 					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] img.acPvArrowImg').hide();
 				} else {
@@ -1638,7 +1638,7 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 				} else {
 					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] img.pvArrowImg').hide();
 				}
-				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .pv1PowerText').text(response.ppv1 *1000);
+				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .pv1PowerText').text(response.ppv1 );
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .pv2PowerText').text(response.ppv2 *1000);
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .pv3PowerText').text(response.ppv3 *1000);
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vpv1Text').text(response.vpv1  );
