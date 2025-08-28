@@ -1591,7 +1591,7 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 			if(currentDeviceType == 2) {				//AC Charger
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] img.pvArrowImg').hide();
 
-				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .acPvPowerText').text(response.ppv1);
+				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .acPvPowerText').text(response.ppv1 *1000);
 				if(response.ppv1 < 30) {
 					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] img.acPvArrowImg').hide();
 				} else {
