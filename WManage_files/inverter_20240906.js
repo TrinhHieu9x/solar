@@ -101,9 +101,9 @@ async function onDeviceChanged(serialNum) {			//New inverter selected
 	handleType6_9PvView(checkShowPv3ViewByDevice());
 
 	if(currentDeviceType == 7) {
-		$('#importExportEnergyHolder').show();
-	} else {
 		$('#importExportEnergyHolder').hide();
+	} else {
+		$('#importExportEnergyHolder').show();
 	}
 	
 	if(currentDeviceType == 13) {
