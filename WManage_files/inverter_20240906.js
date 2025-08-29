@@ -1591,7 +1591,7 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 			if(currentDeviceType == 2) {				//AC Charger
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] img.pvArrowImg').hide();
 
-				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .acPvPowerText').text(response.ppv1);
+				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .acPvPowerText').text(response.ppv1 *1000);
 				if(response.ppv1 < 30) {
 					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] img.acPvArrowImg').hide();
 				} else {
@@ -1638,7 +1638,7 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 				} else {
 					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] img.pvArrowImg').hide();
 				}
-				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .pv1PowerText').text((response.ppv1 *1000).toFixed(0));
+				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .pv1PowerText').text((response.ppv1 *1000).toFixed(2));
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .pv2PowerText').text(response.ppv2 *1000);
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .pv3PowerText').text(response.ppv3 *1000);
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vpv1Text').text(response.vpv1  );
