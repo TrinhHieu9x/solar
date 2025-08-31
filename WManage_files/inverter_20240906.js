@@ -2087,7 +2087,7 @@ let allHeight = 0;
 
 
 $('#enlargeChart').click(function () {
-	$('#lineChartContent').css('width', '95%')
+	$('#lineChartContent').css('width', '100%')
 	$('#lineChartContent').css('height', '600px')
 	$('#powerLineHolder').css('height', '560px')
 	var width = document.getElementById('lineChartContent').offsetWidth
@@ -2097,7 +2097,7 @@ $('#enlargeChart').click(function () {
 	$('#narrowChart').show()
 })
 $('#narrowChart').click(function () {
-	$('#lineChartContent').css('width', '90%')
+	$('#lineChartContent').css('width', '100%')
 	$('#lineChartContent').css('height', '400px')
 	$('#powerLineHolder').css('height', '360px')
 	var width = document.getElementById('lineChartContent').offsetWidth
