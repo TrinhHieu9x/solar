@@ -1,13 +1,13 @@
 body .page-container {
-    width: 100%;
+  width: 100%;
 }
 
-/* PC (>=1200px) thì giữ layout lớn, căn giữa */
+/* Desktop từ 1200px trở lên giữ layout lớn */
 @media (min-width: 1200px) {
   body .page-container {
-      max-width: 1200px;
-      min-width: 1100px;
-      margin: 0 auto;
+    min-width: 1100px;
+    max-width: 1400px;
+    margin: 0 auto;
   }
 }
 
