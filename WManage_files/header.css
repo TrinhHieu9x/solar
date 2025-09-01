@@ -45,7 +45,7 @@
 }
 
 #um_user_management .user-management {
-	min-height:100px;
+	min-height:500px;
 	height: calc(100vh - 110px);
 }
 
@@ -217,7 +217,7 @@ div.tool button {
 }
 
 .page-container {
-	margin-left: 210px;
+	margin-left: 810px;
 	padding-top: 80px;
 	width: calc(100% - 211px);
 }
