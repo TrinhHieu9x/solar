@@ -313,82 +313,40 @@ h5.monitorCellTitle {
 /* ======================== */
 
 /* Desktop (>=1200px) */
-body .page-container {
-  min-width: 1100px;
-  width: 100%;
-}
-
-.infoBlock {
-  padding: 10px;
-  background-color: white;
-  float: left;
-  width: 30%;          /* mặc định mỗi block chiếm 30% */
-  margin: 1.5%;
-  text-align: center;
-}
-
-.infoBlockImgHolder {
-  width: 100%;
-  text-align: center;
-}
-
-.infoBlockImgHolder img {
-  max-width: 80px;     /* icon vừa */
-  height: auto;
-}
-
-.infoTextBlock {
-  width: 100%;
-  text-align: center;
-}
-
-.infoTextBlock p.mainInfoText {
+/* Menu responsive */
+.menu-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   font-size: 16px;
 }
 
-.infoTextBlock p.tipInfoText {
-  font-size: 14px;
-  color: #a6b7bf;
+.menu-item img {
+  width: 24px;
+  height: 24px;
 }
 
-
-/* Tablet (768px – 1199px) */
-@media (max-width: 1199px) {
-  .infoBlock {
-    width: 45%;         /* 2 block trên một hàng */
-    margin: 2%;
-  }
-
-  .infoBlockImgHolder img {
-    max-width: 60px;    /* icon nhỏ lại */
-  }
-
-  .infoTextBlock p.mainInfoText {
-    font-size: 14px;
-  }
-
-  .infoTextBlock p.tipInfoText {
-    font-size: 12px;
-  }
-}
-
-
-/* Mobile (<768px) */
-@media (max-width: 767px) {
-  .infoBlock {
-    width: 100%;        /* mỗi block chiếm full chiều ngang */
-    margin: 5px 0;
-  }
-
-  .infoBlockImgHolder img {
-    max-width: 40px;    /* icon nhỏ nhất */
-  }
-
-  .infoTextBlock p.mainInfoText {
+/* Khi màn hình nhỏ hơn 768px (tablet, mobile) */
+@media (max-width: 768px) {
+  .menu-item {
     font-size: 12px;
   }
 
-  .infoTextBlock p.tipInfoText {
+  .menu-item img {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Khi màn hình rất nhỏ (mobile < 480px) */
+@media (max-width: 480px) {
+  .menu-item {
     font-size: 10px;
+  }
+
+  .menu-item img {
+    width: 16px;
+    height: 16px;
   }
 }
