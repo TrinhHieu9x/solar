@@ -1367,7 +1367,7 @@ function refreshInverterInformationParallel(snForRefreshInfo) {
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] img.gridArrayImg').hide();
 			}
 
-			if(response.directions.inverterArrowDir > 0) {
+			if(response.directions.inverterArrowDir > 0 && response.pDisCharge != 0 ) {
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] img.inverterArrayImg').attr('src', resourceBaseUrl + '/' + platformUrl + '/img/monitor/plant/arrow/_arrow_right.gif').show();
 			} else if(response.pDisCharge == 0 ) {
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] img.inverterArrayImg').attr('src', resourceBaseUrl + '/' + platformUrl + '/img/monitor/plant/arrow/_arrow_left.gif').show();
@@ -1754,7 +1754,7 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 
 			if(response.directions.inverterArrowDir > 0 && response.pDisCharge != 0  ) {
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] img.inverterArrayImg').attr('src', resourceBaseUrl + '/' + platformUrl + '/img/monitor/plant/arrow/_arrow_right.gif').show();
-			} else if(response.directions.inverterArrowDir == 'toInverter') {
+			} else if(response.pDisCharge == 0 ) {
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] img.inverterArrayImg').attr('src', resourceBaseUrl + '/' + platformUrl + '/img/monitor/plant/arrow/_arrow_left.gif').show();
 			} else {
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] img.inverterArrayImg').hide();
