@@ -1852,7 +1852,7 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 				} else {
 					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .epsArrowImg').hide();
 				}
-			} else if(response.status >= 0x40) {
+			} else if(response.peps >= 1) {
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .standByLine').hide();
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .epsPowerText').text(response.peps);
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .epsPowerLine').show();
