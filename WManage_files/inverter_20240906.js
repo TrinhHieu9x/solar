@@ -1866,7 +1866,7 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .epsPowerText').text('--');
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .epsPowerLine').hide();
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .standByLine').show();
-				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .epsArrowImg').show();
+				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .epsArrowImg').hide();
 			}
 
 			if(response.hasUnclosedQuickChargeTask) {
