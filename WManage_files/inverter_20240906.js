@@ -617,8 +617,8 @@ function refreshInverterEnergy() {
 				$('#totalExportText').text(response.totalExportText);
 				$('#todayImportText').text(response.todayImportText);
 				$('#totalImportText').text(response.totalImportText);
-				$('#todayUsageText').text(response.todayUsageText + response.EPSDay);
-				$('#totalUsageText').text(response.totalUsageText + response.EPSTotal);
+				$('#todayUsageText').text(response.todayUsageText + response.EPSDay *1000);
+				$('#totalUsageText').text(response.totalUsageText + response.EPSTotal *1000);
 
 				$('#todayIncomeText').text(response.todayIncomeText);
 				$('#totalIncomeText').text(response.totalIncomeText);
