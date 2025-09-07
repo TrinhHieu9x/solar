@@ -599,7 +599,7 @@ function refreshPageAt1Minute() {			//Refresh page information every minute...
 		refreshTigoDataIfSystemLayoutValid();
 	}
 
-	setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (60 * 1000) : (3 * 60 * 1000));
+	setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (30 * 1000) : (1 * 60 * 1000));
 }
 
 //Site information
