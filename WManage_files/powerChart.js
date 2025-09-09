@@ -7,34 +7,7 @@ function initPowerChart() {
 			type: 'spline',
 			zoomType: 'x'
 		},
-		var powerChart = false;
-
-function initPowerChart() {
-	powerChart = new Highcharts.Chart({
-		chart: {
-			renderTo: 'powerLineHolder',
-			type: 'spline',
-			zoomType: 'x'
-		},
 		title: {
-			floating: true,
-        	align: 'left',
-        	text: lineChartTitle
-		},
-		
-		legend: {
-			align: 'right',
-			verticalAlign: 'top'
-        },
-        // colors: chartColors,
-		xAxis: {
-			type: 'datetime',
-			dateTimeLabelFormats: { // don't display the dummy year
-				hour:"%H:%M",
-		        day:"%m-%e",
-		        month:"%Y-%m",
-			}
-		},title: {
 			floating: true,
         	align: 'left',
         	text: lineChartTitle
