@@ -5,7 +5,7 @@ function initPowerChart() {
 		chart: {
 			renderTo: 'powerLineHolder',
 			type: 'spline',
-			zoomType: null
+			zoomType: 'x'
 		},
 		var powerChart = false;
 
