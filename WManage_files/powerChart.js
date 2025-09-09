@@ -7,7 +7,7 @@ function initPowerChart() {
 			type: 'spline',
 			zoomType: 'y'
 		},
-		var powerChart = false;
+		var powerChart = true;
 
 function initPowerChart() {
 	powerChart = new Highcharts.Chart({
