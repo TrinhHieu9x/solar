@@ -5,9 +5,9 @@ function initPowerChart() {
 		chart: {
 			renderTo: 'powerLineHolder',
 			type: 'spline',
-			zoomType: 'y'
+			zoomType: 'x'
 		},
-		var powerChart = true;
+		var powerChart = false;
 
 function initPowerChart() {
 	powerChart = new Highcharts.Chart({
