@@ -601,7 +601,6 @@ function refreshPageAt1Minute() {   // Vòng nặng 20–30s
   refreshInverterQuick(currentSerialNum);
   setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (20 * 1000) : (30 * 1000));
 }
-let inverterQuickLocked = false;
 
 function refreshInverterQuick(sn) {
   $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function (res) {
