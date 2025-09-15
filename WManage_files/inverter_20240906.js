@@ -619,26 +619,33 @@ function refreshInverterQuick(sn) {
   });
 }
 
-function safeParseFloat(v, fallback = 0) {
+function safeParseVendorFloat(v, fallback = 0) {
+  if (v === "-" || v === "" || v == null) return fallback;
   const n = parseFloat(v);
   return Number.isNaN(n) ? fallback : n;
 }
+let lastValidQuick = null;
 
 function mapQuickToRuntime(b) {
-  const pbatVal = safeParseFloat(b.Pbat, 0);
-  return {
-    ppv: safeParseFloat(b.TotalDCpower, 0),             // TotalDCpower → ppv
-    soc: safeParseFloat(b.SOC, 0),                      // SOC → soc
-    pCharge: pbatVal < 0 ? Math.abs(pbatVal) : 0,       // pCharge = -Pbat nếu Pbat<0
-    pDisCharge: pbatVal > 0 ? pbatVal : 0,              // pDisCharge = Pbat nếu Pbat>0
-    peps: safeParseFloat(b.epsCurrpac, 0),              // epsCurrpac → peps
-    gridPower: safeParseFloat(b.gridCurrpac, 0),        // gridCurrpac → gridPower
-    loadPower: safeParseFloat(b.loadCurrpac, 0),        // loadCurrpac → loadPower
-    genPower: safeParseFloat(b.genCurrpac, 0),          // genCurrpac → genPower
-    acCouplePower: safeParseFloat(b.coupleCurrpac, 0),  // coupleCurrpac → acCouplePower
-    genVolt: safeParseFloat(b.genVac, 0),               // genVac → genVolt
+  if (!b || String(b.type) !== "4") return lastValidQuick || {};
+
+  const pbatVal = safeParseVendorFloat(b.Pbat, 0);
+  const mapped = {
+    ppv: safeParseVendorFloat(b.TotalDCpower, 0),
+    soc: safeParseVendorFloat(b.SOC, 0),
+    pCharge: pbatVal < 0 ? Math.abs(pbatVal) : 0,
+    pDisCharge: pbatVal > 0 ? pbatVal : 0,
+    peps: safeParseVendorFloat(b.epsCurrpac, 0),
+    gridPower: safeParseVendorFloat(b.gridCurrpac, 0),
+    loadPower: safeParseVendorFloat(b.loadCurrpac, 0),
+    genPower: safeParseVendorFloat(b.genCurrpac, 0),
+    acCouplePower: safeParseVendorFloat(b.coupleCurrpac, 0),
+    genVolt: safeParseVendorFloat(b.genVac, 0),
   };
+  lastValidQuick = mapped;
+  return mapped;
 }
+
 
 //Site information
 function refreshInverterEnergy() {
