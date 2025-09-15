@@ -602,20 +602,25 @@ function refreshPageAt1Minute() {   // Vòng nặng 20–30s
 
   setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (20 * 1000) : (30 * 1000));
 }
-// --- Gọi nhanh mỗi 5s, dữ liệu công suất từ web B ---
+let inverterQuickLocked = false;
+
 function refreshInverterQuick(sn) {
+  if (inverterQuickLocked) return;  // đang chờ request trước → skip
+
+  inverterQuickLocked = true;
+
   $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function (res) {
     if (res && res.type === "4") {
-      // Map từ API B → format giống API A
       const mapped = mapQuickToRuntime(res);
-
-      // Dùng lại luôn hàm gốc để update UI, arrow, gif…
       refreshInverterInformationSingleWithData(sn, mapped);
     }
-  }, "json");
-
-  setTimeout(() => refreshInverterQuick(sn), 5000);
+  }, "json")
+  .always(() => {
+    inverterQuickLocked = false;
+    setTimeout(() => refreshInverterQuick(sn), 5000);
+  });
 }
+
 
 function safeParseFloat(v, fallback = 0) {
   const n = parseFloat(v);
