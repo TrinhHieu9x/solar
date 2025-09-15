@@ -601,50 +601,22 @@ function refreshPageAt1Minute() {   // Vòng nặng 20–30s
 
   setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (20 * 1000) : (30 * 1000));
 }
+
 let inverterQuickLocked = false;
+
 function refreshInverterQuick(sn) {
 	if (inverterQuickLocked) return; // đang chờ request trước → skip 
 	inverterQuickLocked = true;
   $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function (res) {
-	if (res && String(res.type) === "4") {
-	  const mapped = mapQuickToRuntime(res);
-	  console.log('Mapped runtime:', mapped);
-	  refreshInverterInformationSingleWithData(sn, mapped);
-	}
+    if(res && res.success){
+      console.log('Received runtime:', res);
+      refreshInverterInformationSingleWithData(sn, res);
+    }
   }, "json")
   .always(() => {
 	inverterQuickLocked = false;
     setTimeout(() => refreshInverterQuick(sn), 5000);
   });
-}
-
-function safeParseFloat(v, fallback = 0) {
-  const n = parseFloat(v);
-  return Number.isNaN(n) ? fallback : n;
-}
-
-function mapQuickToRuntime(b) {
-  const pbatVal = safeParseFloat(b.Pbat, 0);
-  return {
-    ppv: safeParseFloat(b.TotalDCpower, 0),             // TotalDCpower → ppv
-    soc: safeParseFloat(b.SOC, 0),                      // SOC → soc
-    pCharge: pbatVal < 0 ? Math.abs(pbatVal) : 0,       // pCharge = -Pbat nếu Pbat<0
-    pDisCharge: pbatVal > 0 ? pbatVal : 0,              // pDisCharge = Pbat nếu Pbat>0
-    peps: safeParseFloat(b.epsCurrpac, 0),              // epsCurrpac → peps
-    gridPower: safeParseFloat(b.gridCurrpac, 0),        // gridCurrpac → gridPower
-    loadPower: safeParseFloat(b.loadCurrpac, 0),        // loadCurrpac → loadPower
-    genPower: safeParseFloat(b.genCurrpac, 0),          // genCurrpac → genPower
-    acCouplePower: safeParseFloat(b.coupleCurrpac, 0),  // coupleCurrpac → acCouplePower
-    genVolt: safeParseFloat(b.genVac, 0),               // genVac → genVolt
-
-    // thêm các field mặc định web A cần
-    vacr: 0, vacs: 0, vact: 0, fac: 0,
-    vBat: 0, vBus1: 0, vBus2: 0,
-    tBat: 0, tinner: 0, tradiator1: 0, tradiator2: 0,
-    statusText: 'normal',
-    hasRuntimeData: true,
-    lost: false
-  };
 }
 
 //Site information
