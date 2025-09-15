@@ -601,6 +601,28 @@ function refreshPageAt1Minute() {			//Refresh page information every minute...
 
 	setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (20 * 1000) : ( 30 * 1000));
 }
+// --- Gọi nhanh mỗi 5s để cập nhật công suất và SOC ---
+function refreshInverterQuick(sn) {
+  $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function (res) {
+    if (res && res.success) {
+      // --- cập nhật các thông số chính ---
+      $("#socText").text(res.soc + "%");                     // SOC pin
+      $("#pBatText").text(res.batPower + " W");              // công suất pin (+sạc / -xả)
+      $("#epsPowerText").text(res.peps + " W");              // EPS load
+      $("#gridPowerText").text(res.gridPower + " W");        // công suất lưới
+      $("#loadPowerText").text(res.consumptionPower + " W"); // tổng tải tiêu thụ
+      $("#pvPowerText").text(res.ppv + " kW");               // tổng công suất PV
+      $("#invPowerText").text(res.pinv + " W");              // công suất inverter
+
+      // nếu muốn hiển thị thêm trạng thái
+      $("#statusText").text(res.statusText || "N/A");
+    }
+  }, "json");
+
+  // gọi lại sau 5s
+  setTimeout(() => refreshInverterQuick(sn), 5000);
+}
+
 
 //Site information
 function refreshInverterEnergy() {
