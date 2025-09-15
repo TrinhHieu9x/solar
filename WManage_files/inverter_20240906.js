@@ -319,7 +319,7 @@ function initPageWhenReady() {
 			$('#batteryDetailHolder .subBatHolder .batDetailParamCheck').addClass('noShow');
 		}
 	});
-
+ startUiQuickLoop();       // vòng nhanh 5s
 //	$(window).scroll(function() {
 //		var $html = $('html');
 //		if(!alreadyInitPowerChart && $html.scrollTop() > 500) {
@@ -598,32 +598,22 @@ function refreshPageAt1Minute() {			//Refresh page information every minute...
 	if (typeof (refreshTigoDataIfSystemLayoutValid) == "function") {
 		refreshTigoDataIfSystemLayoutValid();
 	}
-  refreshInverterQuick(currentSerialNum);
+	
 	setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (20 * 1000) : ( 30 * 1000));
 }
-// --- Gọi nhanh mỗi 5s để cập nhật công suất và SOC ---
-function refreshInverterQuick(sn) {
-  $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function (res) {
-    if (res && res.success) {
-      // --- cập nhật các thông số chính ---
-      $("#socText").text(res.soc + "%");                     // SOC pin
-      $("#pBatText").text(res.batPower + " W");              // công suất pin (+sạc / -xả)
-      $("#epsPowerText").text(res.peps + " W");              // EPS load
-      $("#gridPowerText").text(res.gridPower + " W");        // công suất lưới
-      $("#loadPowerText").text(res.consumptionPower + " W"); // tổng tải tiêu thụ
-      $("#pvPowerText").text(res.ppv + " kW");               // tổng công suất PV
-      $("#invPowerText").text(res.pinv + " W");              // công suất inverter
+function startUiQuickLoop() {
+  if (typeof currentSerialNum !== "undefined" && currentSerialNum) {
+    // gọi 1 lần ngay lúc khởi tạo
+    refreshInverterInformation(currentSerialNum);
 
-      // nếu muốn hiển thị thêm trạng thái
-      $("#statusText").text(res.statusText || "N/A");
-    }
-  }, "json");
-
-  // gọi lại sau 5s
-  setTimeout(() => refreshInverterQuick(sn), 5000);
+    // lặp lại mỗi 5s
+    setInterval(() => {
+      if (!showParallelData) {  // tránh gọi thừa khi đang ở chế độ song song
+        refreshInverterInformation(currentSerialNum);
+      }
+    }, 5000);
+  }
 }
-
-
 //Site information
 function refreshInverterEnergy() {
 	if(currentSerialNum && currentSerialNum.length == 10) {
