@@ -601,17 +601,43 @@ function refreshPageAt1Minute() {   // Vòng nặng 20–30s
   refreshInverterQuick(currentSerialNum);
   setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (20 * 1000) : (30 * 1000));
 }
+// --- Gọi nhanh mỗi 5s, dữ liệu công suất từ web B ---
 function refreshInverterQuick(sn) {
   $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function (res) {
-    if (res && res.success) {
+    if (res && res.type === "4") {
       // Map từ API B → format giống API A
       const mapped = mapQuickToRuntime(res);
-      // Dùng lại luôn hàm gốc để update UI
+
+      // Dùng lại luôn hàm gốc để update UI, arrow, gif…
       refreshInverterInformationSingleWithData(sn, mapped);
     }
   }, "json");
 
   setTimeout(() => refreshInverterQuick(sn), 5000);
+}
+
+// --- Hàm map dữ liệu nhanh của web B sang web A ---
+function mapQuickToRuntime(b) {
+  const pbatVal = parseFloat(b.Pbat || 0);
+  return {
+    ppv: parseFloat(b.TotalDCpower || 0),
+    soc: parseFloat(b.SOC || 0),
+    pCharge: pbatVal < 0 ? Math.abs(pbatVal) : 0,
+    pDisCharge: pbatVal > 0 ? pbatVal : 0,
+    peps: parseFloat(b.epsCurrpac || 0),
+    gridPower: parseFloat(b.gridCurrpac || 0),
+    loadPower: parseFloat(b.loadCurrpac || 0),
+    genPower: parseFloat(b.genCurrpac || 0),
+    acCouplePower: parseFloat(b.coupleCurrpac || 0),
+    genVolt: parseFloat(b.genVac || 0),
+    // thêm các field mặc định web A cần
+    vacr: 0, vacs: 0, vact: 0, fac: 0,
+    vBat: 0, vBus1: 0, vBus2: 0,
+    tBat: 0, tinner: 0, tradiator1: 0, tradiator2: 0,
+    statusText: 'normal',
+    hasRuntimeData: true,
+    lost: false
+  };
 }
 //Site information
 function refreshInverterEnergy() {
