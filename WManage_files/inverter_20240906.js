@@ -276,7 +276,6 @@ function initPageWhenReady() {
 	}
 	refreshPageAt1Minute();
     refreshInverterQuick(currentSerialNum);
-	
 	tabPlantChart.initialize();
 
 	$('#refreshSingleButton').click(function() {
@@ -602,8 +601,10 @@ function refreshPageAt1Minute() {   // Vòng nặng 20–30s
 
   setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (20 * 1000) : (30 * 1000));
 }
-
+let inverterQuickLocked = false;
 function refreshInverterQuick(sn) {
+	if (inverterQuickLocked) return; // đang chờ request trước → skip 
+	inverterQuickLocked = true;
   $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function (res) {
 	if (res && String(res.type) === "4") {
 	  const mapped = mapQuickToRuntime(res);
@@ -612,6 +613,7 @@ function refreshInverterQuick(sn) {
 	}
   }, "json")
   .always(() => {
+	inverterQuickLocked = false;
     setTimeout(() => refreshInverterQuick(sn), 5000);
   });
 }
