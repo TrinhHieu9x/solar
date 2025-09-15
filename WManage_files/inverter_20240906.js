@@ -603,18 +603,26 @@ function refreshPageAt1Minute() {   // Vòng nặng 20–30s
 }
 
 let inverterQuickLocked = false;
+
 function refreshInverterQuick(sn) {
-	if (inverterQuickLocked) return; // đang chờ request trước → skip 
-	inverterQuickLocked = true;
-  $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function (res) {
-	if (res && String(res.type) === "4") {
-	  const mapped = mapQuickToRuntime(res);
-	  console.log('Mapped runtime:', mapped);
-	  refreshInverterInformationSingleWithData(sn, mapped);
-	}
+  if (inverterQuickLocked) return;
+
+  inverterQuickLocked = true;
+
+  $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function(res) {
+    try {
+      if(res && String(res.type) === "4") {
+        // Chỉ update khi dữ liệu hợp lệ
+        const mapped = mapQuickToRuntime(res);
+        refreshInverterInformationSingleWithData(sn, mapped);
+      }
+    } catch(e) {
+      console.error("Error in quick update:", e);
+    }
   }, "json")
   .always(() => {
-	inverterQuickLocked = false;
+    // Unlock và đảm bảo gọi lại 5s
+    inverterQuickLocked = false;
     setTimeout(() => refreshInverterQuick(sn), 5000);
   });
 }
