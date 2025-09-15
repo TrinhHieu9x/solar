@@ -275,7 +275,6 @@ function initPageWhenReady() {
 		$('#alertBox').show()
 	}
 	refreshPageAt1Minute();
-	refreshInverterQuick();
 
 	tabPlantChart.initialize();
 
@@ -599,7 +598,7 @@ function refreshPageAt1Minute() {   // Vòng nặng 20–30s
   if (typeof (refreshTigoDataIfSystemLayoutValid) == "function") {
     refreshTigoDataIfSystemLayoutValid();
   }
-
+  refreshInverterQuick();
   setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (20 * 1000) : (30 * 1000));
 }
 let inverterQuickLocked = false;
