@@ -613,8 +613,7 @@ function refreshInverterQuick(sn) {
     try {
       const mapped = mapQuickToRuntime(res);  // luôn map, kể cả dữ liệu "-"
       updateQuickUI(sn, mapped);              // luôn update UI
-	   refreshInverterInformation(currentSerialNum);
-	    getParallelGroupDetails();
+	  getParallelGroupDetails();
     } catch(e) {
       console.error("Error in quick update:", e);
     }
