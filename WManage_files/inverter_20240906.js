@@ -598,7 +598,7 @@ function refreshPageAt1Minute() {			//Refresh page information every minute...
 	if (typeof (refreshTigoDataIfSystemLayoutValid) == "function") {
 		refreshTigoDataIfSystemLayoutValid();
 	}
-
+  refreshInverterQuick(currentSerialNum);
 	setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (20 * 1000) : ( 30 * 1000));
 }
 // --- Gọi nhanh mỗi 5s để cập nhật công suất và SOC ---
