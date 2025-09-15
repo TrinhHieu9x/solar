@@ -610,10 +610,11 @@ function refreshInverterQuick(sn) {
   inverterQuickLocked = true;
 
   $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function (res) {
-    if (res && res.type === "4") {
-      const mapped = mapQuickToRuntime(res);
-      refreshInverterInformationSingleWithData(sn, mapped);
-    }
+	if (res && String(res.type) === "4") {  // ép kiểu type
+	  const mapped = mapQuickToRuntime(res);
+	  console.log('Mapped runtime:', mapped); // debug
+	  refreshInverterInformationSingleWithData(sn, mapped);
+	}
   }, "json")
   .always(() => {
     inverterQuickLocked = false;
