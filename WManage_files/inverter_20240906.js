@@ -611,21 +611,18 @@ function refreshInverterQuick(sn) {
 
   $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function(res) {
     try {
-      if(res && String(res.type) === "4") {
-        // Chỉ update khi dữ liệu hợp lệ
-        const mapped = mapQuickToRuntime(res);
-        updateQuickUI(sn, mapped); // Cập nhật UI trực tiếp
-      }
+      const mapped = mapQuickToRuntime(res);  // luôn map, kể cả dữ liệu "-"
+      updateQuickUI(sn, mapped);              // luôn update UI
     } catch(e) {
       console.error("Error in quick update:", e);
     }
   }, "json")
   .always(() => {
-    // Unlock và đảm bảo gọi lại 5s
     inverterQuickLocked = false;
     setTimeout(() => refreshInverterQuick(sn), 5000);
   });
 }
+
 function mapQuickToRuntime(b) {
   const pbatVal = safeParseVendorFloat(b.Pbat, 0);
   const mapped = {
