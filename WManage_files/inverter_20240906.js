@@ -601,7 +601,7 @@ function refreshPageAt1Minute() {   // Vòng nặng 20–30s
 
   setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (20 * 1000) : (30 * 1000));
 }
-
+/////////////Viết thêm
 let inverterQuickLocked = false;
 
 function refreshInverterQuick(sn) {
@@ -614,7 +614,7 @@ function refreshInverterQuick(sn) {
       if(res && String(res.type) === "4") {
         // Chỉ update khi dữ liệu hợp lệ
         const mapped = mapQuickToRuntime(res);
-        refreshInverterInformationSingleWithData(sn, mapped);
+        updateQuickUI(sn, mapped); // Cập nhật UI trực tiếp
       }
     } catch(e) {
       console.error("Error in quick update:", e);
@@ -652,6 +652,20 @@ function mapQuickToRuntime(b) {
   };
   lastValidQuick = mapped;
   return mapped;
+}
+function updateQuickUI(sn, mapped) {
+  const selector = '.flowChartHolder[chartTarget=' + sn + ']';
+  
+  $(selector + ' .ppvText').text(mapped.ppv);
+  $(selector + ' .socText').text(mapped.soc);
+  $(selector + ' .pChargeText').text(mapped.pCharge);
+  $(selector + ' .pDisChargeText').text(mapped.pDisCharge);
+  $(selector + ' .epsText').text(mapped.peps);
+  $(selector + ' .gridPowerText').text(mapped.gridPower);
+  $(selector + ' .loadPowerText').text(mapped.loadPower);
+  $(selector + ' .genPowerText').text(mapped.genPower);
+  $(selector + ' .acCouplePowerText').text(mapped.acCouplePower);
+  $(selector + ' .genVoltText').text(mapped.genVolt);
 }
 
 
