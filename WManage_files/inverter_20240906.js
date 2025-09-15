@@ -604,23 +604,17 @@ function refreshPageAt1Minute() {   // Vòng nặng 20–30s
 let inverterQuickLocked = false;
 
 function refreshInverterQuick(sn) {
-  if (inverterQuickLocked) return;  // đang chờ request trước → skip
-
-  inverterQuickLocked = true;
-
   $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function (res) {
-	if (res && String(res.type) === "4") {  // ép kiểu type
+	if (res && String(res.type) === "4") {
 	  const mapped = mapQuickToRuntime(res);
-	  console.log('Mapped runtime:', mapped); // debug
+	  console.log('Mapped runtime:', mapped);
 	  refreshInverterInformationSingleWithData(sn, mapped);
 	}
   }, "json")
   .always(() => {
-    inverterQuickLocked = false;
     setTimeout(() => refreshInverterQuick(sn), 5000);
   });
 }
-
 
 function safeParseFloat(v, fallback = 0) {
   const n = parseFloat(v);
