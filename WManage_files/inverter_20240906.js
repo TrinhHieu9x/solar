@@ -598,21 +598,20 @@ function refreshPageAt1Minute() {   // Vòng nặng 20–30s
   if (typeof (refreshTigoDataIfSystemLayoutValid) == "function") {
     refreshTigoDataIfSystemLayoutValid();
   }
-  startUiQuickLoop();       // vòng nhanh 5s
-  // KHÔNG gọi refreshInverterQuick ở đây nữa
+  refreshInverterQuick(currentSerialNum);
   setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (20 * 1000) : (30 * 1000));
 }
+function refreshInverterQuick(sn) {
+  $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function (res) {
+    if (res && res.success) {
+      // Map từ API B → format giống API A
+      const mapped = mapQuickToRuntime(res);
+      // Dùng lại luôn hàm gốc để update UI
+      refreshInverterInformationSingleWithData(sn, mapped);
+    }
+  }, "json");
 
-function startUiQuickLoop() {       // Vòng nhanh 5s
-  if (typeof currentSerialNum !== "undefined" && currentSerialNum) {
-    console.log("Bắt đầu vòng 5s", new Date().toLocaleTimeString());
-    refreshInverterQuick(currentSerialNum);   // Gọi API nhẹ
-
-    setInterval(() => {
-      console.log("Tick 5s", new Date().toLocaleTimeString());
-      refreshInverterQuick(currentSerialNum);
-    }, 5000);
-  }
+  setTimeout(() => refreshInverterQuick(sn), 5000);
 }
 //Site information
 function refreshInverterEnergy() {
