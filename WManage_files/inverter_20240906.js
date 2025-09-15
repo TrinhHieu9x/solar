@@ -275,7 +275,7 @@ function initPageWhenReady() {
 		$('#alertBox').show()
 	}
 	refreshPageAt1Minute();
-	refreshInverterQuick(currentSerialNum);
+	refreshInverterQuick();
 
 	tabPlantChart.initialize();
 
@@ -602,83 +602,55 @@ function refreshPageAt1Minute() {   // Vòng nặng 20–30s
 
   setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (20 * 1000) : (30 * 1000));
 }
+let inverterQuickLocked = false;
+
 function refreshInverterQuick(sn) {
-  if (inverterQuickLocked) return;
+  if (inverterQuickLocked) return;  // đang chờ request trước → skip
 
   inverterQuickLocked = true;
 
   $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function (res) {
-    if (res && String(res.type) === "4") {
-      mergeQuickRuntime(sn, res);  // merge dữ liệu vào runtime hiện tại
-    }
+	if (res && String(res.type) === "4") {  // ép kiểu type
+	  const mapped = mapQuickToRuntime(res);
+	  console.log('Mapped runtime:', mapped); // debug
+	  refreshInverterInformationSingleWithData(sn, mapped);
+	}
   }, "json")
   .always(() => {
     inverterQuickLocked = false;
     setTimeout(() => refreshInverterQuick(sn), 5000);
   });
 }
-function mergeQuickRuntime(sn, res) {
-  if (!res) return;
 
-  // Lấy runtime hiện tại
-  const runtime = window.runtimeData[sn] || {};
 
-  // Chỉ cập nhật các field quan trọng
-  const keys = ["ppv","soc","pCharge","pDisCharge","peps","gridPower","loadPower","genPower","acCouplePower","genVolt","batPower"];
-  keys.forEach(k => {
-    if (k in res) {
-      // Nếu Pbat <0 thì pCharge = -Pbat, pDisCharge = Pbat nếu >0
-      if (k === "pCharge") {
-        const pbat = parseFloat(res.Pbat || 0);
-        runtime.pCharge = pbat < 0 ? Math.abs(pbat) : 0;
-      } else if (k === "pDisCharge") {
-        const pbat = parseFloat(res.Pbat || 0);
-        runtime.pDisCharge = pbat > 0 ? pbat : 0;
-      } else if (k === "ppv") {
-        runtime.ppv = parseFloat(res.TotalDCpower || 0);
-      } else if (k === "soc") {
-        runtime.soc = parseFloat(res.SOC || 0);
-      } else if (k === "peps") {
-        runtime.peps = parseFloat(res.epsCurrpac || 0);
-      } else if (k === "gridPower") {
-        runtime.gridPower = parseFloat(res.gridCurrpac || 0);
-      } else if (k === "loadPower") {
-        runtime.loadPower = parseFloat(res.loadCurrpac || 0);
-      } else if (k === "genPower") {
-        runtime.genPower = parseFloat(res.genCurrpac || 0);
-      } else if (k === "acCouplePower") {
-        runtime.acCouplePower = parseFloat(res.coupleCurrpac || 0);
-      } else if (k === "genVolt") {
-        runtime.genVolt = parseFloat(res.genVac || 0);
-      } else if (k === "batPower") {
-        runtime.batPower = parseFloat(res.Pbat || 0);
-      }
-    }
-  });
-
-  // Các field mặc định web cần
-  runtime.vacr = runtime.vacr || 0;
-  runtime.vacs = runtime.vacs || 0;
-  runtime.vact = runtime.vact || 0;
-  runtime.fac = runtime.fac || 0;
-  runtime.vBat = runtime.vBat || 0;
-  runtime.vBus1 = runtime.vBus1 || 0;
-  runtime.vBus2 = runtime.vBus2 || 0;
-  runtime.tBat = runtime.tBat || 0;
-  runtime.tinner = runtime.tinner || 0;
-  runtime.tradiator1 = runtime.tradiator1 || 0;
-  runtime.tradiator2 = runtime.tradiator2 || 0;
-  runtime.statusText = runtime.statusText || 'normal';
-  runtime.hasRuntimeData = true;
-  runtime.lost = false;
-
-  // Lưu runtime
-  window.runtimeData[sn] = runtime;
-
-  // Render ngay
-  refreshInverterInformationSingleWithData(sn, runtime);
+function safeParseFloat(v, fallback = 0) {
+  const n = parseFloat(v);
+  return Number.isNaN(n) ? fallback : n;
 }
 
+function mapQuickToRuntime(b) {
+  const pbatVal = safeParseFloat(b.Pbat, 0);
+  return {
+    ppv: safeParseFloat(b.TotalDCpower, 0),             // TotalDCpower → ppv
+    soc: safeParseFloat(b.SOC, 0),                      // SOC → soc
+    pCharge: pbatVal < 0 ? Math.abs(pbatVal) : 0,       // pCharge = -Pbat nếu Pbat<0
+    pDisCharge: pbatVal > 0 ? pbatVal : 0,              // pDisCharge = Pbat nếu Pbat>0
+    peps: safeParseFloat(b.epsCurrpac, 0),              // epsCurrpac → peps
+    gridPower: safeParseFloat(b.gridCurrpac, 0),        // gridCurrpac → gridPower
+    loadPower: safeParseFloat(b.loadCurrpac, 0),        // loadCurrpac → loadPower
+    genPower: safeParseFloat(b.genCurrpac, 0),          // genCurrpac → genPower
+    acCouplePower: safeParseFloat(b.coupleCurrpac, 0),  // coupleCurrpac → acCouplePower
+    genVolt: safeParseFloat(b.genVac, 0),               // genVac → genVolt
+
+    // thêm các field mặc định web A cần
+    vacr: 0, vacs: 0, vact: 0, fac: 0,
+    vBat: 0, vBus1: 0, vBus2: 0,
+    tBat: 0, tinner: 0, tradiator1: 0, tradiator2: 0,
+    statusText: 'normal',
+    hasRuntimeData: true,
+    lost: false
+  };
+}
 
 //Site information
 function refreshInverterEnergy() {
