@@ -275,6 +275,7 @@ function initPageWhenReady() {
 		$('#alertBox').show()
 	}
 	refreshPageAt1Minute();
+ startUiQuickLoop();       // vòng nhanh 5s
 
 	tabPlantChart.initialize();
 
@@ -319,7 +320,6 @@ function initPageWhenReady() {
 			$('#batteryDetailHolder .subBatHolder .batDetailParamCheck').addClass('noShow');
 		}
 	});
- startUiQuickLoop();       // vòng nhanh 5s
 //	$(window).scroll(function() {
 //		var $html = $('html');
 //		if(!alreadyInitPowerChart && $html.scrollTop() > 500) {
@@ -587,30 +587,31 @@ function doneRefreshManually() {
 	reloadLineChart();
 }
 
-function refreshPageAt1Minute() {			//Refresh page information every minute...
-	refreshInverterEnergy();
+function refreshPageAt1Minute() {   // Vòng nặng 20–30s
+  refreshInverterEnergy();
 
-	if(showParallelData) {
-		getParallelGroupDetails();
-	}
-	refreshInverterInformation(currentSerialNum);
+  if (showParallelData) {
+    getParallelGroupDetails();
+  }
 
-	if (typeof (refreshTigoDataIfSystemLayoutValid) == "function") {
-		refreshTigoDataIfSystemLayoutValid();
-	}
-	
-	setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (20 * 1000) : ( 30 * 1000));
+  refreshInverterInformation(currentSerialNum);
+
+  if (typeof (refreshTigoDataIfSystemLayoutValid) == "function") {
+    refreshTigoDataIfSystemLayoutValid();
+  }
+
+  // KHÔNG gọi refreshInverterQuick ở đây nữa
+  setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (20 * 1000) : (30 * 1000));
 }
-function startUiQuickLoop() {
-  if (typeof currentSerialNum !== "undefined" && currentSerialNum) {
-    // gọi 1 lần ngay lúc khởi tạo
-    refreshInverterInformation(currentSerialNum);
 
-    // lặp lại mỗi 5s
+function startUiQuickLoop() {       // Vòng nhanh 5s
+  if (typeof currentSerialNum !== "undefined" && currentSerialNum) {
+    console.log("Bắt đầu vòng 5s", new Date().toLocaleTimeString());
+    refreshInverterQuick(currentSerialNum);   // Gọi API nhẹ
+
     setInterval(() => {
-      if (!showParallelData) {  // tránh gọi thừa khi đang ở chế độ song song
-        refreshInverterInformation(currentSerialNum);
-      }
+      console.log("Tick 5s", new Date().toLocaleTimeString());
+      refreshInverterQuick(currentSerialNum);
     }, 5000);
   }
 }
