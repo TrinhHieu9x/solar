@@ -599,7 +599,7 @@ function refreshPageAt1Minute() {   // Vòng nặng 20–30s
   if (typeof (refreshTigoDataIfSystemLayoutValid) == "function") {
     refreshTigoDataIfSystemLayoutValid();
   }
-  refreshInverterQuick(currentSerialNum);
+
   setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (20 * 1000) : (30 * 1000));
 }
 // --- Gọi nhanh mỗi 5s, dữ liệu công suất từ web B ---
