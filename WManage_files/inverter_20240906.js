@@ -631,16 +631,17 @@ function safeParseFloat(v, fallback = 0) {
 function mapQuickToRuntime(b) {
   const pbatVal = safeParseFloat(b.Pbat, 0);
   return {
-    ppv: safeParseFloat(b.TotalDCpower, 0),
-    soc: safeParseFloat(b.SOC, 0),
-    pCharge: pbatVal < 0 ? Math.abs(pbatVal) : 0,
-    pDisCharge: pbatVal > 0 ? pbatVal : 0,
-    peps: safeParseFloat(b.epsCurrpac, 0),
-    gridPower: safeParseFloat(b.gridCurrpac, 0),
-    loadPower: safeParseFloat(b.loadCurrpac, 0),
-    genPower: safeParseFloat(b.genCurrpac, 0),
-    acCouplePower: safeParseFloat(b.coupleCurrpac, 0),
-    genVolt: safeParseFloat(b.genVac, 0),
+    ppv: safeParseFloat(b.TotalDCpower, 0),             // TotalDCpower → ppv
+    soc: safeParseFloat(b.SOC, 0),                      // SOC → soc
+    pCharge: pbatVal < 0 ? Math.abs(pbatVal) : 0,       // pCharge = -Pbat nếu Pbat<0
+    pDisCharge: pbatVal > 0 ? pbatVal : 0,              // pDisCharge = Pbat nếu Pbat>0
+    peps: safeParseFloat(b.epsCurrpac, 0),              // epsCurrpac → peps
+    gridPower: safeParseFloat(b.gridCurrpac, 0),        // gridCurrpac → gridPower
+    loadPower: safeParseFloat(b.loadCurrpac, 0),        // loadCurrpac → loadPower
+    genPower: safeParseFloat(b.genCurrpac, 0),          // genCurrpac → genPower
+    acCouplePower: safeParseFloat(b.coupleCurrpac, 0),  // coupleCurrpac → acCouplePower
+    genVolt: safeParseFloat(b.genVac, 0),               // genVac → genVolt
+
     // thêm các field mặc định web A cần
     vacr: 0, vacs: 0, vact: 0, fac: 0,
     vBat: 0, vBus1: 0, vBus2: 0,
