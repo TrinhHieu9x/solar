@@ -275,6 +275,7 @@ function initPageWhenReady() {
 		$('#alertBox').show()
 	}
 	refreshPageAt1Minute();
+	refreshInverterQuick();
 
 	tabPlantChart.initialize();
 
