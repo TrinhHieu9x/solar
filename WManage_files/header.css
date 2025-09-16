@@ -220,6 +220,8 @@ div.tool button {
 	margin-left: 0px;
 	padding-top: 60px;
 	width: 100%;
+	overflow-x: hidden;
+ overflow-y: auto; 
 }
 
 .page-component {
