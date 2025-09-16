@@ -611,47 +611,58 @@ function refreshInverterQuick(sn) {
 
   $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function(res) {
     try {
-      if(res && String(res.type) === "4") {
-        // Chỉ update khi dữ liệu hợp lệ
-        const mapped = mapQuickToRuntime(res);
-        refreshInverterInformationSingleWithData(sn, mapped);
-      }
+      	const mapped = mapQuickToRuntime(res);  // luôn map, kể cả dữ liệu "-"
+      	updateQuickUI(sn, mapped);              // luôn update UI
+		refreshInverterInformation(currentSerialNum);
     } catch(e) {
       console.error("Error in quick update:", e);
     }
   }, "json")
   .always(() => {
-    // Unlock và đảm bảo gọi lại 5s
     inverterQuickLocked = false;
     setTimeout(() => refreshInverterQuick(sn), 5000);
   });
 }
 
-function safeParseVendorFloat(v, fallback = 0) {
-  if (v === "-" || v === "" || v == null) return fallback;
-  const n = parseFloat(v);
-  return Number.isNaN(n) ? fallback : n;
-}
-let lastValidQuick = null;
-
 function mapQuickToRuntime(b) {
-  if (!b || String(b.type) !== "4") return lastValidQuick || {};
-
   const pbatVal = safeParseVendorFloat(b.Pbat, 0);
   const mapped = {
-    ppv: safeParseVendorFloat(b.TotalDCpower, 0),
-    soc: safeParseVendorFloat(b.SOC, 0),
+    ppv: safeParseVendorFloat(b.TotalDCpower, 0, true),
+    soc: safeParseVendorFloat(b.SOC, 0, true),
     pCharge: pbatVal < 0 ? Math.abs(pbatVal) : 0,
     pDisCharge: pbatVal > 0 ? pbatVal : 0,
-    peps: safeParseVendorFloat(b.epsCurrpac, 0),
-    gridPower: safeParseVendorFloat(b.gridCurrpac, 0),
-    loadPower: safeParseVendorFloat(b.loadCurrpac, 0),
-    genPower: safeParseVendorFloat(b.genCurrpac, 0),
-    acCouplePower: safeParseVendorFloat(b.coupleCurrpac, 0),
-    genVolt: safeParseVendorFloat(b.genVac, 0),
+    peps: safeParseVendorFloat(b.epsCurrpac, 0, true),
+    gridPower: safeParseVendorFloat(b.gridCurrpac, 0, true),
+    loadPower: safeParseVendorFloat(b.loadCurrpac, 0, true),
+    genPower: safeParseVendorFloat(b.genCurrpac, 0, true),
+    acCouplePower: safeParseVendorFloat(b.coupleCurrpac, 0, true),
+    genVolt: safeParseVendorFloat(b.genVac, 0, true),
   };
   lastValidQuick = mapped;
   return mapped;
+}
+
+// fallback = true: giữ nguyên "-" nếu có
+function safeParseVendorFloat(v, fallback = 0, allowDash = false) {
+  if (v === "-" && allowDash) return "-";
+  if (v === "" || v == null) return fallback;
+  const n = parseFloat(v);
+  return Number.isNaN(n) ? fallback : n;
+}
+function updateQuickUI(sn, mapped) {
+  const selector = '.flowChartHolder[chartTarget=' + sn + ']';
+
+  // Dùng mapped value, kể cả "-" hoặc 0
+  $(selector + ' .ppvText').text(mapped.ppv);
+  $(selector + ' .socText').text(mapped.soc);
+  $(selector + ' .pChargeText').text(mapped.pCharge);
+  $(selector + ' .pDisChargeText').text(mapped.pDisCharge);
+  $(selector + ' .epsText').text(mapped.peps);
+  $(selector + ' .gridPowerText').text(mapped.gridPower);
+  $(selector + ' .loadPowerText').text(mapped.loadPower);
+  $(selector + ' .genPowerText').text(mapped.genPower);
+  $(selector + ' .acCouplePowerText').text(mapped.acCouplePower);
+  $(selector + ' .genVoltText').text(mapped.genVolt);
 }
 
 
