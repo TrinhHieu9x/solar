@@ -217,13 +217,13 @@ div.tool button {
 }
 
 .page-container {
-	margin-left: 0px;
+	margin-left: 10px;
 	padding-top: 60px;
 	width: 100%;
 }
 
 .page-component {
-	margin-bottom: 0px;
+	margin-bottom: 5px;
 	min-height: 100px;
 	width: 100%;
 }
