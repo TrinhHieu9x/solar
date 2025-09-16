@@ -611,56 +611,47 @@ function refreshInverterQuick(sn) {
 
   $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function(res) {
     try {
-      const mapped = mapQuickToRuntime(res);  // luôn map, kể cả dữ liệu "-"
-      refreshInverterInformationSingleWithData(sn, mapped);              // luôn update UI
-	   refreshInverterInformation(currentSerialNum);
+      if(res && String(res.type) === "4") {
+        // Chỉ update khi dữ liệu hợp lệ
+        const mapped = mapQuickToRuntime(res);
+        refreshInverterInformationSingleWithData(sn, mapped);
+      }
     } catch(e) {
       console.error("Error in quick update:", e);
     }
   }, "json")
   .always(() => {
+    // Unlock và đảm bảo gọi lại 5s
     inverterQuickLocked = false;
     setTimeout(() => refreshInverterQuick(sn), 5000);
   });
 }
-function safeParseVendorFloat(v, fallback = null) {
+
+function safeParseVendorFloat(v, fallback = 0) {
   if (v === "-" || v === "" || v == null) return fallback;
   const n = parseFloat(v);
-  return Number.isNaN(n) ? fallback : n; // 0 vẫn giữ nguyên
+  return Number.isNaN(n) ? fallback : n;
 }
+let lastValidQuick = null;
 
 function mapQuickToRuntime(b) {
   if (!b || String(b.type) !== "4") return lastValidQuick || {};
 
-  const pbatVal = safeParseVendorFloat(b.Pbat, null);
+  const pbatVal = safeParseVendorFloat(b.Pbat, 0);
   const mapped = {
-    ppv: safeParseVendorFloat(b.TotalDCpower, null) ?? lastValidQuick?.ppv ?? 0,
-    soc: safeParseVendorFloat(b.SOC, null) ?? lastValidQuick?.soc ?? 0,
-    pCharge: (pbatVal != null && pbatVal < 0) ? Math.abs(pbatVal) : 0,
-    pDisCharge: (pbatVal != null && pbatVal > 0) ? pbatVal : 0,
-    peps: safeParseVendorFloat(b.epsCurrpac, null) ?? lastValidQuick?.peps ?? 0,
-    gridPower: safeParseVendorFloat(b.gridCurrpac, null) ?? lastValidQuick?.gridPower ?? 0,
-    loadPower: safeParseVendorFloat(b.loadCurrpac, null) ?? lastValidQuick?.loadPower ?? 0,
-    genPower: safeParseVendorFloat(b.genCurrpac, null) ?? lastValidQuick?.genPower ?? 0,
-    acCouplePower: safeParseVendorFloat(b.coupleCurrpac, null) ?? lastValidQuick?.acCouplePower ?? 0,
-    genVolt: safeParseVendorFloat(b.genVac, null) ?? lastValidQuick?.genVolt ?? 0,
+    ppv: safeParseVendorFloat(b.TotalDCpower, 0),
+    soc: safeParseVendorFloat(b.SOC, 0),
+    pCharge: pbatVal < 0 ? Math.abs(pbatVal) : 0,
+    pDisCharge: pbatVal > 0 ? pbatVal : 0,
+    peps: safeParseVendorFloat(b.epsCurrpac, 0),
+    gridPower: safeParseVendorFloat(b.gridCurrpac, 0),
+    loadPower: safeParseVendorFloat(b.loadCurrpac, 0),
+    genPower: safeParseVendorFloat(b.genCurrpac, 0),
+    acCouplePower: safeParseVendorFloat(b.coupleCurrpac, 0),
+    genVolt: safeParseVendorFloat(b.genVac, 0),
   };
   lastValidQuick = mapped;
   return mapped;
-}
-
-function refreshInverterInformationSingleWithData(sn, mapped) {
-  // Update luôn, không bỏ qua giá trị 0
-  $('.ppvText').text(mapped.ppv);
-  $('.socText').text(mapped.soc);
-  $('.pChargeText').text(mapped.pCharge);
-  $('.pDisChargeText').text(mapped.pDisCharge);
-  $('.epsText').text(mapped.peps);
-  $('.gridPowerText').text(mapped.gridPower);
-  $('.loadPowerText').text(mapped.loadPower);
-  $('.genPowerText').text(mapped.genPower);
-  $('.acCouplePowerText').text(mapped.acCouplePower);
-  $('.genVoltText').text(mapped.genVolt);
 }
 
 
