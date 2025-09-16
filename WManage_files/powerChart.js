@@ -73,7 +73,7 @@ tooltip: {
     // 👉 thêm phần này để dịch tooltip lên trên
     positioner: function (labelWidth, labelHeight, point) {
         let x = point.plotX + this.chart.plotLeft - labelWidth / 2;
-        let y = point.plotY + this.chart.plotTop - labelHeight - 20;
+        let y = point.plotY + this.chart.plotTop - labelHeight - 80;
 
         // chống tràn sang trái/phải
         if (x < 0) x = 0;
