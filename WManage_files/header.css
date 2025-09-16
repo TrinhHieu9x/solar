@@ -296,11 +296,6 @@ div.tool button {
 ._12KDeviceShow, .gen3_6khide, .sna12KShow, .sna12KHide, .hideDeviceType2, .hybridFirmware20240811 {
 	display: none;
 }
-@media (max-width: 768px) {
-  .page-container {
-    box-sizing: border-box;
-  }
-}
 body, html, .page-container {
   overflow-x: hidden;
 }
