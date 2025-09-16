@@ -612,7 +612,6 @@ function refreshInverterQuick(sn) {
   $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function(res) {
     try {
       	const mapped = mapQuickToRuntime(res);  // luôn map, kể cả dữ liệu "-"
-      	updateQuickUI(sn, mapped);              // luôn update UI
 		refreshInverterInformation(currentSerialNum);
     } catch(e) {
       console.error("Error in quick update:", e);
@@ -641,30 +640,6 @@ function mapQuickToRuntime(b) {
   lastValidQuick = mapped;
   return mapped;
 }
-
-// fallback = true: giữ nguyên "-" nếu có
-function safeParseVendorFloat(v, fallback = 0, allowDash = false) {
-  if (v === "-" && allowDash) return "-";
-  if (v === "" || v == null) return fallback;
-  const n = parseFloat(v);
-  return Number.isNaN(n) ? fallback : n;
-}
-function updateQuickUI(sn, mapped) {
-  const selector = '.flowChartHolder[chartTarget=' + sn + ']';
-
-  // Dùng mapped value, kể cả "-" hoặc 0
-  $(selector + ' .ppvText').text(mapped.ppv);
-  $(selector + ' .socText').text(mapped.soc);
-  $(selector + ' .pChargeText').text(mapped.pCharge);
-  $(selector + ' .pDisChargeText').text(mapped.pDisCharge);
-  $(selector + ' .epsText').text(mapped.peps);
-  $(selector + ' .gridPowerText').text(mapped.gridPower);
-  $(selector + ' .loadPowerText').text(mapped.loadPower);
-  $(selector + ' .genPowerText').text(mapped.genPower);
-  $(selector + ' .acCouplePowerText').text(mapped.acCouplePower);
-  $(selector + ' .genVoltText').text(mapped.genVolt);
-}
-
 
 //Site information
 function refreshInverterEnergy() {
