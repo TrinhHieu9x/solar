@@ -612,7 +612,7 @@ function refreshInverterQuick(sn) {
   $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function(res) {
     try {
       const mapped = mapQuickToRuntime(res);  // luôn map, kể cả dữ liệu "-"
-      updateQuickUI(sn, mapped);              // luôn update UI
+      refreshInverterInformationSingleWithData(sn, mapped);              // luôn update UI
 	   refreshInverterInformation(currentSerialNum);
     } catch(e) {
       console.error("Error in quick update:", e);
@@ -623,46 +623,44 @@ function refreshInverterQuick(sn) {
     setTimeout(() => refreshInverterQuick(sn), 5000);
   });
 }
+function safeParseVendorFloat(v, fallback = null) {
+  if (v === "-" || v === "" || v == null) return fallback;
+  const n = parseFloat(v);
+  return Number.isNaN(n) ? fallback : n; // 0 vẫn giữ nguyên
+}
 
 function mapQuickToRuntime(b) {
-  const pbatVal = safeParseVendorFloat(b.Pbat, 0);
+  if (!b || String(b.type) !== "4") return lastValidQuick || {};
+
+  const pbatVal = safeParseVendorFloat(b.Pbat, null);
   const mapped = {
-    ppv: safeParseVendorFloat(b.TotalDCpower, 1, true),
-    soc: safeParseVendorFloat(b.SOC, 1, true),
-    pCharge: pbatVal < 0 ? Math.abs(pbatVal) : 1,
-    pDisCharge: pbatVal > 0 ? pbatVal : 1,
-    peps: safeParseVendorFloat(b.epsCurrpac, 1, true),
-    gridPower: safeParseVendorFloat(b.gridCurrpac, 1, true),
-    loadPower: safeParseVendorFloat(b.loadCurrpac, 1, true),
-    genPower: safeParseVendorFloat(b.genCurrpac, 1, true),
-    acCouplePower: safeParseVendorFloat(b.coupleCurrpac, 1, true),
-    genVolt: safeParseVendorFloat(b.genVac, 1, true),
+    ppv: safeParseVendorFloat(b.TotalDCpower, null) ?? lastValidQuick?.ppv ?? 0,
+    soc: safeParseVendorFloat(b.SOC, null) ?? lastValidQuick?.soc ?? 0,
+    pCharge: (pbatVal != null && pbatVal < 0) ? Math.abs(pbatVal) : 0,
+    pDisCharge: (pbatVal != null && pbatVal > 0) ? pbatVal : 0,
+    peps: safeParseVendorFloat(b.epsCurrpac, null) ?? lastValidQuick?.peps ?? 0,
+    gridPower: safeParseVendorFloat(b.gridCurrpac, null) ?? lastValidQuick?.gridPower ?? 0,
+    loadPower: safeParseVendorFloat(b.loadCurrpac, null) ?? lastValidQuick?.loadPower ?? 0,
+    genPower: safeParseVendorFloat(b.genCurrpac, null) ?? lastValidQuick?.genPower ?? 0,
+    acCouplePower: safeParseVendorFloat(b.coupleCurrpac, null) ?? lastValidQuick?.acCouplePower ?? 0,
+    genVolt: safeParseVendorFloat(b.genVac, null) ?? lastValidQuick?.genVolt ?? 0,
   };
   lastValidQuick = mapped;
   return mapped;
 }
 
-// fallback = true: giữ nguyên "-" nếu có
-function safeParseVendorFloat(v, fallback = 0, allowDash = false) {
-  if (v === "-" && allowDash) return "-";
-  if (v === "" || v == null) return fallback;
-  const n = parseFloat(v);
-  return Number.isNaN(n) ? fallback : n;
-}
-function updateQuickUI(sn, mapped) {
-  const selector = '.flowChartHolder[chartTarget=' + sn + ']';
-
-  // Dùng mapped value, kể cả "-" hoặc 0
-  $(selector + ' .ppvText').text(mapped.ppv);
-  $(selector + ' .socText').text(mapped.soc);
-  $(selector + ' .pChargeText').text(mapped.pCharge);
-  $(selector + ' .pDisChargeText').text(mapped.pDisCharge);
-  $(selector + ' .epsText').text(mapped.peps);
-  $(selector + ' .gridPowerText').text(mapped.gridPower);
-  $(selector + ' .loadPowerText').text(mapped.loadPower);
-  $(selector + ' .genPowerText').text(mapped.genPower);
-  $(selector + ' .acCouplePowerText').text(mapped.acCouplePower);
-  $(selector + ' .genVoltText').text(mapped.genVolt);
+function refreshInverterInformationSingleWithData(sn, mapped) {
+  // Update luôn, không bỏ qua giá trị 0
+  $('.ppvText').text(mapped.ppv);
+  $('.socText').text(mapped.soc);
+  $('.pChargeText').text(mapped.pCharge);
+  $('.pDisChargeText').text(mapped.pDisCharge);
+  $('.epsText').text(mapped.peps);
+  $('.gridPowerText').text(mapped.gridPower);
+  $('.loadPowerText').text(mapped.loadPower);
+  $('.genPowerText').text(mapped.genPower);
+  $('.acCouplePowerText').text(mapped.acCouplePower);
+  $('.genVoltText').text(mapped.genVolt);
 }
 
 
