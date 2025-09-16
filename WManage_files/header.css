@@ -217,9 +217,9 @@ div.tool button {
 }
 
 .page-container {
-	margin-left: 10px;
+	margin-left: 0px;
 	padding-top: 60px;
-	width: salc(100% + 10px);
+	width: 100%;
 }
 
 .page-component {
