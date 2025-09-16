@@ -301,3 +301,6 @@ div.tool button {
     box-sizing: border-box;
   }
 }
+body, html, .page-container {
+  overflow-x: hidden;
+}
