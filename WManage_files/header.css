@@ -219,11 +219,11 @@ div.tool button {
 .page-container {
 	margin-left: 0px;
 	padding-top: 60px;
-	width: calc( 100% - 10px );
+	width: 100%;
 }
 
 .page-component {
-	margin-bottom: 5px;
+	margin-bottom: 0px;
 	min-height: 100px;
 	width: 100%;
 }
