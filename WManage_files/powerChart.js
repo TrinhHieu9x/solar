@@ -39,38 +39,53 @@ function initPowerChart() {
 				}
 			}
 		}],
-		tooltip: {
-			headerFormat: '<b>' + dayChartSeriesName + ': </b><span>{point.key}</span><br/>',
-//            pointFormat: '<b>{series.name}: </b>' + '<span style="padding:0">{point.y} W</span><br/>',
-            pointFormatter: function() {
-            	var seriesName = this.series.name;
-            	if(seriesName.indexOf('Battery') >= 0) {
-            		if(this.y > 0) {
-            			seriesName = 'Battery Discharging';
-            		} else if(this.y  < 0) {
-            			seriesName = 'Battery Charging';
-            		}
-            	} else if(seriesName.indexOf('Grid') >= 0) {
-            		if(this.y > 0) {
-            			seriesName = 'Export Grid Power';
-            		} else if(this.y < 0) {
-            			seriesName = 'Import Grid Power';
-            		} else {
-            			seriesName = 'Grid Power';
-            		}
-            	}
-            	
-            	var unit = ' W';
-            	if(seriesName == 'SOC') {
-					unit = '%';
-				}
-            	
-            	return '<b>' + seriesName + ': </b><span style="padding:0">' + Math.abs(this.y) + unit + '</span><br/>';
-            },
-            xDateFormat: '%Y-%m-%d %H:%M',
-			shared: true,
-            useHTML: true
-		},
+tooltip: {
+    headerFormat: '<b>' + dayChartSeriesName + ': </b><span>{point.key}</span><br/>',
+    pointFormatter: function() {
+        var seriesName = this.series.name;
+        if (seriesName.indexOf('Battery') >= 0) {
+            if (this.y > 0) {
+                seriesName = 'Battery Discharging';
+            } else if (this.y < 0) {
+                seriesName = 'Battery Charging';
+            }
+        } else if (seriesName.indexOf('Grid') >= 0) {
+            if (this.y > 0) {
+                seriesName = 'Export Grid Power';
+            } else if (this.y < 0) {
+                seriesName = 'Import Grid Power';
+            } else {
+                seriesName = 'Grid Power';
+            }
+        }
+
+        var unit = ' W';
+        if (seriesName === 'SOC') {
+            unit = '%';
+        }
+
+        return '<b>' + seriesName + ': </b><span style="padding:0">' + Math.abs(this.y) + unit + '</span><br/>';
+    },
+    xDateFormat: '%Y-%m-%d %H:%M',
+    shared: true,
+    useHTML: true,
+
+    // 👉 thêm phần này để dịch tooltip lên trên
+    positioner: function (labelWidth, labelHeight, point) {
+        let x = point.plotX + this.chart.plotLeft - labelWidth / 2;
+        let y = point.plotY + this.chart.plotTop - labelHeight - 20;
+
+        // chống tràn sang trái/phải
+        if (x < 0) x = 0;
+        if (x + labelWidth > this.chart.chartWidth) {
+            x = this.chart.chartWidth - labelWidth;
+        }
+        // chống tràn lên trên
+        if (y < 0) y = point.plotY + this.chart.plotTop + 20;
+
+        return { x: x, y: y };
+    }
+},
 		plotOptions: {
 			series: {
 				cursor: 'pointer',
