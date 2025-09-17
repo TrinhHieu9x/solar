@@ -610,12 +610,8 @@ function refreshInverterQuick(sn) {
   inverterQuickLocked = true;
 
   $.post(baseUrl + "/api/inverter/getRuntimeQuick", { serialNum: sn }, function(res) {
-    try {
 		refreshInverterInformation(currentSerialNum);
-      	const mapped = mapQuickToRuntime(res);  // luôn map, kể cả dữ liệu "-"
-    } catch(e) {
-      console.error("Error in quick update:", e);
-    }
+      	//const mapped = mapQuickToRuntime(res);  // luôn map, kể cả dữ liệu "-"
   }, "json")
   .always(() => {
     inverterQuickLocked = false;
