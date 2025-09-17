@@ -1703,7 +1703,7 @@
     </div>
     <div style="width: calc(100% - 32px);">
         <div id="carousel" class="carousel">
-        <div class="slide" onclick="openDialog({&#39;recordId&#39;:7,&#39;time&#39;:&#39;2025-05-30 14:36:45&#39;,&#39;notification&#39;:&#39;""&#39;})"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;"></font></font></div></div>
+        <div class="slide" onclick="openDialog({'recordId':7,'time':'2025-05-30 14:36:45','notification':''})"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;"></font></font></div></div>
     </div>
 </div>
 
@@ -1848,11 +1848,11 @@
 							<div id="maxCurrHolder" class="monitorTextHolder" style="top: 265px; left: -45px;">
 								<p class="monitorText" style="font-size: 13px;"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Sạc giới hạn BMS: </font></font><strong class="maxChgCurrText monitorDataText" style="font-size: 13px;">--</strong><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;"> A</font></font></p>
 								<p class="monitorText" style="font-size: 13px;"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Xả giới hạn BMS: </font></font><strong class="maxDischgCurrText monitorDataText" style="font-size: 13px;">--</strong><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;"> A</font></font></p>
-								<p class="monitorText showBmsChargeStatus" onclick="showBmsChargeStatus(&#39;DONT_CHARGE&#39;)" style="font-size: 13px;"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Phí BMS:
+								<p class="monitorText showBmsChargeStatus" onclick="showBmsChargeStatus('DONT_CHARGE')" style="font-size: 13px;"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Phí BMS:
 									 </font></font><strong class="bmsChargeText monitorDataText pointer" style="font-size: 13px;">--</strong>
 									
 								</p>
-								<p class="monitorText showBmsChargeStatus" onclick="showBmsChargeStatus(&#39;DONT_DISCHARGE&#39;)" style="font-size: 13px;"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Xả BMS:
+								<p class="monitorText showBmsChargeStatus" onclick="showBmsChargeStatus('DONT_DISCHARGE')" style="font-size: 13px;"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Xả BMS:
 									 </font></font><strong class="bmsDischargeText monitorDataText pointer" style="font-size: 13px;">--</strong>
 									
 								</p>
@@ -2171,7 +2171,7 @@
 							</button>
 						</div>
 
-						<button style="margin-left:10px;" class="btn btn-success btn-sm" onclick="$(&#39;#lineChart&#39;).dialog(&#39;open&#39;)"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Quản lý cột</font></font></button>
+						<button style="margin-left:10px;" class="btn btn-success btn-sm" onclick="$('#lineChart').dialog('open')"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Quản lý cột</font></font></button>
 						<div class="chartDialog">
 							<div class="panel window" style="display: none; width: 580px; left: -290px; top: -32px;"><div class="panel-header panel-header-noborder window-header" style="width: 568.4px;"><div class="panel-title panel-with-icon">Input&amp;Output Power</div><div class="panel-icon icon-save"></div><div class="panel-tool"><a href="javascript:void(0)" class="panel-tool-collapse"></a><a href="javascript:void(0)" class="panel-tool-min"></a><a href="javascript:void(0)" class="panel-tool-max"></a><a href="javascript:void(0)" class="panel-tool-close"></a></div></div><div class="panel window" style="display: none; width: 568px; left: 1px; top: 12px;"><div class="panel-header panel-header-noborder window-header" style="width: 556.4px;"><div class="panel-title panel-with-icon">Input&amp;Output Power</div><div class="panel-icon icon-save"></div><div class="panel-tool"><a href="javascript:void(0)" class="panel-tool-collapse"></a><a href="javascript:void(0)" class="panel-tool-min"></a><a href="javascript:void(0)" class="panel-tool-max"></a><a href="javascript:void(0)" class="panel-tool-close"></a></div></div><div id="lineChart" class="easyui-window panel-body panel-body-noborder window-body" data-options="title:&#39;Input&amp;Output Power&#39;,inline:true,closed:true,iconCls:&#39;icon-save&#39;" style="padding: 10px; overflow-y: auto; width: 556.4px;" title="">
 								<div class="checkBox">
@@ -2196,12 +2196,12 @@
 								</div>
 								<div class="setBtn">
 									<button class="btn btn-success btn-sm" onclick="settingLineChart()">Save</button>
-									<button class="btn btn-sm" onclick="$(&#39;#lineChart&#39;).dialog(&#39;close&#39;)">Cancel</button>
+									<button class="btn btn-sm" onclick="$('#lineChart').dialog('close')">Cancel</button>
 								</div>
 							</div></div><div class="window-shadow" style="display: none; left: 1px; top: 12px;"></div></div><div class="window-shadow" style="display: none; left: -290px; top: -32px;"></div>
 						</div>
 
-						<button style="margin-left:10px;" class="btn btn-success btn-sm" onclick="$(&#39;#colorBox&#39;).dialog(&#39;open&#39;)"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Đặt màu</font></font></button>
+						<button style="margin-left:10px;" class="btn btn-success btn-sm" onclick="$('#colorBox').dialog('open')"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Đặt màu</font></font></button>
 						<div class="colorDialog">
 							<div class="panel window" style="display: none; width: 580px; left: -290px; top: -43px;"><div class="panel-header panel-header-noborder window-header" style="width: 568.4px;"><div class="panel-title panel-with-icon">Set Color</div><div class="panel-icon icon-save"></div><div class="panel-tool"><a href="javascript:void(0)" class="panel-tool-collapse"></a><a href="javascript:void(0)" class="panel-tool-min"></a><a href="javascript:void(0)" class="panel-tool-max"></a><a href="javascript:void(0)" class="panel-tool-close"></a></div></div><div class="panel window" style="display: none; width: 568px; left: 1px; top: 12px;"><div class="panel-header panel-header-noborder window-header" style="width: 556.4px;"><div class="panel-title panel-with-icon">Set Color</div><div class="panel-icon icon-save"></div><div class="panel-tool"><a href="javascript:void(0)" class="panel-tool-collapse"></a><a href="javascript:void(0)" class="panel-tool-min"></a><a href="javascript:void(0)" class="panel-tool-max"></a><a href="javascript:void(0)" class="panel-tool-close"></a></div></div><div id="colorBox" class="easyui-window panel-body panel-body-noborder window-body" data-options="title:&#39;Set Color&#39;,inline:true,closed:true,iconCls:&#39;icon-save&#39;" style="padding: 10px; overflow-y: auto; width: 556.4px;" title="">
 								<div class="checkBox">
@@ -2211,7 +2211,7 @@
 								</div>
 								<div class="setBtn">
 									<button class="btn btn-success btn-sm" onclick="settingColor()">Save</button>
-									<button class="btn btn-sm" onclick="$(&#39;#colorBox&#39;).dialog(&#39;close&#39;)">Cancel</button>
+									<button class="btn btn-sm" onclick="$('#colorBox').dialog('close')">Cancel</button>
 								</div>
 							</div></div><div class="window-shadow" style="display: none; left: 1px; top: 12px;"></div></div><div class="window-shadow" style="display: none; left: -290px; top: -43px;"></div>
 						</div>
@@ -2281,7 +2281,7 @@
 
 						
 
-						<button onclick="$(&#39;#barChart&#39;).dialog(&#39;open&#39;)" style="margin-right: 12px;" class="btn btn-success btn-sm"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Quản lý cột</font></font></button>
+						<button onclick="$('#barChart').dialog('open')" style="margin-right: 12px;" class="btn btn-success btn-sm"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Quản lý cột</font></font></button>
 						<div class="chartDialog chartDialogBar">
 							<div class="panel window" style="display: none; width: 600px; left: -54px; top: -74px;"><div class="panel-header panel-header-noborder window-header" style="width: 588.4px;"><div class="panel-title panel-with-icon">Energy Overview</div><div class="panel-icon icon-save"></div><div class="panel-tool"><a href="javascript:void(0)" class="panel-tool-collapse"></a><a href="javascript:void(0)" class="panel-tool-min"></a><a href="javascript:void(0)" class="panel-tool-max"></a><a href="javascript:void(0)" class="panel-tool-close"></a></div></div><div class="panel window" style="display: none; width: 588px; left: 1px; top: 12px;"><div class="panel-header panel-header-noborder window-header" style="width: 576.4px;"><div class="panel-title panel-with-icon">Energy Overview</div><div class="panel-icon icon-save"></div><div class="panel-tool"><a href="javascript:void(0)" class="panel-tool-collapse"></a><a href="javascript:void(0)" class="panel-tool-min"></a><a href="javascript:void(0)" class="panel-tool-max"></a><a href="javascript:void(0)" class="panel-tool-close"></a></div></div><div id="barChart" class="easyui-window panel-body panel-body-noborder window-body" data-options="title:&#39;Energy Overview&#39;,inline:true,closed:true,iconCls:&#39;icon-save&#39;" style="padding: 10px; overflow-y: auto; width: 576.4px;" title="">
 								<div class="checkBox">
@@ -2312,7 +2312,7 @@
 								</div>
 								<div class="setBtn">
 									<button class="btn btn-success btn-sm" onclick="settingBarChart()">Save</button>
-									<button class="btn btn-sm" onclick="$(&#39;#barChart&#39;).dialog(&#39;close&#39;)">Cancel</button>
+									<button class="btn btn-sm" onclick="$('#barChart').dialog('close')">Cancel</button>
 								</div>
 							</div></div><div class="window-shadow" style="display: none; left: 1px; top: 12px;"></div></div><div class="window-shadow" style="display: none; left: -54px; top: -74px;"></div>
 						</div>
