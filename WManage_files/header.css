@@ -217,9 +217,9 @@ div.tool button {
 }
 
 .page-container {
-	margin-left: 210px;
-	padding-top: 80px;
-	width: calc(100% - 211px);
+	margin-left: 0px;
+	padding-top: 60px;
+	width: 100%;
 }
 
 .page-component {
@@ -295,4 +295,7 @@ div.tool button {
 
 ._12KDeviceShow, .gen3_6khide, .sna12KShow, .sna12KHide, .hideDeviceType2, .hybridFirmware20240811 {
 	display: none;
+}
+body, html, .page-container {
+  overflow-x: hidden;
 }

@@ -275,7 +275,7 @@ function initPageWhenReady() {
 		$('#alertBox').show()
 	}
 	refreshPageAt1Minute();
-
+    refreshInverterQuick(currentSerialNum);
 	tabPlantChart.initialize();
 
 	$('#refreshSingleButton').click(function() {
@@ -319,7 +319,6 @@ function initPageWhenReady() {
 			$('#batteryDetailHolder .subBatHolder .batDetailParamCheck').addClass('noShow');
 		}
 	});
-
 //	$(window).scroll(function() {
 //		var $html = $('html');
 //		if(!alreadyInitPowerChart && $html.scrollTop() > 500) {
@@ -587,19 +586,36 @@ function doneRefreshManually() {
 	reloadLineChart();
 }
 
-function refreshPageAt1Minute() {			//Refresh page information every minute...
-	refreshInverterEnergy();
+function refreshPageAt1Minute() {   // Vòng nặng 20–30s
+  refreshInverterEnergy();
 
-	if(showParallelData) {
-		getParallelGroupDetails();
-	}
-	refreshInverterInformation(currentSerialNum);
+  if (showParallelData) {
+    getParallelGroupDetails();
+  }
 
-	if (typeof (refreshTigoDataIfSystemLayoutValid) == "function") {
-		refreshTigoDataIfSystemLayoutValid();
-	}
+  //refreshInverterInformation(currentSerialNum);
 
-	setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (20 * 1000) : ( 30 * 1000));
+  if (typeof (refreshTigoDataIfSystemLayoutValid) == "function") {
+    refreshTigoDataIfSystemLayoutValid();
+  }
+
+  setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (30 * 1000) : (60 * 1000));
+}
+/////////////Viết thêm
+let inverterQuickLocked = false;
+
+function refreshInverterQuick(sn) {
+  if (inverterQuickLocked) return;
+  inverterQuickLocked = true;
+
+  try {
+    refreshInverterInformation(currentSerialNum);
+  } catch (e) {
+    console.error("Error in quick update:", e);
+  } finally {
+    inverterQuickLocked = false;
+    setTimeout(() => refreshInverterQuick(sn), 5000);
+  }
 }
 
 //Site information
