@@ -1,0 +1,689 @@
+//根据单滑块设置input
+function sliderChangeds(value, name, data) {
+    let curV = data.min + (value / 100) * (data.max - data.min)
+    curV = curV.toFixed(0);
+    $('span.' + name).text(curV + data.units);
+    $('#' + name).val(curV);
+}
+
+//Grid Peak-Shaving Power(kW)
+$("#gridPeakShavingPower").on('input propertyChange', function() {
+    const minNum = 0, maxNum = 25.5;
+    const val = $(this).val();
+    $('span.gridPeakShavingPower').text(val + 'kW')
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].gridPeakShavingPower').val(curV);
+})
+
+//Grid Peak-Shaving Power(kW)
+$("#startPeakShavingVolt2").on('input propertyChange', function() {
+    const minNum = 40, maxNum = 59;
+    const val = $(this).val();
+    $('span.startPeakShavingVolt2').text(val + 'kW')
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].startPeakShavingVolt2').val(curV);
+})
+
+//Grid Peak-Shaving Power(kW)
+$("#startPeakShavingVolt2").on('input propertyChange', function() {
+    const minNum = 40, maxNum = 59;
+    const val = $(this).val();
+    $('span.startPeakShavingVolt2').text(val + 'kW')
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].startPeakShavingVolt2').val(curV);
+})
+
+$("#startPeakShavingSOC").on('input propertyChange', function() {
+    const minNum = 0, maxNum = 100;
+    const val = $(this).val();
+    $('span.startPeakShavingSOC').text(val + '%')
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].startPeakShavingSOC').val(curV);
+})
+
+//Start Peak-Shaving SOC 2(%)
+$("#startPeakShavingSOC2").on('input propertyChange', function() {
+    const minNum = 0, maxNum = 100;
+    const val = $(this).val();
+    $('span.startPeakShavingSOC2').text(val + '%')
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].startPeakShavingSOC2').val(curV);
+})
+
+//AC Charge Power(kW)
+$("#acChargePower").on('input propertyChange', function() {
+    const val = $(this).val();
+    if (currentSetPageType == "workingMode2_Hybrid") {
+        const minNum = 0, maxNum = 100;
+        $('span.acChargePower').text(val + '%')
+        let curV = convertToPercentage(val, minNum, maxNum)
+        $('input[type="range"].acChargePower').val(curV);
+    } else {
+        const minNum = 0, maxNum = 25.5;
+        $('span.acChargePower').text(val + 'kW')
+        let curV = convertToPercentage(val, minNum, maxNum)
+        $('input[type="range"].acChargePower').val(curV);
+    }
+})
+
+//AC Charge Power2(kW)
+$("#acChargePower2").on('input propertyChange', function() {
+    console.log($(this).val())
+    const minNum = 0, maxNum = 25.5;
+    const val = $(this).val();
+    $('span.acChargePower').text(val + 'kW')
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].acChargePower').val(curV);
+});
+
+//Absorb Voltage(V)
+$("#leadAcidChargeVoltRefInput").on('input propertyChange', function() {
+    const minNum = 50, maxNum = 59;
+    const val = $(this).val();
+    document.querySelector('.leadAcidChargeVoltRefInput').textContent = val + 'V';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].leadAcidChargeVoltRefInput').val(curV);
+});
+
+//Float Voltage(V)
+$("#floatingVoltageInput").on('input propertyChange', function() {
+    let minNum = 50, maxNum = 56;
+    if (isSnaSeries()) {
+        minNum = 50, maxNum = 58;
+    }
+    const val = $(this).val();
+    document.querySelector('.floatingVoltageInput').textContent = val + 'V';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].floatingVoltageInput').val(curV);
+});
+
+//On Grid Discharge Derate Vbatt(V)
+$("#vbatStartDeratingInput").on('input propertyChange', function() {
+    const minNum = 0, maxNum = 100;
+    const val = $(this).val();
+    document.querySelector('.vbatStartDeratingInput').textContent = val + 'V'
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].vbatStartDeratingInput').val(curV);
+});
+//
+$("#leadAcidChargeRateInput").on('input propertyChange', function() {
+    const minNum = 0, maxNum = 250;
+    const val = $(this).val();
+    document.querySelector('.leadAcidChargeRateInput').textContent = val + 'Adc';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].leadAcidChargeRateInput').val(curV);
+});
+
+//Start PV Volt(V)
+$("#startPvVoltInput").on('input propertyChange', function() {
+    const minNum = 90, maxNum = 500;
+    const val = $(this).val();
+    document.querySelector('.startPvVoltInput').textContent = val + 'V';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].startPvVoltInput').val(curV);
+});
+
+//System Charge SOC Limit(%)
+$("#systemChargeSocLimitInput").on('input propertyChange', function() {
+    let minNum = 10, maxNum = 101;
+    if(currentDeviceType == 0 && currentPhase == 3) {
+        maxNum = 100
+    }
+    const val = $(this).val();
+    document.querySelector('.systemChargeSocLimitInput').textContent = val + '%';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].systemChargeSocLimitInput').val(curV);
+});
+
+//System Charge Volt Limit(V)
+$("#systemChargeVoltLimitInput").on('input propertyChange', function() {
+    const minNum = 40, maxNum = 59.5;
+    const val = $(this).val();
+    document.querySelector('.systemChargeVoltLimitInput').textContent = val + 'V';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].systemChargeVoltLimitInput').val(curV);
+});
+
+//Discharge Current Limit(Adc)
+$("#leadAcidDischargeRateInput").on('input propertyChange', function() {
+    const minNum = 0, maxNum = 250;
+    const val = $(this).val();
+    document.querySelector('.leadAcidDischargeRateInput').textContent = val + 'Adc';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].leadAcidDischargeRateInput').val(curV);
+});
+
+//Generator Charge Battery Current(A)
+$("#maxGenChgBatCurrentInput").on('input propertyChange', function() {
+    const minNum = 0, maxNum = 110;
+    const val = $(this).val();
+    document.querySelector('.maxGenChgBatCurrentInput').textContent = val + 'A';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].maxGenChgBatCurrentInput').val(curV);
+});
+
+//Batt Charge Current Limit(Adc)
+$("#batChargeCurrentLimitInput").on('input propertyChange', function() {
+    const minNum = 0, maxNum = 250;
+    const val = $(this).val();
+    document.querySelector('.batChargeCurrentLimitInput').textContent = val + 'Adc';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].batChargeCurrentLimitInput').val(curV);
+});
+
+//Generator Cool-Down Time(Min)
+$("#genCoolDownTimeInput").on('input propertyChange', function() {
+    const minNum = 0.1, maxNum = 25.5;
+    const val = $(this).val();
+    debugger
+    document.querySelector('.genCoolDownTimeInput') && (document.querySelector('.genCoolDownTimeInput').textContent = val + 'Min');
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].genCoolDownTimeInput').val(curV);
+});
+
+//Battery Priority Power(kW)
+$("#forcedChgPowerCMDInput").on('input propertyChange', function() {
+    const minNum = 0, maxNum = 25.5;
+    const val = $(this).val();
+    document.querySelector('.forcedChgPowerCMDInput').textContent = val + 'kW';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].forcedChgPowerCMDInput').val(curV);
+});
+
+//Gen Rated Power(kW)
+$("#genPeakShavingPowerInput").on('input propertyChange', function() {
+    const minNum = 0, maxNum = 25.5;
+    const val = $(this).val();
+    document.querySelector('.genPeakShavingPowerInput').textContent = val + 'kW';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].genPeakShavingPowerInput').val(curV);
+});
+
+var powerSheddingCustomScrollbarData = [
+    {id: 'smartPort1PsStartSocInput', min: 0, max: 100, unitInput: 'smartPort1PsStartSocInput',unit:'%'},
+    {id: 'smartPort1PsEndSocInput', min: 0, max: 100, unitInput: 'smartPort1PsEndSocInput',unit:'%'},
+    {id: 'smartPortPsStartVolt1Input', min: 40, max: 52, unitInput: 'smartPortPsStartVolt1Input',unit:'V'},
+    {id: 'smartPortPsEndVolt1Input', min: 48, max: 59, unitInput: 'smartPortPsEndVolt1Input',unit:'V'},
+    {id: 'smartPort2PsStartSocInput', min: 0, max: 100, unitInput: 'smartPort2PsStartSocInput',unit:'%'},
+    {id: 'smartPort2PsEndSocInput', min: 0, max: 100, unitInput: 'smartPort2PsEndSocInput',unit:'%'},
+    {id: 'smartPortPsStartVolt2Input', min: 40, max: 52, unitInput: 'smartPortPsStartVolt2Input',unit:'V'},
+    {id: 'smartPortPsEndVolt2Input', min: 48, max: 59, unitInput: 'smartPortPsEndVolt2Input',unit:'V'},
+    {id: 'smartPort3PsStartSocInput', min: 0, max: 100, unitInput: 'smartPort3PsStartSocInput',unit:'%'},
+    {id: 'smartPort3PsEndSocInput', min: 0, max: 100, unitInput: 'smartPort3PsEndSocInput',unit:'%'},
+    {id: 'smartPortPsStartVolt3Input', min: 40, max: 52, unitInput: 'smartPortPsStartVolt3Input',unit:'V'},
+    {id: 'smartPortPsEndVolt3Input', min: 48, max: 59, unitInput: 'smartPortPsEndVolt3Input',unit:'V'},
+    {id: 'smartPort4PsStartSocInput', min: 0, max: 100, unitInput: 'smartPort4PsStartSocInput',unit:'%'},
+    {id: 'smartPort4PsEndSocInput', min: 0, max: 100, unitInput: 'smartPort4PsEndSocInput',unit:'%'},
+    {id: 'smartPortPsStartVolt4Input', min: 40, max: 52, unitInput: 'smartPortPsStartVolt4Input',unit:'V'},
+    {id: 'smartPortPsEndVolt4Input', min: 48, max: 59, unitInput: 'smartPortPsEndVolt4Input',unit:'V'}
+]
+powerSheddingCustomScrollbarData.forEach(function(item) {
+    $(`#${item.id}`).on('input propertyChange', function() {
+        const minNum = item.min, maxNum = item.max;
+        const val = $(this).val();
+        document.querySelector(`.${item.unitInput}`).textContent = val + item.unit;
+        let curV = convertToPercentage(val, minNum, maxNum)
+        $(`input[type="range"].${item.unitInput}`).val(curV);
+    });
+})
+
+//Connect Time(s)
+$("#connectTimeInput").on('input propertyChange', function() {
+    const minNum = 0, maxNum = 600;
+    const val = $(this).val();
+    document.querySelector('.connectTimeInput').textContent = val + 'S';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].connectTimeInput').val(curV);
+});
+
+//Grid Volt Connect High(V)
+$("#gridVoltConnHighInput").on('input propertyChange', function() {
+    const minNum = 0, maxNum = 250;
+    const val = $(this).val();
+    document.querySelector('.gridVoltConnHighInput').textContent = val + 'V';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].gridVoltConnHighInput').val(curV);
+});
+
+//Grid Freq Connect High
+$("#gridFreqConnHighInput").on('input propertyChange', function() {
+    const minNum = 45, maxNum = 65;
+    const val = $(this).val();
+    document.querySelector('.gridFreqConnHighInput').textContent = val + 'Hz';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].gridFreqConnHighInput').val(curV);
+});
+
+//Reconnect Time(s)
+$("#reconnectTimeInput").on('input propertyChange', function() {
+    const minNum = 0, maxNum = 3600;
+    const val = $(this).val();
+    document.querySelector('.reconnectTimeInput').textContent = val + 'S';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].reconnectTimeInput').val(curV);
+});
+
+//Grid Volt Connect Low(V)
+$("#gridVoltConnLowInput").on('input propertyChange', function() {
+    const minNum = 0, maxNum = 250;
+    const val = $(this).val();
+    document.querySelector('.gridVoltConnLowInput').textContent = val + 'V';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].gridVoltConnLowInput').val(curV);
+});
+
+//Grid Freq Connect Low(Hz)
+$("#gridFreqConnLowInput").on('input propertyChange', function() {
+    const minNum = 45, maxNum = 65;
+    const val = $(this).val();
+    document.querySelector('.gridFreqConnLowInput').textContent = val + 'Hz';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].gridFreqConnLowInput').val(curV);
+});
+
+//Active Power Percent(%
+$("#activePowerPercentCMDInput").on('input propertyChange', function() {
+    const minNum = 0, maxNum = 100;
+    const val = $(this).val();
+    document.querySelector('.activePowerPercentCMDInput').textContent = val + '%';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].activePowerPercentCMDInput').val(curV);
+});
+
+//Reactive Power Percent(%)
+$("#reactivePowerPercentCMDInput").on('input propertyChange', function() {
+    const minNum = 0, maxNum = 80;
+    const val = $(this).val();
+    document.querySelector('.reactivePowerPercentCMDInput').textContent = val + '%';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].reactivePowerPercentCMDInput').val(curV);
+});
+
+//Battery Voltage Correction(V)
+$("#inputBatteryVoltageInput").on('input propertyChange', function() {
+    const minNum = 40, maxNum = 59;
+    const val = $(this).val();
+    console.log(val)
+    document.querySelector('.inputBatteryVoltageInput').textContent = val + 'V';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].inputBatteryVoltageInput').val(curV);
+});
+
+// function setSlideInputParams(val, name, data) {
+//     console.log(val, name, data)
+//     document.querySelector('.' + name).textContent = val;
+//     let value = (val - data.min) / (data.max - data.min) * 100
+//     $('input[type="range"].' + name).val(value);
+// }
+
+// Grid Peak-Shaving Power(kW)
+// 滑块
+function sliderChanged(value, name) {
+    const maxKw = 25.5;
+    let curV = (value / 100) * maxKw
+    curV = curV.toFixed(1);
+    $('span.' + name).text( curV + 'kW');
+    $('#' + name).val(curV);
+}
+//下拉列表
+$("#gridPeakShavingPower").change(function() {
+    const maxKw = 25.5;
+    const val = $(this).val();
+    document.querySelector('.gridPeakShavingPower').textContent = val + 'kW';
+    let curV = (val / maxKw) * 100
+    $('input[type="range"].gridPeakShavingPower').val(curV);
+});
+
+
+
+// Grid Peak-Shaving Power(kW)
+// 滑块
+function sliderChanged(value, name) {
+    const maxKw = 25.5;
+    let curV = (value / 100) * maxKw
+    curV = curV.toFixed(1);
+    $('span.' + name).text( curV + 'kW');
+    $('#' + name).val(curV);
+}
+
+
+
+
+
+
+// Grid Peak-Shaving Power(kW)
+//滑块
+// function sliderChanged(value, name) {
+//     const maxKw = 25.5;
+//     let curV = (value / 100) * maxKw
+//     curV = curV.toFixed(1);
+//     $('span.' + name).text( curV + 'kW');
+//     //由于select设置值只能这只options范围内，不存在的值可设置一个新的option动态赋值
+//     let select = '#' + name + ' option[value="' + curV + '"]';
+//     if ($('select[_12K_HOLD_GRID_PEAK_SHAVING_POWER]').length === 0) {
+//         let selectedOption = $('#' + name + ' option.' + name);
+//         selectedOption.text(curV);
+//         selectedOption.val(curV);
+//     }
+//     $('#' + name).val(curV);
+// }
+//
+// //下拉列表
+// $("#gridPeakShavingPower").change(function() {
+//     const max = 100;
+//     const val = $(this).val();
+//     document.querySelector('.gridPeakShavingPower').textContent = val + 'kW';
+//     let curV = (val / max) * 100
+//     $('input[type="range"].gridPeakShavingPower').val(curV);
+// });
+//
+// //下拉列表option参数
+// function inintGridPeakShavingPower(){
+//     let optionV = []
+//     const maxKw = 25.5
+//     for (let i = 0; i <= maxKw; i += 0.5) {
+//         optionV.push(i);
+//         $('#gridPeakShavingPower').append('<option value="' + i + '">' + i + '</option>');
+//     }
+// }
+// inintGridPeakShavingPower()
+
+
+// Start Peak-Shaving SOC 1(%)
+//滑块
+function startPeakShavingSOC(value) {
+    const max = 100;
+    let curV = parseInt((value / 100) * max.toFixed(1))
+    document.querySelector('.startPeakShavingSOC').textContent = (curV) ;
+    //由于select设置值只能这只options范围内，不存在的值可设置一个新的option动态赋值
+    if ($('#startPeakShavingSOC option[value="' + curV + '"]').length === 0) {
+        let selectedOption = $('#startPeakShavingSOC option.startPeakShavingSOC')
+        selectedOption.text(curV);
+        selectedOption.val(curV);
+    }
+    $('#startPeakShavingSOC').val(curV);
+}
+
+//下拉列表
+$("#startPeakShavingSOC").change(function() {
+    const max = 100;
+    const val = $(this).val();
+    document.querySelector('.startPeakShavingSOC').textContent = val + '%';
+    let curV = (val / max) * 100
+    $('input[type="range"].startPeakShavingSOC').val(curV);
+});
+
+//下拉列表option参数
+function inintStartPeakShavingSOC(){
+    let optionV = []
+    const max = 100
+    for (let i = 0; i <= max; i += 1)  {
+        optionV.push(i);
+        $('#startPeakShavingSOC').append('<option value="' + i + '">' + i + '%' + '</option>');
+    }
+}
+inintStartPeakShavingSOC()
+
+
+
+// Start Peak-Shaving SOC 2(%)
+//滑块
+function startPeakShavingSOC2(value) {
+    const max = 100;
+    let curV = parseInt((value / 100) * max.toFixed(1))
+    document.querySelector('.startPeakShavingSOC2').textContent = curV + '%';
+    //由于select设置值只能这只options范围内，不存在的值可设置一个新的option动态赋值
+    if ($('#startPeakShavingSOC option[value="' + curV + '"]').length === 0) {
+        let selectedOption = $('#startPeakShavingSOC2 option.startPeakShavingSOC2')
+        selectedOption.text(curV);
+        selectedOption.val(curV);
+    }
+    $('#startPeakShavingSOC2').val(curV);
+}
+
+//下拉列表
+$("#startPeakShavingSOC2").change(function() {
+    const max = 100;
+    const val = $(this).val();
+    document.querySelector('.startPeakShavingSOC2').textContent = val + '%';
+    let curV = (val / max) * 100
+    $('input[type="range"].startPeakShavingSOC2').val(curV);
+});
+
+//下拉列表option参数
+function inintstartPeakShavingSOC2(){
+    let optionV = []
+    const max = 100
+    for (let i = 0; i <= max; i += 1)  {
+        optionV.push(i);
+        $('#startPeakShavingSOC2').append('<option value="' + i + '">' + i + '%' + '</option>');
+    }
+}
+inintstartPeakShavingSOC2()
+
+
+// Start Peak-Shaving Volt 1(V)
+//滑块
+function startPeakShavingVolt(value) {
+    let minNum = 40, maxNum = 59;
+    if(currentDeviceType == 0 && currentPhase == 3) {
+        minNum = 100
+        maxNum = 800
+    }
+    let curV = minNum + ((value/100) * (maxNum - minNum));
+    curV = curV.toFixed(1)
+    document.querySelector('.startPeakShavingVolt').textContent = curV + 'V';
+    $('#startPeakShavingVolt').val(curV);
+}
+
+//Input
+$("#startPeakShavingVolt").on('input propertyChange', function() {
+    const minNum = 40, maxNum = 59;
+    const val = $(this).val();
+    document.querySelector('.startPeakShavingVolt').textContent = val + 'V';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].startPeakShavingVolt').val(curV);
+});
+
+
+// Start Peak-Shaving Volt 2(V)
+//滑块
+function startPeakShavingVolt2(value) {
+    let minNum = 40, maxNum = 59;
+    if(currentDeviceType == 0 && currentPhase == 3) {
+        minNum = 100
+        maxNum = 800
+    }
+    let curV = minNum + ((value/100) * (maxNum - minNum));
+    curV = curV.toFixed(1)
+    document.querySelector('.startPeakShavingVolt2').textContent = curV + 'V';
+    //由于select设置值只能options范围内的值，不存在的值可设置一个新的option动态赋值
+    if ($('#startPeakShavingVolt2 option[value="' + curV + '"]').length === 0) {
+        let selectedOption = $('#startPeakShavingVolt2 option.startPeakShavingVolt2')
+        selectedOption.text(curV);
+        selectedOption.val(curV);
+    }
+    $('#startPeakShavingVolt2').val(curV);
+}
+
+//Input
+$("#startPeakShavingVolt2").on('input propertyChange', function() {
+    const minNum = 40, maxNum = 59;
+    const val = $(this).val();
+    document.querySelector('.startPeakShavingVolt2').textContent = val + 'V';
+    let curV = convertToPercentage(val, minNum, maxNum)
+    $('input[type="range"].startPeakShavingVolt2').val(curV);
+});
+
+// Grid Peak-Shaving Power(kW)
+// 滑块
+//input
+$("#gridPeakShavingPower2").change(function() {
+    const maxKw = 25.5;
+    const val = $(this).val();
+    document.querySelector('.gridPeakShavingPower2').textContent = val + 'kW';
+    let curV = (val / maxKw) * 100
+    $('input[type="range"].gridPeakShavingPower2').val(curV);
+});
+
+
+// acChargePower
+//滑块
+function acChargePowerSliderChanged(value, name) {
+    const maxKw = 25.5;
+    let curV = (value / 100) * maxKw
+    curV = curV.toFixed(1);
+    if (currentSetPageType == 'workingMode2_Hybrid') {
+        $('span.' + name).text( curV + '%');
+    } else {
+        $('span.' + name).text( curV + 'kW');
+    }
+    //由于有多个AC Charge Power(kW),滑块滚动式另一个滑块无法读取，手动赋值给他们
+    let slider = $('input[type="range"][holdparam="HOLD_AC_CHARGE_POWER_CMD"]');
+    slider.each(function(index, element) {
+        element.value = value
+    });
+
+    let select = '#' + name + ' option[value="' + curV + '"]';
+    if ($(select).length === 0) {
+        let selectedOption = $('#' + name + ' option.' + name);
+        selectedOption.text(curV);
+        selectedOption.val(curV);
+    }
+    $('#' + name).val(curV);
+}
+
+// acChargePower
+//滑块
+function acChargePowerSliderChanged3(value, name) {
+    console.log(value)
+    const maxKw = 100;
+    let curV = (value / 100) * maxKw
+    curV = curV.toFixed(1);
+    $('span.' + name).text( curV + '%');
+    let slider = $('input[type="range"][holdparam="HOLD_AC_CHARGE_POWER_CMD"]');
+    slider.each(function(index, element) {
+        element.value = value
+    });
+
+    let select = '#' + name + ' option[value="' + curV + '"]';
+    if ($(select).length === 0) {
+        let selectedOption = $('#' + name + ' option.' + name);
+        selectedOption.text(curV);
+        selectedOption.val(curV);
+    }
+    $('#' + name).val(curV);
+}
+
+function acChargePowerSliderChanged2(value, name) {
+    const maxKw = 25.5;
+    let curV = (value / 100) * maxKw
+    curV = curV.toFixed(1);
+    $('span.' + name).text( curV + 'kW');
+    //由于有多个AC Charge Power(kW),滑块滚动式另一个滑块无法读取，手动赋值给他们
+    let slider = $('input[type="range"][holdparam="HOLD_AC_CHARGE_POWER_CMD"]');
+    $('#acChargePower2').val(curV)
+    $('#' + name).val(curV);
+}
+
+
+//下拉列表
+$("#acChargePower").change(function() {
+    const val = $(this).val();
+
+    if (currentSetPageType == "workingMode2_Hybrid") {
+        const maxKw = 100;
+        document.querySelector('.acChargePower').textContent = val + '%';
+        let curV = (val / maxKw) * 100
+        $('input[type="range"].acChargePower').val(curV);
+    } else {
+        const maxKw = 25.5;
+        document.querySelector('.acChargePower').textContent = val + 'kW';
+        let curV = (val / maxKw) * 100
+        $('input[type="range"].acChargePower').val(curV);
+    }
+
+});
+
+//下拉列表option参数
+function inintAcChargePower(){
+    let optionV = []
+    const maxKw = 25.5
+    for (let i = 0.5; i <= maxKw; i += 0.5) {
+        optionV.push(i);
+        $('#acChargePower').append('<option value="' + i + '">' + i + '</option>');
+    }
+}
+inintAcChargePower()
+
+//下拉列表
+$("#acChargePower2").change(function() {
+    const maxKw = 25.5;
+    const val = $(this).val();
+    $('span.acChargePower').text( val + 'kW' )
+    let curV = (val / maxKw) * 100
+    $('input[type="range"].acChargePower2').val(curV);
+});
+
+
+//Start/End SOC/Volt
+function inintAcChargeSoc(){
+    let optionV = []
+    const max = 100
+    for (let i = 0; i <= max; i += 1)  {
+        optionV.push(i);
+        $('#startAcChargeSoc').append('<option value="' + i + '">' + i + '</option>');
+        $('#endAcChargeSoc').append('<option value="' + i + '">' + i + '</option>');
+    }
+}
+inintAcChargeSoc()
+
+function inintStartAcChargeVolt(){
+    let optionV = []
+    const max = 57
+    for (let i = 40; i <= max; i += 1)  {
+        optionV.push(i);
+        $('#startAcChargeVolt').append('<option value="' + i + '">' + i + '</option>');
+    }
+}
+inintStartAcChargeVolt()
+
+function inintEndtAcChargeVolt(){
+    let optionV = []
+    const max = 59
+    for (let i = 42; i <= max; i += 1)  {
+        optionV.push(i);
+        $('#endAcChargeVolt').append('<option value="' + i + '">' + i + '</option>');
+    }
+}
+inintEndtAcChargeVolt()
+
+function createGradientSlider(containerId, outputId, initialValue, data) {
+
+    var container = $("#" + containerId);
+
+    // 监听滑块的输入事件
+    $(".slider-container #" + containerId).on("input", function(){
+        var sliderValue = $(this).val();
+        let curV = (sliderValue / 100) * data.max.toFixed(1) + '%'
+        $("span." + containerId).text(curV)
+        //由于select设置值只能这只options范围内，不存在的值可设置一个新的option动态赋值
+        if ($('#'+ containerId + ' option[value="' + curV + '"]').length === 0) {
+            let selectedOption = $('#'+containerId  + ' option.' + containerId)
+            selectedOption.text(curV);
+            selectedOption.val(curV);
+        }
+        $('#'+ containerId).val(curV);
+    });
+}
+
+//单滑块超出距离
+function convertToPercentage(value, min, max) {
+    if (value < min) {
+        return 0;
+    } else if (value > max) {
+        return 100;
+    } else {
+        return ((value - min) / (max - min)) * 100;
+    }
+}

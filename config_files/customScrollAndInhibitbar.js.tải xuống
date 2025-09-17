@@ -1,0 +1,263 @@
+(function ($) {
+        $.fn.customScrollAndInhibitbar = function (initialPercentage1, initialPercentage2, data, valueCallback) {
+            initialPercentage1 !== null ? initialPercentage1 = parseInt(initialPercentage1) : null
+            initialPercentage2 !== null ? initialPercentage2 = parseInt(initialPercentage2) : null
+
+            //如果都不为空，判断是否超出范围。如果1不为空判断1是否超出范围，如果2不为空判断2是否超出范围，如果都为空则退出
+            if(initialPercentage1 !== null && initialPercentage2 !== null) {
+                if (!(initialPercentage1 >= data.min && initialPercentage1 <= data.max && initialPercentage2 >= data.min && initialPercentage2 <= data.max || initialPercentage2 == 0 ||  initialPercentage1 == 0)) return
+            }
+
+            if(initialPercentage1 !== null) {
+                if (!(initialPercentage1 >= data.min && initialPercentage1 <= data.max || initialPercentage2 == 0 ||  initialPercentage1 == 0)) return ;
+            }
+            if(initialPercentage2 !== null){
+                if (!(initialPercentage2 >= data.min && initialPercentage2 <= data.max || initialPercentage2 == 0 ||  initialPercentage1 == 0)) return ;
+            }
+
+            if(initialPercentage1 == null && initialPercentage2 == null){
+                return
+            }
+
+            return this.each(function () {
+                let $scrollbar = $(this);
+                // if ($scrollbar.context.id == 'customScrollbar5'){
+                //     console.log(initialPercentage1, initialPercentage2, data)
+                // }
+
+
+                let slider1 = $scrollbar.find('.slider1')
+                let slider2 = $scrollbar.find('.slider2')
+
+                let slider1titleTop = $scrollbar.find('.slider1titleTop')
+                let slider1titleBottom = $scrollbar.find('.slider1titleBottom')
+
+                let slider2titleTop = $scrollbar.find('.slider2titleTop')
+                let slider2titleBottom = $scrollbar.find('.slider2titleBottom')
+
+                let colorBlock1 = $scrollbar.find('.colorBlock:eq(1)');
+                let colorBlock2 = $scrollbar.find('.colorBlock:eq(0)');
+
+                let isDragging1 = false;
+                let isDragging2 = false;
+
+                // let sliderL1 = initialPercentage1 !== null ? setInitialPosition(slider1, initialPercentage1) : slider1.position().left;
+                // let sliderL2 = initialPercentage2 !== null ? setInitialPosition(slider2, initialPercentage2) : slider2.position().left;
+
+                let sliderL1 = initialPercentage1 !== null ? setInitialPosition(slider1, initialPercentage1) : slider1.position().left;
+                let sliderL2 = initialPercentage2 !== null ? setInitialPosition(slider2, initialPercentage2) : slider2.position().left;
+
+
+                slider1.mousedown(function (e) {
+                    isDragging1 = true;
+                    e.preventDefault();
+                });
+
+                slider2.mousedown(function (e) {
+                    isDragging2 = true;
+                    e.preventDefault();
+                });
+
+                $(document).mouseup(function () {
+                    isDragging1 = false;
+                    isDragging2 = false;
+                });
+
+                $(document).mousemove(function (e) {
+                    if (isDragging1 && e.which == 1) {
+                        updateSliderPosition(slider1, slider2, e.clientX - $scrollbar.offset().left);
+                    }
+                    // if (isDragging2) {
+                    //     updateSliderPosition(slider2, slider1, e.clientX - $scrollbar.offset().left);
+                    // }
+                });
+
+
+                function setInitialPosition(slider, percentage) {
+                    let newPosition =  Math.round((percentage - data.min) / (data.max - data.min) * $scrollbar.width());
+                    if (percentage == 0) newPosition = 0
+                    slider.css('left', newPosition + 'px');
+                    return newPosition
+                }
+
+                //更新滑块滑过区域颜色位置
+                function updateSliderColor(w, l, colorBlock, color1, color2){
+                    colorBlock.css('width', w + 'px');
+                    colorBlock.css('left', l + 'px');
+                    colorBlock.css('background', 'linear-gradient(to right, ' + color1 + ', ' + color2 + ')');
+                }
+
+                //更新滑块上下title位置
+                function updateSliderTitle(l, slidertitle) {
+                    slidertitle.css('left', l + 'px');
+                }
+
+                //更新title值
+                function updateSliderTitleData(startV, name, slidertitleTop, slidertitleBottom){
+                    if (slidertitleTop){
+                        slidertitleTop.text(name + ': ' + startV + data.units)
+                    }else {
+                        slidertitleBottom.text(name + ': ' +startV + data.units)
+                    }
+
+                }
+
+                let value1 = (parseFloat(slider1.css('left')) / ($scrollbar.width() - slider1.width())) * 100;
+                let value2 = (parseFloat(slider2.css('left')) / ($scrollbar.width() - slider2.width())) * 100;
+
+                let w1 = sliderL1
+                let w2 = sliderL2
+
+                let l1 = 0;
+                let l2 = 0;
+
+                initialPercentage1 !== null ? updateSliderColor(w1,l1, colorBlock1, '#F5FAB2', '#BFE1B8') : ''
+                // initialPercentage2 !== null ? updateSliderColor(w2,l2, colorBlock2, '#C5E3B8', '#7FC8BB') : ''
+
+                // let startV =  Math.floor(parseFloat(slider1.css('left')) / $scrollbar.width() * (data.max - data.min) + data.min )
+                // let endV =  Math.floor(parseFloat(slider2.css('left')) / $scrollbar.width() * (data.max - data.min) + data.min )
+                let startV =  initialPercentage1
+                let endV =  initialPercentage2
+
+                initialPercentage1 !== null ? updateSliderTitleData(startV, data.name1, slider1titleTop) : ''
+                initialPercentage2 !== null ? updateSliderTitleData(endV, data.name2, slider2titleBottom) : ''
+
+                var titleL1 = sliderL1 - 50
+                var titleL2 = sliderL1 - 50
+
+                let titleL3 = sliderL2 - 50
+                let titleL4 = sliderL2 - 50
+
+                // if ($scrollbar.context.id == 'customScrollbar5'){
+                //     console.log(initialPercentage1, titleL1, slider1titleTop.text(),slider1titleTop.width())
+                // }
+
+                initialPercentage1 !== null ? updateSliderTitle(titleL1, slider1titleTop) : ''
+                initialPercentage2 !== null ? updateSliderTitle(titleL4, slider2titleBottom) : ''
+
+                if (typeof valueCallback === 'function') {
+                    valueCallback(startV, endV);
+                }
+
+                function updateSliderPosition(slider, $otherSlider, mouseX) {
+                    console.log(slider, $otherSlider, mouseX)
+                    let minPosition = 0;
+                    let maxPosition = $scrollbar.width() - slider.width();
+                    let otherSliderPosition = $otherSlider.position().left;
+                    if(!($otherSlider && $otherSlider.parent().hasClass('oneSlider'))) {
+                        if (slider[0] === slider1[0] && mouseX + slider.width() > otherSliderPosition) {
+                            // 滑块1碰到滑块2时停止移动
+                            maxPosition = otherSliderPosition - slider.width() - 2;
+                            return
+                        } else if (slider[0] === slider2[0] && mouseX < otherSliderPosition + $otherSlider.width()) {
+                            // // 滑块2碰到滑块1时停止移动
+                            minPosition = otherSliderPosition + $otherSlider.width() + 2;
+                        }
+                    }
+
+                    let newPosition = Math.min(Math.max(minPosition, mouseX), maxPosition);
+                    slider.css('left', newPosition + 'px');
+
+                    // 计算滑块的百分比值
+                    let percentage = (newPosition / ($scrollbar.width() - slider.width())) * 100;
+
+                    // 返回滑块1和滑块2的值
+                    // let value1 = (parseFloat(slider1.css('left')) / ($scrollbar.width() - slider1.width())) * 100;
+                    // let value2 = (parseFloat(slider2.css('left')) / ($scrollbar.width() - slider2.width())) * 100;
+
+                    value1 = (parseFloat(slider1.css('left')) / ($scrollbar.width() - slider1.width())) * 100;
+                    value2 = (parseFloat(slider2.css('left')) / ($scrollbar.width() - slider2.width())) * 100;
+
+                    startV =  Math.floor(parseFloat(slider1.css('left')) / ($scrollbar.width()) * (data.max - data.min) + data.min )
+                    endV =  Math.floor(parseFloat(slider2.css('left')) / ($scrollbar.width()) * (data.max - data.min) + data.min )
+
+                    //计算两个颜色块的宽度和x值
+                    // w1 = Number(value1.toFixed(2))
+                    // w2 = Number((value2 - value1).toFixed(2)) - 4
+                    w1 = Math.floor(parseFloat(slider1.css('left')))
+                    w2 = Math.floor(parseFloat(slider2.css('left')))
+
+                    l1 = 0;
+                    l2 = 0;
+
+
+                    titleL1 = slider1.position().left - 50
+                    titleL2 = slider1.position().left - 50
+
+                    titleL3 = slider2.position().left - 50
+                    titleL4 = slider2.position().left - 50
+
+                    // console.log('left1: ' + slider1.position().left,'left2: ' + slider2.position().left)
+
+                    initialPercentage1 !== null ? updateSliderColor(w1,l1, colorBlock1, '#F5FAB2', '#BFE1B8') : ''
+                    // initialPercentage2 !== null ? updateSliderColor(w2,l2, colorBlock2, '#C5E3B8', '#7FC8BB') : ''
+
+                    initialPercentage1 !== null ? updateSliderTitleData(startV, data.name1, slider1titleTop) : ''
+                    initialPercentage2 !== null ? updateSliderTitleData(endV, data.name2,slider2titleBottom) : ''
+
+                    initialPercentage1 !== null ? updateSliderTitle(titleL1, slider1titleTop) : ''
+                    initialPercentage2 !== null ? updateSliderTitle(titleL4, slider2titleBottom) : ''
+
+                    if (typeof valueCallback === 'function') {
+                        valueCallback(startV, endV);
+                    }
+                }
+            });
+        };
+
+    $.fn.triangle = function(val, type, label) {
+        return this.each(function () {
+            let $parent = $(this), prentId = $parent.context.id;
+            let max = 0, min = 0,
+                // units = 'V',
+                units = '',
+                triangleBox, left
+            let w = $parent.find('.dataMapping').width()
+            if (prentId == 'dataMappingBox1') {
+                max = 300;
+                min = 0;
+
+                if (val < 240){
+                    w = $parent.find('.dataMapping').width() / 2
+
+                    left = ((val * w) / 240) - 4.5
+                }
+                if (val >= 240){
+                    w = $parent.find('.dataMapping').width()
+
+                    let position = (val - 240) / (300 - 240)
+                    left = position * (w - (w / 2)) + (w / 2) - 4.5
+                }
+
+            }else if (prentId == 'dataMappingBox2') {
+                max = 65;
+                min = 45;
+                // units = 'H'
+                units = ''
+
+                triangleBox = $parent.find('.triangleBox[gridLimitType="' + type + '"]')
+                w = $parent.find('.dataMapping').width()
+                left = ((val - min) / (max - min)) * 950 - 4.5
+            }
+
+
+            triangleBox = $parent.find('.triangleBox[gridLimitType="' + type + '"]')
+
+            if (left < 0) left = 0;
+            if(left > 930) left = 930;
+
+            triangleBox.css({
+                'left': left + 'px',
+            });
+
+            let title =  $parent.find('.triangleBox[gridLimitType="' + type + '"] span:first')
+            title.text(val + units)
+
+            let title2 =  $parent.find('.triangleBox[gridLimitType="' + type + '"] span:eq(1)')
+            title2.text(label)
+
+            triangleBox.fadeIn()
+        })
+    }
+
+})(jQuery);

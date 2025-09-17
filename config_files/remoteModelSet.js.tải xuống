@@ -1,0 +1,211 @@
+$(document).ready(function() {
+	$('#batteryTypeModelInput').change(function() {
+		var batteryType = $('#batteryTypeModelInput').val();
+		$leadAcidTypeModelInput = $('#leadAcidTypeModelInput');
+		$lithiumTypeModelInput = $('#lithiumTypeModelInput');
+		if(batteryType == 1) {
+			$lithiumTypeModelInput.val("-1");
+			$lithiumTypeModelInput.attr('disabled', 'disabled');
+			$leadAcidTypeModelInput.removeAttr('disabled');
+
+			$('.leadAcidBatteryParamHolder').show();
+
+			$('.lithiumBrandBox').hide()
+
+			$('.lithiumHide').fadeIn()
+			$('.customTitle').fadeIn()
+			$('.customTitleContent').text('Lead-acid battery setting')
+		} else if(batteryType == 2) {
+			$leadAcidTypeModelInput.attr('disabled', 'disabled');
+			$lithiumTypeModelInput.removeAttr('disabled');
+
+			$('.leadAcidBatteryParamHolder').hide();
+			$('.customTitleContent').text('Lithium-ion battery setting')
+
+			if(!isGTECPlatform || isAdmin) {
+				$('.lithiumBrandBox').fadeIn()
+			} else {
+				$('.lithiumBrandBox').hide()
+			}
+
+			$('.lithiumHide').hide()
+			$('.customTitle').fadeIn()
+
+		} else {
+			$leadAcidTypeModelInput.attr('disabled', 'disabled');
+			$lithiumTypeModelInput.val("-1");
+			$lithiumTypeModelInput.attr('disabled', 'disabled');
+			
+			$('.leadAcidBatteryParamHolder').hide();
+
+			$('.lithiumBrandBox').hide()
+
+			$('.lithiumHide').hide()
+			$('.customTitle').hide()
+		}
+		if(currentDeviceType == 0 && currentPhase == 3 && batteryType == 1) {
+			$('.isPhase3Leadacid').show()
+		} else {
+			$('.isPhase3Leadacid').hide()
+		}
+	});
+	
+	if(currentSetPageType == 'remoteSetOffGrid' || currentSetPageType == 'workingMode2_OffGrid') {
+		$('#leadAcidTypeModelInput').change(function() {
+			var leadAcidType = $('#leadAcidTypeModelInput').val();
+			if(leadAcidType == 31) {
+				$('.customBatteryCapacity').fadeIn();
+			} else {
+				$('.customBatteryCapacity').fadeOut();
+			}
+		});
+	}
+	if(currentSetPageType == 'remoteSet' || currentSetPageType == 'remoteSet12K' || currentSetPageType == 'workingMode2_Hybrid' || currentSetPageType == "workingMode2_12K") {
+		$('#measurementModelInput').change(function() {
+			var measurementModel = $('#measurementModelInput').val();
+			$('#noSetParamsModel').show()
+			$('#setParamsModel').hide()
+			if(measurementModel == 1 && (!isViewer || currentDeviceType == 6)) {
+				$('#wirelessMeterModelInput').attr('disabled', 'disabled');
+				$('#wirelessMeterModelInputHolder').hide();
+				$('#meterBrandModelInput').attr('disabled', 'disabled');
+				$('#meterBrandModelInputHolder').hide();
+				$('#meterTypeModelInput').attr('disabled', 'disabled');
+				$('#meterTypeModelInputHolder').hide();
+				$('#ctSampleRatioInput').removeAttr('disabled');
+				$('.ctParamSetHolder').fadeIn();
+				if(currentDeviceType == 0 && currentPhase == 3) {
+					$('.ctParamSetHolder[phase3NotShow="true"]').hide();
+					$('.ctParamSetHolder[phase3Show="true"]').show();
+				} else {
+					$('.ctParamSetHolder[phase3NotShow="true"]').show();
+					$('.ctParamSetHolder[phase3Show="true"]').hide();
+				}
+			} else if(measurementModel == 0) {
+				$('#noSetParamsModel').hide()
+				$('#setParamsModel').show()
+				$('#ctSampleRatioInput').attr('disabled', 'disabled');
+				$('.ctParamSetHolder').hide();
+				if(!(currentPhase == 3 && currentDeviceType == 0)) {			//Trip 12K...
+					$('#meterTypeModelInput').removeAttr('disabled');
+					$('#meterTypeModelInputHolder').fadeIn();
+				}
+				$('#meterBrandModelInput').removeAttr('disabled');
+				$('#meterBrandModelInputHolder').fadeIn();
+				
+				if(checkHybridFirmware20240811()) {
+					$('#wirelessMeterModelInput').removeAttr('disabled');
+					$('#wirelessMeterModelInputHolder').fadeIn();
+				} else {
+					$('#wirelessMeterModelInput').attr('disabled', 'disabled');
+					$('#wirelessMeterModelInputHolder').hide();
+				}
+			} else {
+				$('#meterTypeModelInput').attr('disabled', 'disabled');
+				$('#meterTypeModelInputHolder').hide();
+				$('#meterBrandModelInput').attr('disabled', 'disabled');
+				$('#meterBrandModelInputHolder').hide();
+				$('#wirelessMeterModelInput').attr('disabled', 'disabled');
+				$('#wirelessMeterModelInputHolder').hide();
+				$('#ctSampleRatioInput').attr('disabled', 'disabled');
+				$('.ctParamSetHolder').hide();
+			}
+			if(currentDeviceType == 2 && (((currentStandard == 'BAAA' || currentStandard == 'bAAA') && currentSlaveVersion >= 0x1B && currentFwVersion >= 0x1A) || ((currentStandard == 'BAAB' || currentStandard == 'bAAB') && currentSlaveVersion >= 0x0D && currentFwVersion >= 0x0B))) {
+				$('#wirelessMeterModelInputHolder').show()
+				$('#wirelessMeterModelInput').removeAttr('disabled')
+				$('#pvctSampleRatioInput').append('<option id="pvctSampleRatioInputrOption" value="2">1/2000</option>')
+			} else {
+				$('#pvctSampleRatioInputOption').remove()
+			}
+			if((currentSetPageType == 'remoteSet' || currentSetPageType == 'workingMode2_Hybrid') && currentDeviceType == 2) {
+				refreshMeterParamters();
+			}
+		});
+	}
+});
+
+function ctReverse(element, key) {
+	let value = false
+	if(!$(element).hasClass('btn-success')) {
+		$(element).addClass('btn-success')
+		value = true
+	} else {
+		$(element).removeClass('btn-success')
+		value = false
+	}
+	$.post(baseUrl + '/web/maintain/remoteSet/functionControl', {
+		inverterSn: $('#inverterSearchInput').combogrid('getValue'), functionParam: key, enable: value, clientType: 'WEB', remoteSetType: 'NORMAL' }, function(response) {
+		if(response.success) {
+			alert(controlResultSuccessText);
+		} else {
+			showPostWriteFailReason(response);
+		}
+	}, 'json');
+}
+
+function writeModel() {
+	var wirelessMeter = $('#wirelessMeterModelInput').val();
+	var meterType = $('#meterTypeModelInput').val();
+	var usVersion = $('#usVersionModelInput').val();
+	var meterBrand = $('#meterBrandModelInput').val();
+	var measurement = $('#measurementModelInput').val();
+	var ruleMask = $('#ruleMaskModelInput').val();
+	var batteryType = $('#batteryTypeModelInput').val();
+	var leadAcidType = $('#leadAcidTypeModelInput').val();
+	var lithiumType = $('#lithiumTypeModelInput').val();
+	var powerRating = $('#powerRatingModelInput').val();
+	var rule = $('#ruleModelInput').val();
+	if(wirelessMeter < 0 || meterType < 0 || usVersion < 0 || meterBrand < 0 || measurement < 0 || ruleMask < 0 || batteryType < 0 || powerRating < 0 || rule < 0
+			|| (batteryType == 1 && (!leadAcidType || leadAcidType < 0)) || (batteryType == 2 && (!lithiumType || lithiumType < 0))) {
+		alert(paramEmptyAlertText);
+		return;
+	}
+	
+	var inverterSn = $('#inverterSearchInput').combogrid('getValue');
+	
+	$.post(baseUrl + '/web/maintain/remoteSet/writeModel', {
+			inverterSn: inverterSn,
+			wirelessMeter: wirelessMeter,
+			meterType: meterType,
+			usVersion: usVersion,
+			meterBrand: meterBrand,
+			measurement: measurement,
+			ruleMask: ruleMask,
+			batteryType: batteryType,
+			leadAcidType: leadAcidType,
+			lithiumType: lithiumType,
+			powerRating: powerRating,
+			rule: rule,
+			clientType: 'WEB',
+			remoteSetType: 'NORMAL' }, function(response) {
+		showPostWriteResult(response);
+	}, 'json');
+}
+
+function writeModel2() {
+	var wirelessMeter = $('#wirelessMeterModelInput').val();
+	var meterType = $('#meterTypeModelInput').val();
+	var meterBrand = $('#meterBrandModelInput').val();
+	var measurement = $('#measurementModelInput').val();
+	if((meterType < 0 && $('#meterTypeModelInputHolder').is(':visible')) || meterBrand < 0 || measurement < 0) {
+		alert(paramEmptyAlertText);
+	 	return;
+	}
+
+	var inverterSn = $('#inverterSearchInput').combogrid('getValue');
+	let form = {
+		inverterSn: inverterSn,
+		meterBrand: meterBrand,
+		measurement: measurement,
+		clientType: 'WEB',
+		remoteSetType: 'NORMAL'
+	}
+	if($('#meterTypeModelInputHolder').is(':visible')) {
+		form.meterType = meterType
+	}
+
+	$.post(baseUrl + '/web/maintain/remoteSet/writeModel', form, function(response) {
+		showPostWriteResult(response);
+	}, 'json');
+}
+

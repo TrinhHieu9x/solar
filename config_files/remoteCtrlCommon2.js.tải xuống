@@ -1,0 +1,1139 @@
+$(document).ready(function() {
+	$('.setToggleHolder').click(function() {
+		var $setToggleButton = $(this).find('.setToggleButton');
+		var $targetId = $('#' + $setToggleButton.attr('id') + 'Target');
+
+		if($targetId.is(':visible')) {
+			$targetId.slideUp();
+			$setToggleButton.attr('src', resourceBaseUrl + '/web/img/maintain/ic_action_collapse.png');
+		} else {
+			$targetId.slideDown();
+			$setToggleButton.attr('src', resourceBaseUrl + '/web/img/maintain/ic_action_expand.png');
+		}
+	});
+
+	//Reset Modal
+	$('#resetConfirmModalSubmit').click(function() {
+		resetParamValue($('#resetConfirmTextModal').data('buttonId'));
+		$('#resetConfirmModal').modal('hide');
+	});
+
+	$('#resetConfirmModal').on('hidden.bs.modal', function (e) {
+		$('#resetConfirmTextModal').text('').removeData();
+	});
+
+	//Action notice
+	$('#actionNoticeModal').on('hidden.bs.modal', function (e) {
+		$('#actionNoticeTextHolder').text('');
+		$('#actionNoticeModalSubmit').attr('onclick', 'javascript:void();');
+	});
+});
+
+function writeG98ParamValue(button) {
+	$.post(baseUrl + '/web/maintain/remoteSet/writeG98ValueForINF01', {
+			inverterSn: $('#inverterSearchInput').combogrid('getValue'),
+			clientType: 'WEB',
+			remoteSetType: 'NORMAL' }, function(response) {
+		showPostWriteResult(response);
+	}, 'json');
+}
+
+function writeParamValue(button, index) {
+	var $paramSetHolder = $(button).parent();
+	var $valueInput = $paramSetHolder.find('input');
+	var $valueSelect =  $paramSetHolder.find('select');
+	index === 1 ? $valueInput =  $paramSetHolder.find('input:eq(' + index + ')') : $valueInput = $paramSetHolder.find('input')
+	var valueText = $valueInput.val() || $valueSelect.val();
+	if(!valueText) {
+		alert(paramEmptyAlertText);
+		return;
+	}
+
+	/*	if($valueInput.is('[intCheck]')) {
+            if(!valueText.search('0x') == 0 && !checkAllInt(valueText)) {
+                alert(paramShouldIntText);
+                return;
+            }
+        }
+
+        if($valueInput.is('[floatCheck]')) {
+            if(!checkFloat(valueText)) {
+                alert(paramShouldFloatText);
+                return;
+            }
+        }	*/
+
+	if($valueInput.is('[characterCheck]')) {
+		for(var i = 0; i < valueText.length; i++) {
+			var c = valueText.charCodeAt(i);
+			if(!(c >= 0x41 && c <= 0x5A) && !(c >= 0x61 && c <= 0x7A)) {
+				alert(paramShouldCharText);
+				return;
+			}
+		}
+	}
+
+	var isBitParam = $valueInput.is('input[bitParam]');
+
+	var selctHoldParm = $valueSelect.is('select[holdParam]')
+
+	var paramName = isBitParam ? $valueInput.attr('bitParam') : $valueInput.attr('holdParam') || $valueSelect.attr('holdParam');
+//	var validType = $valueInput.attr('validType');
+
+//	switch(validType) {
+//		case 'range': {
+//			var min = $valueInput.is('[min]') ? $valueInput.attr('min') : 0;
+//			var max = $valueInput.attr('max');
+//			if(parseFloat(valueText) < min || parseFloat(valueText) > max) {
+//				alert(paramOutRangeText + ': [' + min + ', ' + max + ']');
+//				return;
+//			}
+//			break;
+//		}
+//	}
+
+	if($valueInput.is('[opposite]')) {
+		valueText = -parseFloat(valueText)
+	}
+
+	if($valueInput.is('[time]')) {
+		valueText = Math.round(parseFloat(valueText) * parseInt($valueInput.attr('time')));
+	}
+
+	if($valueInput.is('[offset]')) {
+		valueText = parseFloat(valueText) + parseInt($valueInput.attr('offset'));
+	}
+
+	var inverterSn = (currentSetPageType != 'workingMode' ? $('#inverterSearchInput').combogrid('getValue') : currentSerialNum);
+	if(isBitParam) {
+		postBitParamWrite(inverterSn, paramName, valueText);
+	} else {
+		postWrite(inverterSn, paramName, valueText);
+	}
+}
+
+function holdFunctionControl(button, valueText) {
+	var $button = $(button);
+	var inverterSn = $('#inverterSearchInput').combogrid('getValue');
+	var holdParam = $button.parents('.paramSetHolder').attr('holdParam');
+
+	$button.parent('div').find('button').each(function(index, element) {
+		if($(element).hasClass('btn-success')) {
+			$(element).addClass('btn-default').removeClass('btn-success');
+		}
+	});
+
+	$.post(baseUrl + '/web/maintain/remoteSet/write', {
+		inverterSn: inverterSn,
+		holdParam: holdParam,
+		valueText: valueText,
+		clientType: 'WEB',
+		remoteSetType: 'NORMAL' }, function(response) {
+		if(response.success) {
+			$button.addClass('btn-success').removeClass('btn-default');
+			alert(controlResultSuccessText);
+		} else {
+			showPostWriteFailReason(response);
+		}
+	}, 'json');
+}
+
+function postWrite(inverterSn, holdParam, valueText) {
+	$.post(baseUrl + '/web/maintain/remoteSet/write', {
+			inverterSn: inverterSn,
+			holdParam: holdParam,
+			valueText: valueText,
+			clientType: 'WEB',
+			remoteSetType: 'NORMAL' }, function(response) {
+		if(currentSetPageType == 'remoteSetOffGrid' && holdParam == '_12K_HOLD_LEAD_CAPACITY') {
+			if(response.success) {
+				writeModel();
+			} else {
+				showPostWriteFailReason(response);
+			}
+		} else {
+			showPostWriteResult(response);
+		}
+	}, 'json');
+}
+
+function functionControl(button, enable) {
+	//FUNC_FORCED_DISCHG_EN 和 FUNC_PV_SELL_TO_GRID_EN只能使能一个
+	functionControlByBtnElement($(button), enable);
+}
+
+function functionControlByBtnId(buttonId, enable) {
+	functionControlByBtnElement($('#' + buttonId), enable);
+}
+
+function functionControlByBtnElement($button, enable) {
+	var functionParam = $button.parents('.paramSetHolder').attr('functionParam');
+	$button.parent('div').find('button').each(function(index, element) {
+		if($(element).hasClass('btn-success')) {
+			$(element).addClass('btn-default').removeClass('btn-success');
+		}
+	});
+
+	if (functionParam == "FUNC_BATTERY_BACKUP_CTRL" && enable && acChargeAccoEnable && currentDeviceType != 3 && currentDeviceType != 11) {
+		alert("operation failure");
+		return
+	}
+
+	if (functionParam == "FUNC_AC_CHARGE" && enable && backupModeEnable) {
+		alert("operation failure");
+		return;
+	}
+
+	var inverterSn = (currentSetPageType != 'workingMode' ? $('#inverterSearchInput').combogrid('getValue') : currentSerialNum);
+	$.post(baseUrl + '/web/maintain/remoteSet/functionControl', {
+		inverterSn: inverterSn, functionParam: functionParam, enable: enable, clientType: 'WEB', remoteSetType: 'NORMAL' }, function(response) {
+			if(response.success) {
+				checkEnableState(functionParam, enable)
+				$button.addClass('btn-success').removeClass('btn-default');
+				alert(controlResultSuccessText);
+				if (isSnaSeries()) {
+					if(functionParam == 'FUNC_SNA_BAT_DISCHARGE_CONTROL') {
+						if(enable) {
+							$('.disChgSocEnable').removeAttr('disabled');
+							$('.disChgVoltEnable').attr('disabled', 'disabled');
+
+							$('.cardVoltDisEnable').addClass('cardDisable');
+							$('.cardSocDisEnable').removeClass('cardDisable')
+
+							$('.disSocTitle').removeClass('disabledTitle')
+							$('.disVoltTitle').addClass('disabledTitle')
+						} else {
+							$('.disChgVoltEnable').removeAttr('disabled');
+							$('.disChgSocEnable').attr('disabled', 'disabled');
+
+							$('.cardVoltDisEnable').removeClass('cardDisable')
+							$('.cardSocDisEnable').addClass('cardDisable')
+
+							$('.disVoltTitle').removeClass('disabledTitle')
+							$('.disSocTitle').addClass('disabledTitle')
+						}
+					}
+				}
+
+				if(currentDeviceType == 6 || currentDeviceType == 7 || (currentDeviceType == 0 && currentPhase == 3) || currentDeviceType == 8 || currentDeviceType == 9 || isHybird()) {
+						if(functionParam == 'FUNC_BAT_CHARGE_CONTROL') {
+							if(enable) {
+								$('.chgVoltEnable').removeAttr('disabled');
+								$('.chgSocEnable').attr('disabled', 'disabled');
+
+								$('.cardVoltEnable').removeClass('cardDisable')
+								$('.cardSocEnable').addClass('cardDisable')
+
+								$('.voltTitle').removeClass('disabledTitle');
+								$('.socTitle').addClass('disabledTitle')
+						} else {
+							$('.chgSocEnable').removeAttr('disabled');
+							$('.chgVoltEnable').attr('disabled', 'disabled');
+
+							$('.cardSocEnable').removeClass('cardDisable');
+							$('.cardVoltEnable').addClass('cardDisable')
+
+							$('.socTitle').removeClass('disabledTitle');
+							$('.voltTitle').addClass('disabledTitle')
+						}
+					}
+					if(functionParam == 'FUNC_BAT_DISCHARGE_CONTROL') {
+						if(enable) {
+							$('.disChgVoltEnable').removeAttr('disabled');
+							$('.disChgSocEnable').attr('disabled', 'disabled');
+
+							$('.cardVoltDisEnable').removeClass('cardDisable')
+							$('.cardSocDisEnable').addClass('cardDisable')
+
+							$('.disVoltTitle').removeClass('disabledTitle')
+							$('.disSocTitle').addClass('disabledTitle')
+						} else {
+							$('.disChgSocEnable').removeAttr('disabled');
+							$('.disChgVoltEnable').attr('disabled', 'disabled');
+
+							$('.cardVoltDisEnable').addClass('cardDisable');
+							$('.cardSocDisEnable').removeClass('cardDisable')
+
+							$('.disSocTitle').removeClass('disabledTitle')
+							$('.disVoltTitle').addClass('disabledTitle')
+						}
+					}
+				}
+
+				if (functionParam == 'FUNC_BATTERY_BACKUP_CTRL') {
+					if(enable) {
+						$('#powerBackupEnable').addClass('ban')
+					} else {
+						$('#powerBackupEnable').removeClass('ban')
+					}
+
+					refreshBatteryBackupEnableView(enable)
+				}
+
+				if(functionParam == 'FUNC_RETAIN_STANDBY') {
+					if(enable) {
+						$('#offlineTimeoutInput').removeAttr('disabled');
+					} else {
+						$('#offlineTimeoutInput').attr('disabled', 'disabled');
+					}
+				}
+
+				//For mode time range chart...
+				if(functionParam == 'FUNC_AC_CHARGE') {
+					acChargeAccoEnable = enable;
+					refreshAcChargeEnableView(enable)
+					recoveryAllModeArrays();
+					refreshModeTimeChart(true);
+				} else if(functionParam == 'FUNC_FORCED_CHG_EN') {
+					chargeFirstEnable = enable;
+					recoveryAllModeArrays();
+					refreshModeTimeChart(true);
+				} else if(functionParam == 'FUNC_FORCED_DISCHG_EN') {
+					forceDischargeOrSellToGridEnable = enable;
+					recoveryAllModeArrays();
+					refreshModeTimeChart(true);
+				} else if(functionParam == 'FUNC_GRID_PEAK_SHAVING') {
+					peakShavingEnable = enable;
+					recoveryAllModeArrays();
+					refreshModeTimeChart(true);
+				} else if(functionParam == 'FUNC_BATTERY_BACKUP_CTRL') {
+					backupModeEnable = enable;
+					recoveryAllModeArrays();
+					refreshModeTimeChart(true);
+				}
+			} else {
+				showPostWriteFailReason(response);
+			}
+	}, 'json');
+}
+
+function refreshAcChargeEnableView(enable){
+
+	$('div[functionParam="FUNC_AC_CHARGE"] button').each(function(index, element) {
+		if($(element).hasClass('btn-success')) {
+			$(element).addClass('btn-default').removeClass('btn-success');
+		}
+	});
+	$('div[functionParam="FUNC_AC_CHARGE"] button[onclick*="' + enable + '"]').addClass('btn-success').removeClass('btn-default');
+	if (enable) checkEnableState('FUNC_AC_CHARGE' , true)
+	if (enable == false) checkEnableState('FUNC_AC_CHARGE' , false)
+}
+
+function refreshBatteryBackupEnableView(enable) {
+	$('div[functionParam="FUNC_BATTERY_BACKUP_CTRL"] button').each(function(index, element) {
+		if($(element).hasClass('btn-success')) {
+			$(element).addClass('btn-default').removeClass('btn-success');
+		}
+	});
+	$('div[functionParam="FUNC_BATTERY_BACKUP_CTRL"] button[onclick*="' + enable + '"]').addClass('btn-success').removeClass('btn-default');
+}
+
+function recoveryAllModeArrays() {
+	modeTimeData.acChargeAcco = (acChargeAccoEnable ? deepCopyObjArray(modeTimeData.acChargeAccoBackup) : []);
+	modeTimeData.chargeFirst = (chargeFirstEnable ? deepCopyObjArray(modeTimeData.chargeFirstBackup) : []);
+	modeTimeData.forceDischargeOrSellToGrid = (forceDischargeOrSellToGridEnable ? deepCopyObjArray(modeTimeData.forceDischargeOrSellToGridBackup) : []);
+	modeTimeData.peakShaving = (peakShavingEnable ? deepCopyObjArray(modeTimeData.peakShavingBackup) : []);
+	modeTimeData.backupMode = (backupModeEnable ? deepCopyObjArray(modeTimeData.backupModeBackup) : []);
+}
+
+function writeParamCombo(button) {
+	var $paramSetHolder = $(button).parent();
+	var $valueCombo = $paramSetHolder.find('select[holdParam]');
+
+	var valueText = $valueCombo.val();
+	var holdParam = $valueCombo.attr('holdParam');
+
+	var inverterSn = (currentSetPageType != 'workingMode' ? $('#inverterSearchInput').combogrid('getValue') : currentSerialNum);
+	postWrite(inverterSn, holdParam, valueText);
+}
+
+function writeParamBitCombo(button, needAlert=true) {
+	var $paramSetHolder = $(button).parent();
+	var $valueCombo = $paramSetHolder.find('select[bitParam]');
+
+	var value = $valueCombo.val();
+	var bitParam = $valueCombo.attr('bitParam');
+
+	var inverterSn = (currentSetPageType != 'workingMode' ? $('#inverterSearchInput').combogrid('getValue') : currentSerialNum);
+	postBitParamWrite(inverterSn, bitParam, value, needAlert);
+}
+
+function postBitParamWrite(inverterSn, bitParam, value, needAlert) {
+	$.post(baseUrl + '/web/maintain/remoteSet/bitParamControl', {
+			inverterSn: inverterSn,
+			bitParam: bitParam,
+			value: value,
+			clientType: 'WEB',
+			remoteSetType: 'NORMAL' }, function(response) {
+		if (response.success){
+			checkEnableState(bitParam, value)
+			//For mode time range chart...
+			if(currentSetPageType == 'workingMode2_OffGrid') {
+				if(bitParam == 'BIT_AC_CHARGE_TYPE') {
+					acChargeAccoEnable = (value == 1 || value == 4 || value == 5);
+					refreshAcChargeEnableView(acChargeAccoEnable)
+					recoveryAllModeArrays();
+					refreshModeTimeChart(true);
+
+				}
+			}
+		}
+
+		needAlert && showPostWriteResult(response);
+	}, 'json');
+}
+
+function writeParamModelBitCombo(button) {
+	var $paramSetHolder = $(button).parent();
+	var $valueCombo = $paramSetHolder.find('select[modelBitParam]');
+
+	var value = $valueCombo.val();
+	var modelBitParam = $valueCombo.attr('modelBitParam');
+
+	var meterParams = checkMeterParameters(modelBitParam);
+	if (!meterParams) return;
+
+	var inverterSn = $('#inverterSearchInput').combogrid('getValue');
+	$.post(baseUrl + '/web/maintain/remoteSet/bitModelParamControl', {
+			inverterSn: inverterSn,
+			modelBitParam: modelBitParam,
+			value: value,
+			clientType: 'WEB',
+			remoteSetType: 'NORMAL' }, function(response) {
+		showPostWriteResult(response);
+	}, 'json');
+}
+
+function writeModelMeasurementMeterBrand() {
+	var data = {}
+	
+	var measurement = $('#measurementModelInput').val();
+	if(measurement >= 0) {
+		data.MODEL_BIT_MEASUREMENT = measurement;
+	}
+	
+	if(measurement == 0) {
+		var meterBrand = $('#meterBrandModelInput').val();
+		if(meterBrand >= 0) {
+			data.MODEL_BIT_METER_BRAND = meterBrand;
+		}
+		var meterTypeModelInput = $('#meterTypeModelInput').val();
+		let selectedText = $('#meterBrandModelInput option[value="' + $('#meterBrandModelInput').val() + '"]').text()
+		if(meterTypeModelInput >= 0 && $('#meterTypeModelInput').is(':visible')) {
+			data.MODEL_BIT_METER_TYPE = meterTypeModelInput;
+		}
+	}
+	
+	writePartModel(data);
+}
+
+function writePartModel(data) {
+	var inverterSn = $('#inverterSearchInput').combogrid('getValue');
+	data.inverterSn = inverterSn;
+	data.clientType = 'WEB';
+	data.remoteSetType = 'NORMAL';
+	
+	$.ajax({
+		url: baseUrl + '/web/maintain/remoteSet/writePartModel',
+		type: 'POST',
+		data: JSON.stringify({...data}),
+		contentType: 'application/json; charset=utf-8',
+		dataType: 'json',
+		success: function(response) {
+			showPostWriteResult(response);
+		}
+	});
+}
+
+function writeHardRest(button) {
+	var $paramSetHolder = $(button).parent();
+	var $value = $paramSetHolder.find('select');
+
+	var value = $value.val();
+
+	var inverterSn = $('#inverterSearchInput').combogrid('getValue');
+	$.post(baseUrl + '/web/maintain/remoteSet/writeModelByDeviceType', {
+		inverterSn: inverterSn,
+		deviceType: value,
+		clientType: 'WEB',
+		remoteSetType: 'NORMAL'}, function(response) {
+		showPostWriteResult(response);
+	}, 'json');
+}
+
+function resetParamModal(button) {
+	var $button = $(button);
+	$('#resetConfirmTextModal').text($button.parents('.paramSetHolder').find('label').text()).data('buttonId', $button.attr('id'));
+	$('#resetConfirmModal').find('.modal-title').text($button.text());
+	$('#resetConfirmModalSubmit').text($button.text()).attr('data-loading-text', $button.text() + '&hellip;');
+	$('#resetConfirmModal').modal();
+}
+
+function resetParamValue(buttonId) {
+	var $resetButton = $('#' + buttonId);
+	var resetParam = $resetButton.attr('resetParam');
+
+	var inverterSn = (currentSetPageType != 'workingMode' ? $('#inverterSearchInput').combogrid('getValue') : currentSerialNum);
+	$.post(baseUrl + '/web/maintain/remoteSet/reset', {
+		inverterSn: inverterSn,
+		resetParam: resetParam,
+		clientType: 'WEB',
+		remoteSetType: 'NORMAL' }, function(response) {
+			if(response.success) {
+				alert(resetResultSuccessText);
+			} else {
+				showPostWriteFailReason(response);
+			}
+	}, 'json');
+}
+
+function writeTimeParamValue(button, needAlert=true) {			//Write hour and minute
+	var $paramSetHolder = $(button).parent();
+	var $hourValueInput = $paramSetHolder.find('input.hour');
+	var $minuteValueInput = $paramSetHolder.find('input.minute');
+
+	// var $hourValueInput = $paramSetHolder.find('select.hour');
+	// var $minuteValueInput = $paramSetHolder.find('select.minute');
+
+	var hourValueText = $hourValueInput.val();
+	var minuteValueText = $minuteValueInput.val();
+
+	if(!hourValueText || !minuteValueText) {
+		alert(paramEmptyAlertText);
+		return;
+	}
+
+	if((!hourValueText.search('0x') == 0 && !checkInt(hourValueText))
+			|| (!minuteValueText.search('0x') == 0 && !checkInt(minuteValueText))) {
+		alert(paramShouldIntText);
+		return;
+	}
+
+	if(parseFloat(hourValueText) < 0 || parseFloat(hourValueText) > 23) {
+		alert(paramOutRangeText + ': [0, 23]');
+		return;
+	}
+
+	if(parseFloat(minuteValueText) < 0 || parseFloat(minuteValueText) > 59) {
+		alert(paramOutRangeText + ': [0, 59]');
+		return;
+	}
+
+	var inverterSn = (currentSetPageType != 'workingMode' ? $('#inverterSearchInput').combogrid('getValue') : currentSerialNum);
+	var timeParam = $(button).attr('timeParam');
+	return new Promise(resolve => {
+		$.post(baseUrl + '/web/maintain/remoteSet/writeTime', {
+			inverterSn: inverterSn,
+			timeParam: timeParam,
+			hour: hourValueText,
+			minute: minuteValueText,
+			clientType: 'WEB',
+			remoteSetType: 'NORMAL' }, function(response) {
+			updateTimeEcharts(button, response);
+			response.success = true
+			if(response.success) {
+				needAlert && alert(setResultSuccessText);
+				switch(timeParam) {
+					case 'HOLD_AC_CHARGE_START_TIME':
+					case 'HOLD_AC_CHARGE_END_TIME':
+					case 'HOLD_AC_CHARGE_START_TIME_1':
+					case 'HOLD_AC_CHARGE_END_TIME_1':
+					case 'HOLD_AC_CHARGE_START_TIME_2':
+					case 'HOLD_AC_CHARGE_END_TIME_2':
+						analyzeAcChargeAccoTimeRange();
+						refreshModeTimeChart(true);
+						break;
+					case 'HOLD_FORCED_CHARGE_START_TIME':
+					case 'HOLD_FORCED_CHARGE_END_TIME':
+					case 'HOLD_FORCED_CHARGE_START_TIME_1':
+					case 'HOLD_FORCED_CHARGE_END_TIME_1':
+					case 'HOLD_FORCED_CHARGE_START_TIME_2':
+					case 'HOLD_FORCED_CHARGE_END_TIME_2':
+						analyzeChargeFirstTimeRange();
+						refreshModeTimeChart(true);
+					case 'HOLD_FORCED_DISCHARGE_START_TIME':
+					case 'HOLD_FORCED_DISCHARGE_END_TIME':
+					case 'HOLD_FORCED_DISCHARGE_START_TIME_1':
+					case 'HOLD_FORCED_DISCHARGE_END_TIME_1':
+					case 'HOLD_FORCED_DISCHARGE_START_TIME_2':
+					case 'HOLD_FORCED_DISCHARGE_END_TIME_2':
+					case 'HOLD_AC_FIRST_START_TIME':
+					case 'HOLD_AC_FIRST_END_TIME':
+					case 'HOLD_AC_FIRST_START_TIME_1':
+					case 'HOLD_AC_FIRST_END_TIME_1':
+					case 'HOLD_AC_FIRST_START_TIME_2':
+					case 'HOLD_AC_FIRST_END_TIME_2':
+						analyzeForceDischargeOrSellToGridTimeRange();
+						refreshModeTimeChart(true);
+					case 'HOLD_PEAK_SHAVING_START_TIME_1':
+					case 'HOLD_PEAK_SHAVING_END_TIME_1':
+					case 'HOLD_PEAK_SHAVING_START_TIME_2':
+					case 'HOLD_PEAK_SHAVING_END_TIME_2':
+						analyzePeakShavingTimeRange();
+						refreshModeTimeChart(true);
+					case 'FUNC_BATTERY_BACKUP_CTRL':
+						analyzeBackupModeTimeRange();
+						refreshModeTimeChart(true);
+					default:
+						break;
+				}
+			} else {
+				needAlert && showPostWriteFailReason(response);
+			}
+			resolve(true)
+		}, 'json');
+	})
+}
+
+function pageSwitching(val) {
+	$.post(baseUrl + '/web/system/user/useNewSettingPage', {
+		userId: userId,
+		useWorkingModePage: val,
+	}, function(response) {
+		showPostWriteResult(response);
+	}, 'json');
+}
+
+//切换各个模式状态
+async function checkEnableState(bitParam, value) {
+	if (bitParam == 'FUNC_BAT_DISCHARGE_CONTROL' && value){
+		const inputsAndButtons = $('#batchargeCtrolSoc1 input, #batchargeCtrolSoc1 button, #batchargeCtrolSoc2 input, #batchargeCtrolSoc2 button ');
+		inputsAndButtons.prop('disabled', true);
+		const span = $('#batchargeCtrolSoc1 span, #batchargeCtrolSoc2 span')
+		span.css('color','#9F9F9F')
+
+		const voltInputsAndButtons = $('#batchargeCtrolVolt1 input, #batchargeCtrolVolt1 button, #batchargeCtrolVolt2 input, #batchargeCtrolVolt2 button ');
+		voltInputsAndButtons.prop('disabled', false);
+		const voltSpan = $('#batchargeCtrolVolt1 span, #batchargeCtrolVolt2 span')
+		voltSpan.css('color','#333')
+	}
+	//设置Grid Peak-Shaving 区域的AC Charge类型状态
+	//SOC
+	if (bitParam == 'FUNC_BAT_DISCHARGE_CONTROL' && value == false){
+		const inputsAndButtons = $('#batchargeCtrolVolt1 input, #batchargeCtrolVolt1 button, #batchargeCtrolVolt2 input, #batchargeCtrolVolt2 button ');
+		inputsAndButtons.prop('disabled', true);
+		const span = $('#batchargeCtrolVolt1 span, #batchargeCtrolVolt2 span')
+		span.css('color','#9F9F9F')
+
+		const socInputsAndButtons = $('#batchargeCtrolSoc1 input, #batchargeCtrolSoc1 button, #batchargeCtrolSoc2 input, #batchargeCtrolSoc2 button ');
+		socInputsAndButtons.prop('disabled', false);
+		const socSpan = $('#batchargeCtrolSoc1 span, #batchargeCtrolSoc2 span')
+		socSpan.css('color','#333')
+	}
+
+	// 设置Ac Charge区域的AC Charge类型状态
+	// Volt
+	if (bitParam == 'FUNC_BAT_CHARGE_CONTROL' && value){
+		//previewItem
+		const acChargeSOC = $('#previewItem_acChargeSOC select, #previewItem_acChargeSOC p');
+		acChargeSOC.prop('disabled', true);
+		$('#previewItem_acChargeSOC').removeClass('active_previewItem')
+
+		const selectVolt = $('#previewItem_acChargeVolt select,  #previewItem_acChargeVolt p');
+		selectVolt.prop('disabled', false);
+		$('#previewItem_acChargeVolt').addClass('active_previewItem')
+
+		//time
+		const acChargeSocStop = $('#acChargeSocStop select, #acChargeSocStop button,#acChargeSocStop label');
+		acChargeSocStop.prop('disabled', true);
+		acChargeSocStop.css('color','#9F9F9F')
+
+		const acChargeVoltStop = $('#acChargeVoltStop select, #acChargeVoltStop button,#acChargeVoltStop label');
+		acChargeVoltStop.prop('disabled', false);
+		acChargeVoltStop.css('color','#333')
+	}
+
+	// 设置Ac Charge区域的AC Charge类型状态
+	// SOC
+	if (bitParam == 'FUNC_BAT_CHARGE_CONTROL' && value == false){
+
+		//previewItem
+		const acChargeSOC = $('#previewItem_acChargeSOC select, #previewItem_acChargeSOC p');
+		acChargeSOC.prop('disabled', false);
+		$('#previewItem_acChargeSOC').addClass('active_previewItem')
+
+		const selectVolt = $('#previewItem_acChargeVolt select,  #previewItem_acChargeVolt p');
+		selectVolt.prop('disabled', true);
+		$('#previewItem_acChargeVolt').removeClass('active_previewItem')
+
+		//time
+		// const acChargeSocStop = $('#acChargeSocStop select, #acChargeSocStop button,#acChargeSocStop label');
+		// acChargeSocStop.prop('disabled', false);
+		// acChargeSocStop.css('color','#333')
+		//
+		// const acChargeVoltStop = $('#acChargeVoltStop select, #acChargeVoltStop button,#acChargeVoltStop label');
+		// acChargeVoltStop.prop('disabled', true);
+		// acChargeVoltStop.css('color','#9F9F9F')
+
+	}
+
+	//Backup Mode (预设)
+	if (bitParam == 'FUNC_BATTERY_BACKUP_CTRL' && value) {
+		// $('#acChargeSOCVolt').hide()
+		// $('#acChargeTime_tab').fadeIn()
+		if(currentDeviceType == 3 || currentDeviceType == 11) {
+			$('#acChargeTypeInput').val('1')
+			$('#acChgStartHourInput2').val('00')
+			$('#acChgStartMinuteInput2').val('00')
+			$('#acChgEndHourInput2').val('23')
+			$('#acChgEndMinuteInput2').val('59')
+			writeParamBitCombo('.acChargeTypeSetBtn', false)
+			await writeTimeParamValue('.acChargeTime[timeparam="HOLD_AC_CHARGE_START_TIME_2"]', false)
+			await writeTimeParamValue('.acChargeTime[timeparam="HOLD_AC_CHARGE_END_TIME_2"]', false)
+			$('.acChargeTime').attr('disabled', 'disabled')
+		}
+		//禁掉acCharge的设置项
+		const acChargeItem = $('.acChangeModeItem input, .acChangeModeItem button, .acChangeModeItem label');
+		acChargeItem.prop('disabled', true);
+		acChargeItem.css('color', '#9F9F9F');
+
+		// const backupMode = $('#acChargeSocStop .backupModeToDisAcChargeItem, #acChargeSocStop input, #acChargeSocStop button');
+		// backupMode.prop('disabled', true);
+		// backupMode.css('color','#9F9F9F')
+		//
+		// const backupMode2 = $('#acChargeVoltStop .backupModeToDisAcChargeItem, #acChargeVoltStop input, #acChargeVoltStop button');
+		// backupMode2.prop('disabled', true);
+		// backupMode2.css('color','#9F9F9F')
+
+		// //隐藏T2、T3
+		// const timeBox = $('#powerBackupEnable .previewItem_time>input');
+
+		//禁用Ac charge base on
+		$('.acChargeBaseOn lable').css('color','#9F9F9F')
+		$('.acChargeBaseOn select').prop('disabled', true);
+		$('.acChargeBaseOn button').prop('disabled', true);
+		$('.acChargeBaseOn button').css('color','rgb(159, 159, 159)')
+
+		// $(".backupModeToDisAcChargeItem").css('color','rgb(159, 159, 159)')
+
+		//放开ac charge Power(KW)
+		const acChargePower = $('.acChangeModeToDisBackupItem input, .acChangeModeToDisBackupItem button, .acChangeModeToDisBackupItem label');
+		acChargePower.prop('disabled', false);
+		acChargePower.css('color','#333')
+		$('.acChangeModeToDisBackupItem lable').css('color','#333')
+
+		//更新饼图
+//		batteryPrioritOptionData = [
+//			{ value: 1, name: 'Charge First Time1', timeStartHour1:0, timeStartMinute1:0, timeStartHour2:0, timeStartMinute2:0, itemStyle: { color: '#1FA76E' } },
+//		]
+//		updateEcharts(batteryPrioritOptionData, batteryPrioritTimannulusChart)
+	}
+
+	//Backup Mode (不预设)
+	if (bitParam == 'FUNC_BATTERY_BACKUP_CTRL' && value == false){
+		if(currentDeviceType == 3 || currentDeviceType == 11) {
+			$('.acChargeTime,.acChargeTypeSetBtn,#acChargeTypeInput').removeAttr('disabled').css('color','#333')
+		}
+		const timeBox = $('#powerBackupEnable .previewItem_time').not(':first');
+		timeBox.fadeIn()
+
+		//显示Ac charge base on
+		const acCharge = $('.acChargeBaseOn').fadeIn()
+
+		//禁掉backup的设置项
+		const acChargePower = $('.acChangeModeToDisBackupItem input, .acChangeModeToDisBackupItem button, .acChangeModeToDisBackupItem label');
+		acChargePower.prop('disabled', true);
+		acChargePower.css('color', '#9F9F9F');
+
+
+		// const  batteryPriorityStopSoc = $('input[holdparam="HOLD_AC_CHARGE_SOC_LIMIT"]');
+		// batteryPriorityStopSoc.val('')
+
+		// const  batteryPriorityStopVolt = $('input[holdparam="HOLD_AC_CHARGE_END_BATTERY_VOLTAGE"]');
+		// batteryPriorityStopVolt.val('')
+
+		// const option = $('#powerBackupEnable .previewItem_time lable, #powerBackupEnable .previewItem_time input,#powerBackupEnable .previewItem_time button');
+		// option.prop('disabled', false);
+		// backupMode.css('color','#333')
+		// option.removeClass('timeTogether_disable')
+
+		const timeBtn = $('#powerBackupEnable .previewItem_time button');
+		timeBtn.prop('disabled', false);
+
+
+		if ($('.forcedChgSOCLimitInputLable').attr('class') && $('.forcedChgSOCLimitInputLable').attr('class').indexOf('disabledTitle') !== -1){
+			$('#forcedChgSOCLimitInput').prop('disabled', true)
+			$('.forcedChgSOCLimitInputBtn').prop('disabled', true)
+		}
+
+		if ($('.chargeFirstVoltInputLable').attr('class') && $('.chargeFirstVoltInputLable').attr('class').indexOf('disabledTitle') !== -1){
+			$('#chargeFirstVoltInput').prop('disabled', true)
+			$('.chargeFirstVoltInputBtn').prop('disabled', true)
+		}
+
+		batteryPrioritOptionData = [
+			{ value: 0, name: 'Charge First Time1', timeStartHour1:0, timeStartMinute1:0, timeStartHour2:0, timeStartMinute2:0, itemStyle: { color: '#1FA76E' } },
+			{ value: 0, name: 'Peak Shaving Time2', timeStartHour1:0, timeStartMinute1:0, timeStartHour2:0, timeStartMinute2:0, itemStyle: { color: '#5087EC' } },
+			{ value: 0, name: 'Peak Shaving Time2', timeStartHour1:0, timeStartMinute1:0, timeStartHour2:0, timeStartMinute2:0, itemStyle: { color: '#68BBC4' } },
+		]
+	}
+
+	if (bitParam ==  "FUNC_AC_CHARGE"  && value == false){
+		//禁掉acCharge的设置项
+		const acChargeItem = $('.acChangeModeItem input, .acChangeModeItem button, .acChangeModeItem label, .acChangeModeItem select');
+		acChargeItem.prop('disabled', true);
+		acChargeItem.css('color', '#9F9F9F');
+
+		if (currentSetPageType !== 'workingMode2_OffGrid') {
+			//禁用Ac charge base on
+			$('.acChargeBaseOn .control-label').css('color', '#9F9F9F')
+			$('.acChargeBaseOn select').prop('disabled', true);
+			$('.acChargeBaseOn button').prop('disabled', true);
+			$('.acChargeBaseOn button').css('color', 'rgb(159, 159, 159)')
+		}
+
+	}
+
+	if (bitParam ==  "FUNC_AC_CHARGE"  && value == true) {
+		const timeBox = $('#powerBackupEnable .previewItem_time');
+		timeBox.fadeIn()
+
+		//显示Ac charge base on
+		const acCharge = $('.acChargeBaseOn').fadeIn()
+
+		//禁掉backup的设置项
+		const acChargePower = $('.acChangeModeToDisBackupItem input, .acChangeModeToDisBackupItem button, .acChangeModeToDisBackupItem label');
+		acChargePower.prop('disabled', true);
+		acChargePower.css('color', '#9F9F9F');
+
+
+		// const  batteryPriorityStopSoc = $('input[holdparam="HOLD_AC_CHARGE_SOC_LIMIT"]');
+		// batteryPriorityStopSoc.val('')
+		const  batteryPriorityStopVolt = $('input[holdparam="HOLD_AC_CHARGE_END_BATTERY_VOLTAGE"]');
+		batteryPriorityStopVolt.val('')
+
+		const timeBtn = $('#powerBackupEnable .previewItem_time button');
+		timeBtn.prop('disabled', false);
+
+		if (currentSetPageType !== 'workingMode2_OffGrid') {
+			//放开Ac charge base on
+			$('.acChargeBaseOn .control-label').css('color','#333')
+			$('.acChargeBaseOn select').prop('disabled', false);
+			$('.acChargeBaseOn button').prop('disabled', false);
+			$('.acChargeBaseOn button').css('color','#333')
+		}
+
+
+
+		$(".acChangeModeItem").css('color','#333')
+
+		// 放开Ac charge的设置项
+		const acChargeItem = $('.acChangeModeItem input, .acChangeModeItem select, .acChangeModeItem button, .acChangeModeItem label');
+		acChargeItem.prop('disabled', false);
+		acChargeItem.css('color', '#333');
+
+
+		// $(".backupModeToDisAcChargeItem").css('color','rgb(159, 159, 159)')
+	}
+}
+
+var openModeTabName = 'backupSetting'
+function openSetting(rangeIndex) {
+	$('.setting').hide();
+	var modeValue = $('#workingMode' + rangeIndex + 'Input').val();
+	$('#' + modeValue).fadeIn();
+	openModeTabIndex = rangeIndex;
+}
+
+//切换 AC Charge Based On
+function checkAcChargeType(index) {
+	$('.acChangeModeItemSoc_Volt_Start').fadeIn()
+	if (currentSetPageType == 'workingMode2_OffGrid') {
+		$('.acChargeControl').attr('disabled', 'disabled');
+
+		$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(1).val(index)
+		$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(0).val(index)
+
+		if(index == 0) {
+			// 禁用.acChargeAcco下的所有按钮和输入框，排除.AcChargeBasedHolder下的
+			$('.acChargeAcco button, .acChargeAcco input').not('.functoinCtrlBtnHolder button, .AcChargeBasedHolder button, .AcChargeBasedHolder select, .AcChargeBasedHolder input').attr('disabled', true);
+			$('.acChargeAcco2 button, .acChargeAcco input').not('.functoinCtrlBtnHolder button, .AcChargeBasedHolder button, .AcChargeBasedHolder select, .AcChargeBasedHolder input').attr('disabled', true);
+		} else {
+			// 解除禁用.acChargeAcco下的所有按钮和输入框，排除.AcChargeBasedHolder下的select和按钮
+			$('.acChargeAcco button, .acChargeAcco input').not('.functoinCtrlBtnHolder button, .AcChargeBasedHolder button, .AcChargeBasedHolder select, .AcChargeBasedHolder input').attr('disabled', false);
+			$('.acChargeAcco2 button, .acChargeAcco input').not('.functoinCtrlBtnHolder button, .AcChargeBasedHolder button, .AcChargeBasedHolder select, .AcChargeBasedHolder input').attr('disabled', false);
+		}
+		if (index == 0) {
+			$('.acChargeTime_tab').each(function() {
+				$('#acChargeTime').attr('disabled', 'disabled');
+			});
+		}
+		if (index > 3) {
+			$('#acChargeVoltage').fadeIn()
+			$('#acChargeSOCVolt').fadeIn()
+			$('#acChargeSoc').fadeIn()
+			$('#acChargeSOCVolt').fadeIn()
+		}
+
+		if(index > 0) {
+			$('#acChargeTime').removeAttr('disabled');
+			$('.acChargeControl').removeAttr('disabled');
+			$('.acChargeCurrent').removeAttr('disabled');
+			$('.acChargeAcco2 .acChargeTime').removeAttr('disabled');
+
+			if(index == 1) {					//According to Time
+				$('#acChargeTime').fadeIn()
+				$('#acChargeSOCVolt').hide()
+			} else if(index == 2 || index == 4) {			//According to Battery Voltage
+				$('.acChargeVoltage').removeAttr('disabled');
+				$('#acChargeVoltage').fadeIn()
+				$('#acChargeSoc').hide()
+
+				$('#acChargeTime').hide()
+				$('#acChargeSOCVolt').fadeIn()
+			} else if(index == 3 || index == 5) {			//According to Battery SOC
+				$('.acChargeSoc').removeAttr('disabled');
+				$('#acChargeVoltage').hide()
+				$('#acChargeSoc').fadeIn()
+
+				$('#acChargeTime').hide()
+				$('#acChargeSOCVolt').fadeIn()
+			}
+			if(index == 2 || index == 3) {
+				$('.acChargeAcco2 .acChargeTime').attr('disabled', 'disabled');
+			}
+		}
+	}
+
+	if (currentSetPageType == 'workingMode2_12K' || currentSetPageType == 'workingMode2_Hybrid') {
+		if(index == 0 && currentPhase == 1 && currentDeviceType == 6) {
+			$('.acChangeModeItemSoc_Volt_Start').fadeOut()
+		}
+		if (openModeTabName !== 'acChargeAcco') return;
+		if (index == 0 || index == 2) {
+			$('.acChargeAcco').fadeIn()
+			$('.acChargeAcco2').hide()
+		}
+
+		if(index == 1) {
+			$('.acChargeAcco').hide()
+			$('.acChargeAcco2').fadeIn()
+		}
+	}
+
+}
+
+
+$(document).ready(function(){
+	if (currentSetPageType == 'workingMode2_OffGrid') {
+		$('select[bitParam="BIT_AC_CHARGE_TYPE"]').change(function(){
+
+			var index = $(this).val();
+
+			$('.acChargeControl').attr('disabled', 'disabled');
+
+			$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(1).val(index)
+			$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(0).val(index)
+
+
+			if(index == 0) {
+				// 禁用.acChargeAcco下的所有按钮和输入框，排除.AcChargeBasedHolder下的
+				$('.acChargeAcco button, .acChargeAcco input').not('.AcChargeBasedHolder button, .AcChargeBasedHolder select, .AcChargeBasedHolder input').attr('disabled', true);
+				$('.acChargeAcco2 button, .acChargeAcco input').not('.AcChargeBasedHolder button, .AcChargeBasedHolder select, .AcChargeBasedHolder input').attr('disabled', true);
+			} else {
+				// 解除禁用.acChargeAcco下的所有按钮和输入框，排除.AcChargeBasedHolder下的select和按钮
+				$('.acChargeAcco button, .acChargeAcco input').not('.AcChargeBasedHolder button, .AcChargeBasedHolder select, .AcChargeBasedHolder input').attr('disabled', false);
+				$('.acChargeAcco2 button, .acChargeAcco input').not('.AcChargeBasedHolder button, .AcChargeBasedHolder select, .AcChargeBasedHolder input').attr('disabled', false);
+			}
+			if (index == 0) {
+				$('.acChargeTime_tab').each(function() {
+					$('#acChargeTime').attr('disabled', 'disabled');
+				});
+			}
+
+			if (index > 3) {
+				$('#acChargeVoltage').fadeIn()
+				$('#acChargeSOCVolt').fadeIn()
+				$('#acChargeSoc').fadeIn()
+				$('#acChargeSOCVolt').fadeIn()
+			}
+
+			if(index > 0) {
+				$('#acChargeTime').removeAttr('disabled');
+				$('.acChargeControl').removeAttr('disabled');
+				$('.acChargeCurrent').removeAttr('disabled');
+				$('.acChargeAcco2 .acChargeTime').removeAttr('disabled');
+
+
+				if(index == 1) {					//According to Time
+					$('#acChargeTime').fadeIn()
+					$('#acChargeSOCVolt').hide()
+				} else if(index == 2 || index == 4) {			//According to Battery Voltage
+					$('.acChargeVoltage').removeAttr('disabled');
+					$('#acChargeVoltage').fadeIn()
+					$('#acChargeSoc').hide()
+
+					$('#acChargeTime').hide()
+					$('#acChargeSOCVolt').fadeIn()
+				} else if(index == 3 || index == 5) {			//According to Battery SOC
+					$('.acChargeSoc').removeAttr('disabled');
+					$('#acChargeVoltage').hide()
+					$('#acChargeSoc').fadeIn()
+
+					$('#acChargeTime').hide()
+					$('#acChargeSOCVolt').fadeIn()
+				}
+				if(index == 2 || index == 3) {
+					$('.acChargeAcco2 .acChargeTime').attr('disabled', 'disabled');
+				}
+			}
+		});
+	}
+});
+
+if (currentSetPageType !== 'workingMode2_OffGrid') {
+	$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(0).on("change", function(){
+		$('.acChangeModeItemSoc_Volt_Start').fadeIn()
+
+		if (this.value == 0){
+			$('#acChargeSOCVolt').hide()
+			$('.acChargeAcco').fadeIn()
+			$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(1).val(0)
+			$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(0).val(0)
+			$('.acChangeModeItemSoc_Volt_Start').fadeOut()
+		}
+		//1 Time
+		//设置Grid Peak-Shaving 区域的SOC/Volt类型状态。
+		if (this.value == 1){
+			$('.acChargeAcco').hide()
+			$('#acChargeSOCVolt').fadeIn()
+
+			$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(1).val(1)
+			$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(0).val(0)
+		}
+		if(currentDeviceType == 6 && currentPhase == 1 && this.value == 2) {
+			$('#acChargeSOCVolt').hide()
+			$('.acChargeAcco').fadeIn()
+			$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(1).val(2)
+			$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(0).val(2)
+		}
+	})
+
+	$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(1).on("change", function() {
+		$('#acChangeModeItemSoc_Volt_Start').fadeIn()
+		if (this.value == 0) {
+			$('#acChargeSOCVolt').hide()
+			$('.acChargeAcco').fadeIn()
+			$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(1).val(0)
+			$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(0).val(0)
+		}
+		//1 Time
+		//设置Grid Peak-Shaving 区域的SOC/Volt类型状态。
+		if (this.value == 1) {
+			$('.acChargeAcco').hide()
+			$('#acChargeSOCVolt').fadeIn()
+			$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(1).val(1)
+			$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(0).val(1)
+
+		}
+		if (this.value == 2 && currentPhase == 1 && currentDeviceType == 6) {
+			$('#acChargeSOCVolt').hide()
+			$('.acChargeAcco').fadeIn()
+			$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(1).val(2)
+			$('select[bitParam="BIT_AC_CHARGE_TYPE"]').eq(0).val(2)
+			$('#acChangeModeItemSoc_Volt_Start').fadeOut()
+		}
+	})
+}
+
+
+function showPostWriteResult(response) {
+	if(response.success) {
+		alert(setResultSuccessText);
+	} else {
+		showPostWriteFailReason(response);
+	}
+}
+
+function showPostWriteSwitchingPagesResult(response) {
+	if(response.success) {
+		alert(setResultSuccessText + ". Effective after re-login");
+	} else {
+		showPostWriteFailReason(response);
+	}
+}
+
+function checkMeterParameters(modelBitParam) {
+	if (modelBitParam !== 'MODEL_BIT_MEASUREMENT') {
+		return true;
+	}
+
+	var meterBrand = $('.MODEL_BIT_METER_BRAND').val();
+	var meterType = $('.MODEL_BIT_METER_TYPE').val();
+
+	// if (!meterBrand) {
+	// 	alert('MODEL_BIT_MEASUREMENT 不能为空');
+	// 	return false;
+	// }
+	//
+	// if (currentSetPageType === 'workingMode2_OffGrid' && !meterType) {
+	// 	alert('MODEL_BIT_METER_TYPE 不能为空');
+	// 	return false;
+	// }
+
+	return {
+		meterBrand,
+		meterType: meterType || null
+	};
+}
+
+function showPostWriteFailReason(response, timeoutTip) {
+	switch(response.msg) {
+	case 'noPermission':
+	case 'NO_PERMISSION':
+		alert(noPermissionText);
+		break;
+	case 'PARAM_ERROR':
+		alert(resultParamErrorText);
+		break;
+	case 'ACTION_ERROR_UNDONE':
+		alert(resultUndoText);
+		break;
+	case 'DEVICE_OFFLINE':
+		alert(resultDeviceOfflineText);
+		break;
+	case 'DATAFRAME_UNSEND':
+		alert(resultCommandNotSendText);
+		break;
+	case 'DATAFRAME_TIMEOUT':
+		alert(resultTimeoutText + (timeoutTip ? ', dongle will offline and try to reconnect server soon, please try again after that.' : ''));
+		break;
+	case 'SERVER_HTTP_EXCEPTION':
+		alert(resultServerExceptionText);
+		break;
+	case 'REMOTE_SET_ERROR':
+	case 'REMOTE_READ_ERROR':
+		alert(resultFailedText + ' ' + response.errorCode);
+		break;
+	case 'notAllowRemoteTechSupport':
+		alert(response.msg);
+		break;
+	case 'apiBlocked':
+		alert('API blocked in 24 hours');
+		break;
+	default:
+		alert(resultUnknownErrorText);
+		break;
+	}
+}
+
+$('select[bitParam="BIT_GENERATOR_CHARGE_TYPE"]').change(function () {
+	let val = $(this).val()
+	checkGeneratorChgType(val)
+})
+
+function checkGeneratorChgType(val) {
+	if (val == 0) {
+		$('.generatorChgVoltEnable').removeAttr('disabled');
+		$('.generatorChgSocEnable').attr('disabled', 'disabled');
+
+		$('.generatorVoltTitle').removeClass('disabledTitle')
+		$('.generatorSocTitle').addClass('disabledTitle')
+	} else if (val == 1){
+		$('.generatorChgSocEnable').removeAttr('disabled');
+		$('.generatorChgVoltEnable').attr('disabled', 'disabled');
+
+		$('.generatorSocTitle').removeClass('disabledTitle')
+		$('.generatorVoltTitle').addClass('disabledTitle')
+	}
+}

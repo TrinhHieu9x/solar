@@ -1,0 +1,863 @@
+
+
+    // 使用 jQuery 选择器获取所有 #batteryToggleButtonTarget 下的 input 元素
+    var inputs = $('#batteryToggleButtonTarget input');
+
+    // 遍历并处理获取到的 input 元素
+    inputs.each(function(index, element) {
+    // 这里可以添加你的处理逻辑
+    // console.log('Input ID:', $(element).attr('id'));
+});
+
+    $('.selectModel').unbind('click').click(function (event) {
+    console.log(this)
+})
+
+
+//饼图
+let option = {
+    tooltip: {
+    trigger: 'item',
+    axisPointer: {
+    // 坐标轴指示器，坐标轴触发有效
+    type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+},
+    // formatter: '{a} <br/>{b} : {c} <br/>百分比 : {d}%' //{a}（系列名称），{b}（数据项名称），{c}（数值）, {d}（百分比）
+    formatter: function (params) {
+    const seriesName = params.seriesName
+    const data = params.data
+    // return "seriesName + '<br/>' data.name + ':' + data.time"
+    // return data.name
+}
+},
+    legend: {
+    show: false,
+    top: '5%',
+    left: 'center'
+},
+    series: [
+{
+    name: 'Peak Shaving Time',
+    type: 'pie',
+    radius: ['50%', '90%'],
+    avoidLabelOverlap: false,
+    itemStyle: {
+    borderRadius: 10,
+    borderColor: '#fff',
+    borderWidth: 2
+},
+    label: {
+    show: false,
+    position: 'center'
+},
+    emphasis: {
+    label: {
+    show: true,
+    fontSize: 15,
+    fontWeight: 'bold'
+}
+},
+    labelLine: {
+    show: false
+},
+    data: []
+}
+    ]
+};
+    let peakShavingOptionData = [
+    { value: 0, name: 'Peak Shaving Time1', timeStartHour1:'', timeStartMinute1:'', timeStartHour2:'', timeStartMinute2:'', itemStyle: { color: '#1FA76E' } },
+    { value: 0, name: 'Peak Shaving Time2', timeStartHour1:'', timeStartMinute1:'', timeStartHour2:'', timeStartMinute2:'', itemStyle: { color: '#5087EC' } },
+    ]
+    let acChargeOptionData = [
+    { value: 0, name: 'AC Charge Time1', timeStartHour1: '', timeStartMinute1: '', timeStartHour2: '', timeStartMinute2: '', itemStyle: { color: '#1FA76E' } },
+    { value: 0, name: 'AC Charge Time2', timeStartHour1: '', timeStartMinute1: '', timeStartHour2: '', timeStartMinute2: '', itemStyle: { color: '#5087EC' } },
+    { value: 0, name: 'AC Charge Time3', timeStartHour1: '', timeStartMinute1: '', timeStartHour2: '', timeStartMinute2: '', itemStyle: { color: '#68BBC4' } },
+    ]
+
+    let batteryPrioritOptionData = [
+    { value: 0, name: 'Charge First Time1', timeStartHour1: '', timeStartMinute1: '', timeStartHour2: '', timeStartMinute2: '', itemStyle: { color: '#1FA76E' } },
+    { value: 0, name: 'Charge First Time2', timeStartHour1: '', timeStartMinute1: '', timeStartHour2: '', timeStartMinute2: '', itemStyle: { color: '#5087EC' } },
+    { value: 0, name: 'Charge First Time3', timeStartHour1: '', timeStartMinute1: '', timeStartHour2: '', timeStartMinute2: '', itemStyle: { color: '#68BBC4' } },
+    ]
+
+    let forcedDischargeTimeOptionData = [
+    { value: 0, name: 'Forced Discharge Time1', timeStartHour1: '', timeStartMinute1: '', timeStartHour2: '', timeStartMinute2: '', itemStyle: { color: '#1FA76E' } },
+    { value: 0, name: 'Forced Discharge Time2', timeStartHour1: '', timeStartMinute1: '', timeStartHour2: '', timeStartMinute2: '', itemStyle: { color: '#5087EC' } },
+    { value: 0, name: 'Forced Discharge Time3', timeStartHour1: '', timeStartMinute1: '', timeStartHour2: '', timeStartMinute2: '', itemStyle: { color: '#68BBC4' } },
+    ]
+
+    let peakShavingTimeannulus = document.getElementById('peakShavingTimeannulus');
+    let acChargeTimeannulus = document.getElementById('acChargeTimeannulus')
+    let batteryPrioritTimeannulus = document.getElementById('batteryPrioritTimeannulus')
+    // let forcedDischargeTimeAnnulus = document.getElementById('forcedDischargeStartTimeAnnulus')
+
+    // let peakShavingTimeEcharts = peakShavingTimeannulus ? echarts.init(peakShavingTimeannulus) : false;
+    // let acChargeTimeannulusChart = echarts.init(acChargeTimeannulus)
+    // let batteryPrioritTimannulusChart = echarts.init(batteryPrioritTimeannulus)
+    // let forcedDischargeStartTimeChart = echarts.init(forcedDischargeTimeAnnulus)
+
+    function updateEchartDate(data) {
+	    option.series[0].data = data
+	    return new Promise(resolve=>{
+	    resolve(option)
+	})
+}
+
+    async function ecahrtsInit(){
+    option = await updateEchartDate(peakShavingOptionData)
+    // console.log(option)
+    peakShavingTimeEcharts ? option && peakShavingTimeEcharts.setOption(option) : null;
+
+    option = await updateEchartDate(acChargeOptionData)
+    option && acChargeTimeannulusChart.setOption(option);
+
+    option = await updateEchartDate(batteryPrioritOptionData)
+    option && batteryPrioritTimannulusChart.setOption(option);
+
+    option = await updateEchartDate(forcedDischargeTimeOptionData)
+    // option && forcedDischargeStartTimeChart.setOption(option);
+}
+
+    //根据后台获取下来的时间更新饼图
+    function updateEcharts(data,echart) {
+	    for (let i = 0; i < data.length; i++) {
+		    data[i].value = calculateMinutes(data[i].timeStartHour1 + ':' + data[i].timeStartMinute1, data[i].timeStartHour2 + ':'+data[i].timeStartMinute2)
+		}
+	    option.series[0].data = data
+	    // option && echart.setOption(option);
+	}
+   // ecahrtsInit()
+
+
+    //折线图
+    let lineChartOption = {
+    legend:{
+    data: ['name1', 'name2'],
+},
+    xAxis: {
+    type: 'category',
+    data: ['', 'Bulk', 'Absorption', 'Maintenance', '']
+},
+    yAxis: {
+    type: 'value',
+    max: 59,
+    min: 50
+},
+    // 设置上下左右边距
+    grid: {
+    top:'3%',
+    left: '1%',
+    right: '1%',
+    bottom: '1%',
+    containLabel: true
+},
+    series: [
+{
+    data: [50, 58, 58, 52, 52],
+    type: 'line'
+}
+    // {
+    //     data: [50, 55, 52],
+    //     type: 'line',
+    //     yAxisIndex: 0,
+    //     name: 'name1'
+    // },
+    // {
+    //     data: [50, 55, 52],
+    //     type: 'line',
+    //     yAxisIndex: 1,
+    //     name: 'name2'
+    // }
+    ]
+    // yAxis: {
+    //     type: 'value',
+    // },
+    // // 设置上下左右边距
+    // grid: {
+    //     top:'3%',
+    //     left: '1%',
+    //     right: '1%',
+    //     bottom: '1%',
+    //     containLabel: true
+    // },
+    // series: [
+    //     {
+    //         data: [0, 0, 0, 0, 0],
+    //         type: 'line'
+    //     }
+    // ]
+};
+
+    let leadAcidBartteryAnnulus = document.getElementById('leadAcidBartteryAnnulus');
+    let leadAcidBartteryChart = false;
+    if(leadAcidBartteryAnnulus) {
+    leadAcidBartteryChart = echarts.init(leadAcidBartteryAnnulus);
+    lineChartOption && leadAcidBartteryChart.setOption(lineChartOption);
+}
+
+    function updateLineChart(val, name) {
+    if(leadAcidBartteryChart) {
+    if (name == 'leadAcidChargeVoltRefInput') {
+    lineChartOption.series[0].data[1] = val
+    lineChartOption.series[0].data[2] = val
+}
+    if (name == 'floatingVoltageInput') {
+    lineChartOption.series[0].data[3] = val
+    lineChartOption.series[0].data[4] = val
+}
+    lineChartOption && leadAcidBartteryChart.setOption(lineChartOption);
+}
+}
+
+
+    //给时间select添加option
+    function timeSelectInit(){
+    const hourSelects = $('select.hour');
+    hourSelects.each(function () {
+    // 添加选项
+    for (let i = 0; i < 24; i++) {
+    const option = $('<option>', { value: i, text: i < 10 ? '0' + i : i });
+    $(this).append(option);
+}
+});
+    const minuteSelects = $('select.minute');
+	minuteSelects.each(function () {
+		// 添加选项
+		for (let i = 0; i < 60; i++) {
+			const option = $('<option>', { value: i, text: i < 10 ? '0' + i : i });
+			$(this).append(option);
+		}
+	});
+}
+    timeSelectInit()
+
+
+    //监听select值
+    $('select[holdParam="HOLD_AC_CHARGE_START_BATTERY_SOC"]').on("change", function(){
+	    writeParamValue(this)
+	})
+    $('select[holdParam="HOLD_AC_CHARGE_END_BATTERY_SOC"]').on("change", function(){
+	    writeParamValue(this)
+	})
+    $('select[holdParam="HOLD_AC_CHARGE_START_BATTERY_VOLTAGE"]').on("change", function(){
+	    writeParamValue(this)
+	})
+    $('select[holdParam="HOLD_AC_CHARGE_END_BATTERY_VOLTAGE"]').on("change", function(){
+	    writeParamValue(this)
+	})
+    function showTab(tabIndex) {
+	    $('.applicationSetting .tabBrief span').removeClass('activeTab');
+	    $('.applicationSetting .applicationTab').hide();
+	
+	    $('.applicationSetting .applicationTab:eq(' + tabIndex + ')').fadeIn()
+	    $('.applicationSetting .tabBrief span').eq(tabIndex).addClass('activeTab');
+	}
+
+    function showGridSettingTab(tabIndex) {
+	    $('.gridSetting .tabBrief span').removeClass('activeTab');
+	    $('.gridSetting .gridSettingtionTab').hide();
+	
+	    $('.settingBox .gridSettingtionTab:eq(' + tabIndex + ')').fadeIn()
+	    $('.gridSetting .tabBrief span').eq(tabIndex).addClass('activeTab');
+	}
+
+    function showGenPortFunctionTab(spanElement) {
+		var targetTab = $(spanElement).attr('targetTab');
+        $('.genPortFunctionSetting .tabBrief span').removeClass('activeTab');
+        $('.genPortFunctionSetting .genPortFunctionTab').hide();
+
+        $('.settingBox .genPortFunctionTab.' + targetTab).fadeIn()
+        $('.genPortFunctionSetting .tabBrief span[targetTab=' + targetTab + ']').addClass('activeTab');
+    }
+
+    function showSmartLoadPortFunctionTab(spanElement) {
+        var targetTab = $(spanElement).attr('targetTab');
+        $('.smartLoadFunctionSetting .tabBrief span').removeClass('activeTab');
+        $('.smartLoadFunctionSetting .smartLoadPortFunctionTab').hide();
+
+        $('.settingBox .smartLoadPortFunctionTab.' + targetTab).fadeIn()
+        $('.smartLoadFunctionSetting .tabBrief span[targetTab=' + targetTab + ']').addClass('activeTab');
+    }
+
+    function showApplicationTab(spanElement) {
+        var targetTab = $(spanElement).attr('targetTab');
+        $('.applicationSetting .tabBrief span').removeClass('activeTab');
+        $('.applicationSetting .applicationTab').hide();
+
+        $('.settingBox .applicationTab.' + targetTab).fadeIn()
+        $('.applicationSetting .tabBrief span[targetTab=' + targetTab + ']').addClass('activeTab');
+    }
+
+    function debounce2(fn, delay) {
+        let timeout = null;
+        return function () {
+            if (timeout !== null) {
+            clearTimeout(timeout);
+        }
+        timeout = setTimeout(() => {
+            //利用call(),让this的指针从指向window 转成指向input
+            fn.call(this);
+        }, delay);
+        }
+    }
+
+    //监听双滑块的输入框
+    $(document).ready(function () {
+    $("input[holdParam='HOLD_DISCHG_CUT_OFF_SOC_EOD']").on('input', debounce2(function () {
+        const val = $(this).val()
+        updateCustomLimitScrollbar(null, val, {max: 100, min: 0, units: "%", parent: 'customScrollbar1', name1: 'off-grid', name2: 'on-grid'});
+    }, 800))
+    $("input[holdParam='HOLD_SOC_LOW_LIMIT_EPS_DISCHG']").on('input', debounce2(function () {
+    const val = $(this).val()
+    updateCustomLimitScrollbar(val, null, {max: 100, min: 0, units: "%", parent: 'customScrollbar1', name1: 'off-grid', name2: 'on-grid'});
+}, 800))
+
+    $("input[holdParam='HOLD_ON_GRID_EOD_VOLTAGE']").on('input', debounce2(function () {
+    const val = $(this).val()
+    updateCustomLimitScrollbar(null, val, {max: 56, min: 40, units: "V", parent: 'customScrollbar2', name1: 'off-grid', name2: 'on-grid'});
+}, 800))
+
+    $("input[holdParam='HOLD_LEAD_ACID_DISCHARGE_CUT_OFF_VOLT']").on('input', debounce2(function () {
+    const val = $(this).val()
+    updateCustomLimitScrollbar(val, null, {max: 56, min: 40, units: "V", parent: 'customScrollbar2', name1: 'off-grid', name2: 'on-grid'});
+}, 800))
+
+    // customScrollbar3
+    $("input[holdParam='OFF_GRID_HOLD_GEN_CHG_START_SOC']").on('input', debounce2(function () {
+    const val = $(this).val()
+    updateCustomScrollbar(val, null, {max: 100, min: 0, units: "%", parent: 'customScrollbar3', name1: 'start', name2: 'stop'});
+}, 800))
+
+    $("input[holdParam='OFF_GRID_HOLD_GEN_CHG_END_SOC']").on('input', debounce2(function () {
+    const val = $(this).val()
+    updateCustomScrollbar(null, val, {max: 100, min: 0, units: "%", parent: 'customScrollbar3',name1: 'start', name2: 'stop'});
+}, 800))
+
+    // customScrollbar4
+    $("input[holdParam='OFF_GRID_HOLD_GEN_CHG_START_VOLT']").on('input', debounce2(function () {
+        const val = $(this).val()
+        updateCustomScrollbar(val, null , {...customScrollbarIni.customScrollbar4(), units: "V", parent: 'customScrollbar4', name1: 'start', name2: 'stop'})
+    }, 800))
+    $("input[holdParam='OFF_GRID_HOLD_GEN_CHG_END_VOLT']").on('input', debounce2(function () {
+        const val = $(this).val()
+        updateCustomScrollbar(null, val, {...customScrollbarIni.customScrollbar4(), units: "V", parent: 'customScrollbar4', name1: 'start', name2: 'stop'})
+    }, 800))
+
+    // customScrollbar5
+    $("input[holdParam='_12K_HOLD_AC_COUPLE_START_SOC']").on('input', debounce2(function () {
+    const val = $(this).val()
+    updateCustomScrollbar(val, null , {max: 100, min: 0, units: "%", parent: 'customScrollbar5',name1: 'start', name2: 'stop'});
+}, 800))
+    $("input[holdParam='_12K_HOLD_AC_COUPLE_END_SOC']").on('input', debounce2(function () {
+    const val = $(this).val()
+    updateCustomScrollbar(null, val, {max: 100, min: 0, units: "%", parent: 'customScrollbar5',name1: 'start', name2: 'stop'});
+}, 800))
+
+    // customScrollbar6
+    $("input[holdParam='_12K_HOLD_AC_COUPLE_START_VOLT']").on('input', debounce2(function () {
+    const val = $(this).val()
+    if(currentDeviceType == 0 && currentPhase == 3) {
+        updateCustomScrollbar(val, null , {max: 800, min: 100, units: "V", parent: 'customScrollbar6', name1: 'start', name2: 'stop'})
+    } else {
+        updateCustomScrollbar(val, null , {max: 52, min: 40, units: "V", parent: 'customScrollbar6', name1: 'start', name2: 'stop'})
+    }
+}, 800))
+    $("input[holdParam='_12K_HOLD_AC_COUPLE_END_VOLT']").on('input', debounce2(function () {
+    const val = $(this).val()
+    if(currentDeviceType == 0 && currentPhase == 3) {
+        updateCustomScrollbar(null, val, {max: 800, min: 100, units: "V", parent: 'customScrollbar6', name1: 'start', name2: 'stop'})
+    } else {
+        updateCustomScrollbar(null, val, {max: 56, min: 40, units: "V", parent: 'customScrollbar6', name1: 'start', name2: 'stop'})
+    }
+}, 800))
+
+    // customScrollbar7
+    $("input[holdParam='_12K_HOLD_SMART_LOAD_START_VOLT']").on('input', debounce2(function () {
+    const val = $(this).val()
+    if(currentDeviceType == 0 && currentPhase == 3) {
+        updateCustomScrollbar(val, null , {max: 800, min: 100, units: "V", parent: 'customScrollbar7', name1: 'start', name2: 'stop'})
+    } else {
+        updateCustomScrollbar(val, null , {max: 59, min: 40, units: "V", parent: 'customScrollbar7', name1: 'start', name2: 'stop'})
+    }
+}, 800))
+    $("input[holdParam='_12K_HOLD_SMART_LOAD_END_VOLT']").on('input', debounce2(function () {
+    const val = $(this).val()
+    if(currentDeviceType == 0 && currentPhase == 3) {
+        updateCustomScrollbar(null, val, {max: 800, min: 100, units: "V", parent: 'customScrollbar7', name1: 'start', name2: 'stop'})
+    } else {
+        updateCustomScrollbar(null, val, {max: 59, min: 40, units: "V", parent: 'customScrollbar7', name1: 'start', name2: 'stop'})
+    }
+}, 800))
+
+    // customScrollbar8
+    $("input[holdParam='_12K_HOLD_SMART_LOAD_START_SOC']").on('input', debounce2(function () {
+    const val = $(this).val()
+    updateCustomScrollbar(val, null , {max: 100, min: 0, units: "%", parent: 'customScrollbar8', name1: 'start', name2: 'stop'})
+}, 800))
+    $("input[holdParam='_12K_HOLD_SMART_LOAD_END_SOC']").on('input', debounce2(function () {
+    const val = $(this).val()
+    updateCustomScrollbar(null, val, {max: 100, min: 0, units: "%", parent: 'customScrollbar8', name1: 'start', name2: 'stop'})
+}, 800))
+
+    // 监听有单个禁止滚动滑块
+    $("input[holdParam='HOLD_FORCED_CHG_SOC_LIMIT']").on('input', debounce2(function () {
+    const val = $(this).val()
+    updateCustomScrollAndInhibitbar(val, null , {max: 100, min: 0, units: "%", parent: 'customScrollAndInhibitbar1', name1: 'Charge', name2: 'cutoff'})
+}, 500))
+
+    $("input[holdParam='_12K_HOLD_CHARGE_FIRST_VOLT']").on('input', debounce2(function () {
+    const val = $(this).val()
+    updateCustomScrollAndInhibitbar(val, null , {max: 59.5, min: 48, units: "V", parent: 'customScrollAndInhibitbar2', name1: 'Charge', name2: 'cutoff'})
+}, 500))
+
+        var midBoxCustomScrollbarData = [
+            {start: 'MIDBOX_HOLD_SL_START_SOC_1', end: 'MIDBOX_HOLD_SL_END_SOC_1', max: 100, min: 0, units: "%", parent: 'smartPort1SocCustomScroll', name1: 'start', name2: 'stop'},
+            {start: 'MIDBOX_HOLD_SL_START_SOC_2', end: 'MIDBOX_HOLD_SL_END_SOC_2', max: 100, min: 0, units: "%", parent: 'smartPort2SocCustomScroll', name1: 'start', name2: 'stop'},
+            {start: 'MIDBOX_HOLD_SL_START_SOC_3', end: 'MIDBOX_HOLD_SL_END_SOC_3', max: 100, min: 0, units: "%", parent: 'smartPort3SocCustomScroll', name1: 'start', name2: 'stop'},
+            {start: 'MIDBOX_HOLD_SL_START_SOC_4', end: 'MIDBOX_HOLD_SL_END_SOC_4', max: 100, min: 0, units: "%", parent: 'smartPort4SocCustomScroll', name1: 'start', name2: 'stop'},
+            {start: 'MIDBOX_HOLD_SL_START_VOLT_1', end: 'MIDBOX_HOLD_SL_END_VOLT_1', max: 59, min: 40, units: "V", parent: 'smartPortVolt1CustomScroll', name1: 'start', name2: 'stop'},
+            {start: 'MIDBOX_HOLD_SL_START_VOLT_2', end: 'MIDBOX_HOLD_SL_END_VOLT_2', max: 59, min: 40, units: "V", parent: 'smartPortVolt2CustomScroll', name1: 'start', name2: 'stop'},
+            {start: 'MIDBOX_HOLD_SL_START_VOLT_3', end: 'MIDBOX_HOLD_SL_END_VOLT_3', max: 59, min: 40, units: "V", parent: 'smartPortVolt3CustomScroll', name1: 'start', name2: 'stop'},
+            {start: 'MIDBOX_HOLD_SL_START_VOLT_4', end: 'MIDBOX_HOLD_SL_END_VOLT_4', max: 59, min: 40, units: "V", parent: 'smartPortVolt4CustomScroll', name1: 'start', name2: 'stop'},
+            {start: 'MIDBOX_HOLD_AC_START_SOC_1', end: 'MIDBOX_HOLD_AC_END_SOC_1', max: 100, min: 0, units: "%", parent: 'acCouple1SocCustomScroll', name1: 'start', name2: 'stop'},
+            {start: 'MIDBOX_HOLD_AC_START_SOC_2', end: 'MIDBOX_HOLD_AC_END_SOC_2', max: 100, min: 0, units: "%", parent: 'acCouple2SocCustomScroll', name1: 'start', name2: 'stop'},
+            {start: 'MIDBOX_HOLD_AC_START_SOC_3', end: 'MIDBOX_HOLD_AC_END_SOC_3', max: 100, min: 0, units: "%", parent: 'acCouple3SocCustomScroll', name1: 'start', name2: 'stop'},
+            {start: 'MIDBOX_HOLD_AC_START_SOC_4', end: 'MIDBOX_HOLD_AC_END_SOC_4', max: 100, min: 0, units: "%", parent: 'acCouple4SocCustomScroll', name1: 'start', name2: 'stop'},
+            {start: 'MIDBOX_HOLD_AC_START_VOLT_1', end: 'MIDBOX_HOLD_AC_END_VOLT_1', max: 59, min: 40, units: "V", parent: 'acCoupleVolt1CustomScroll', name1: 'start', name2: 'stop'},
+            {start: 'MIDBOX_HOLD_AC_START_VOLT_2', end: 'MIDBOX_HOLD_AC_END_VOLT_2', max: 59, min: 40, units: "V", parent: 'acCoupleVolt2CustomScroll', name1: 'start', name2: 'stop'},
+            {start: 'MIDBOX_HOLD_AC_START_VOLT_3', end: 'MIDBOX_HOLD_AC_END_VOLT_3', max: 59, min: 40, units: "V", parent: 'acCoupleVolt3CustomScroll', name1: 'start', name2: 'stop'},
+            {start: 'MIDBOX_HOLD_AC_START_VOLT_4', end: 'MIDBOX_HOLD_AC_END_VOLT_4', max: 59, min: 40, units: "V", parent: 'acCoupleVolt4CustomScroll', name1: 'start', name2: 'stop'},
+            {start: 'OFF_GRID_HOLD_GEN_CHG_START_SOC', end: 'OFF_GRID_HOLD_GEN_CHG_END_SOC', max: 100, min: 0, units: "%", parent: 'chargeSocInputCustomScroll', name1: 'start', name2: 'stop'},
+            {start: 'OFF_GRID_HOLD_GEN_CHG_START_VOLT', end: 'OFF_GRID_HOLD_GEN_CHG_END_VOLT', max: 59, min: 40, units: "V", parent: 'chargeVoltInputCustomScroll', name1: 'start', name2: 'stop'},
+        ]
+
+        midBoxCustomScrollbarData.forEach(function(data, index) {
+            $("input[holdParam='" + data.start + "']").on('input', debounce2(function () {
+                const val = $(this).val();
+                updateCustomScrollbar(val, null, {
+                    max: data.max,
+                    min: data.min,
+                    units: data.units,
+                    parent: data.parent,
+                    name1: data.name1,
+                    name2: data.name2
+                });
+            }, 800));
+	    
+            $("input[holdParam='" + data.end + "']").on('input', debounce2(function () {
+                const val = $(this).val();
+                updateCustomScrollbar(null, val, {
+                    max: data.max,
+                    min: data.min,
+                    units: data.units,
+                    parent: data.parent,
+                    name1: data.name1,
+                    name2: data.name2
+                });
+            }, 800));
+
+            //初始化自定义滚动条
+            $('#' + data.parent).customScrollbar(data.min, data.min, {
+                max: data.max,
+                min: data.min,
+                units: data.units,
+                name1: data.name1,
+                name2: data.name2
+            }, function (startV, endV) {
+                $("input[holdParam='" + data.start + "']").val(startV);
+                $("input[holdParam='" + data.end + "']").val(endV);
+            });
+            
+        });
+
+    //初始化双滑块
+    $('#customScrollbar1').customLimitScrollbar(0, 0,{max: 100, min: 0, units: "%", name1: 'off-grid', name2: 'on-grid'},
+    function (startV, endV) {
+    $("input[holdParam='HOLD_SOC_LOW_LIMIT_EPS_DISCHG']").val(startV)
+    $("input[holdParam='HOLD_DISCHG_CUT_OFF_SOC_EOD']").val(endV)
+});
+    $('#customScrollbar2').customLimitScrollbar(40, 40,{max: 56, min: 40, units: "V", name1: 'off-grid', name2: 'on-grid'},
+    function (startV, endV) {
+    $("input[holdParam='HOLD_LEAD_ACID_DISCHARGE_CUT_OFF_VOLT']").val(startV)
+    $("input[holdParam='HOLD_ON_GRID_EOD_VOLTAGE']").val(endV)
+});
+    $('#customScrollbar3').customScrollbar(1, 1,{max: 100, min: 0, units: "%", name1: 'start', name2: 'stop'},
+    function (startV, endV) {
+    $("input[holdParam='OFF_GRID_HOLD_GEN_CHG_START_SOC']").val(startV)
+    $("input[holdParam='OFF_GRID_HOLD_GEN_CHG_END_SOC']").val(endV)
+});
+     let customScrollbar4Ini = customScrollbarIni.customScrollbar4()
+    $('#customScrollbar4').customScrollbar(customScrollbar4Ini.min, customScrollbar4Ini.min,{...customScrollbar4Ini, units: "V", name1: 'start', name2: 'stop'},
+    function (startV, endV) {
+    $("input[holdParam='OFF_GRID_HOLD_GEN_CHG_START_VOLT']").val(startV)
+    $("input[holdParam='OFF_GRID_HOLD_GEN_CHG_END_VOLT']").val(endV)
+});
+    $('#customScrollbar5').customScrollbar(0, 0,{max: 100, min: 0, units: "%",  name1: 'start', name2: 'stop'},
+    function (startV, endV) {
+    $("input[holdParam='_12K_HOLD_AC_COUPLE_START_SOC']").val(Math.round(startV))
+    $("input[holdParam='_12K_HOLD_AC_COUPLE_END_SOC']").val(Math.round(endV))
+});
+    $('#customScrollbar6').customScrollbar(40, 40,{max: 56, min: 40, units: "V", name1: 'start', name2: 'stop'},
+    function (startV, endV) {
+    $("input[holdParam='_12K_HOLD_AC_COUPLE_START_VOLT']").val(Math.round(startV))
+    $("input[holdParam='_12K_HOLD_AC_COUPLE_END_VOLT']").val(Math.round(endV))
+});
+    if(currentDeviceType == 0 && currentPhase == 3) {
+        $('#customScrollbar6').customScrollbar(100, 100,{max: 800, min: 100, units: "V", name1: 'start', name2: 'stop'},
+            function (startV, endV) {
+                $("input[holdParam='_12K_HOLD_AC_COUPLE_START_VOLT']").val(startV)
+                $("input[holdParam='_12K_HOLD_AC_COUPLE_END_VOLT']").val(endV)
+            });
+    }
+    $('#customScrollbar7').customScrollbar(40, 40,{max: 59, min: 40, units: "V", name1: 'start', name2: 'stop'},
+    function (startV, endV) {
+    $("input[holdParam='_12K_HOLD_SMART_LOAD_START_VOLT']").val(startV)
+    $("input[holdParam='_12K_HOLD_SMART_LOAD_END_VOLT']").val(endV)
+});
+    if(currentDeviceType == 0 && currentPhase == 3) {
+        $('#customScrollbar7').customScrollbar(100, 100,{max: 800, min: 100, units: "V", name1: 'start', name2: 'stop'},
+            function (startV, endV) {
+                $("input[holdParam='_12K_HOLD_SMART_LOAD_START_VOLT']").val(startV)
+                $("input[holdParam='_12K_HOLD_SMART_LOAD_END_VOLT']").val(endV)
+            });
+    }
+    $('#customScrollbar8').customScrollbar(0, 0,{max: 100, min: 0, units: "%", name1: 'start', name2: 'stop'},
+    function (startV, endV) {
+    $("input[holdParam='_12K_HOLD_SMART_LOAD_START_SOC']").val(startV)
+    $("input[holdParam='_12K_HOLD_SMART_LOAD_END_SOC']").val(endV)
+});
+
+    //初始化有禁用的双滑块
+    $('#customScrollAndInhibitbar1').customScrollAndInhibitbar(0, 0,{max: 101, min: 0, units: "%", name1: 'Charge', name2: 'cutoff'},
+    function (startV, endV) {
+    $("input[holdParam='HOLD_FORCED_CHG_SOC_LIMIT']").val(startV)
+});
+    $('#customScrollAndInhibitbar2').customScrollAndInhibitbar(0, 0,{max: 59.5, min: 48, units: "V", name1: 'Charge', name2: 'cutoff'},
+    function (startV, endV) {
+    $("input[holdParam='_12K_HOLD_CHARGE_FIRST_VOLT']").val(startV)
+});
+
+    //display:none没有物理单位，双滑块滑块依赖宽度，在初始化完样式后再隐藏，就能获取到宽度了
+    $('.genPortFunctionTab').slice(1).hide();
+    $('.smartLoadPortFunctionTab').slice(1).hide();
+    $('.midboxSmartLoadHolder').hide();
+    $('.midboxAcCoupleHolder').hide(); 
+
+    // 初始化Grid Volt Limit Setting长条
+    $('#dataMappingBox1').triangle(0, 'l3','L3');
+    $('#dataMappingBox1').triangle(0, 'l2','l2');
+    $('#dataMappingBox1').triangle(0, 'l1','l1');
+    $('#dataMappingBox1').triangle(192, 'gridVoltConnectLow','Connect Low');
+    $('#dataMappingBox1').triangle(260, 'gridVoltConnectHigh','Connect high');
+    $('#dataMappingBox1').triangle(0, 'high3','H1');
+    $('#dataMappingBox1').triangle(0, 'high2','H2');
+    $('#dataMappingBox1').triangle(0, 'high1','H3');
+
+    // 初始化Grid Freq Limit Setting长条
+    $('#dataMappingBox2').triangle(45, 'l3','L3');
+    $('#dataMappingBox2').triangle(45, 'l2','L2');
+    $('#dataMappingBox2').triangle(45, 'l1','L1');
+    $('#dataMappingBox2').triangle(47.53, 'gridFreqConnectLow','Connect Low');
+    $('#dataMappingBox2').triangle(50.17, 'gridFreqConnectHigh','Connect High');
+    $('#dataMappingBox2').triangle(45, 'high3','H1');
+    $('#dataMappingBox2').triangle(45, 'high2','H2');
+    $('#dataMappingBox2').triangle(45, 'high1','H3');
+});
+
+    //更新Grid Volt Limit setting长条
+    function updateDataMappingBox1(e, type, label, index){
+    writeParamValue(e, index)
+    let $paramSetHolder = $(e).parent();
+    let valueInput = $paramSetHolder.find('input:eq(' + index + ')').val();
+    $('#dataMappingBox1').triangle(valueInput, type, label);
+}
+
+    function updateDataMappingBox2(e, type, label, index){
+    writeParamValue(e,index)
+
+    let $paramSetHolder = $(e).parent();
+    let valueInput = $paramSetHolder.find('input:eq(' + index + ')').val();
+    $('#dataMappingBox2').triangle(valueInput, type, label);
+}
+
+    // 根据input值修改双滑块
+    function updateCustomScrollbar(val1, val2, data) {
+    $('#' + data.parent).customScrollbar(val1, val2, data, function (startV, endV) {});
+}
+
+    // 根据input值修改双滑块
+    function updateCustomLimitScrollbar(val1, val2, data) {
+    $('#' + data.parent).customLimitScrollbar(val1, val2, data, function (startV, endV) {});
+}
+
+    //根据input值修改有单个禁用的滚动滑块
+    function updateCustomScrollAndInhibitbar(val1, val2, data) {
+    $('#' + data.parent).customScrollAndInhibitbar(val1, val2, data, function (startV, endV) {});
+}
+
+    //根据点击设置按钮设置时间饼图
+    function updateTimeEcharts(e, response) {
+    if (!response.success) {
+    return;
+}
+
+    let $paramSetHolder = $(e).parent();
+    let hour = $paramSetHolder.find('input.hour').attr("holdParam");
+    let minute = $paramSetHolder.find('input.minute').attr("holdParam");
+    var timeParam = $(e).attr('timeParam');
+    let hourV = $paramSetHolder.find('input.hour').val()
+    let minuteV = $paramSetHolder.find('input.minute').val()
+    if (timeParam == 'HOLD_PEAK_SHAVING_START_TIME_1'){
+	    peakShavingOptionData[0].timeStartHour1 = hourV
+	    peakShavingOptionData[0].timeStartMinute1 = minuteV
+	}
+    if (timeParam == 'HOLD_PEAK_SHAVING_END_TIME_1'){
+	    peakShavingOptionData[0].timeStartHour2 = hourV
+	    peakShavingOptionData[0].timeStartMinute2 = minuteV
+	}
+    if (timeParam == 'HOLD_PEAK_SHAVING_START_TIME_2'){
+	    peakShavingOptionData[1].timeStartHour1 = hourV
+	    peakShavingOptionData[1].timeStartMinute1 = minuteV
+	}
+    if (timeParam == 'HOLD_PEAK_SHAVING_END_TIME_2'){
+	    peakShavingOptionData[1].timeStartHour2 = hourV
+	    peakShavingOptionData[1].timeStartMinute2 = minuteV
+	}
+    if ( peakShavingOptionData[0].timeStartHour1 !== '' && peakShavingOptionData[0].timeStartHour2 !== '' ||  peakShavingOptionData[1].timeStartHour1 !== '' && peakShavingOptionData[1].timeStartHour2 !== '') {
+	   // updateEcharts(peakShavingOptionData,peakShavingTimeEcharts)
+	}
+
+    if (timeParam == 'HOLD_AC_CHARGE_START_TIME'){
+	    acChargeOptionData[0].timeStartHour1 = hourV
+	    acChargeOptionData[0].timeStartMinute1 = minuteV
+	}
+    if (timeParam == 'HOLD_AC_CHARGE_END_TIME'){
+	    acChargeOptionData[0].timeStartHour2 = hourV
+	    acChargeOptionData[0].timeStartMinute2 = minuteV
+	}
+    if (timeParam == 'HOLD_AC_CHARGE_START_TIME_1'){
+	    acChargeOptionData[1].timeStartHour1 = hourV
+	    acChargeOptionData[1].timeStartMinute1 = minuteV
+	}
+    if (timeParam == 'HOLD_AC_CHARGE_END_TIME_1'){
+	    acChargeOptionData[1].timeStartHour2 = hourV
+	    acChargeOptionData[1].timeStartMinute2 = minuteV
+	}
+    if (timeParam == 'HOLD_AC_CHARGE_START_TIME_2'){
+	    acChargeOptionData[2].timeStartHour1 = hourV
+	    acChargeOptionData[2].timeStartMinute1 = minuteV
+	}
+    if (timeParam == 'HOLD_AC_CHARGE_END_TIME_2'){
+	    acChargeOptionData[2].timeStartHour2 = hourV
+	    acChargeOptionData[2].timeStartMinute2 = minuteV
+	}
+    if ( acChargeOptionData[0].timeStartHour1 !== '' && acChargeOptionData[0].timeStartHour2 !== '' ||  acChargeOptionData[1].timeStartHour1 !== '' && acChargeOptionData[1].timeStartHour2 !== '' ||  acChargeOptionData[2].timeStartHour1 !== '' && acChargeOptionData[2].timeStartHour2 !== '') {
+	    // updateEcharts(acChargeOptionData,acChargeTimeannulusChart)
+	}
+
+    if (timeParam == 'HOLD_FORCED_CHARGE_START_TIME'){
+    batteryPrioritOptionData[0].timeStartHour1 = hourV
+    batteryPrioritOptionData[0].timeStartMinute1 = minuteV
+}
+    if (timeParam == 'HOLD_FORCED_CHARGE_END_TIME'){
+    batteryPrioritOptionData[0].timeStartHour2 = hourV
+    batteryPrioritOptionData[0].timeStartMinute2 = minuteV
+}
+    if (timeParam == 'HOLD_FORCED_CHARGE_START_TIME_1'){
+    batteryPrioritOptionData[1].timeStartHour1 = hourV
+    batteryPrioritOptionData[1].timeStartMinute1 = minuteV
+}
+    if (timeParam == 'HOLD_FORCED_CHARGE_END_TIME_1'){
+    batteryPrioritOptionData[1].timeStartHour2 = hourV
+    batteryPrioritOptionData[1].timeStartMinute2 = minuteV
+}
+    if (timeParam == 'HOLD_FORCED_CHARGE_START_TIME_2'){
+    batteryPrioritOptionData[2].timeStartHour1 = hourV
+    batteryPrioritOptionData[2].timeStartMinute1 = minuteV
+}
+    if (timeParam == 'HOLD_FORCED_CHARGE_END_TIME_2'){
+    batteryPrioritOptionData[2].timeStartHour2 = hourV
+    batteryPrioritOptionData[2].timeStartMinute2 = minuteV
+}
+    if ( batteryPrioritOptionData[0].timeStartHour1 !== '' && batteryPrioritOptionData[0].timeStartHour2 !== '' ||  batteryPrioritOptionData[1].timeStartHour1 !== '' && batteryPrioritOptionData[1].timeStartHour2 !== '' ||  batteryPrioritOptionData[2].timeStartHour1 !== '' && acChargeOptionData[2].timeStartHour2 !== '') {
+   // updateEcharts(batteryPrioritOptionData,batteryPrioritTimannulusChart)
+}
+
+    if (timeParam == 'HOLD_FORCED_DISCHARGE_START_TIME'){
+    forcedDischargeTimeOptionData[0].timeStartHour1 = hourV
+    forcedDischargeTimeOptionData[0].timeStartMinute1 = minuteV
+}
+    if (timeParam == 'HOLD_FORCED_DISCHARGE_END_TIME'){
+    forcedDischargeTimeOptionData[0].timeStartHour2 = hourV
+    forcedDischargeTimeOptionData[0].timeStartMinute2 = minuteV
+}
+    if (timeParam == 'HOLD_FORCED_DISCHARGE_START_TIME_1'){
+    forcedDischargeTimeOptionData[1].timeStartHour1 = hourV
+    forcedDischargeTimeOptionData[1].timeStartMinute1 = minuteV
+}
+    if (timeParam == 'HOLD_FORCED_DISCHARGE_END_TIME_1'){
+    forcedDischargeTimeOptionData[1].timeStartHour2 = hourV
+    forcedDischargeTimeOptionData[1].timeStartMinute2 = minuteV
+}
+    if (timeParam == 'HOLD_FORCED_DISCHARGE_START_TIME_2'){
+    forcedDischargeTimeOptionData[2].timeStartHour1 = hourV
+    forcedDischargeTimeOptionData[2].timeStartMinute1 = minuteV
+}
+    if (timeParam == 'HOLD_FORCED_DISCHARGE_END_TIME_2'){
+    forcedDischargeTimeOptionData[2].timeStartHour2 = hourV
+    forcedDischargeTimeOptionData[2].timeStartMinute2 = minuteV
+}
+    if ( forcedDischargeTimeOptionData[0].timeStartHour1 !== '' && forcedDischargeTimeOptionData[0].timeStartHour2 !== '' ||  forcedDischargeTimeOptionData[1].timeStartHour1 !== '' && batteryPrioritOptionData[1].timeStartHour2 !== '' ||  forcedDischargeTimeOptionData[2].timeStartHour1 !== '' && forcedDischargeTimeOptionData[2].timeStartHour2 !== '') {
+    // updateEcharts(forcedDischargeTimeOptionData,forcedDischargeStartTimeChart)
+}
+}
+
+    function updateLineChartAndwriteParamValue(e, name) {
+    writeParamValue(e, 1)
+    let $paramSetHolder = $(e).parent();
+    let valueInput = $paramSetHolder.find('input:eq(1)').val();
+    updateLineChart(valueInput, name)
+}
+
+    function openSetting(e, type) {
+    $('.activeModeBtn').removeClass('activeModeBtn')
+    $(".workingModeList li img").attr('src', resourceBaseUrl + '/web/img/maintain/ic_modeworking_edit.png');
+    $(".workingModeList li").css('border', 'none');
+
+    const clickedElement = e;
+    clickedElement.classList.add('activeModeBtn')
+    
+    $('.activeModeBtn').css({ 'border': 'solid 2px #000' });
+    $(`.setting`).hide();
+    $('.' + type).fadeIn();
+    
+
+    let img  = $(clickedElement).context.childNodes[2]
+    $(img).attr('src', resourceBaseUrl + '/web/img/maintain/ic_modeworking_edit_active.png');
+}
+
+    $(function() {
+    var hours = [];
+    var minute = [];
+    var selectHour = $('.time-select-hour')
+    var selectMinute =$('.time-select-minute')
+    for (let i = 0; i < 24; i++) {
+    hours.push(i.toString().padStart(2, '0'));
+    let select = $("<option>").addClass("select-item").text(i.toString().padStart(2, '0'))
+    selectHour.append(select[0])
+}
+    for (var i = 0; i < 60; i++) {
+    minute.push(i.toString().padStart(2, '0'));
+    let select = $("<option>").addClass("select-item").text(i.toString().padStart(2, '0'))
+    selectMinute.append(select[0])
+}
+    var selectedColor = $('.form-check input:radio:checked').val();
+
+    $("input[name='exampleRadios']").change(function(){
+    var selectedValue = $("input[name='exampleRadios']:checked").val();
+    if (selectedValue == 'generator'){
+    $(`.AC-couple`).hide();
+    $(`.smart-load`).hide();
+    $('.' + 'generator').fadeIn();
+}else {
+    if (selectedValue == 'AC-couple'){
+    $(`.generator`).hide();
+    $(`.smart-load`).hide();
+    $('.' + 'AC-couple').fadeIn();
+}else {
+    if (selectedValue == 'smart-load'){
+    $(`.generator`).hide();
+    $(`.AC-couple`).hide();
+    $('.' + 'smart-load').fadeIn();
+}
+}
+}
+});
+})
+
+    function debounce(fn,wait) {
+    var timeout = null;
+    return function (){
+    if (timeout !== null) clearTimeout(timeout)
+    timeout = setTimeout(fn,wait)
+}
+}
+
+    /**
+    * param startTime,endTime
+    * return 开始时间和结束时间之间的分钟数
+    * */
+    function calculateMinutes(start, end) {
+    let formatStartTime = formatTime(start)
+    let formatEndTime = formatTime(end)
+
+    // 将时间字符串转换为Date对象
+    let startTime = new Date('1970-01-01T' + formatStartTime + 'Z');
+    let endTime = new Date('1970-01-01T' + formatEndTime + 'Z');
+
+    // 计算两个时间点之间的分钟差异
+    const minutesDifference = (endTime - startTime) / (1000 * 60);
+    return Math.floor(minutesDifference);
+}
+
+    /**
+    * 格式转换 0:01 to 00:01
+    * */
+    function formatTime(time) {
+    const [hours, minutes] = time.split(':');
+
+    // Parse hours and minutes as integers
+    let parsedHours = parseInt(hours, 10);
+    let parsedMinutes = parseInt(minutes, 10);
+    // Check if the parsed values are valid
+    if (!isNaN(parsedHours) && !isNaN(parsedMinutes)) {
+    // Format hours and minutes with leading zeros
+    const formattedHours = parsedHours.toString().padStart(2, '0');
+    const formattedMinutes = parsedMinutes.toString().padStart(2, '0');
+
+    // Return the formatted time
+    return formattedHours+":"+formattedMinutes;
+} else {
+    // Return null for invalid input
+    // console.log('缺少时间')
+    return null;
+}
+}
+
+    function generateUniqueId() {
+    const timestamp = new Date().getTime(); // 当前时间戳（毫秒）
+    const randomPart = Math.floor(Math.random() * 10000); // 随机数部分，可以根据需要调整范围
+    const uniqueId = timestamp + randomPart;
+    return uniqueId;
+}
+
+    function goToWeekTimePage() {
+    window.open(baseUrl + '/web/maintain/remoteSetWeekly');
+}
+
+    function checkAcChargeSetting() {
+        $('.acChargeControl').attr('disabled', 'disabled');
+        var index = $('#acChargeTypeInput').val();
+        if(index > 0) {
+            $('#acChargeTime').removeAttr('disabled');
+            $('.acChargeCurrent').removeAttr('disabled');
+            $('.acChargeAcco2 .acChargeTime').removeAttr('disabled');
+
+            if(index == 1) {					//According to Time
+                $('#acChargeTime').fadeIn()
+                $('#acChargeSOCVolt').hide()
+            } else if(index == 2 || index == 4) {			//According to Battery Voltage
+                $('.acChargeVoltage').removeAttr('disabled');
+                $('#acChargeTime').hide()
+                $('#acChargeSOCVolt').fadeIn()
+            } else if(index == 3 || index == 5) {			//According to Battery SOC
+                $('.acChargeSoc').removeAttr('disabled');
+                $('#acChargeTime').hide()
+                $('#acChargeSOCVolt').fadeIn()
+            }
+            if(index == 2 || index == 3) {
+                $('.acChargeAcco2 .acChargeTime').attr('disabled', 'disabled');
+            }
+        }
+    }
+

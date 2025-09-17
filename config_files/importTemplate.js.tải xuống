@@ -1,0 +1,83 @@
+$(document).ready(function() {
+    $('#importTemplateButton').click(function () {
+        $('#importTemplateModal').modal();
+        var inverterSn = $('#inverterSearchInput').combogrid('getValue');
+        $('#importTemplateModal #templateInverterSn').val(inverterSn)
+        getTemplateList()
+    });
+
+    let templateList = []
+    function getTemplateList() {
+        $('#template option').not(':first').remove();
+        $.post(baseUrl + '/web/maintain/template/list', { deviceType: currentDeviceType, phase: currentPhase, dtc: currentDtc,
+            voltClass: currentVoltClass, odm: currentOdm, powerRating: currentPowerRating, usVersion: currentUsVersion, machineType: currentMachineType }, function(response) {
+            if(response.rows && response.rows.length > 0) {
+                templateList = response.rows;
+                templateList.forEach(item => {
+                    $('#template').append($('<option>', {
+                        value: item.templateId,
+                        text: item.templateName + ' - Phase: ' + currentPhase +' - Area: ' + currentDtc
+                    }));
+                });
+            }
+        }, 'json');
+    }
+
+    // $('#templateName').change(()=>{
+    //     const selectedValue = $(this).val();
+    //     templateList.forEach(item=>{
+    //         if(item.templateId == item.templateId) {
+    //             $('#importTemplateDescription').val(item.templateDescription)
+    //         }
+    //     })
+    // })
+
+    $('#importTemplateSubmit').click(function () {
+        var template = $('#template').val();
+        var templateInverterSn = $('#templateInverterSn').val();
+        var templateDescription = $('#templateDescription').val();
+        if (template < 0) {
+            $('#importTemplateModal .templateErrorEmpty').fadeIn();
+            return;
+        }
+
+        if (!templateInverterSn) {
+            $('#importTemplateModal .inverterSnEmpty').fadeIn();
+            return;
+        }
+        if (templateInverterSn.length != 10) {
+            $('#importTemplateModal .inverterSnLengthError').fadeIn();
+            return;
+        }
+
+        $('#importTemplateSubmit').button('loading');
+        $.post(baseUrl + '/web/maintain/template/importTemplate', {
+            templateId: template,
+            inverterSn: templateInverterSn,
+        }, function (response) {
+            $('#importTemplateSubmit').button('reset');
+            if (response.success) {
+                $('#importTemplateModal').modal('hide');
+                $('#templateTable').datagrid('reload');
+                readMultiParams(0,127)
+            } else {
+                if(response.data && response.data.length) {
+                    $('#showParamsErrorModal').modal()
+                    $('#fieldInfoContainer').empty();
+                    $.each(response.data, function(index, element) {
+                        let content = '<tr><th scope="row">' + (index + 1) + '</th>';
+                        content += '<td>' + element.name + '</td>';
+                        content += '<td>' + element.value + '</td></tr>';
+                        $('#fieldInfoContainer').append(content);
+                    });
+                } else {
+                    showPostWriteResult(response);
+                }
+            }
+        }, 'json')
+    })
+    
+    $('#templateAddModal').on('hidden.bs.modal', function (e) {
+        $('#template').val('-1');
+    });
+});

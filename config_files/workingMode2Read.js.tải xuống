@@ -1,0 +1,2418 @@
+var currentReadMultiParamsStartRegister = -1;
+var readMultiParamsErrorCount = 0;
+
+var alreadyReadData = false;
+
+$(document).ready(function() {
+	initModeTimeData();
+});
+
+function readMultiParams(startRegister, pointNumber) {
+	pointNumber = ((currentProtocolVersion == '4' || currentProtocolVersion == '5' || currentProtocolVersion == '6') ? 127 : 40)
+
+	if(startRegister == 0) {
+		initModeTimeData();
+	}
+
+	if(currentReadMultiParamsStartRegister != startRegister) {
+		currentReadMultiParamsStartRegister = startRegister;
+		readMultiParamsErrorCount = 0;
+	}
+
+	var $readButton = ((startRegister == 5000) ? $('#readBatteryParamButton') : $('#readAllParamButton'));
+	$readButton.button('loading');
+	var inverterSn = $('#inverterSearchInput').combogrid('getValue');
+	$.post(baseUrl + '/web/maintain/remoteRead/read', {
+		inverterSn: inverterSn,
+		startRegister: startRegister,
+		pointNumber: pointNumber }, function(response) {
+		if(response.success) {			//参数读取成功
+			alreadyReadData = true;
+
+			//Read All Parameter...
+			if(currentDeviceType != 5 && currentDeviceType != 9) {		//Not LSP 100K and Not Midbox
+				showReadParamsResult(response);
+				
+				if(startRegister <= 200) {
+					analyzeModeTime(startRegister);
+				}
+				if(currentProtocolVersion == '4' || currentProtocolVersion == '5' || currentProtocolVersion == '6') {
+					if(startRegister == 0) {
+						if (currentSetPageType == 'workingMode2_OffGrid' && startRegister == 120) {
+							setTimeout("readMultiParams(120, 127)", 1000);
+						} else {
+							setTimeout("readMultiParams(127, 127)", 1000);
+						}
+					} else {
+						var finished = true;
+
+						if(startRegister == 127) {
+							if(isSnaSeries() || currentDeviceType == 6) {
+								finished = false;
+								setTimeout("readMultiParams(240, 40)", 1000);
+							}
+						}
+						if(startRegister == 240) {
+							if(isSnaSeries() && allowCtrlHold601) {			//Off-Grid
+								finished = false;
+								setTimeout("readMultiParams(600, 40)", 1000);
+							}
+						}
+
+						if(finished) {
+							currentReadMultiParamsStartRegister = -1;
+							$readButton.button('reset');
+						}
+					}
+				} else {
+					if(startRegister == 0) {
+						setTimeout("readMultiParams(40, 40)", 1000);
+					} else if(startRegister == 40) {
+						setTimeout("readMultiParams(80, 40)", 1000);
+					} else if(startRegister == 80) {
+						setTimeout("readMultiParams(120, 40)", 1000);
+					} else if(startRegister == 120) {
+						setTimeout("readMultiParams(160, 40)", 1000);
+					} else if(startRegister == 160) {
+						setTimeout("readMultiParams(200, 40)", 1000);
+					} else {
+						var finished = true;
+
+						if(startRegister == 200) {
+							if(isSnaSeries() || currentDeviceType == 6) {
+								finished = false;
+								setTimeout("readMultiParams(240, 40)", 1000);
+							}
+						}
+						if(startRegister == 240) {
+							if(isSnaSeries() && allowCtrlHold601) {			//Off-Grid
+								finished = false;
+								setTimeout("readMultiParams(600, 40)", 1000);
+							}
+						}
+
+						if(finished) {
+							currentReadMultiParamsStartRegister = -1;
+							$readButton.button('reset');
+						}
+					}
+				}
+			} else if(currentDeviceType == 9) {			//Midbox do nothing...
+				
+			} else {			//LSP 100K do nothing...
+			
+			}
+		} else {						//参数读取失败
+			if(++readMultiParamsErrorCount >= 3) {
+				currentReadMultiParamsStartRegister = -1;
+				$readButton.button('reset');
+				showPostWriteResult(response);
+			} else {
+				setTimeout("readMultiParams(" + startRegister + ", " + pointNumber + ")", 1000);
+			}
+		}
+	}, 'json');
+}
+
+var backupModeEnable = false;
+var peakShavingEnable = false;
+var acChargeAccoEnable = false;
+var chargeFirstEnable = false;
+var forceDischargeOrSellToGridEnable = false;
+var modeTimeData = {};
+
+function initModeTimeData() {
+	backupModeEnable = false;
+	peakShavingEnable = false;
+	acChargeAccoEnable = false;
+	chargeFirstEnable = false;
+	forceDischargeOrSellToGridEnable = false;
+
+	modeTimeData = {
+		backupMode: [],
+		backupModeBackup: [],
+
+		peakShaving: [],
+		peakShavingBackup: [],								//For disabled mode...
+
+		acChargeAcco: [],
+		acChargeAccoBackup: [],								//For disabled mode...
+
+		chargeFirst: [],
+		chargeFirstBackup: [],								//For disabled mode...
+
+		acChargeCombine: [],
+
+		forceDischargeOrSellToGrid: [],
+		forceDischargeOrSellToGridBackup: [],				//For disabled mode...
+
+		selfConsumption: [],
+
+		activeMode: []
+	};
+}
+
+function analyzeModeTime(startRegister) {
+	var finalRefresh = false
+	if(currentProtocolVersion == '4' || currentProtocolVersion == '5' || currentProtocolVersion == '6') {
+		if(startRegister == 0) {
+			analyzeAcChargeAccoTimeRange();
+			analyzeChargeFirstTimeRange();
+			analyzeChargeFirstTimeRange();
+			analyzeForceDischargeOrSellToGridTimeRange(startRegister);
+		} else if(startRegister == 127) {
+			analyzePeakShavingTimeRange();
+			analyzeBackupModeTimeRange();
+			if (currentSetPageType == 'workingMode2_OffGrid') {
+				analyzeForceDischargeOrSellToGridTimeRange(startRegister);
+			}
+		}
+
+		if (currentSetPageType == 'workingMode2_OffGrid' && startRegister == 120) {
+			analyzePeakShavingTimeRange();
+			analyzeBackupModeTimeRange();
+			analyzeForceDischargeOrSellToGridTimeRange('2');
+		}
+
+		finalRefresh = (startRegister == 127 || (currentSetPageType == 'workingMode2_OffGrid' && startRegister == 120));
+	} else {
+		if(startRegister == 40) {
+			analyzeAcChargeAccoTimeRange();
+			analyzeChargeFirstTimeRange();
+		} else if(startRegister == 80) {
+			analyzeForceDischargeOrSellToGridTimeRange('3');
+			analyzeChargeFirstTimeRange();
+		} else if(startRegister == 200) {
+			analyzePeakShavingTimeRange();
+			analyzeBackupModeTimeRange();
+		}
+
+		if (currentSetPageType == 'workingMode2_OffGrid' && startRegister == 120) {
+			analyzeForceDischargeOrSellToGridTimeRange('4');
+		}
+
+		finalRefresh = (startRegister == 200);
+	}
+
+	refreshModeTimeChart(finalRefresh);
+}
+
+function analyzeAcChargeAccoTimeRange() {
+	modeTimeData.acChargeAcco = []
+	modeTimeData.acChargeAccoBackup = []
+
+	var startHour = $('input[holdParam="HOLD_AC_CHARGE_START_HOUR"]').val();
+	var startMinute = $('input[holdParam="HOLD_AC_CHARGE_START_MINUTE"]').val();
+	var endHour = $('input[holdParam="HOLD_AC_CHARGE_END_HOUR"]').val();
+	var endMinute = $('input[holdParam="HOLD_AC_CHARGE_END_MINUTE"]').val();
+
+	var startHour1 = $('input[holdParam="HOLD_AC_CHARGE_START_HOUR_1"]').val();
+	var startMinute1 = $('input[holdParam="HOLD_AC_CHARGE_START_MINUTE_1"]').val();
+	var endHour1 = $('input[holdParam="HOLD_AC_CHARGE_END_HOUR_1"]').val();
+	var endMinute1 = $('input[holdParam="HOLD_AC_CHARGE_END_MINUTE_1"]').val();
+
+	var startHour2 = $('input[holdParam="HOLD_AC_CHARGE_START_HOUR_2"]').val();
+	var startMinute2 = $('input[holdParam="HOLD_AC_CHARGE_START_MINUTE_2"]').val();
+	var endHour2 = $('input[holdParam="HOLD_AC_CHARGE_END_HOUR_2"]').val();
+	var endMinute2 = $('input[holdParam="HOLD_AC_CHARGE_END_MINUTE_2"]').val();
+
+	if(acChargeAccoEnable) {
+		analyzeTimeRange('acChargeAcco', 1, calclateMinute(startHour, startMinute), calclateMinute(endHour, endMinute));
+		analyzeTimeRange('acChargeAcco', 2, calclateMinute(startHour1, startMinute1), calclateMinute(endHour1, endMinute1));
+		analyzeTimeRange('acChargeAcco', 3, calclateMinute(startHour2, startMinute2), calclateMinute(endHour2, endMinute2));
+	}
+	analyzeTimeRange('acChargeAccoBackup', 1, calclateMinute(startHour, startMinute), calclateMinute(endHour, endMinute));
+	analyzeTimeRange('acChargeAccoBackup', 2, calclateMinute(startHour1, startMinute1), calclateMinute(endHour1, endMinute1));
+	analyzeTimeRange('acChargeAccoBackup', 3, calclateMinute(startHour2, startMinute2), calclateMinute(endHour2, endMinute2));
+}
+
+function analyzeChargeFirstTimeRange() {
+	modeTimeData.chargeFirst = []
+	modeTimeData.chargeFirstBackup = []
+
+	var startHour = $('input[holdParam="HOLD_FORCED_CHARGE_START_HOUR"]').val();
+	var startMinute = $('input[holdParam="HOLD_FORCED_CHARGE_START_MINUTE"]').val();
+	var endHour = $('input[holdParam="HOLD_FORCED_CHARGE_END_HOUR"]').val();
+	var endMinute = $('input[holdParam="HOLD_FORCED_CHARGE_END_MINUTE"]').val();
+
+	var startHour1 = $('input[holdParam="HOLD_FORCED_CHARGE_START_HOUR_1"]').val();
+	var startMinute1 = $('input[holdParam="HOLD_FORCED_CHARGE_START_MINUTE_1"]').val();
+	var endHour1 = $('input[holdParam="HOLD_FORCED_CHARGE_END_HOUR_1"]').val();
+	var endMinute1 = $('input[holdParam="HOLD_FORCED_CHARGE_END_MINUTE_1"]').val();
+
+	var startHour2 = $('input[holdParam="HOLD_FORCED_CHARGE_START_HOUR_2"]').val();
+	var startMinute2 = $('input[holdParam="HOLD_FORCED_CHARGE_START_MINUTE_2"]').val();
+	var endHour2 = $('input[holdParam="HOLD_FORCED_CHARGE_END_HOUR_2"]').val();
+	var endMinute2 = $('input[holdParam="HOLD_FORCED_CHARGE_END_MINUTE_2"]').val();
+
+	if(chargeFirstEnable) {
+		analyzeTimeRange('chargeFirst', 1, calclateMinute(startHour, startMinute), calclateMinute(endHour, endMinute));
+		analyzeTimeRange('chargeFirst', 2, calclateMinute(startHour1, startMinute1), calclateMinute(endHour1, endMinute1));
+		analyzeTimeRange('chargeFirst', 3, calclateMinute(startHour2, startMinute2), calclateMinute(endHour2, endMinute2));
+	}
+
+	analyzeTimeRange('chargeFirstBackup', 1, calclateMinute(startHour, startMinute), calclateMinute(endHour, endMinute));
+	analyzeTimeRange('chargeFirstBackup', 2, calclateMinute(startHour1, startMinute1), calclateMinute(endHour1, endMinute1));
+	analyzeTimeRange('chargeFirstBackup', 3, calclateMinute(startHour2, startMinute2), calclateMinute(endHour2, endMinute2));
+}
+
+function analyzeForceDischargeOrSellToGridTimeRange(index = 0) {
+	modeTimeData.forceDischargeOrSellToGrid = []
+	modeTimeData.forceDischargeOrSellToGridBackup = []
+
+	var startHour = $('input[holdParam="HOLD_FORCED_DISCHARGE_START_HOUR"]').val();
+	var startMinute = $('input[holdParam="HOLD_FORCED_DISCHARGE_START_MINUTE"]').val();
+	var endHour = $('input[holdParam="HOLD_FORCED_DISCHARGE_END_HOUR"]').val();
+	var endMinute = $('input[holdParam="HOLD_FORCED_DISCHARGE_END_MINUTE"]').val();
+
+	var startHour1 = $('input[holdParam="HOLD_FORCED_DISCHARGE_START_HOUR_1"]').val();
+	var startMinute1 = $('input[holdParam="HOLD_FORCED_DISCHARGE_START_MINUTE_1"]').val();
+	var endHour1 = $('input[holdParam="HOLD_FORCED_DISCHARGE_END_HOUR_1"]').val();
+	var endMinute1 = $('input[holdParam="HOLD_FORCED_DISCHARGE_END_MINUTE_1"]').val();
+
+	var startHour2 = $('input[holdParam="HOLD_FORCED_DISCHARGE_START_HOUR_2"]').val();
+	var startMinute2 = $('input[holdParam="HOLD_FORCED_DISCHARGE_START_MINUTE_2"]').val();
+	var endHour2 = $('input[holdParam="HOLD_FORCED_DISCHARGE_END_HOUR_2"]').val();
+	var endMinute2 = $('input[holdParam="HOLD_FORCED_DISCHARGE_END_MINUTE_2"]').val();
+	if(forceDischargeOrSellToGridEnable) {
+		analyzeTimeRange('forceDischargeOrSellToGrid', 1, calclateMinute(startHour, startMinute), calclateMinute(endHour, endMinute));
+		analyzeTimeRange('forceDischargeOrSellToGrid', 2, calclateMinute(startHour1, startMinute1), calclateMinute(endHour1, endMinute1));
+		analyzeTimeRange('forceDischargeOrSellToGrid', 3, calclateMinute(startHour2, startMinute2), calclateMinute(endHour2, endMinute2));
+	}
+
+	if(currentSetPageType == 'workingMode2_OffGrid') {
+		startHour = $('input[holdParam="HOLD_AC_FIRST_START_HOUR"]').val();
+		startMinute = $('input[holdParam="HOLD_AC_FIRST_START_MINUTE"]').val();
+		endHour = $('input[holdParam="HOLD_AC_FIRST_END_HOUR"]').val();
+		endMinute = $('input[holdParam="HOLD_AC_FIRST_END_MINUTE"]').val();
+
+		startHour1 = $('input[holdParam="HOLD_AC_FIRST_START_HOUR_1"]').val();
+		startMinute1 = $('input[holdParam="HOLD_AC_FIRST_START_MINUTE_1"]').val();
+		endHour1 = $('input[holdParam="HOLD_AC_FIRST_END_HOUR_1"]').val();
+		endMinute1 = $('input[holdParam="HOLD_AC_FIRST_END_MINUTE_1"]').val();
+
+		startHour2 = $('input[holdParam="HOLD_AC_FIRST_START_HOUR_2"]').val();
+		startMinute2 = $('input[holdParam="HOLD_AC_FIRST_START_MINUTE_2"]').val();
+		endHour2 = $('input[holdParam="HOLD_AC_FIRST_END_HOUR_2"]').val();
+		endMinute2 = $('input[holdParam="HOLD_AC_FIRST_END_MINUTE_2"]').val();
+		analyzeTimeRange('forceDischargeOrSellToGrid', 1, calclateMinute(startHour, startMinute), calclateMinute(endHour, endMinute));
+		analyzeTimeRange('forceDischargeOrSellToGrid', 2, calclateMinute(startHour1, startMinute1), calclateMinute(endHour1, endMinute1));
+		analyzeTimeRange('forceDischargeOrSellToGrid', 3, calclateMinute(startHour2, startMinute2), calclateMinute(endHour2, endMinute2));
+	} else {
+		analyzeTimeRange('forceDischargeOrSellToGridBackup', 1, calclateMinute(startHour, startMinute), calclateMinute(endHour, endMinute));
+		analyzeTimeRange('forceDischargeOrSellToGridBackup', 2, calclateMinute(startHour1, startMinute1), calclateMinute(endHour1, endMinute1));
+		analyzeTimeRange('forceDischargeOrSellToGridBackup', 3, calclateMinute(startHour2, startMinute2), calclateMinute(endHour2, endMinute2));
+	}
+}
+
+function analyzeBackupModeTimeRange() {
+	if (currentDeviceType != 6 && currentDeviceType != 8) return;
+	modeTimeData.backupMode = []
+	modeTimeData.backupModeBackup = []
+	
+	var startHour = '00';
+	var startMinute = '00';
+	var endHour = '23';
+	var endMinute = '59';
+
+	if(backupModeEnable) {
+		analyzeTimeRange('backupMode', 1, calclateMinute(startHour, startMinute), calclateMinute(endHour, endMinute));
+	}
+	analyzeTimeRange('backupModeBackup', 1, calclateMinute(startHour, startMinute), calclateMinute(endHour, endMinute));
+}
+
+function analyzePeakShavingTimeRange() {
+	modeTimeData.peakShaving = []
+	modeTimeData.peakShavingBackup = []
+
+	var startHour = $('input[holdParam="LSP_HOLD_DIS_CHG_POWER_TIME_37"]').val();
+	var startMinute = $('input[holdParam="LSP_HOLD_DIS_CHG_POWER_TIME_38"]').val();
+	var endHour = $('input[holdParam="LSP_HOLD_DIS_CHG_POWER_TIME_39"]').val();
+	var endMinute = $('input[holdParam="LSP_HOLD_DIS_CHG_POWER_TIME_40"]').val();
+
+	var startHour1 = $('input[holdParam="LSP_HOLD_DIS_CHG_POWER_TIME_41"]').val();
+	var startMinute1 = $('input[holdParam="LSP_HOLD_DIS_CHG_POWER_TIME_42"]').val();
+	var endHour1 = $('input[holdParam="LSP_HOLD_DIS_CHG_POWER_TIME_43"]').val();
+	var endMinute1 = $('input[holdParam="LSP_HOLD_DIS_CHG_POWER_TIME_44"]').val();
+
+	if(peakShavingEnable) {
+		analyzeTimeRange('peakShaving', 1, calclateMinute(startHour, startMinute), calclateMinute(endHour, endMinute));
+		analyzeTimeRange('peakShaving', 2, calclateMinute(startHour1, startMinute1), calclateMinute(endHour1, endMinute1));
+	}
+	analyzeTimeRange('peakShavingBackup', 1, calclateMinute(startHour, startMinute), calclateMinute(endHour, endMinute));
+	analyzeTimeRange('peakShavingBackup', 2, calclateMinute(startHour1, startMinute1), calclateMinute(endHour1, endMinute1));
+}
+
+/**
+ * Conside time range contain 00:00
+ */
+function analyzeTimeRange(modeType, index, startMinute, endMinute) {
+	if(endMinute < startMinute) {			//contain 00:00
+		modeTimeData[modeType].push({ start: 0, end: endMinute, id: ('ID_' + modeType + "_" + index + "_00") });
+		modeTimeData[modeType].push({ start: startMinute, end: 1440, id: ('ID_' + modeType + "_" + index + "_24") });
+	} else if(startMinute != endMinute) {
+		modeTimeData[modeType].push({ start: startMinute, end: endMinute, id: ('ID_' + modeType + "_" + index) });
+	}
+	console.log(modeTimeData)
+}
+
+function calclateMinute(hourText, minuteText) {
+	return parseInt(hourText) * 60 + parseInt(minuteText);
+}
+
+function refreshModeTimeChart(finalRefresh) {
+	console.log(finalRefresh)
+	modeTimeData.acChargeCombine = []
+	modeTimeData.selfConsumption = []
+	modeTimeData.activeMode = []
+
+	if(alreadyReadData) {
+		const workingModes = modeTimeData
+		initActiveModeData(workingModes, finalRefresh)
+	}
+}
+
+async function initActiveModeData(workingModes, finalRefresh) {
+//	console.log('workingModes >>> ', workingModes);
+	if(finalRefresh) {			//final data response...
+		var timeRanges = [{ start: 0, end: 1440, id: 'ID_selfConsumption' }];
+		$.each(deviceModes, function(modeIndex, modeElement) {
+			$.each(modeTimeData[modeElement], function(index, element) {
+				timeRanges = splitTimeRanges(timeRanges, element)
+			});
+		});
+		modeTimeData.selfConsumption = timeRanges;
+
+		//Calculate ac charge combine mode...
+		if(modeTimeData.acChargeAcco.length > 0 && modeTimeData.chargeFirst.length > 0) {
+			$.each(modeTimeData.acChargeAcco, function(acAccoIndex, acAccoElement) {
+				$.each(modeTimeData.chargeFirst, function(acFirstIndex, acFirstElement) {
+					var acAccoCopyElement = Object.assign({}, acAccoElement)
+					var acFirstCopyElement = Object.assign({}, acFirstElement)
+					var timeRanges = combineAcChargeTimeRanges(acAccoCopyElement, acFirstCopyElement);
+					$.each(timeRanges, function(resultIndex, resultElement) {
+						var matchElementByStart = false;
+						$.each(modeTimeData.acChargeCombine, function(combineIndex, combineElement) {
+							if(resultElement.start == combineElement.start) {
+								matchElementByStart = true;
+
+								if(combineElement.type == 'acChargeCombine') {
+									combineElement.end = resultElement.end
+									combineElement.id = resultElement.id
+									combineElement.type = resultElement.type
+								}
+							}
+						});
+
+						if(!matchElementByStart) {		//Match...
+							modeTimeData.acChargeCombine.push(resultElement);
+						}
+					});
+				});
+			});
+		} else if(modeTimeData.acChargeAcco.length > 0 && modeTimeData.chargeFirst.length == 0) {
+			$.each(modeTimeData.acChargeAcco, function(acAccoIndex, acAccoElement) {
+				var acAccoCopyElement = Object.assign({}, acAccoElement)
+				acAccoCopyElement.type = 'acChargeAcco'
+				modeTimeData.acChargeCombine.push(acAccoCopyElement);
+			});
+		} else if(modeTimeData.chargeFirst.length > 0 && modeTimeData.acChargeAcco.length == 0) {
+			$.each(modeTimeData.chargeFirst, function(acFirstIndex, acFirstElement) {
+				var acFirstCopyElement = Object.assign({}, acFirstElement)
+				acFirstCopyElement.type = 'chargeFirst'
+				modeTimeData.acChargeCombine.push(acFirstCopyElement);
+			});
+		}
+
+		//Calculate active mode...
+		$.each(deviceModeForActives, function(modeIndex, modeElement) {
+			$.each(modeTimeData[modeElement], function(index, element) {
+				var activeModeElement = Object.assign({}, element)
+				activeModeElement.id = 'Active_' + activeModeElement.id;
+				if(!activeModeElement.type) {
+					activeModeElement.type = modeElement
+				}
+				modeTimeData.activeMode.push(activeModeElement)
+			});
+		});
+	}
+
+	//Handle invalid time cell...
+	checkInvalidCells();
+
+	const data = await initCell(workingModes)
+}
+
+function checkInvalidCells() {
+	modeTimeData.forceDischargeOrSellToGrid = checkInvalidTimeRanges(modeTimeData.backupMode, modeTimeData.forceDischargeOrSellToGrid)
+	modeTimeData.forceDischargeOrSellToGrid = checkInvalidTimeRanges(modeTimeData.peakShaving, modeTimeData.forceDischargeOrSellToGrid)
+	modeTimeData.forceDischargeOrSellToGrid = checkInvalidTimeRanges(modeTimeData.acChargeAcco, modeTimeData.forceDischargeOrSellToGrid)
+	modeTimeData.forceDischargeOrSellToGrid = checkInvalidTimeRanges(modeTimeData.chargeFirst, modeTimeData.forceDischargeOrSellToGrid)
+	modeTimeData.acChargeAcco = checkInvalidTimeRanges(modeTimeData.peakShaving, modeTimeData.acChargeAcco)
+	modeTimeData.acChargeAcco = checkInvalidTimeRanges(modeTimeData.backupMode, modeTimeData.acChargeAcco)
+	modeTimeData.chargeFirst = checkInvalidTimeRanges(modeTimeData.peakShaving, modeTimeData.chargeFirst)
+	modeTimeData.chargeFirst = checkInvalidTimeRanges(modeTimeData.backupMode, modeTimeData.chargeFirst)
+	modeTimeData.peakShaving = checkInvalidTimeRanges(modeTimeData.backupMode, modeTimeData.peakShaving)
+}
+
+function checkInvalidTimeRanges(coverTimeRanges, checkTimeRanges) {
+	if(coverTimeRanges.length > 0 && checkTimeRanges.length > 0) {
+		var newTimeRanges = [];
+		$.each(coverTimeRanges, function(coverIndex, coverTimeElement) {
+			if(coverTimeElement.type != 'Invalid') {
+				$.each(checkTimeRanges, function(checkIndex, checkTimeElement) {
+					if(checkTimeElement.type != 'Invalid') {
+						var timeRangeResultArray = checkInvalidTimeRange(coverTimeElement, checkTimeElement);
+						$.each(timeRangeResultArray, function(reslutIndex, resultElement) {
+							var needPush = true;
+
+							$.each(newTimeRanges, function(newIndex, newElement) {
+								if(resultElement.start == newElement.start) {
+									needPush = false;
+
+									if(resultElement.end < newElement.start) {
+										newElement = resultElement;
+									}
+								}
+							});
+
+							if(needPush) {
+								newTimeRanges.push(resultElement);
+							}
+						});
+					} else {
+						var needPush = true;
+
+						$.each(newTimeRanges, function(newIndex, newElement) {
+							if(checkTimeElement.start == newElement.start) {
+								needPush = false;
+
+								if(checkTimeElement.end < newElement.start) {
+									newElement = checkTimeElement;
+								}
+							}
+						});
+
+						if(needPush) {
+							newTimeRanges.push(checkTimeElement);
+						}
+					}
+				});
+			}
+		});
+		return newTimeRanges;
+	} else {
+		return deepCopyObjArray(checkTimeRanges);
+	}
+}
+
+function checkInvalidTimeRange(coverTimeRange, checkTimeRange) {
+	var newTimeRanges = [];
+	if(coverTimeRange.start >= checkTimeRange.end || coverTimeRange.end <= checkTimeRange.start) {				//No cover
+		newTimeRanges.push(checkTimeRange);
+	} else if(coverTimeRange.start <= checkTimeRange.start && coverTimeRange.end >= checkTimeRange.end) {		//Full cover
+		newTimeRanges.push({ start: checkTimeRange.start, end: checkTimeRange.end, id: (checkTimeRange.id + '_Invalid_' + checkTimeRange.start), type: 'Invalid' });
+	} else if(coverTimeRange.start > checkTimeRange.start && coverTimeRange.end < checkTimeRange.end) {			//inner cover
+		newTimeRanges.push({ start: checkTimeRange.start, end: coverTimeRange.start, id: checkTimeRange.id });
+		newTimeRanges.push({ start: coverTimeRange.start, end: coverTimeRange.end, id: (checkTimeRange.id + '_Invalid_' + coverTimeRange.start), type: 'Invalid' });
+		newTimeRanges.push({ start: coverTimeRange.end, end: checkTimeRange.end, id: checkTimeRange.id + '_' + coverTimeRange.end });
+	} else if(coverTimeRange.start > checkTimeRange.start) {
+		newTimeRanges.push({ start: checkTimeRange.start, end: coverTimeRange.start, id: checkTimeRange.id });
+		newTimeRanges.push({ start: coverTimeRange.start, end: checkTimeRange.end, id: (checkTimeRange.id + '_Invalid_' + coverTimeRange.start), type: 'Invalid' });
+	} else if(coverTimeRange.end < checkTimeRange.end) {
+		newTimeRanges.push({ start: coverTimeRange.end, end: checkTimeRange.end, id: checkTimeRange.id });
+		newTimeRanges.push({ start: checkTimeRange.start, end: coverTimeRange.end, id: (checkTimeRange.id + '_Invalid_' + checkTimeRange.start), type: 'Invalid' });
+	}
+	return newTimeRanges;
+}
+
+var deviceModes = ['backupMode', 'peakShaving', 'acChargeAcco', 'chargeFirst', 'forceDischargeOrSellToGrid'];
+var deviceModeForActives = ['selfConsumption', 'forceDischargeOrSellToGrid', 'acChargeCombine', 'peakShaving', 'backupMode'];
+
+function splitTimeRanges(timeRanges, splitTimeRange) {
+	if(splitTimeRange.start != splitTimeRange.end) {
+		var newTimeRanges = [];
+		$.each(timeRanges, function(index, element) {
+			var timeRangesAfterSplit = splitSingleTimeRange(element, splitTimeRange)
+			$.each(timeRangesAfterSplit, function(resultIndex, resultElement) {
+				newTimeRanges.push(resultElement);
+			});
+		});
+		return newTimeRanges;
+	} else {
+		return timeRanges;
+	}
+}
+
+function splitSingleTimeRange(timeRange, splitTimeRange) {
+	var newTimeRanges = [];
+	if(timeRange.start >= splitTimeRange.end || timeRange.end <= splitTimeRange.start) {
+		newTimeRanges.push(timeRange);
+	} else if(timeRange.start < splitTimeRange.start && timeRange.end > splitTimeRange.end) {
+		newTimeRanges.push({ start: timeRange.start, end: splitTimeRange.start, id: (timeRange.id + '_' + timeRange.start) });
+		newTimeRanges.push({ start: splitTimeRange.end, end: timeRange.end, id: (timeRange.id + '_' + splitTimeRange.end) });
+	} else if(timeRange.start < splitTimeRange.start) {
+		newTimeRanges.push({ start: timeRange.start, end: splitTimeRange.start, id: (timeRange.id + '_' + timeRange.start) });
+	} else if(timeRange.end > splitTimeRange.end) {
+		newTimeRanges.push({ start: splitTimeRange.end, end: timeRange.end, id: (timeRange.id + '_' + splitTimeRange.end) });
+	}
+	return newTimeRanges;
+}
+
+function combineAcChargeTimeRanges(acAccoTimeRange, acFirstTimeRange) {
+	var newTimeRanges = [];
+	if(acAccoTimeRange.start >= acFirstTimeRange.end || acAccoTimeRange.end <= acFirstTimeRange.start) {
+		acAccoTimeRange.type = 'acChargeAcco';
+		newTimeRanges.push(acAccoTimeRange);
+
+		acFirstTimeRange.type = 'chargeFirst';
+		newTimeRanges.push(acFirstTimeRange);
+	} else if(acAccoTimeRange.start < acFirstTimeRange.start && acAccoTimeRange.end > acFirstTimeRange.end) {
+		newTimeRanges.push({ start: acAccoTimeRange.start, end: acFirstTimeRange.start, id: (acAccoTimeRange.id + '_' + acAccoTimeRange.start), type: 'acChargeAcco' });
+		newTimeRanges.push({ start: acFirstTimeRange.end, end: acAccoTimeRange.end, id: (acAccoTimeRange.id + '_' + acFirstTimeRange.end), type: 'acChargeAcco' });
+		newTimeRanges.push({ start: acFirstTimeRange.start, end: acFirstTimeRange.end, id: ('ID_acCharge_combine_' + acFirstTimeRange.start), type: 'acChargeCombine' });
+	} else if(acAccoTimeRange.start < acFirstTimeRange.start) {
+		newTimeRanges.push({ start: acAccoTimeRange.start, end: acFirstTimeRange.start, id: (acAccoTimeRange.id + '_' + acAccoTimeRange.start), type: 'acChargeAcco' });
+		newTimeRanges.push({ start: acFirstTimeRange.start, end: acAccoTimeRange.end, id: ('ID_acCharge_combine_' + acFirstTimeRange.start), type: 'acChargeCombine' });
+		if(acAccoTimeRange.end < acFirstTimeRange.end) {
+			newTimeRanges.push({ start: acAccoTimeRange.end, end: acFirstTimeRange.end, id: (acFirstTimeRange.id + '_' + acAccoTimeRange.end), type: 'chargeFirst' });
+		}
+	} else if(acAccoTimeRange.end > acFirstTimeRange.end) {
+		newTimeRanges.push({ start: acFirstTimeRange.end, end: acAccoTimeRange.end, id: (acAccoTimeRange.id + '_' + acFirstTimeRange.end), type: 'acChargeAcco' });
+		newTimeRanges.push({ start: acAccoTimeRange.start, end: acFirstTimeRange.end, id: ('ID_acCharge_combine_' + acAccoTimeRange.start), type: 'acChargeCombine' });
+		if(acAccoTimeRange.start > acFirstTimeRange.start) {
+			newTimeRanges.push({ start: acFirstTimeRange.start, end: acAccoTimeRange.start, id: (acFirstTimeRange.id + '_' + acFirstTimeRange.start), type: 'chargeFirst' });
+		}
+	}
+	return newTimeRanges;
+}
+
+/**
+ * 计算条条宽度和x坐标
+ * @param workingModes
+ * @constructor
+ */
+async function initCell(workingModes) {
+//	console.log('workingModes = ', workingModes);
+	
+	let rowW = $("#selfConsumption").width();
+	let minutesW = (rowW / 1440).toFixed(5);
+	// Object.keys(workingModes).forEach((key)=>{
+	for (const key of Object.keys(workingModes)) {
+		//Clear old mode cells...
+		$('#' + key).empty();
+		console.log(key)
+		for (const index in workingModes[key]) {
+			console.log(workingModes[key][index])
+
+			//totalMinutes:开始时间到结束时间之间的分钟数
+			let totalMinutes = workingModes[key][index].end - workingModes[key][index].start;
+			console.log( workingModes[key][index].end , workingModes[key][index].start)
+			console.log( totalMinutes)
+			let cellW = Math.floor(totalMinutes * minutesW);
+			if (cellW !== 0) {
+				if (totalMinutes < 1 && totalMinutes > 0) cellW = 1;
+				if (totalMinutes == 0) cellW = 0;
+				let cellX = workingModes[key][index].start * minutesW
+				console.log( cellX,cellW)
+				// console.log('workingModes[key][index].start = ' + workingModes[key][index].start + ', minutesW = ' + minutesW + ', cellX = ' + cellX);
+				drawCell(key, cellX, cellW, workingModes[key][index])
+				// console.log("InitCell: " + key, cellX, cellW , workingModes[key][index].id, workingModes[key][index].type)
+			}
+		}
+	}
+}
+
+/**
+ * 页面缩放时重新绘制条条
+ */
+var resizeTimer;
+function handleResize() {
+	clearTimeout(resizeTimer);
+	//防抖
+	resizeTimer = setTimeout(function () {
+		initCell(modeTimeData)
+	}, 300); // 设置延迟时间，单位为毫秒
+}
+//页面缩放时重新绘制
+window.addEventListener('resize', handleResize);
+
+
+function showTimeText(value) {
+	return fillZeros(Math.floor(value / 60), 2) + ':' + fillZeros(Math.round(value % 60), 2);
+}
+
+/**
+ * 绘制条条
+ * */
+function drawCell(workingMode, cellX, cellW, cellData) {
+	var id = cellData.id;
+	var modeType = cellData.type;
+	console.log(workingMode, cellX, cellW, cellData,modeType)
+	if (!id) return
+	//如果已存在该div 不创建div只更新样式
+	if ($('.'+ id ).length > 0) {
+		console.log('11')
+		$('.'+ id ).css({
+			'position': 'absolute',
+			'width':  cellW + 'px',
+			'left': cellX + 'px',
+		})
+	} else {
+		console.log('22')
+		//如果不已存在该div 创建div且更新样式
+		let newCell = $('<div class="modeCellItem">')
+		newCell.addClass(id)
+		newCell.attr('title', showTimeText(cellData.start) + ' ~ ' + showTimeText(cellData.end));
+
+		if (modeType) {
+			newCell.addClass(modeType)
+
+			if(modeType != 'Invalid') {
+				if (currentSetPageType == 'workingMode2_OffGrid' && modeType === 'forceDischargeOrSellToGrid'){
+					modeType = 'Ac takes priority for load'
+				}
+				if (currentSetPageType == 'workingMode2_OffGrid' && modeType === 'selfConsumption') {
+					modeType = 'Self consumption'
+				}
+				if (currentSetPageType == 'workingMode2_OffGrid' && modeType === 'acChargeAcco') {
+					modeType = 'Ac charge acco'
+				}
+
+				newCell.text('')
+			}
+		} else {
+			console.log(workingMode)
+			newCell.addClass(workingMode)
+		}
+		console.log(workingMode)
+		console.log($(newCell))
+		newCell.css({
+			'position': 'absolute',
+			'width':  cellW + 'px',
+			'left': cellX + 'px',
+		})
+		$('#' + workingMode).append(newCell);
+	}
+}
+
+function refreshSlideInputParams(val,name,data) {
+	if (name == 'OFF_GRID_HOLD_MAX_GEN_CHG_BAT_CURR'){
+		console.log(val,name,data)
+	}
+	$('span.' + name).text(val + data.units)
+	let value = (val - data.min) / (data.max - data.min) * 100
+	$('input[type="range"].' + name).val(value);
+}
+
+let customScrollbarIni = {
+	customScrollbar4: function () {
+		let max = 56, min = 40;
+		if (isSnaSeries()) {
+			max = 59;
+			min = 38.4;
+		}
+		return {max, min}
+	}
+}
+
+function showReadParamsResult(response) {
+	handleModelData(response);
+	if(response.hasOwnProperty('BIT_DEVICE_TYPE_ODM')) {
+		$('select[bitParam="BIT_DEVICE_TYPE_ODM"]').val(response.BIT_DEVICE_TYPE_ODM);
+	}
+	if(response.hasOwnProperty('BIT_MACHINE_TYPE')) {
+		$('select[bitParam="BIT_MACHINE_TYPE"]').val(response.BIT_MACHINE_TYPE);
+	}
+	if(response.hasOwnProperty('FUNC_WATT_NODE_CT_DIRECTION_A')&&(currentPhase == 3 && currentDeviceType == 0) && response.FUNC_WATT_NODE_CT_DIRECTION_A) {
+		$('button[value="FUNC_WATT_NODE_CT_DIRECTION_A"]').addClass('btn-success')
+	}
+	if(response.hasOwnProperty('FUNC_WATT_NODE_CT_DIRECTION_B')&&(currentPhase == 3 && currentDeviceType == 0) && response.FUNC_WATT_NODE_CT_DIRECTION_B) {
+		$('button[value="FUNC_WATT_NODE_CT_DIRECTION_B"]').addClass('btn-success')
+	}
+	if(response.hasOwnProperty('FUNC_WATT_NODE_CT_DIRECTION_C')&&(currentPhase == 3 && currentDeviceType == 0) && response.FUNC_WATT_NODE_CT_DIRECTION_C) {
+		$('button[value="FUNC_WATT_NODE_CT_DIRECTION_C"]').addClass('btn-success')
+	}
+	if(response.hasOwnProperty('FUNC_WATT_NODE_CT_DIRECTION_A')) {
+		$('button[value="FUNC_WATT_NODE_CT_DIRECTION_A"]').removeAttr('disabled')
+	}
+	if(response.hasOwnProperty('FUNC_WATT_NODE_CT_DIRECTION_B')) {
+		$('button[value="FUNC_WATT_NODE_CT_DIRECTION_B"]').removeAttr('disabled')
+	}
+	if(response.hasOwnProperty('FUNC_WATT_NODE_CT_DIRECTION_C')) {
+		$('button[value="FUNC_WATT_NODE_CT_DIRECTION_C"]').removeAttr('disabled')
+	}
+	//Mode functions begin...
+	if(response.hasOwnProperty('FUNC_BATTERY_BACKUP_CTRL') && (currentDeviceType == 6 || (currentDeviceType == 7 && isAdmin) || (currentPhase == 3 && currentDeviceType == 0) || currentDeviceType == 8 || currentDeviceType == 10 || currentDeviceType == 3 || currentDeviceType == 11)) {
+		$('div[functionParam="FUNC_BATTERY_BACKUP_CTRL"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_BATTERY_BACKUP_CTRL"] button[onclick*="' + response.FUNC_BATTERY_BACKUP_CTRL + '"]').addClass('btn-success').removeClass('btn-default');
+		if((currentDeviceType == 3 || currentDeviceType == 11) && response.FUNC_BATTERY_BACKUP_CTRL) {
+			$('.acChargeTime, .acChargeTypeSetBtn, #acChargeTypeInput').attr('disabled', 'disabled')
+		} else {
+			backupModeEnable = response.FUNC_BATTERY_BACKUP_CTRL
+			checkEnableState('FUNC_BATTERY_BACKUP_CTRL', response.FUNC_BATTERY_BACKUP_CTRL)
+		}
+	}
+	//Mode functions end...
+
+	if(response.hasOwnProperty('HOLD_SERIAL_NUM')) {
+		$('input[holdParam="HOLD_SERIAL_NUM"]').val(response.HOLD_SERIAL_NUM);
+	}
+	if(response.hasOwnProperty('HOLD_FW_CODE')) {
+		$('input[holdParam="HOLD_FW_CODE"]').val(response.HOLD_FW_CODE);
+	}
+	if(response.hasOwnProperty('HOLD_LCD_VERSION')) {
+		$('input[holdParam="HOLD_LCD_VERSION"]').val(response.HOLD_LCD_VERSION);
+	}
+	if(response.hasOwnProperty('HOLD_CUSTOM_PASSWORD')) {
+		$('input[holdParam="HOLD_CUSTOM_PASSWORD"]').val(response.HOLD_CUSTOM_PASSWORD);
+	}
+	if(response.hasOwnProperty('HOLD_TIME')) {
+		$('input[holdParam="HOLD_TIME"]').val(response.HOLD_TIME);
+	}
+	if(response.hasOwnProperty('HOLD_COM_ADDR')) {
+		$('input[holdParam="HOLD_COM_ADDR"]').val(response.HOLD_COM_ADDR);
+	}
+	if(response.hasOwnProperty('HOLD_MODBUS_ADDRESS')) {
+		$('input[holdParam="HOLD_MODBUS_ADDRESS"]').val(response.HOLD_MODBUS_ADDRESS);
+	}
+	if(response.hasOwnProperty('HOLD_PV_INPUT_MODE')) {
+		$('select[holdParam="HOLD_PV_INPUT_MODE"]').val(response.HOLD_PV_INPUT_MODE);
+	}
+	if(response.hasOwnProperty('HOLD_BATT_VOLT_SAMPLE_DISABLE')) {
+		$('select[holdParam="HOLD_BATT_VOLT_SAMPLE_DISABLE"]').val(response.HOLD_BATT_VOLT_SAMPLE_DISABLE);
+	}
+	if(response.hasOwnProperty('HOLD_START_PV_VOLT')) {
+		$('input[holdParam="HOLD_START_PV_VOLT"]').val(response.HOLD_START_PV_VOLT);
+		refreshSlideInputParams(response.HOLD_START_PV_VOLT, 'startPvVoltInput',{max:500, min:90 ,units:'V'})
+	}
+	if(response.hasOwnProperty('HOLD_CONNECT_TIME')) {
+		$('input[holdParam="HOLD_CONNECT_TIME"]').val(response.HOLD_CONNECT_TIME);
+		refreshSlideInputParams(response.HOLD_CONNECT_TIME, 'connectTimeInput',{max:600, min:0 ,units:'S'})
+	}
+	if(response.hasOwnProperty('HOLD_RECONNECT_TIME')) {
+		$('input[holdParam="HOLD_RECONNECT_TIME"]').val(response.HOLD_RECONNECT_TIME);
+		refreshSlideInputParams(response.HOLD_RECONNECT_TIME, 'reconnectTimeInput',{max: 3600, min:0 ,units:'S'})
+	}
+	if(response.hasOwnProperty('HOLD_GRID_VOLT_CONN_LOW')) {
+		$('input[holdParam="HOLD_GRID_VOLT_CONN_LOW"]').val(response.HOLD_GRID_VOLT_CONN_LOW);
+		$('#dataMappingBox1').triangle(response.HOLD_GRID_VOLT_CONN_LOW, 'gridVoltConnectLow');
+		refreshSlideInputParams(response.HOLD_GRID_VOLT_CONN_LOW, 'gridVoltConnLowInput',{max:250, min:0 ,units:'V'})
+	}
+	if(response.hasOwnProperty('HOLD_GRID_VOLT_CONN_HIGH')) {
+		$('input[holdParam="HOLD_GRID_VOLT_CONN_HIGH"]').val(response.HOLD_GRID_VOLT_CONN_HIGH);
+		$('#dataMappingBox1').triangle(response.HOLD_GRID_VOLT_CONN_HIGH, 'gridVoltConnectHigh');
+		refreshSlideInputParams(response.HOLD_GRID_VOLT_CONN_HIGH, 'gridVoltConnHighInput',{max:250, min:0 ,units:'V'})
+	}
+	if(response.hasOwnProperty('HOLD_GRID_FREQ_CONN_LOW')) {
+		$('input[holdParam="HOLD_GRID_FREQ_CONN_LOW"]').val(response.HOLD_GRID_FREQ_CONN_LOW);
+		$('#dataMappingBox1').triangle(response.HOLD_GRID_FREQ_CONN_LOW, 'gridFreqConnectLow');
+		refreshSlideInputParams(response.HOLD_GRID_FREQ_CONN_LOW, 'gridFreqConnLowInput',{max:65, min:45 ,units:'Hz'})
+	}
+	if(response.hasOwnProperty('HOLD_GRID_FREQ_CONN_HIGH')) {
+		$('input[holdParam="HOLD_GRID_FREQ_CONN_HIGH"]').val(response.HOLD_GRID_FREQ_CONN_HIGH);
+		$('#dataMappingBox1').triangle(response.HOLD_GRID_FREQ_CONN_HIGH, 'gridFreqConnectHigh');
+		refreshSlideInputParams(response.HOLD_GRID_FREQ_CONN_HIGH, 'gridFreqConnHighInput',{max:65, min:45 ,units:'Hz'})
+	}
+	if(response.hasOwnProperty('HOLD_GRID_VOLT_LIMIT1_LOW')) {
+		$('input[holdParam="HOLD_GRID_VOLT_LIMIT1_LOW"]').val(response.HOLD_GRID_VOLT_LIMIT1_LOW);
+		$('#dataMappingBox1').triangle(response.HOLD_GRID_VOLT_LIMIT1_LOW, 'l1');
+	}
+	if(response.hasOwnProperty('HOLD_GRID_VOLT_LIMIT1_HIGH')) {
+		$('input[holdParam="HOLD_GRID_VOLT_LIMIT1_HIGH"]').val(response.HOLD_GRID_VOLT_LIMIT1_HIGH);
+		$('#dataMappingBox1').triangle(response.HOLD_GRID_VOLT_LIMIT1_HIGH, 'h1');
+	}
+	if(response.hasOwnProperty('HOLD_GRID_VOLT_LIMIT1_LOW_TIME')) {
+		if(currentDeviceType == 6 || currentDeviceType == 10 || (currentDeviceType == 0 && currentPhase == 3)) {
+			$('input[holdParam="HOLD_GRID_VOLT_LIMIT1_LOW_TIME"]').data('time', response.HOLD_GRID_VOLT_LIMIT1_LOW_TIME);
+		} else {
+			$('input[holdParam="HOLD_GRID_VOLT_LIMIT1_LOW_TIME"]').val(response.HOLD_GRID_VOLT_LIMIT1_LOW_TIME);
+		}
+	}
+	if(response.hasOwnProperty('HOLD_GRID_VOLT_LIMIT1_HIGH_TIME')) {
+		if(currentDeviceType == 6 || currentDeviceType == 10 || (currentDeviceType == 0 && currentPhase == 3)) {
+			$('input[holdParam="HOLD_GRID_VOLT_LIMIT1_HIGH_TIME"]').data('time', response.HOLD_GRID_VOLT_LIMIT1_HIGH_TIME);
+		} else {
+			$('input[holdParam="HOLD_GRID_VOLT_LIMIT1_HIGH_TIME"]').val(response.HOLD_GRID_VOLT_LIMIT1_HIGH_TIME);
+		}
+	}
+	if(response.hasOwnProperty('HOLD_GRID_VOLT_LIMIT2_LOW')) {
+		$('input[holdParam="HOLD_GRID_VOLT_LIMIT2_LOW"]').val(response.HOLD_GRID_VOLT_LIMIT2_LOW);
+		$('#dataMappingBox1').triangle(response.HOLD_GRID_VOLT_LIMIT2_LOW, 'l2');
+	}
+	if(response.hasOwnProperty('HOLD_GRID_VOLT_LIMIT2_HIGH')) {
+		$('input[holdParam="HOLD_GRID_VOLT_LIMIT2_HIGH"]').val(response.HOLD_GRID_VOLT_LIMIT2_HIGH);
+		$('#dataMappingBox1').triangle(response.HOLD_GRID_VOLT_LIMIT2_HIGH, 'h2');
+	}
+	if(response.hasOwnProperty('HOLD_GRID_VOLT_LIMIT2_LOW_TIME')) {
+		if(currentDeviceType == 6 || currentDeviceType == 10 || (currentDeviceType == 0 && currentPhase == 3)) {
+			$('input[holdParam="HOLD_GRID_VOLT_LIMIT2_LOW_TIME"]').data('time', response.HOLD_GRID_VOLT_LIMIT2_LOW_TIME);
+		} else {
+			$('input[holdParam="HOLD_GRID_VOLT_LIMIT2_LOW_TIME"]').val(response.HOLD_GRID_VOLT_LIMIT2_LOW_TIME);
+		}
+	}
+	if(response.hasOwnProperty('HOLD_GRID_VOLT_LIMIT2_HIGH_TIME')) {
+		if(currentDeviceType == 6 || currentDeviceType == 10 || (currentDeviceType == 0 && currentPhase == 3)) {
+			$('input[holdParam="HOLD_GRID_VOLT_LIMIT2_HIGH_TIME"]').data('time', response.HOLD_GRID_VOLT_LIMIT2_HIGH_TIME);
+		} else {
+			$('input[holdParam="HOLD_GRID_VOLT_LIMIT2_HIGH_TIME"]').val(response.HOLD_GRID_VOLT_LIMIT2_HIGH_TIME);
+		}
+	}
+	if(response.hasOwnProperty('HOLD_GRID_VOLT_LIMIT3_LOW')) {
+		$('input[holdParam="HOLD_GRID_VOLT_LIMIT3_LOW"]').val(response.HOLD_GRID_VOLT_LIMIT3_LOW);
+		$('#dataMappingBox1').triangle(response.HOLD_GRID_VOLT_LIMIT3_LOW, 'l3');
+	}
+	if(response.hasOwnProperty('HOLD_GRID_VOLT_LIMIT3_HIGH')) {
+		$('input[holdParam="HOLD_GRID_VOLT_LIMIT3_HIGH"]').val(response.HOLD_GRID_VOLT_LIMIT3_HIGH);
+		$('#dataMappingBox1').triangle(response.HOLD_GRID_VOLT_LIMIT3_HIGH, 'h3');
+	}
+	if(response.hasOwnProperty('HOLD_GRID_VOLT_LIMIT3_LOW_TIME')) {
+		if(currentDeviceType == 6 || currentDeviceType == 10 || (currentDeviceType == 0 && currentPhase == 3)) {
+			$('input[holdParam="HOLD_GRID_VOLT_LIMIT3_LOW_TIME"]').data('time', response.HOLD_GRID_VOLT_LIMIT3_LOW_TIME);
+		} else {
+			$('input[holdParam="HOLD_GRID_VOLT_LIMIT3_LOW_TIME"]').val(response.HOLD_GRID_VOLT_LIMIT3_LOW_TIME);
+		}
+	}
+	if(response.hasOwnProperty('HOLD_GRID_VOLT_LIMIT3_HIGH_TIME')) {
+		if(currentDeviceType == 6 || currentDeviceType == 10 || (currentDeviceType == 0 && currentPhase == 3)) {
+			$('input[holdParam="HOLD_GRID_VOLT_LIMIT3_HIGH_TIME"]').data('time', response.HOLD_GRID_VOLT_LIMIT3_HIGH_TIME);
+		} else {
+			$('input[holdParam="HOLD_GRID_VOLT_LIMIT3_HIGH_TIME"]').val(response.HOLD_GRID_VOLT_LIMIT3_HIGH_TIME);
+		}
+	}
+	if(response.hasOwnProperty('HOLD_GRID_VOLT_MOV_AVG_HIGH')) {
+		$('input[holdParam="HOLD_GRID_VOLT_MOV_AVG_HIGH"]').val(response.HOLD_GRID_VOLT_MOV_AVG_HIGH);
+	}
+	if(response.hasOwnProperty('HOLD_GRID_FREQ_LIMIT1_LOW')) {
+		$('input[holdParam="HOLD_GRID_FREQ_LIMIT1_LOW"]').val(response.HOLD_GRID_FREQ_LIMIT1_LOW);
+	}
+	if(response.hasOwnProperty('HOLD_GRID_FREQ_LIMIT1_HIGH')) {
+		$('input[holdParam="HOLD_GRID_FREQ_LIMIT1_HIGH"]').val(response.HOLD_GRID_FREQ_LIMIT1_HIGH);
+	}
+	if(response.hasOwnProperty('HOLD_GRID_FREQ_LIMIT1_LOW_TIME')) {
+		if(currentDeviceType == 6 || currentDeviceType == 10 || (currentDeviceType == 0 && currentPhase == 3)) {
+			$('input[holdParam="HOLD_GRID_FREQ_LIMIT1_LOW_TIME"]').data('time', response.HOLD_GRID_FREQ_LIMIT1_LOW_TIME);
+		} else {
+			$('input[holdParam="HOLD_GRID_FREQ_LIMIT1_LOW_TIME"]').val(response.HOLD_GRID_FREQ_LIMIT1_LOW_TIME);
+		}
+	}
+	if(response.hasOwnProperty('HOLD_GRID_FREQ_LIMIT1_HIGH_TIME')) {
+		if(currentDeviceType == 6 || currentDeviceType == 10 || (currentDeviceType == 0 && currentPhase == 3)) {
+			$('input[holdParam="HOLD_GRID_FREQ_LIMIT1_HIGH_TIME"]').data('time', response.HOLD_GRID_FREQ_LIMIT1_HIGH_TIME);
+		} else {
+			$('input[holdParam="HOLD_GRID_FREQ_LIMIT1_HIGH_TIME"]').val(response.HOLD_GRID_FREQ_LIMIT1_HIGH_TIME);
+		}
+	}
+	if(response.hasOwnProperty('HOLD_GRID_FREQ_LIMIT2_LOW')) {
+		$('input[holdParam="HOLD_GRID_FREQ_LIMIT2_LOW"]').val(response.HOLD_GRID_FREQ_LIMIT2_LOW);
+	}
+	if(response.hasOwnProperty('HOLD_GRID_FREQ_LIMIT2_HIGH')) {
+		$('input[holdParam="HOLD_GRID_FREQ_LIMIT2_HIGH"]').val(response.HOLD_GRID_FREQ_LIMIT2_HIGH);
+	}
+	if(response.hasOwnProperty('HOLD_GRID_FREQ_LIMIT2_LOW_TIME')) {
+		if(currentDeviceType == 6 || currentDeviceType == 10 || (currentDeviceType == 0 && currentPhase == 3)) {
+			$('input[holdParam="HOLD_GRID_FREQ_LIMIT2_LOW_TIME"]').data('time', response.HOLD_GRID_FREQ_LIMIT2_LOW_TIME);
+		} else {
+			$('input[holdParam="HOLD_GRID_FREQ_LIMIT2_LOW_TIME"]').val(response.HOLD_GRID_FREQ_LIMIT2_LOW_TIME);
+		}
+	}
+	if(response.hasOwnProperty('HOLD_GRID_FREQ_LIMIT2_HIGH_TIME')) {
+		if(currentDeviceType == 6 || currentDeviceType == 10 || (currentDeviceType == 0 && currentPhase == 3)) {
+			$('input[holdParam="HOLD_GRID_FREQ_LIMIT2_HIGH_TIME"]').data('time', response.HOLD_GRID_FREQ_LIMIT2_HIGH_TIME);
+		} else {
+			$('input[holdParam="HOLD_GRID_FREQ_LIMIT2_HIGH_TIME"]').val(response.HOLD_GRID_FREQ_LIMIT2_HIGH_TIME);
+		}
+	}
+	if(response.hasOwnProperty('HOLD_GRID_FREQ_LIMIT3_LOW')) {
+		$('input[holdParam="HOLD_GRID_FREQ_LIMIT3_LOW"]').val(response.HOLD_GRID_FREQ_LIMIT3_LOW);
+	}
+	if(response.hasOwnProperty('HOLD_GRID_FREQ_LIMIT3_HIGH')) {
+		$('input[holdParam="HOLD_GRID_FREQ_LIMIT3_HIGH"]').val(response.HOLD_GRID_FREQ_LIMIT3_HIGH);
+	}
+	if(response.hasOwnProperty('HOLD_GRID_FREQ_LIMIT3_LOW_TIME')) {
+		if(currentDeviceType == 6 || currentDeviceType == 10 || (currentDeviceType == 0 && currentPhase == 3)) {
+			$('input[holdParam="HOLD_GRID_FREQ_LIMIT3_LOW_TIME"]').data('time', response.HOLD_GRID_FREQ_LIMIT3_LOW_TIME);
+		} else {
+			$('input[holdParam="HOLD_GRID_FREQ_LIMIT3_LOW_TIME"]').val(response.HOLD_GRID_FREQ_LIMIT3_LOW_TIME);
+		}
+	}
+	if(response.hasOwnProperty('HOLD_GRID_FREQ_LIMIT3_HIGH_TIME')) {
+		if(currentDeviceType == 6 || currentDeviceType == 10 || (currentDeviceType == 0 && currentPhase == 3)) {
+			$('input[holdParam="HOLD_GRID_FREQ_LIMIT3_HIGH_TIME"]').data('time', response.HOLD_GRID_FREQ_LIMIT3_HIGH_TIME);
+		} else {
+			$('input[holdParam="HOLD_GRID_FREQ_LIMIT3_HIGH_TIME"]').val(response.HOLD_GRID_FREQ_LIMIT3_HIGH_TIME);
+		}
+	}
+	if(response.hasOwnProperty('HOLD_MAX_Q_PERCENT_FOR_QV')) {
+		$('input[holdParam="HOLD_MAX_Q_PERCENT_FOR_QV"]').val(response.HOLD_MAX_Q_PERCENT_FOR_QV);
+	}
+	if(response.hasOwnProperty('HOLD_ACTIVE_POWER_PERCENT_CMD')) {
+		$('input[holdParam="HOLD_ACTIVE_POWER_PERCENT_CMD"]').val(response.HOLD_ACTIVE_POWER_PERCENT_CMD);
+		refreshSlideInputParams(response.HOLD_ACTIVE_POWER_PERCENT_CMD, 'activePowerPercentCMDInput',{max: 100, min:0 ,units:'%'})
+	}
+	if(response.hasOwnProperty('HOLD_REACTIVE_POWER_CMD_TYPE')) {
+		$('select[holdParam="HOLD_REACTIVE_POWER_CMD_TYPE"]').val(response.HOLD_REACTIVE_POWER_CMD_TYPE);
+	}
+	if(response.hasOwnProperty('HOLD_REACTIVE_POWER_PERCENT_CMD')) {
+		$('input[holdParam="HOLD_REACTIVE_POWER_PERCENT_CMD"]').val(response.HOLD_REACTIVE_POWER_PERCENT_CMD);
+		refreshSlideInputParams(response.HOLD_REACTIVE_POWER_PERCENT_CMD, 'reactivePowerPercentCMDInput',{max: 80, min:0 ,units:'%'})
+	}
+	if(response.hasOwnProperty('HOLD_PF_CMD')) {
+		$('input[holdParam="HOLD_PF_CMD"]').val(response.HOLD_PF_CMD);
+	}
+	if(response.hasOwnProperty('HOLD_BUS1_PROTECTION_VOLTAGE')) {
+		$('input[holdParam="HOLD_BUS1_PROTECTION_VOLTAGE"]').val(response.HOLD_BUS1_PROTECTION_VOLTAGE);
+	}
+	if(response.hasOwnProperty('HOLD_POWER_SOFT_START_SLOPE')) {
+		$('input[holdParam="HOLD_POWER_SOFT_START_SLOPE"]').val(response.HOLD_POWER_SOFT_START_SLOPE);
+	}
+	if(response.hasOwnProperty('HOLD_CHARGE_POWER_PERCENT_CMD')) {
+		$('input[holdParam="HOLD_CHARGE_POWER_PERCENT_CMD"]').val(response.HOLD_CHARGE_POWER_PERCENT_CMD);
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_POWER_CMD')) {
+		if (currentSetPageType == 'workingMode2_Hybrid'){
+			$('input[holdParam="HOLD_AC_CHARGE_POWER_CMD"]').val(response.HOLD_AC_CHARGE_POWER_CMD);
+			refreshSlideInputParams(response.HOLD_AC_CHARGE_POWER_CMD, 'acChargePower',{max:100, min:0 ,units:'%'})
+		} else {
+			$('input[holdParam="HOLD_AC_CHARGE_POWER_CMD"]').val(response.HOLD_AC_CHARGE_POWER_CMD);
+			refreshSlideInputParams(response.HOLD_AC_CHARGE_POWER_CMD, 'acChargePower',{max:25.5, min:0 ,units:'kW'})
+		}
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_SOC_LIMIT')) {
+		$('input[holdParam="HOLD_AC_CHARGE_SOC_LIMIT"]').val(response.HOLD_AC_CHARGE_SOC_LIMIT);
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_START_HOUR')) {
+		$('input[holdParam="HOLD_AC_CHARGE_START_HOUR"]').val(response.HOLD_AC_CHARGE_START_HOUR);
+		acChargeOptionData[0].timeStartHour1 = response.HOLD_AC_CHARGE_START_HOUR
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_START_MINUTE')) {
+		$('input[holdParam="HOLD_AC_CHARGE_START_MINUTE"]').val(response.HOLD_AC_CHARGE_START_MINUTE);
+		acChargeOptionData[0].timeStartMinute1 = response.HOLD_AC_CHARGE_START_MINUTE
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_END_HOUR')) {
+		$('input[holdParam="HOLD_AC_CHARGE_END_HOUR"]').val(response.HOLD_AC_CHARGE_END_HOUR);
+		acChargeOptionData[0].timeStartHour2 = response.HOLD_AC_CHARGE_END_HOUR
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_END_MINUTE')) {
+		$('input[holdParam="HOLD_AC_CHARGE_END_MINUTE"]').val(response.HOLD_AC_CHARGE_END_MINUTE);
+		acChargeOptionData[0].timeStartMinute2 = response.HOLD_AC_CHARGE_END_MINUTE
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_START_HOUR_1')) {
+		$('input[holdParam="HOLD_AC_CHARGE_START_HOUR_1"]').val(response.HOLD_AC_CHARGE_START_HOUR_1);
+		acChargeOptionData[1].timeStartHour1 = response.HOLD_AC_CHARGE_START_HOUR_1
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_START_MINUTE_1')) {
+		$('input[holdParam="HOLD_AC_CHARGE_START_MINUTE_1"]').val(response.HOLD_AC_CHARGE_START_MINUTE_1);
+		acChargeOptionData[1].timeStartMinute1 = response.HOLD_AC_CHARGE_START_MINUTE_1
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_END_HOUR_1')) {
+		$('input[holdParam="HOLD_AC_CHARGE_END_HOUR_1"]').val(response.HOLD_AC_CHARGE_END_HOUR_1);
+		acChargeOptionData[1].timeStartHour2 = response.HOLD_AC_CHARGE_END_HOUR_1
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_END_MINUTE_1')) {
+		$('input[holdParam="HOLD_AC_CHARGE_END_MINUTE_1"]').val(response.HOLD_AC_CHARGE_END_MINUTE_1);
+		acChargeOptionData[1].timeStartMinute2 = response.HOLD_AC_CHARGE_END_MINUTE_1
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_START_HOUR_2')) {
+		$('input[holdParam="HOLD_AC_CHARGE_START_HOUR_2"]').val(response.HOLD_AC_CHARGE_START_HOUR_2);
+		acChargeOptionData[2].timeStartHour1 = response.HOLD_AC_CHARGE_START_HOUR_2
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_START_MINUTE_2')) {
+		$('input[holdParam="HOLD_AC_CHARGE_START_MINUTE_2"]').val(response.HOLD_AC_CHARGE_START_MINUTE_2);
+		acChargeOptionData[2].timeStartMinute1 = response.HOLD_AC_CHARGE_START_MINUTE_2
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_END_HOUR_2')) {
+		$('input[holdParam="HOLD_AC_CHARGE_END_HOUR_2"]').val(response.HOLD_AC_CHARGE_END_HOUR_2);
+		acChargeOptionData[2].timeStartHour2 = response.HOLD_AC_CHARGE_END_HOUR_2
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_END_MINUTE_2')) {
+		$('input[holdParam="HOLD_AC_CHARGE_END_MINUTE_2"]').val(response.HOLD_AC_CHARGE_END_MINUTE_2);
+		acChargeOptionData[2].timeStartMinute2 = response.HOLD_AC_CHARGE_END_MINUTE_2
+//		updateEcharts(acChargeOptionData,acChargeTimeannulusChart)
+	}
+	if(response.hasOwnProperty('HOLD_GEN_START_HOUR_1')) {
+		$('input[holdParam="HOLD_GEN_START_HOUR_1"]').val(response.HOLD_GEN_START_HOUR_1);
+	}
+	if(response.hasOwnProperty('HOLD_GEN_START_MINUTE_1')) {
+		$('input[holdParam="HOLD_GEN_START_MINUTE_1"]').val(response.HOLD_GEN_START_MINUTE_1);
+	}
+	if(response.hasOwnProperty('HOLD_GEN_END_HOUR_1')) {
+		$('input[holdParam="HOLD_GEN_END_HOUR_1"]').val(response.HOLD_GEN_END_HOUR_1);
+	}
+	if(response.hasOwnProperty('HOLD_GEN_END_MINUTE_1')) {
+		$('input[holdParam="HOLD_GEN_END_MINUTE_1"]').val(response.HOLD_GEN_END_MINUTE_1);
+	}
+	if(response.hasOwnProperty('HOLD_GEN_START_HOUR_2')) {
+		$('input[holdParam="HOLD_GEN_START_HOUR_2"]').val(response.HOLD_GEN_START_HOUR_2);
+	}
+	if(response.hasOwnProperty('HOLD_GEN_START_MINUTE_2')) {
+		$('input[holdParam="HOLD_GEN_START_MINUTE_2"]').val(response.HOLD_GEN_START_MINUTE_2);
+	}
+	if(response.hasOwnProperty('HOLD_GEN_END_HOUR_2')) {
+		$('input[holdParam="HOLD_GEN_END_HOUR_2"]').val(response.HOLD_GEN_END_HOUR_2);
+	}
+	if(response.hasOwnProperty('HOLD_GEN_END_MINUTE_2')) {
+		$('input[holdParam="HOLD_GEN_END_MINUTE_2"]').val(response.HOLD_GEN_END_MINUTE_2);
+	}
+	if(response.hasOwnProperty('HOLD_DISCHG_RECOVERY_LAG_SOC')) {
+		$('input[holdParam="HOLD_DISCHG_RECOVERY_LAG_SOC"]').val(response.HOLD_DISCHG_RECOVERY_LAG_SOC);
+	}
+	if(response.hasOwnProperty('HOLD_DISCHG_RECOVERY_LAG_VOLT')) {
+		$('input[holdParam="HOLD_DISCHG_RECOVERY_LAG_VOLT"]').val(response.HOLD_DISCHG_RECOVERY_LAG_VOLT);
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_CHG_POWER_CMD')) {
+		$('input[holdParam="HOLD_FORCED_CHG_POWER_CMD"]').val(response.HOLD_FORCED_CHG_POWER_CMD);
+		refreshSlideInputParams(response.HOLD_FORCED_CHG_POWER_CMD, 'forcedChgPowerCMDInput', {max:25.5, min:0 ,units:'kW'})
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_CHG_SOC_LIMIT')) {
+		$('input[holdParam="HOLD_FORCED_CHG_SOC_LIMIT"]').val(response.HOLD_FORCED_CHG_SOC_LIMIT);
+		// updateCustomScrollAndInhibitbar(response.HOLD_FORCED_CHG_SOC_LIMIT, null, {max: 100, min: 0, units: "%", parent: 'customScrollAndInhibitbar1', name1: 'Charge', name2: 'cutoff'});
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_CHARGE_START_HOUR')) {
+		$('input[holdParam="HOLD_FORCED_CHARGE_START_HOUR"]').val(response.HOLD_FORCED_CHARGE_START_HOUR);
+		batteryPrioritOptionData[0].timeStartHour1 = response.HOLD_FORCED_CHARGE_START_HOUR
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_CHARGE_START_MINUTE')){
+		$('input[holdParam="HOLD_FORCED_CHARGE_START_MINUTE"]').val(response.HOLD_FORCED_CHARGE_START_MINUTE);
+		batteryPrioritOptionData[0].timeStartMinute1 = response.HOLD_FORCED_CHARGE_START_MINUTE
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_CHARGE_END_HOUR')) {
+		$('input[holdParam="HOLD_FORCED_CHARGE_END_HOUR"]').val(response.HOLD_FORCED_CHARGE_END_HOUR);
+		batteryPrioritOptionData[0].timeStartHour2 = response.HOLD_FORCED_CHARGE_END_HOUR
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_CHARGE_END_MINUTE')) {
+		$('input[holdParam="HOLD_FORCED_CHARGE_END_MINUTE"]').val(response.HOLD_FORCED_CHARGE_END_MINUTE);
+		batteryPrioritOptionData[0].timeStartMinute2 = response.HOLD_FORCED_CHARGE_END_MINUTE
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_CHARGE_START_HOUR_1')) {
+		$('input[holdParam="HOLD_FORCED_CHARGE_START_HOUR_1"]').val(response.HOLD_FORCED_CHARGE_START_HOUR_1);
+		if (response.HOLD_FORCED_CHARGE_START_HOUR_1) batteryPrioritOptionData[1].timeStartHour1 = response.HOLD_FORCED_CHARGE_START_HOUR_1
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_CHARGE_START_MINUTE_1')) {
+		$('input[holdParam="HOLD_FORCED_CHARGE_START_MINUTE_1"]').val(response.HOLD_FORCED_CHARGE_START_MINUTE_1);
+		batteryPrioritOptionData[1].timeStartMinute1 = response.HOLD_FORCED_CHARGE_START_MINUTE_1
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_CHARGE_END_HOUR_1')) {
+		$('input[holdParam="HOLD_FORCED_CHARGE_END_HOUR_1"]').val(response.HOLD_FORCED_CHARGE_END_HOUR_1);
+		batteryPrioritOptionData[1].timeStartHour2 = response.HOLD_FORCED_CHARGE_END_HOUR_1
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_CHARGE_END_MINUTE_1')) {
+		$('input[holdParam="HOLD_FORCED_CHARGE_END_MINUTE_1"]').val(response.HOLD_FORCED_CHARGE_END_MINUTE_1);
+		batteryPrioritOptionData[1].timeStartMinute2 = response.HOLD_FORCED_CHARGE_END_MINUTE_1
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_CHARGE_START_HOUR_2')) {
+		$('input[holdParam="HOLD_FORCED_CHARGE_START_HOUR_2"]').val(response.HOLD_FORCED_CHARGE_START_HOUR_2);
+		batteryPrioritOptionData[2].timeStartHour1 = response.HOLD_FORCED_CHARGE_START_HOUR_2
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_CHARGE_START_MINUTE_2')) {
+		$('input[holdParam="HOLD_FORCED_CHARGE_START_MINUTE_2"]').val(response.HOLD_FORCED_CHARGE_START_MINUTE_2);
+		batteryPrioritOptionData[2].timeStartMinute1 = response.HOLD_FORCED_CHARGE_START_MINUTE_2
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_CHARGE_END_HOUR_2')) {
+		$('input[holdParam="HOLD_FORCED_CHARGE_END_HOUR_2"]').val(response.HOLD_FORCED_CHARGE_END_HOUR_2);
+		batteryPrioritOptionData[2].timeStartHour2 = response.HOLD_FORCED_CHARGE_END_HOUR_2
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_CHARGE_END_MINUTE_2')) {
+		$('input[holdParam="HOLD_FORCED_CHARGE_END_MINUTE_2"]').val(response.HOLD_FORCED_CHARGE_END_MINUTE_2);
+		batteryPrioritOptionData[2].timeStartMinute2 = response.HOLD_FORCED_CHARGE_END_MINUTE_2
+//		updateEcharts(batteryPrioritOptionData,batteryPrioritTimannulusChart)
+	}
+	if(response.hasOwnProperty('HOLD_DISCHG_POWER_PERCENT_CMD')) {
+		$('input[holdParam="HOLD_DISCHG_POWER_PERCENT_CMD"]').val(response.HOLD_DISCHG_POWER_PERCENT_CMD);
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_DISCHG_POWER_CMD')) {
+		$('input[holdParam="HOLD_FORCED_DISCHG_POWER_CMD"]').val(response.HOLD_FORCED_DISCHG_POWER_CMD);
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_DISCHG_SOC_LIMIT')) {
+		$('input[holdParam="HOLD_FORCED_DISCHG_SOC_LIMIT"]').val(response.HOLD_FORCED_DISCHG_SOC_LIMIT);
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_DISCHARGE_START_HOUR')) {
+		$('input[holdParam="HOLD_FORCED_DISCHARGE_START_HOUR"]').val(response.HOLD_FORCED_DISCHARGE_START_HOUR);
+		forcedDischargeTimeOptionData[0].timeStartHour1 = response.HOLD_FORCED_DISCHARGE_START_HOUR
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_DISCHARGE_START_MINUTE')) {
+		$('input[holdParam="HOLD_FORCED_DISCHARGE_START_MINUTE"]').val(response.HOLD_FORCED_DISCHARGE_START_MINUTE);
+		forcedDischargeTimeOptionData[0].timeStartMinute1 = response.HOLD_FORCED_DISCHARGE_START_MINUTE
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_DISCHARGE_END_HOUR')) {
+		$('input[holdParam="HOLD_FORCED_DISCHARGE_END_HOUR"]').val(response.HOLD_FORCED_DISCHARGE_END_HOUR);
+		forcedDischargeTimeOptionData[0].timeStartHour2 = response.HOLD_FORCED_DISCHARGE_END_HOUR
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_DISCHARGE_END_MINUTE')) {
+		$('input[holdParam="HOLD_FORCED_DISCHARGE_END_MINUTE"]').val(response.HOLD_FORCED_DISCHARGE_END_MINUTE);
+		forcedDischargeTimeOptionData[0].timeStartMinute2 = response.HOLD_FORCED_DISCHARGE_END_MINUTE
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_DISCHARGE_START_HOUR_1')) {
+		$('input[holdParam="HOLD_FORCED_DISCHARGE_START_HOUR_1"]').val(response.HOLD_FORCED_DISCHARGE_START_HOUR_1);
+		forcedDischargeTimeOptionData[1].timeStartHour1 = response.HOLD_FORCED_DISCHARGE_START_HOUR_1
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_DISCHARGE_START_MINUTE_1')) {
+		$('input[holdParam="HOLD_FORCED_DISCHARGE_START_MINUTE_1"]').val(response.HOLD_FORCED_DISCHARGE_START_MINUTE_1);
+		forcedDischargeTimeOptionData[1].timeStartMinute1 = response.HOLD_FORCED_DISCHARGE_START_MINUTE_1
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_DISCHARGE_END_HOUR_1')) {
+		$('input[holdParam="HOLD_FORCED_DISCHARGE_END_HOUR_1"]').val(response.HOLD_FORCED_DISCHARGE_END_HOUR_1);
+		forcedDischargeTimeOptionData[1].timeStartHour2 = response.HOLD_FORCED_DISCHARGE_END_HOUR_1
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_DISCHARGE_END_MINUTE_1')) {
+		$('input[holdParam="HOLD_FORCED_DISCHARGE_END_MINUTE_1"]').val(response.HOLD_FORCED_DISCHARGE_END_MINUTE_1);
+		forcedDischargeTimeOptionData[1].timeStartMinute2 = response.HOLD_FORCED_DISCHARGE_END_MINUTE_1
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_DISCHARGE_START_HOUR_2')) {
+		$('input[holdParam="HOLD_FORCED_DISCHARGE_START_HOUR_2"]').val(response.HOLD_FORCED_DISCHARGE_START_HOUR_2);
+		forcedDischargeTimeOptionData[2].timeStartHour1 = response.HOLD_FORCED_DISCHARGE_START_HOUR_2
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_DISCHARGE_START_MINUTE_2')) {
+		$('input[holdParam="HOLD_FORCED_DISCHARGE_START_MINUTE_2"]').val(response.HOLD_FORCED_DISCHARGE_START_MINUTE_2);
+		forcedDischargeTimeOptionData[2].timeStartMinute1 = response.HOLD_FORCED_DISCHARGE_START_MINUTE_2
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_DISCHARGE_END_HOUR_2')) {
+		$('input[holdParam="HOLD_FORCED_DISCHARGE_END_HOUR_2"]').val(response.HOLD_FORCED_DISCHARGE_END_HOUR_2);
+		forcedDischargeTimeOptionData[2].timeStartHour2 = response.HOLD_FORCED_DISCHARGE_END_HOUR_2
+	}
+	if(response.hasOwnProperty('HOLD_FORCED_DISCHARGE_END_MINUTE_2')) {
+		$('input[holdParam="HOLD_FORCED_DISCHARGE_END_MINUTE_2"]').val(response.HOLD_FORCED_DISCHARGE_END_MINUTE_2);
+		forcedDischargeTimeOptionData[2].timeStartMinute2 = response.HOLD_FORCED_DISCHARGE_END_MINUTE_2
+		// updateEcharts(forcedDischargeTimeOptionData,forcedDischargeStartTimeChart)
+	}
+	if(response.hasOwnProperty('HOLD_LEAD_ACID_CHARGE_VOLT_REF')) {
+		$('input[holdParam="HOLD_LEAD_ACID_CHARGE_VOLT_REF"]').val(response.HOLD_LEAD_ACID_CHARGE_VOLT_REF);
+		refreshSlideInputParams(response.HOLD_LEAD_ACID_CHARGE_VOLT_REF, 'leadAcidChargeVoltRefInput', {max:59, min:50 ,units:'V'})
+		updateLineChart(response.HOLD_LEAD_ACID_CHARGE_VOLT_REF, 'leadAcidChargeVoltRefInput')
+	}
+	if(response.hasOwnProperty('HOLD_LEAD_ACID_DISCHARGE_CUT_OFF_VOLT')) {
+		updateCustomScrollbar(response.HOLD_LEAD_ACID_DISCHARGE_CUT_OFF_VOLT, null, {max: 56, min: 40, units: "V", parent: 'customScrollbar2', name1: 'off-grid', name2: 'on-grid'});
+		$('input[holdParam="HOLD_LEAD_ACID_DISCHARGE_CUT_OFF_VOLT"]').val(response.HOLD_LEAD_ACID_DISCHARGE_CUT_OFF_VOLT);
+	}
+	if(response.hasOwnProperty('HOLD_LEAD_ACID_CHARGE_RATE')) {
+		$('input[holdParam="HOLD_LEAD_ACID_CHARGE_RATE"]').val(response.HOLD_LEAD_ACID_CHARGE_RATE);
+		refreshSlideInputParams(response.HOLD_LEAD_ACID_CHARGE_RATE, 'leadAcidChargeRateInput', {max: 250, min: 0 ,units:'Adc'})
+	}
+	if(response.hasOwnProperty('_12K_HOLD_SOC_HYSTERESIS')) {
+		$('input[holdParam="_12K_HOLD_SOC_HYSTERESIS"]').val(response._12K_HOLD_SOC_HYSTERESIS);
+		refreshSlideInputParams(response._12K_HOLD_SOC_HYSTERESIS, 'socHysteresisInput', {max: 80, min: 5 ,units:'%'})
+	}
+	if(response.hasOwnProperty('_12K_HOLD_VOLT_HYSTERESIS')) {
+		$('input[holdParam="_12K_HOLD_VOLT_HYSTERESIS"]').val(response._12K_HOLD_VOLT_HYSTERESIS);
+		refreshSlideInputParams(response._12K_HOLD_VOLT_HYSTERESIS, 'voltHysteresisInput', {max: 100, min: 20 ,units:'V'})
+	}
+	if(response.hasOwnProperty('HOLD_LEAD_ACID_DISCHARGE_RATE')) {
+		$('input[holdParam="HOLD_LEAD_ACID_DISCHARGE_RATE"]').val(response.HOLD_LEAD_ACID_DISCHARGE_RATE);
+		refreshSlideInputParams(response.HOLD_LEAD_ACID_DISCHARGE_RATE, 'leadAcidDischargeRateInput', {max: 250, min: 0 ,units:'Adc'})
+	}
+	if(response.hasOwnProperty('HOLD_FEED_IN_GRID_POWER_PERCENT')) {
+		$('input[holdParam="HOLD_FEED_IN_GRID_POWER_PERCENT"]').val(response.HOLD_FEED_IN_GRID_POWER_PERCENT);
+	}
+	if(response.hasOwnProperty('HOLD_DISCHG_CUT_OFF_SOC_EOD')) {
+		updateCustomLimitScrollbar(null, response.HOLD_DISCHG_CUT_OFF_SOC_EOD, {max: 100, min: 0, units: "%", parent: 'customScrollbar1', name1: 'off-grid', name2: 'on-grid'});
+		$('input[holdParam="HOLD_DISCHG_CUT_OFF_SOC_EOD"]').val(response.HOLD_DISCHG_CUT_OFF_SOC_EOD);
+	}
+	if(response.hasOwnProperty('HOLD_SOC_LOW_LIMIT_EPS_DISCHG')) {
+		updateCustomLimitScrollbar(response.HOLD_SOC_LOW_LIMIT_EPS_DISCHG, null, {max: 100, min: 0, units: "%", parent: 'customScrollbar1', name1: 'off-grid', name2: 'on-grid'});
+		$('input[holdParam="HOLD_SOC_LOW_LIMIT_EPS_DISCHG"]').val(response.HOLD_SOC_LOW_LIMIT_EPS_DISCHG);
+		updateCustomScrollAndInhibitbar(response.HOLD_FORCED_CHG_SOC_LIMIT, null, {max: response.HOLD_DISCHG_CUT_OFF_SOC_EOD, min: response.HOLD_SOC_LOW_LIMIT_EPS_DISCHG, units: "%", parent: 'customScrollAndInhibitbar1', name1: 'Charge', name2: 'cutoff'});
+	}
+	if(response.hasOwnProperty('HOLD_LEAD_ACID_TEMPR_LOWER_LIMIT_DISCHG')) {
+		$('input[holdParam="HOLD_LEAD_ACID_TEMPR_LOWER_LIMIT_DISCHG"]').val(response.HOLD_LEAD_ACID_TEMPR_LOWER_LIMIT_DISCHG);
+	}
+	if(response.hasOwnProperty('HOLD_LEAD_ACID_TEMPR_UPPER_LIMIT_DISCHG')) {
+		$('input[holdParam="HOLD_LEAD_ACID_TEMPR_UPPER_LIMIT_DISCHG"]').val(response.HOLD_LEAD_ACID_TEMPR_UPPER_LIMIT_DISCHG);
+	}
+	if(response.hasOwnProperty('HOLD_LEAD_ACID_TEMPR_LOWER_LIMIT_CHG')) {
+		$('input[holdParam="HOLD_LEAD_ACID_TEMPR_LOWER_LIMIT_CHG"]').val(response.HOLD_LEAD_ACID_TEMPR_LOWER_LIMIT_CHG);
+	}
+	if(response.hasOwnProperty('HOLD_LEAD_ACID_TEMPR_UPPER_LIMIT_CHG')) {
+		$('input[holdParam="HOLD_LEAD_ACID_TEMPR_UPPER_LIMIT_CHG"]').val(response.HOLD_LEAD_ACID_TEMPR_UPPER_LIMIT_CHG);
+	}
+	if(response.hasOwnProperty('HOLD_SET_MASTER_OR_SLAVE')) {
+		$('select[holdParam="HOLD_SET_MASTER_OR_SLAVE"]').val(response.HOLD_SET_MASTER_OR_SLAVE);
+	}
+	if(response.hasOwnProperty('HOLD_OUTPUT_CONFIGURATION')) {
+		$('select[holdParam="HOLD_OUTPUT_CONFIGURATION"]').val(response.HOLD_OUTPUT_CONFIGURATION);
+	}
+	if(response.hasOwnProperty('HOLD_LINE_MODE_INPUT')) {
+		$('select[holdParam="HOLD_LINE_MODE_INPUT"]').val(response.HOLD_LINE_MODE_INPUT);
+	}
+	if(response.hasOwnProperty('HOLD_NOMINAL_BATTERY_VOLTAGE')) {
+		$('input[holdParam="HOLD_NOMINAL_BATTERY_VOLTAGE"]').val(response.HOLD_NOMINAL_BATTERY_VOLTAGE);
+	}
+	if(response.hasOwnProperty('HOLD_AC_FIRST_START_HOUR')) {
+		$('input[holdParam="HOLD_AC_FIRST_START_HOUR"]').val(response.HOLD_AC_FIRST_START_HOUR);
+		forcedDischargeTimeOptionData[0].timeStartHour1 = response.HOLD_AC_FIRST_START_HOUR
+	}
+	if(response.hasOwnProperty('HOLD_AC_FIRST_START_MINUTE')) {
+		$('input[holdParam="HOLD_AC_FIRST_START_MINUTE"]').val(response.HOLD_AC_FIRST_START_MINUTE);
+		forcedDischargeTimeOptionData[0].timeStartMinute1 = response.HOLD_AC_FIRST_START_MINUTE
+	}
+	if(response.hasOwnProperty('HOLD_AC_FIRST_END_HOUR')) {
+		$('input[holdParam="HOLD_AC_FIRST_END_HOUR"]').val(response.HOLD_AC_FIRST_END_HOUR);
+		forcedDischargeTimeOptionData[0].timeStartHour2 = response.HOLD_AC_FIRST_END_HOUR
+	}
+	if(response.hasOwnProperty('HOLD_AC_FIRST_END_MINUTE')) {
+		$('input[holdParam="HOLD_AC_FIRST_END_MINUTE"]').val(response.HOLD_AC_FIRST_END_MINUTE);
+		forcedDischargeTimeOptionData[0].timeStartMinute2 = response.HOLD_AC_FIRST_END_MINUTE
+	}
+	if(response.hasOwnProperty('HOLD_AC_FIRST_START_HOUR_1')) {
+		$('input[holdParam="HOLD_AC_FIRST_START_HOUR_1"]').val(response.HOLD_AC_FIRST_START_HOUR_1);
+		forcedDischargeTimeOptionData[1].timeStartHour1 = response.HOLD_AC_FIRST_START_HOUR_1
+	}
+	if(response.hasOwnProperty('HOLD_AC_FIRST_START_MINUTE_1')) {
+		$('input[holdParam="HOLD_AC_FIRST_START_MINUTE_1"]').val(response.HOLD_AC_FIRST_START_MINUTE_1);
+		forcedDischargeTimeOptionData[1].timeStartMinute1 = response.HOLD_AC_FIRST_START_MINUTE_1
+	}
+	if(response.hasOwnProperty('HOLD_AC_FIRST_END_HOUR_1')) {
+		$('input[holdParam="HOLD_AC_FIRST_END_HOUR_1"]').val(response.HOLD_AC_FIRST_END_HOUR_1);
+		forcedDischargeTimeOptionData[1].timeStartHour2 = response.HOLD_AC_FIRST_END_HOUR_1
+	}
+	if(response.hasOwnProperty('HOLD_AC_FIRST_END_MINUTE_1')) {
+		$('input[holdParam="HOLD_AC_FIRST_END_MINUTE_1"]').val(response.HOLD_AC_FIRST_END_MINUTE_1);
+		forcedDischargeTimeOptionData[1].timeStartMinute2 = response.HOLD_AC_FIRST_END_MINUTE_1
+	}
+	if(response.hasOwnProperty('HOLD_AC_FIRST_START_HOUR_2')) {
+		$('input[holdParam="HOLD_AC_FIRST_START_HOUR_2"]').val(response.HOLD_AC_FIRST_START_HOUR_2);
+		forcedDischargeTimeOptionData[2].timeStartHour1 = response.HOLD_AC_FIRST_START_HOUR_2
+	}
+	if(response.hasOwnProperty('HOLD_AC_FIRST_START_MINUTE_2')) {
+		$('input[holdParam="HOLD_AC_FIRST_START_MINUTE_2"]').val(response.HOLD_AC_FIRST_START_MINUTE_2);
+		forcedDischargeTimeOptionData[2].timeStartMinute1 = response.HOLD_AC_FIRST_START_MINUTE_2
+	}
+	if(response.hasOwnProperty('HOLD_AC_FIRST_END_HOUR_2')) {
+		$('input[holdParam="HOLD_AC_FIRST_END_HOUR_2"]').val(response.HOLD_AC_FIRST_END_HOUR_2);
+		forcedDischargeTimeOptionData[2].timeStartHour2 = response.HOLD_AC_FIRST_END_HOUR_2
+	}
+	if(response.hasOwnProperty('HOLD_AC_FIRST_END_MINUTE_2')) {
+		$('input[holdParam="HOLD_AC_FIRST_END_MINUTE_2"]').val(response.HOLD_AC_FIRST_END_MINUTE_2);
+		forcedDischargeTimeOptionData[2].timeStartMinute2 = response.HOLD_AC_FIRST_END_MINUTE_2
+	}
+	if(response.hasOwnProperty('HOLD_FLOATING_VOLTAGE')) {
+		$('input[holdParam="HOLD_FLOATING_VOLTAGE"]').val(response.HOLD_FLOATING_VOLTAGE);
+		if (isSnaSeries()) {
+			refreshSlideInputParams(response.HOLD_FLOATING_VOLTAGE, 'floatingVoltageInput', {max: 58, min: 50 ,units:'V'})
+		} else {
+			refreshSlideInputParams(response.HOLD_FLOATING_VOLTAGE, 'floatingVoltageInput', {max: 59, min: 40 ,units:'V'})
+		}
+		updateLineChart(response.HOLD_FLOATING_VOLTAGE, 'floatingVoltageInput')
+	}
+	if(response.hasOwnProperty('HOLD_EQUALIZATION_VOLTAGE')) {
+		$('input[holdParam="HOLD_EQUALIZATION_VOLTAGE"]').val(response.HOLD_EQUALIZATION_VOLTAGE);
+	}
+	if(response.hasOwnProperty('HOLD_EQUALIZATION_PERIOD')) {
+		$('input[holdParam="HOLD_EQUALIZATION_PERIOD"]').val(response.HOLD_EQUALIZATION_PERIOD);
+	}
+	if(response.hasOwnProperty('HOLD_EQUALIZATION_TIME')) {
+		$('input[holdParam="HOLD_EQUALIZATION_TIME"]').val(response.HOLD_EQUALIZATION_TIME);
+	}
+	if(response.hasOwnProperty('BIT_WORKING_MODE')) {
+		$('select[bitParam="BIT_WORKING_MODE"]').val(response.BIT_WORKING_MODE);
+	}
+	if(response.hasOwnProperty('BIT_CT_SAMPLE_RATIO')) {
+		$('select[bitParam="BIT_CT_SAMPLE_RATIO"]').val(response.BIT_CT_SAMPLE_RATIO);
+	}
+	if(response.hasOwnProperty('BIT_PVCT_SAMPLE_TYPE')) {
+		$('select[bitParam="BIT_PVCT_SAMPLE_TYPE"]').val(response.BIT_PVCT_SAMPLE_TYPE);
+	}
+	if(response.hasOwnProperty('BIT_PVCT_SAMPLE_RATIO')) {
+		$('select[bitParam="BIT_PVCT_SAMPLE_RATIO"]').val(response.BIT_PVCT_SAMPLE_RATIO);
+	}
+	if(response.hasOwnProperty('_12K_HOLD_GEN_COOL_DOWN_TIME')) {
+		$('input[holdParam="_12K_HOLD_GEN_COOL_DOWN_TIME"]').val(response._12K_HOLD_GEN_COOL_DOWN_TIME);
+		refreshSlideInputParams(response._12K_HOLD_GEN_COOL_DOWN_TIME, 'genCoolDownTimeInput', {max:25.5, min:0 ,units:'Min'})
+	}
+	if(response.hasOwnProperty('BIT_AC_CHARGE_TYPE')) {
+		$('select[bitParam="BIT_AC_CHARGE_TYPE"]').val(response.BIT_AC_CHARGE_TYPE);
+		if ( currentSetPageType != 'workingMode2_OffGrid'){
+			checkEnableState('BIT_AC_CHARGE_TYPE', response.BIT_AC_CHARGE_TYPE)
+		}
+		if(currentSetPageType == 'remoteSetOffGrid' || currentSetPageType == 'workingMode2_OffGrid' || currentSetPageType == 'workingMode2_12K' || currentSetPageType == 'workingMode2_Hybrid') {
+			checkAcChargeSetting();
+
+			//根据AC Charge Based On切换SOC/VOLT OR Time
+			checkAcChargeType(response.BIT_AC_CHARGE_TYPE)
+
+			if(currentSetPageType == 'workingMode2_OffGrid') {
+				acChargeAccoEnable = (response.BIT_AC_CHARGE_TYPE == 1 || response.BIT_AC_CHARGE_TYPE == 4 || response.BIT_AC_CHARGE_TYPE == 5);
+				refreshAcChargeEnableView(acChargeAccoEnable)
+				recoveryAllModeArrays();
+				refreshModeTimeChart(true);
+			}
+
+		}
+	}
+	if(response.hasOwnProperty('BIT_DISCHG_CONTROL_TYPE')) {
+		$('select[bitParam="BIT_DISCHG_CONTROL_TYPE"]').val(response.BIT_DISCHG_CONTROL_TYPE);
+
+		if(currentSetPageType == 'remoteSetOffGrid') {
+			checkDischargeSetting();
+		}
+	}
+	if(response.hasOwnProperty('HOLD_BATT_VOLT_SAMPLE_DISABLE')) {
+		$('select[holdParam="HOLD_BATT_VOLT_SAMPLE_DISABLE"]').val(response.HOLD_BATT_VOLT_SAMPLE_DISABLE);
+	}
+	if(response.hasOwnProperty('BIT_ON_GRID_EOD_TYPE')) {
+		$('select[bitParam="BIT_ON_GRID_EOD_TYPE"]').val(response.BIT_ON_GRID_EOD_TYPE);
+	}
+	if(response.hasOwnProperty('BIT_GENERATOR_CHARGE_TYPE')) {
+		$('select[bitParam="BIT_GENERATOR_CHARGE_TYPE"]').val(response.BIT_GENERATOR_CHARGE_TYPE);
+
+		if(currentSetPageType == 'remoteSetOffGrid' ) {
+			checkGenChargeSetting();
+		}
+
+		if(currentSetPageType == 'workingMode2_OffGrid') {
+			checkGeneratorChgType(response.BIT_GENERATOR_CHARGE_TYPE)
+		}
+	}
+	if(response.hasOwnProperty('BIT_FAN_1_MAX_SPEED')) {
+		$('input[bitParam="BIT_FAN_1_MAX_SPEED"]').val(response.BIT_FAN_1_MAX_SPEED);
+	}
+	if(response.hasOwnProperty('BIT_FAN_2_MAX_SPEED')) {
+		$('input[bitParam="BIT_FAN_2_MAX_SPEED"]').val(response.BIT_FAN_2_MAX_SPEED);
+	}
+	if(response.hasOwnProperty('BIT_FAN_3_MAX_SPEED')) {
+		$('input[bitParam="BIT_FAN_3_MAX_SPEED"]').val(response.BIT_FAN_3_MAX_SPEED);
+	}
+	if(response.hasOwnProperty('BIT_FAN_4_MAX_SPEED')) {
+		$('input[bitParam="BIT_FAN_4_MAX_SPEED"]').val(response.BIT_FAN_4_MAX_SPEED);
+	}
+	if(response.hasOwnProperty('BIT_FAN_5_MAX_SPEED')) {
+		$('input[bitParam="BIT_FAN_5_MAX_SPEED"]').val(response.BIT_FAN_5_MAX_SPEED);
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_START_BATTERY_VOLTAGE')) {
+		$('input[holdParam="HOLD_AC_CHARGE_START_BATTERY_VOLTAGE"]').val(response.HOLD_AC_CHARGE_START_BATTERY_VOLTAGE);
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_END_BATTERY_VOLTAGE')) {
+		$('input[holdParam="HOLD_AC_CHARGE_END_BATTERY_VOLTAGE"]').val(response.HOLD_AC_CHARGE_END_BATTERY_VOLTAGE);
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_START_BATTERY_SOC')) {
+		$('input[holdParam="HOLD_AC_CHARGE_START_BATTERY_SOC"]').val(response.HOLD_AC_CHARGE_START_BATTERY_SOC);
+		// $('#startAcChargeSoc').val(response.HOLD_AC_CHARGE_START_BATTERY_SOC);
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_END_BATTERY_SOC')) {
+		$('input[holdParam="HOLD_AC_CHARGE_END_BATTERY_SOC"]').val(response.HOLD_AC_CHARGE_END_BATTERY_SOC);
+		// $('#endAcChargeSoc').val(response.HOLD_AC_CHARGE_END_BATTERY_SOC);
+	}
+	if(response.hasOwnProperty('HOLD_BATTERY_WARNING_VOLTAGE')) {
+		$('input[holdParam="HOLD_BATTERY_WARNING_VOLTAGE"]').val(response.HOLD_BATTERY_WARNING_VOLTAGE);
+		$('#startAcChargeVolt').val(response.HOLD_AC_CHARGE_END_BATTERY_SOC)
+	}
+	if(response.hasOwnProperty('HOLD_BATTERY_WARNING_RECOVERY_VOLTAGE')) {
+		// $('input[holdParam="HOLD_BATTERY_WARNING_RECOVERY_VOLTAGE"]').val(response.HOLD_BATTERY_WARNING_RECOVERY_VOLTAGE);
+		$('#endAcChargeVolt').val(response.HOLD_AC_CHARGE_END_BATTERY_SOC)
+	}
+	if(response.hasOwnProperty('HOLD_BATTERY_WARNING_SOC')) {
+		$('input[holdParam="HOLD_BATTERY_WARNING_SOC"]').val(response.HOLD_BATTERY_WARNING_SOC);
+	}
+	if(response.hasOwnProperty('HOLD_BATTERY_WARNING_RECOVERY_SOC')) {
+		$('input[holdParam="HOLD_BATTERY_WARNING_RECOVERY_SOC"]').val(response.HOLD_BATTERY_WARNING_RECOVERY_SOC);
+	}
+	if(response.hasOwnProperty('HOLD_BATTERY_LOW_TO_UTILITY_VOLTAGE')) {
+		$('input[holdParam="HOLD_BATTERY_LOW_TO_UTILITY_VOLTAGE"]').val(response.HOLD_BATTERY_LOW_TO_UTILITY_VOLTAGE);
+	}
+	if(response.hasOwnProperty('HOLD_BATTERY_LOW_TO_UTILITY_SOC')) {
+		$('input[holdParam="HOLD_BATTERY_LOW_TO_UTILITY_SOC"]').val(response.HOLD_BATTERY_LOW_TO_UTILITY_SOC);
+	}
+	if(response.hasOwnProperty('HOLD_AC_CHARGE_BATTERY_CURRENT')) {
+		$('input[holdParam="HOLD_AC_CHARGE_BATTERY_CURRENT"]').val(response.HOLD_AC_CHARGE_BATTERY_CURRENT);
+	}
+	if(response.hasOwnProperty('HOLD_ON_GRID_EOD_VOLTAGE')) {
+		updateCustomLimitScrollbar(null, response.HOLD_ON_GRID_EOD_VOLTAGE, {max: 56, min: 40, units: "V", parent: 'customScrollbar2', name1: 'off-grid', name2: 'on-grid'});
+		$('input[holdParam="HOLD_ON_GRID_EOD_VOLTAGE"]').val(response.HOLD_ON_GRID_EOD_VOLTAGE);
+	}
+	if(response.hasOwnProperty('HOLD_P_TO_USER_START_DISCHG')) {
+		$('input[holdParam="HOLD_P_TO_USER_START_DISCHG"]').val(response.HOLD_P_TO_USER_START_DISCHG);
+	}
+	if(response.hasOwnProperty('HOLD_VBAT_START_DERATING')) {
+		$('input[holdParam="HOLD_VBAT_START_DERATING"]').val(response.HOLD_VBAT_START_DERATING);
+		refreshSlideInputParams(response.HOLD_VBAT_START_DERATING, 'vbatStartDeratingInput', {max:100, min:0 ,units:'V'})
+	}
+	if(response.hasOwnProperty('HOLD_CT_POWER_OFFSET')) {
+		$('input[holdParam="HOLD_CT_POWER_OFFSET"]').val(response.HOLD_CT_POWER_OFFSET);
+	}
+	if(response.hasOwnProperty('HOLD_SPEC_LOAD_COMPENSATE')) {
+		$('input[holdParam="HOLD_SPEC_LOAD_COMPENSATE"]').val(response.HOLD_SPEC_LOAD_COMPENSATE);
+	}
+	if(response.hasOwnProperty('HOLD_MAINTENANCE_COUNT')) {
+		$('input[holdParam="HOLD_MAINTENANCE_COUNT"]').val(response.HOLD_MAINTENANCE_COUNT);
+	}
+	if(response.hasOwnProperty('HOLD_LANGUAGE')) {
+		$('select[holdParam="HOLD_LANGUAGE"]').val(response.HOLD_LANGUAGE);
+	}
+	if(response.hasOwnProperty('HOLD_EPS_VOLT_SET')) {
+		$('select[holdParam="HOLD_EPS_VOLT_SET"]').val(response.HOLD_EPS_VOLT_SET);
+	}
+	if(response.hasOwnProperty('HOLD_EPS_FREQ_SET')) {
+		$('select[holdParam="HOLD_EPS_FREQ_SET"]').val(response.HOLD_EPS_FREQ_SET);
+	}
+	if(response.hasOwnProperty('FUNC_GO_TO_OFFGRID')) {
+		$('div[functionParam="FUNC_GO_TO_OFFGRID"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_GO_TO_OFFGRID"] button[onclick*="' + response.FUNC_GO_TO_OFFGRID + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('HOLD_MAX_AC_INPUT_POWER')) {
+		var showNoLimitation = false;
+		if(currentDeviceType == 0 && currentPhase != 3 && response.HOLD_MAX_AC_INPUT_POWER > 65534) {
+			showNoLimitation = true;
+		} else if((currentDeviceType == 6 || (currentDeviceType == 0 && currentPhase == 3) || currentDeviceType == 7 || currentDeviceType == 8) && response.HOLD_MAX_AC_INPUT_POWER > 6553.4) {
+			showNoLimitation = true;
+		}
+		if(showNoLimitation) {
+			$('input[holdParam="HOLD_MAX_AC_INPUT_POWER"]').attr('type','text')
+			$('input[holdParam="HOLD_MAX_AC_INPUT_POWER"]').val('No limitation');
+		} else {
+			$('input[holdParam="HOLD_MAX_AC_INPUT_POWER"]').attr('type','number')
+			$('input[holdParam="HOLD_MAX_AC_INPUT_POWER"]').val(response.HOLD_MAX_AC_INPUT_POWER);
+		}
+	}
+	if(response.hasOwnProperty('HOLD_MAX_GENERATOR_INPUT_POWER')) {
+		$('input[holdParam="HOLD_MAX_GENERATOR_INPUT_POWER"]').val(response.HOLD_MAX_GENERATOR_INPUT_POWER);
+		refreshSlideInputParams(response.HOLD_MAX_GENERATOR_INPUT_POWER, 'genPeakShavingPowerInput', {max:25.5, min:0 ,units:'kW'})
+	}
+	if(response.hasOwnProperty('OFF_GRID_HOLD_GEN_CHG_START_VOLT')) {
+		let customScrollbar4Ini = customScrollbarIni.customScrollbar4()
+		updateCustomScrollbar(response.OFF_GRID_HOLD_GEN_CHG_START_VOLT, null, {...customScrollbar4Ini, units: "V", parent: 'customScrollbar4', name1: 'start', name2: 'stop'});
+		$('input[holdParam="OFF_GRID_HOLD_GEN_CHG_START_VOLT"]').val(response.OFF_GRID_HOLD_GEN_CHG_START_VOLT);
+	}
+	if(response.hasOwnProperty('OFF_GRID_HOLD_GEN_CHG_END_VOLT')) {
+		let customScrollbar4Ini = customScrollbarIni.customScrollbar4()
+		updateCustomScrollbar(null, response.OFF_GRID_HOLD_GEN_CHG_END_VOLT, {...customScrollbar4Ini, units: "V", parent: 'customScrollbar4', name1: 'start', name2: 'stop'});
+		$('input[holdParam="OFF_GRID_HOLD_GEN_CHG_END_VOLT"]').val(response.OFF_GRID_HOLD_GEN_CHG_END_VOLT);
+	}
+	if(response.hasOwnProperty('OFF_GRID_HOLD_GEN_CHG_START_SOC')) {
+		updateCustomScrollbar(response.OFF_GRID_HOLD_GEN_CHG_START_SOC, null, {max: 100, min: 0, units: "%", parent: 'customScrollbar3', name1: 'start', name2: 'stop'});
+		$('input[holdParam="OFF_GRID_HOLD_GEN_CHG_START_SOC"]').val(response.OFF_GRID_HOLD_GEN_CHG_START_SOC);
+	}
+	if(response.hasOwnProperty('OFF_GRID_HOLD_GEN_CHG_END_SOC')) {
+		updateCustomScrollbar(null, response.OFF_GRID_HOLD_GEN_CHG_END_SOC, {max: 100, min: 0, units: "%", parent: 'customScrollbar3', name1: 'start', name2: 'stop'});
+		$('input[holdParam="OFF_GRID_HOLD_GEN_CHG_END_SOC"]').val(response.OFF_GRID_HOLD_GEN_CHG_END_SOC);
+	}
+	if(response.hasOwnProperty('OFF_GRID_HOLD_MAX_GEN_CHG_BAT_CURR')) {
+		$('input[holdParam="OFF_GRID_HOLD_MAX_GEN_CHG_BAT_CURR"]').val(response.OFF_GRID_HOLD_MAX_GEN_CHG_BAT_CURR);
+		if(isSnaSeries()) {		//OffGrid
+			refreshSlideInputParams(response.OFF_GRID_HOLD_MAX_GEN_CHG_BAT_CURR, 'maxGenChgBatCurrentInput', {max:110, min:0 ,units:'Adc'})
+		} else {
+			refreshSlideInputParams(response.OFF_GRID_HOLD_MAX_GEN_CHG_BAT_CURR, 'batChargeCurrentLimitInput', {max:250, min:0 ,units:'Adc'})
+		}
+	}
+	if(response.hasOwnProperty('FUNC_BATTERY_CALIBRATION_EN')) {
+		$('div[functionParam="FUNC_BATTERY_CALIBRATION_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_BATTERY_CALIBRATION_EN"] button[onclick*="' + response.FUNC_BATTERY_CALIBRATION_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('ASC_HOLD_ACCUMULATED_UNCALIBRATED_COUNT_DAYS')) {
+		$('input[holdParam="ASC_HOLD_ACCUMULATED_UNCALIBRATED_COUNT_DAYS"]').val(response.ASC_HOLD_ACCUMULATED_UNCALIBRATED_COUNT_DAYS);
+	}
+	if(response.hasOwnProperty('ASC_HOLD_CALIBRATION_PERIOD_DAYS')) {
+		$('input[holdParam="ASC_HOLD_CALIBRATION_PERIOD_DAYS"]').val(response.ASC_HOLD_CALIBRATION_PERIOD_DAYS);
+	}
+	if(response.hasOwnProperty('inverterRuntimeDeviceTime')) {
+		$('#inverterRuntimeDeviceTimeSpan').text(response.inverterRuntimeDeviceTime);
+	}
+	if(response.hasOwnProperty('INPUT_BATTERY_VOLTAGE')) {
+		$('input[holdParam="INPUT_BATTERY_VOLTAGE"]').val(response.INPUT_BATTERY_VOLTAGE);
+		refreshSlideInputParams(response.INPUT_BATTERY_VOLTAGE, 'inputBatteryVoltageInput', {max:59, min:40 ,units:'V'})
+	}
+	if(response.hasOwnProperty('HOLD_EXPORT_LOCK_POWER')) {
+		$('input[holdParam="HOLD_EXPORT_LOCK_POWER"]').val(response.HOLD_EXPORT_LOCK_POWER);
+	}
+	
+	if(response.hasOwnProperty('HOLD_SET_COMPOSED_PHASE')) {
+		var composedPhase = parseInt(response.HOLD_SET_COMPOSED_PHASE);
+		$('#readComposedPhaseInput').val(Math.round(composedPhase / 256));
+		$('select[holdParam="HOLD_SET_COMPOSED_PHASE"]').val(Math.round(composedPhase % 256));
+	}
+
+	if(response.hasOwnProperty('FUNC_SET_TO_STANDBY')) {
+		$('div[functionParam="FUNC_SET_TO_STANDBY"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_SET_TO_STANDBY"] button[onclick*="' + response.FUNC_SET_TO_STANDBY + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_EPS_EN')) {
+		$('div[functionParam="FUNC_EPS_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+				$('#powerBackupEnable').addClass('ban')
+			}else {
+				$('#powerBackupEnable').remove('ban')
+			}
+		});
+		$('div[functionParam="FUNC_EPS_EN"] button[onclick*="' + response.FUNC_EPS_EN + '"]').addClass('btn-success').removeClass('btn-default');
+
+
+	}
+	if(response.hasOwnProperty('FUNC_ANTI_ISLAND_EN')) {
+		$('div[functionParam="FUNC_ANTI_ISLAND_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_ANTI_ISLAND_EN"] button[onclick*="' + response.FUNC_ANTI_ISLAND_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_ENERTEK_WORKING_MODE')) {
+		$('div[functionParam="FUNC_ENERTEK_WORKING_MODE"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_ENERTEK_WORKING_MODE"] button[onclick*="' + response.FUNC_ENERTEK_WORKING_MODE + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+
+	if(response.hasOwnProperty('FUNC_GRID_ON_POWER_SS_EN')) {
+		$('div[functionParam="FUNC_GRID_ON_POWER_SS_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_GRID_ON_POWER_SS_EN"] button[onclick*="' + response.FUNC_GRID_ON_POWER_SS_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_OVF_LOAD_DERATE_EN')) {
+		$('div[functionParam="FUNC_OVF_LOAD_DERATE_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_OVF_LOAD_DERATE_EN"] button[onclick*="' + response.FUNC_OVF_LOAD_DERATE_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_DRMS_EN')) {
+		$('div[functionParam="FUNC_DRMS_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_DRMS_EN"] button[onclick*="' + response.FUNC_DRMS_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_NEUTRAL_DETECT_EN')) {
+		$('div[functionParam="FUNC_NEUTRAL_DETECT_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_NEUTRAL_DETECT_EN"] button[onclick*="' + response.FUNC_NEUTRAL_DETECT_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_TOTAL_LOAD_COMPENSATION_EN')) {
+		$('div[functionParam="FUNC_TOTAL_LOAD_COMPENSATION_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_TOTAL_LOAD_COMPENSATION_EN"] button[onclick*="' + response.FUNC_TOTAL_LOAD_COMPENSATION_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_FORCED_DISCHG_EN')) {
+		$('div[functionParam="FUNC_FORCED_DISCHG_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_FORCED_DISCHG_EN"] button[onclick*="' + response.FUNC_FORCED_DISCHG_EN + '"]').addClass('btn-success').removeClass('btn-default');
+		forceDischargeOrSellToGridEnable = response.FUNC_FORCED_DISCHG_EN
+	}
+	if(response.hasOwnProperty('FUNC_SW_SEAMLESSLY_EN')) {
+		$('div[functionParam="FUNC_SW_SEAMLESSLY_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_SW_SEAMLESSLY_EN"] button[onclick*="' + response.FUNC_SW_SEAMLESSLY_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_AC_CHARGE')) {
+		$('div[functionParam="FUNC_AC_CHARGE"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_AC_CHARGE"] button[onclick*="' + response.FUNC_AC_CHARGE + '"]').addClass('btn-success').removeClass('btn-default');
+		if (currentSetPageType != 'workingMode2_OffGrid') {
+			acChargeAccoEnable = response.FUNC_AC_CHARGE
+		}
+		checkEnableState('FUNC_AC_CHARGE', response.FUNC_AC_CHARGE);
+	}
+	if(response.hasOwnProperty('FUNC_SPORADIC_CHARGE')) {
+		$('div[functionParam="FUNC_SPORADIC_CHARGE"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_SPORADIC_CHARGE"] button[onclick*="' + response.FUNC_SPORADIC_CHARGE + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_FORCED_CHG_EN')) {
+		$('div[functionParam="FUNC_FORCED_CHG_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_FORCED_CHG_EN"] button[onclick*="' + response.FUNC_FORCED_CHG_EN + '"]').addClass('btn-success').removeClass('btn-default');
+		chargeFirstEnable = response.FUNC_FORCED_CHG_EN
+
+	}
+	if(response.hasOwnProperty('FUNC_ISO_EN')) {
+		$('div[functionParam="FUNC_ISO_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		if(response.FUNC_ISO_EN) {
+			$('div[functionParam="FUNC_ISO_EN"] button[onclick*="true"]').addClass('btn-success').removeClass('btn-default');
+		} else {
+			$('div[functionParam="FUNC_ISO_EN"] button[onclick*="disable"]').addClass('btn-success').removeClass('btn-default');
+		}
+	}
+	if(response.hasOwnProperty('FUNC_GFCI_EN')) {
+		$('div[functionParam="FUNC_GFCI_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_GFCI_EN"] button[onclick*="' + response.FUNC_GFCI_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_DCI_EN')) {
+		$('div[functionParam="FUNC_DCI_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_DCI_EN"] button[onclick*="' + response.FUNC_DCI_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_FEED_IN_GRID_EN')) {
+		$('div[functionParam="FUNC_FEED_IN_GRID_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_FEED_IN_GRID_EN"] button[onclick*="' + response.FUNC_FEED_IN_GRID_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_PV_GRID_OFF_EN')) {
+		$('div[functionParam="FUNC_PV_GRID_OFF_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_PV_GRID_OFF_EN"] button[onclick*="' + response.FUNC_PV_GRID_OFF_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_RUN_WITHOUT_GRID')) {
+		$('div[functionParam="FUNC_RUN_WITHOUT_GRID"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_RUN_WITHOUT_GRID"] button[onclick*="' + response.FUNC_RUN_WITHOUT_GRID + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_PHASE_INDEPEND_COMPENSATE_EN')) {
+		$('div[functionParam="FUNC_PHASE_INDEPEND_COMPENSATE_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_PHASE_INDEPEND_COMPENSATE_EN"] button[onclick*="' + response.FUNC_PHASE_INDEPEND_COMPENSATE_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_RUN_WITHOUT_GRID_12K')) {
+		$('div[functionParam="FUNC_RUN_WITHOUT_GRID_12K"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_RUN_WITHOUT_GRID_12K"] button[onclick*="' + response.FUNC_RUN_WITHOUT_GRID_12K + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_PV_SELL_TO_GRID_EN')) {
+		$('div[functionParam="FUNC_PV_SELL_TO_GRID_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_PV_SELL_TO_GRID_EN"] button[onclick*="' + response.FUNC_PV_SELL_TO_GRID_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_MICRO_GRID_EN')) {
+		$('div[functionParam="FUNC_MICRO_GRID_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_MICRO_GRID_EN"] button[onclick*="' + response.FUNC_MICRO_GRID_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_BAT_SHARED')) {
+		$('div[functionParam="FUNC_BAT_SHARED"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_BAT_SHARED"] button[onclick*="' + response.FUNC_BAT_SHARED + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_BUZZER_EN')) {
+		$('div[functionParam="FUNC_BUZZER_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_BUZZER_EN"] button[onclick*="' + response.FUNC_BUZZER_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_TAKE_LOAD_TOGETHER')) {
+		$('div[functionParam="FUNC_TAKE_LOAD_TOGETHER"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_TAKE_LOAD_TOGETHER"] button[onclick*="' + response.FUNC_TAKE_LOAD_TOGETHER + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_GRID_CT_CONNECTION_EN')) {
+		$('div[functionParam="FUNC_GRID_CT_CONNECTION_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_GRID_CT_CONNECTION_EN"] button[onclick*="' + response.FUNC_GRID_CT_CONNECTION_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_GREEN_EN')) {
+		$('div[functionParam="FUNC_GREEN_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_GREEN_EN"] button[onclick*="' + response.FUNC_GREEN_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_BATTERY_ECO_EN')) {
+		$('div[functionParam="FUNC_BATTERY_ECO_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_BATTERY_ECO_EN"] button[onclick*="' + response.FUNC_BATTERY_ECO_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_CHARGE_LAST')) {
+		$('div[functionParam="FUNC_CHARGE_LAST"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_CHARGE_LAST"] button[onclick*="' + response.FUNC_CHARGE_LAST + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_GRID_PEAK_SHAVING')) {
+		$('div[functionParam="FUNC_GRID_PEAK_SHAVING"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_GRID_PEAK_SHAVING"] button[onclick*="' + response.FUNC_GRID_PEAK_SHAVING + '"]').addClass('btn-success').removeClass('btn-default');
+		peakShavingEnable = response.FUNC_GRID_PEAK_SHAVING
+	}
+	if(response.hasOwnProperty('FUNC_AC_COUPLING_FUNCTION')) {
+		$('div[functionParam="FUNC_AC_COUPLING_FUNCTION"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		if(response.FUNC_AC_COUPLING_FUNCTION) {
+			$('.acCoupleOnEpsPort').show()
+		} else {
+			$('.acCoupleOnEpsPort').hide()
+		}
+		$('div[functionParam="FUNC_AC_COUPLING_FUNCTION"] button[onclick*="' + response.FUNC_AC_COUPLING_FUNCTION + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_BAT_CHARGE_CONTROL')) {
+		checkEnableState('FUNC_BAT_CHARGE_CONTROL', response.FUNC_BAT_CHARGE_CONTROL)
+		$('div[functionParam="FUNC_BAT_CHARGE_CONTROL"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+
+		$('div[functionParam="FUNC_BAT_CHARGE_CONTROL"] button[onclick*="' + response.FUNC_BAT_CHARGE_CONTROL + '"]').addClass('btn-success').removeClass('btn-default');
+		if(response.FUNC_BAT_CHARGE_CONTROL && currentSetPageType !== 'workingMode2_OffGrid') {
+			$('.chgVoltEnable').removeAttr('disabled');
+			$('.chgSocEnable').attr('disabled', 'disabled');
+
+			$('.cardVoltEnable').removeClass('cardDisable')
+			$('.cardSocEnable').addClass('cardDisable')
+
+			$('.voltTitle').removeClass('disabledTitle');
+			$('.socTitle').addClass('disabledTitle')
+		} else {
+			$('.chgSocEnable').removeAttr('disabled');
+			$('.chgVoltEnable').attr('disabled', 'disabled');
+
+			$('.cardSocEnable').removeClass('cardDisable');
+			$('.cardVoltEnable').addClass('cardDisable')
+
+			$('.socTitle').removeClass('disabledTitle');
+			$('.voltTitle').addClass('disabledTitle')
+		}
+	}
+	if(response.hasOwnProperty('FUNC_BAT_DISCHARGE_CONTROL') && !isSnaSeries()) {
+		checkEnableState('FUNC_BAT_DISCHARGE_CONTROL', response.FUNC_BAT_DISCHARGE_CONTROL)
+		$('div[functionParam="FUNC_BAT_DISCHARGE_CONTROL"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_BAT_DISCHARGE_CONTROL"] button[onclick*="' + response.FUNC_BAT_DISCHARGE_CONTROL + '"]').addClass('btn-success').removeClass('btn-default');
+		if(response.FUNC_BAT_DISCHARGE_CONTROL) {
+			$('.disChgVoltEnable').removeAttr('disabled');
+			$('.disChgSocEnable').attr('disabled', 'disabled');
+
+			$('.cardVoltDisEnable').removeClass('cardDisable')
+			$('.cardSocDisEnable').addClass('cardDisable')
+
+			$('.disVoltTitle').removeClass('disabledTitle');
+			$('.disSocTitle').addClass('disabledTitle')
+		} else {
+			$('.disChgSocEnable').removeAttr('disabled');
+			$('.disChgVoltEnable').attr('disabled', 'disabled');
+
+			$('.cardVoltDisEnable').addClass('cardDisable');
+			$('.cardSocDisEnable').removeClass('cardDisable')
+
+			$('.disSocTitle').removeClass('disabledTitle');
+			$('.disVoltTitle').addClass('disabledTitle')
+		}
+	}
+	if(response.hasOwnProperty('FUNC_SNA_BAT_DISCHARGE_CONTROL')) {
+		checkEnableState('FUNC_SNA_BAT_DISCHARGE_CONTROL', response.FUNC_SNA_BAT_DISCHARGE_CONTROL)
+		$('div[functionParam="FUNC_SNA_BAT_DISCHARGE_CONTROL"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_SNA_BAT_DISCHARGE_CONTROL"] button[onclick*="' + response.FUNC_SNA_BAT_DISCHARGE_CONTROL + '"]').addClass('btn-success').removeClass('btn-default');
+		if(response.FUNC_SNA_BAT_DISCHARGE_CONTROL) {
+			$('.disChgSocEnable').removeAttr('disabled');
+			$('.disChgVoltEnable').attr('disabled', 'disabled');
+
+			$('.cardVoltDisEnable').addClass('cardDisable');
+			$('.cardSocDisEnable').removeClass('cardDisable')
+
+			$('.disSocTitle').removeClass('disabledTitle');
+			$('.disVoltTitle').addClass('disabledTitle')
+		} else {
+			$('.disChgVoltEnable').removeAttr('disabled');
+			$('.disChgSocEnable').attr('disabled', 'disabled');
+
+			$('.cardVoltDisEnable').removeClass('cardDisable')
+			$('.cardSocDisEnable').addClass('cardDisable')
+
+			$('.disVoltTitle').removeClass('disabledTitle');
+			$('.disSocTitle').addClass('disabledTitle')
+		}
+	}
+	if(response.hasOwnProperty('FUNC_GEN_PEAK_SHAVING')) {
+		$('div[functionParam="FUNC_GEN_PEAK_SHAVING"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_GEN_PEAK_SHAVING"] button[onclick*="' + response.FUNC_GEN_PEAK_SHAVING + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_PV_ARC')) {
+		$('div[functionParam="FUNC_PV_ARC"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_PV_ARC"] button[onclick*="' + response.FUNC_PV_ARC + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_CT_DIRECTION_REVERSED')) {
+		$('div[functionParam="FUNC_CT_DIRECTION_REVERSED"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_CT_DIRECTION_REVERSED"] button[onclick*="' + response.FUNC_CT_DIRECTION_REVERSED + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_RSD_DISABLE')) {
+		$('div[functionParam="FUNC_RSD_DISABLE"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_RSD_DISABLE"] button[onclick*="' + response.FUNC_RSD_DISABLE + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_N_PE_CONNECT_INNER_EN')) {
+		$('div[functionParam="FUNC_N_PE_CONNECT_INNER_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_N_PE_CONNECT_INNER_EN"] button[onclick*="' + response.FUNC_N_PE_CONNECT_INNER_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('BIT_DRY_CONTRACTOR_MULTIPLEX')) {
+		$('select[bitParam="BIT_DRY_CONTRACTOR_MULTIPLEX"]').val(response.BIT_DRY_CONTRACTOR_MULTIPLEX);
+	}
+	if(response.hasOwnProperty('BIT_LCD_TYPE')) {
+		$('select[bitParam="BIT_LCD_TYPE"]').val(response.BIT_LCD_TYPE);
+	}
+	if(response.hasOwnProperty('FUNC_ON_GRID_ALWAYS_ON')) {
+		$('div[functionParam="FUNC_ON_GRID_ALWAYS_ON"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_ON_GRID_ALWAYS_ON"] button[onclick*="' + response.FUNC_ON_GRID_ALWAYS_ON + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_SMART_LOAD_ENABLE')) {
+		$('div[functionParam="FUNC_SMART_LOAD_ENABLE"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_SMART_LOAD_ENABLE"] button[onclick*="' + response.FUNC_SMART_LOAD_ENABLE + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_PARALLEL_DATA_SYNC_EN')) {
+		$('div[functionParam="FUNC_PARALLEL_DATA_SYNC_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_PARALLEL_DATA_SYNC_EN"] button[onclick*="' + response.FUNC_PARALLEL_DATA_SYNC_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_MIDBOX_EN')) {
+		$('div[functionParam="FUNC_MIDBOX_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_MIDBOX_EN"] button[onclick*="' + response.FUNC_MIDBOX_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_RETAIN_SHUTDOWN')) {
+		$('div[functionParam="FUNC_RETAIN_SHUTDOWN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_RETAIN_SHUTDOWN"] button[onclick*="' + response.FUNC_RETAIN_SHUTDOWN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_RETAIN_STANDBY')) {
+		$('div[functionParam="FUNC_RETAIN_STANDBY"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_RETAIN_STANDBY"] button[onclick*="' + response.FUNC_RETAIN_STANDBY + '"]').addClass('btn-success').removeClass('btn-default');
+
+		if(response.FUNC_RETAIN_STANDBY) {
+			$('#offlineTimeoutInput').removeAttr('disabled');
+		} else {
+			$('#offlineTimeoutInput').attr('disabled', 'disabled');
+		}
+	}
+	if(response.hasOwnProperty('FUNC_FAN_SPEED_SLOPE_CTRL_1')) {
+		$('div[functionParam="FUNC_FAN_SPEED_SLOPE_CTRL_1"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_FAN_SPEED_SLOPE_CTRL_1"] button[onclick*="' + response.FUNC_FAN_SPEED_SLOPE_CTRL_1 + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_FAN_SPEED_SLOPE_CTRL_2')) {
+		$('div[functionParam="FUNC_FAN_SPEED_SLOPE_CTRL_2"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_FAN_SPEED_SLOPE_CTRL_2"] button[onclick*="' + response.FUNC_FAN_SPEED_SLOPE_CTRL_2 + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_FAN_SPEED_SLOPE_CTRL_3')) {
+		$('div[functionParam="FUNC_FAN_SPEED_SLOPE_CTRL_3"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_FAN_SPEED_SLOPE_CTRL_3"] button[onclick*="' + response.FUNC_FAN_SPEED_SLOPE_CTRL_3 + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_FAN_SPEED_SLOPE_CTRL_4')) {
+		$('div[functionParam="FUNC_FAN_SPEED_SLOPE_CTRL_4"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_FAN_SPEED_SLOPE_CTRL_4"] button[onclick*="' + response.FUNC_FAN_SPEED_SLOPE_CTRL_4 + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_FAN_SPEED_SLOPE_CTRL_5')) {
+		$('div[functionParam="FUNC_FAN_SPEED_SLOPE_CTRL_5"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_FAN_SPEED_SLOPE_CTRL_5"] button[onclick*="' + response.FUNC_FAN_SPEED_SLOPE_CTRL_5 + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+	if(response.hasOwnProperty('FUNC_FAN_SPEED_SLOPE_CTRL_1')||response.hasOwnProperty('FUNC_FAN_SPEED_SLOPE_CTRL_2')||response.hasOwnProperty('FUNC_FAN_SPEED_SLOPE_CTRL_3')||response.hasOwnProperty('FUNC_FAN_SPEED_SLOPE_CTRL_4')||response.hasOwnProperty('FUNC_FAN_SPEED_SLOPE_CTRL_5')) {
+		if (typeof (changeFanChart) == "function") {
+			changeFanChart(false)
+		}
+	}
+	if(response.hasOwnProperty('HOLD_OFFLINE_TIMEOUT')) {
+		$('input[holdParam="HOLD_OFFLINE_TIMEOUT"]').val(response.HOLD_OFFLINE_TIMEOUT);
+	}
+	if(response.hasOwnProperty('_12K_HOLD_GRID_PEAK_SHAVING_POWER')) {
+		$('input[holdParam="_12K_HOLD_GRID_PEAK_SHAVING_POWER"]').val(response._12K_HOLD_GRID_PEAK_SHAVING_POWER);
+		refreshSlideInputParams(response._12K_HOLD_GRID_PEAK_SHAVING_POWER,'gridPeakShavingPower',{max:25.5,min:0,units:'kW'} )
+	}
+	if(response.hasOwnProperty('_12K_HOLD_GRID_PEAK_SHAVING_POWER_2')) {
+		$('input[holdParam="_12K_HOLD_GRID_PEAK_SHAVING_POWER_2"]').val(response._12K_HOLD_GRID_PEAK_SHAVING_POWER_2);
+		refreshSlideInputParams(response._12K_HOLD_GRID_PEAK_SHAVING_POWER_2,'gridPeakShavingPower2',{max:25.5,min:0,units:'kW'} )
+	}
+	if(response.hasOwnProperty('_12K_HOLD_GRID_PEAK_SHAVING_SOC')) {
+		$('input[holdParam="_12K_HOLD_GRID_PEAK_SHAVING_SOC"]').val(response._12K_HOLD_GRID_PEAK_SHAVING_SOC);
+		refreshSlideInputParams(response._12K_HOLD_GRID_PEAK_SHAVING_SOC,'startPeakShavingSOC', {max:100,min:0,units:'%'} )
+	}
+	if(response.hasOwnProperty('_12K_HOLD_GRID_PEAK_SHAVING_VOLT')) {
+		$('input[holdParam="_12K_HOLD_GRID_PEAK_SHAVING_VOLT"]').val(response._12K_HOLD_GRID_PEAK_SHAVING_VOLT);
+		refreshSlideInputParams(response._12K_HOLD_GRID_PEAK_SHAVING_VOLT,'startPeakShavingVolt', {max:59,min:40,units:'V'} )
+	}
+	if(response.hasOwnProperty('_12K_HOLD_GRID_PEAK_SHAVING_SOC_2')) {
+		$('input[holdParam="_12K_HOLD_GRID_PEAK_SHAVING_SOC_2"]').val(response._12K_HOLD_GRID_PEAK_SHAVING_SOC_2);
+		refreshSlideInputParams(response._12K_HOLD_GRID_PEAK_SHAVING_SOC_2,'startPeakShavingSOC2',{max:100,min:0,units:'%'} )
+	}
+	if(response.hasOwnProperty('_12K_HOLD_GRID_PEAK_SHAVING_VOLT_2')) {
+		$('input[holdParam="_12K_HOLD_GRID_PEAK_SHAVING_VOLT_2"]').val(response._12K_HOLD_GRID_PEAK_SHAVING_VOLT_2);
+		refreshSlideInputParams(response._12K_HOLD_GRID_PEAK_SHAVING_VOLT_2,'startPeakShavingVolt2',{max:59,min:40,units:'V'} )
+	}
+	if(response.hasOwnProperty('_12K_HOLD_AC_COUPLE_START_SOC')) {
+		$('input[holdParam="_12K_HOLD_AC_COUPLE_START_SOC"]').val(response._12K_HOLD_AC_COUPLE_START_SOC);
+		updateCustomScrollbar(response._12K_HOLD_AC_COUPLE_START_SOC, null, {max: 80, min: 0, units: "%", parent: 'customScrollbar5', name1: 'start', name2: 'stop'});
+	}
+	if(response.hasOwnProperty('_12K_HOLD_AC_COUPLE_END_SOC')) {
+		$('input[holdParam="_12K_HOLD_AC_COUPLE_END_SOC"]').val(response._12K_HOLD_AC_COUPLE_END_SOC);
+		updateCustomScrollbar( null, response._12K_HOLD_AC_COUPLE_END_SOC,{max: 100, min: 0, units: "%", parent: 'customScrollbar5', name1: 'start', name2: 'stop'});
+	}
+	if(response.hasOwnProperty('_12K_HOLD_AC_COUPLE_START_VOLT')) {
+		$('input[holdParam="_12K_HOLD_AC_COUPLE_START_VOLT"]').val(response._12K_HOLD_AC_COUPLE_START_VOLT);
+		if(currentDeviceType == 0 && currentPhase == 3) {
+			updateCustomScrollbar(  response._12K_HOLD_AC_COUPLE_START_VOLT, null,{max: 800, min: 100, units: "V", parent: 'customScrollbar6', name1: 'start', name2: 'stop'});
+		} else {
+			updateCustomScrollbar(  response._12K_HOLD_AC_COUPLE_START_VOLT, null,{max: 52, min: 40, units: "V", parent: 'customScrollbar6', name1: 'start', name2: 'stop'});
+		}
+	}
+	if(response.hasOwnProperty('_12K_HOLD_AC_COUPLE_END_VOLT')) {
+		$('input[holdParam="_12K_HOLD_AC_COUPLE_END_VOLT"]').val(response._12K_HOLD_AC_COUPLE_END_VOLT);
+		if(currentDeviceType == 0 && currentPhase == 3) {
+			updateCustomScrollbar( null, response._12K_HOLD_AC_COUPLE_END_VOLT,{max: 800, min: 100, units: "V", parent: 'customScrollbar6', name1: 'start', name2: 'stop'});
+		} else {
+			updateCustomScrollbar( null, response._12K_HOLD_AC_COUPLE_END_VOLT,{max: 56, min: 40, units: "V", parent: 'customScrollbar6', name1: 'start', name2: 'stop'});
+		}
+	}
+	if(response.hasOwnProperty('_12K_HOLD_CHARGE_FIRST_VOLT')) {
+		$('input[holdParam="_12K_HOLD_CHARGE_FIRST_VOLT"]').val(response._12K_HOLD_CHARGE_FIRST_VOLT);
+		updateCustomScrollAndInhibitbar(response._12K_HOLD_CHARGE_FIRST_VOLT, null, {max: 59.5, min: 48, units: "V", parent: 'customScrollAndInhibitbar2', name1: 'Charge', name2: 'cutoff'});
+	}
+	if(response.hasOwnProperty('_12K_HOLD_STOP_DISCHG_VOLT')) {
+		$('input[holdParam="_12K_HOLD_STOP_DISCHG_VOLT"]').val(response._12K_HOLD_STOP_DISCHG_VOLT);
+	}
+	if(response.hasOwnProperty('_12K_HOLD_GRID_REGULATION')) {
+		$('select[holdParam="_12K_HOLD_GRID_REGULATION"]').val(response._12K_HOLD_GRID_REGULATION);
+	}
+	if(response.hasOwnProperty('_12K_HOLD_LEAD_CAPACITY')) {
+		$('input[holdParam="_12K_HOLD_LEAD_CAPACITY"]').val(response._12K_HOLD_LEAD_CAPACITY);
+	}
+	if(response.hasOwnProperty('_12K_HOLD_GRID_TYPE')) {
+		$('select[holdParam="_12K_HOLD_GRID_TYPE"]').val(response._12K_HOLD_GRID_TYPE);
+	}
+	if(response.hasOwnProperty('LSP_HOLD_DIS_CHG_POWER_TIME_37')) {
+		$('input[holdParam="LSP_HOLD_DIS_CHG_POWER_TIME_37"]').val(response.LSP_HOLD_DIS_CHG_POWER_TIME_37);
+		peakShavingOptionData[0].timeStartHour1 = response.LSP_HOLD_DIS_CHG_POWER_TIME_37
+	}
+	if(response.hasOwnProperty('LSP_HOLD_DIS_CHG_POWER_TIME_38')) {
+		$('input[holdParam="LSP_HOLD_DIS_CHG_POWER_TIME_38"]').val(response.LSP_HOLD_DIS_CHG_POWER_TIME_38);
+		peakShavingOptionData[0].timeStartMinute1 = response.LSP_HOLD_DIS_CHG_POWER_TIME_38
+	}
+	if(response.hasOwnProperty('LSP_HOLD_DIS_CHG_POWER_TIME_39')) {
+		$('input[holdParam="LSP_HOLD_DIS_CHG_POWER_TIME_39"]').val(response.LSP_HOLD_DIS_CHG_POWER_TIME_39);
+		peakShavingOptionData[0].timeStartHour2 = response.LSP_HOLD_DIS_CHG_POWER_TIME_39
+	}
+	if(response.hasOwnProperty('LSP_HOLD_DIS_CHG_POWER_TIME_40')) {
+		$('input[holdParam="LSP_HOLD_DIS_CHG_POWER_TIME_40"]').val(response.LSP_HOLD_DIS_CHG_POWER_TIME_40);
+		peakShavingOptionData[0].timeStartMinute2 = response.LSP_HOLD_DIS_CHG_POWER_TIME_40
+//		updateEcharts(peakShavingOptionData,peakShavingTimeEcharts)
+	}
+	if(response.hasOwnProperty('LSP_HOLD_DIS_CHG_POWER_TIME_41')) {
+		$('input[holdParam="LSP_HOLD_DIS_CHG_POWER_TIME_41"]').val(response.LSP_HOLD_DIS_CHG_POWER_TIME_41);
+		peakShavingOptionData[1].timeStartHour1 = response.LSP_HOLD_DIS_CHG_POWER_TIME_41
+	}
+	if(response.hasOwnProperty('LSP_HOLD_DIS_CHG_POWER_TIME_42')) {
+		$('input[holdParam="LSP_HOLD_DIS_CHG_POWER_TIME_42"]').val(response.LSP_HOLD_DIS_CHG_POWER_TIME_42);
+		peakShavingOptionData[1].timeStartMinute1 = response.LSP_HOLD_DIS_CHG_POWER_TIME_42
+	}
+	if(response.hasOwnProperty('LSP_HOLD_DIS_CHG_POWER_TIME_43')) {
+		$('input[holdParam="LSP_HOLD_DIS_CHG_POWER_TIME_43"]').val(response.LSP_HOLD_DIS_CHG_POWER_TIME_43);
+		peakShavingOptionData[1].timeStartHour2 = response.LSP_HOLD_DIS_CHG_POWER_TIME_43
+	}
+	if(response.hasOwnProperty('LSP_HOLD_DIS_CHG_POWER_TIME_44')) {
+		$('input[holdParam="LSP_HOLD_DIS_CHG_POWER_TIME_44"]').val(response.LSP_HOLD_DIS_CHG_POWER_TIME_44);
+		peakShavingOptionData[1].timeStartMinute2 = response.LSP_HOLD_DIS_CHG_POWER_TIME_44
+//		updateEcharts(peakShavingOptionData,peakShavingTimeEcharts)
+	}
+	if(response.hasOwnProperty('_12K_HOLD_SMART_LOAD_START_VOLT')) {
+		$('input[holdParam="_12K_HOLD_SMART_LOAD_START_VOLT"]').val(response._12K_HOLD_SMART_LOAD_START_VOLT);
+		if(currentDeviceType == 0 && currentPhase == 3) {
+			updateCustomScrollbar( response._12K_HOLD_SMART_LOAD_START_VOLT,null, {max: 800, min: 100, units: "V", parent: 'customScrollbar7', name1: 'start', name2: 'stop'});
+		} else {
+			updateCustomScrollbar( response._12K_HOLD_SMART_LOAD_START_VOLT,null, {max: 59, min: 40, units: "V", parent: 'customScrollbar7', name1: 'start', name2: 'stop'});
+		}
+	}
+	if(response.hasOwnProperty('_12K_HOLD_SMART_LOAD_END_VOLT')) {
+		$('input[holdParam="_12K_HOLD_SMART_LOAD_END_VOLT"]').val(response._12K_HOLD_SMART_LOAD_END_VOLT);
+		if(currentDeviceType == 0 && currentPhase == 3) {
+			updateCustomScrollbar(null, response._12K_HOLD_SMART_LOAD_END_VOLT,{max: 800, min: 100, units: "V", parent: 'customScrollbar7', name1: 'start', name2: 'stop'});
+		} else {
+			updateCustomScrollbar(null, response._12K_HOLD_SMART_LOAD_END_VOLT,{max: 59, min: 40, units: "V", parent: 'customScrollbar7', name1: 'start', name2: 'stop'});
+		}
+	}
+	if(response.hasOwnProperty('_12K_HOLD_SMART_LOAD_START_SOC')) {
+		$('input[holdParam="_12K_HOLD_SMART_LOAD_START_SOC"]').val(response._12K_HOLD_SMART_LOAD_START_SOC);
+		updateCustomScrollbar( response._12K_HOLD_SMART_LOAD_START_SOC,null, {max: 100, min: 0, units: "%", parent: 'customScrollbar8', name1: 'start', name2: 'stop'});
+	}
+	if(response.hasOwnProperty('_12K_HOLD_SMART_LOAD_END_SOC')) {
+		$('input[holdParam="_12K_HOLD_SMART_LOAD_END_SOC"]').val(response._12K_HOLD_SMART_LOAD_END_SOC);
+		updateCustomScrollbar( null,response._12K_HOLD_SMART_LOAD_END_SOC, {max: 100, min: 0, units: "%", parent: 'customScrollbar8', name1: 'start', name2: 'stop'});
+	}
+	if(response.hasOwnProperty('_12K_HOLD_START_PV_POWER')) {
+		$('input[holdParam="_12K_HOLD_START_PV_POWER"]').val(response._12K_HOLD_START_PV_POWER);
+	}
+	if(response.hasOwnProperty('HOLD_SYSTEM_CHARGE_SOC_LIMIT')) {
+		$('input[holdParam="HOLD_SYSTEM_CHARGE_SOC_LIMIT"]').val(response.HOLD_SYSTEM_CHARGE_SOC_LIMIT);
+		refreshSlideInputParams(response.HOLD_SYSTEM_CHARGE_SOC_LIMIT, 'systemChargeSocLimitInput',{min:10,max:101,units:'%'})
+		updateCustomScrollAndInhibitbar(null, response.HOLD_SYSTEM_CHARGE_SOC_LIMIT, {max: 100, min: 0, units: "%", parent: 'customScrollAndInhibitbar1', name1: 'Charge', name2: 'cutoff'});
+	}
+	if(response.hasOwnProperty('HOLD_SYSTEM_CHARGE_VOLT_LIMIT')) {
+		$('input[holdParam="HOLD_SYSTEM_CHARGE_VOLT_LIMIT"]').val(response.HOLD_SYSTEM_CHARGE_VOLT_LIMIT);
+		refreshSlideInputParams(response.HOLD_SYSTEM_CHARGE_VOLT_LIMIT, 'systemChargeVoltLimitInput',{min:40,max:59.5,units:'V'})
+		updateCustomScrollAndInhibitbar(null, response.HOLD_SYSTEM_CHARGE_VOLT_LIMIT, {max: 59.5, min: 48, units: "V", parent: 'customScrollAndInhibitbar2', name1: 'Charge', name2: 'cutoff'});
+	}
+	if(response.hasOwnProperty('_12K_HOLD_BUS_BAR_CURRENT')) {
+		$('input[holdParam="_12K_HOLD_BUS_BAR_CURRENT"]').val(response._12K_HOLD_BUS_BAR_CURRENT);
+	}
+	if(response.hasOwnProperty('FUNC_TRIP_TIME_UNIT')) {
+		$('div[functionParam="FUNC_TRIP_TIME_UNIT"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_TRIP_TIME_UNIT"] button[onclick*="' + response.FUNC_TRIP_TIME_UNIT + '"]').addClass('btn-success').removeClass('btn-default');
+
+		var precision = response.FUNC_TRIP_TIME_UNIT ? 10 : 100;
+		if(currentDeviceType == 0 && currentPhase == 3) {
+			precision = 100;
+		}
+			
+		$('#funcTripTimeUnitHolder').data('precision', precision);
+		$('#protectionTimeContainer .protectionTime').each(function(index, element) {
+			$(element).attr('time', precision).val($(element).data('time') / precision);
+		});
+		$('#protectionTimeContainer .timeSetBtn').removeAttr('disabled');
+	}
+
+	if(response.hasOwnProperty('BIT_OUT_CT_POSITION')) {
+		$('select[bitParam="BIT_OUT_CT_POSITION"]').val(response.BIT_OUT_CT_POSITION);
+	}
+
+	if(response.hasOwnProperty('FUNC_AC_COUPLE_ON_EPS_PORT_EN')) {
+		$('div[functionParam="FUNC_AC_COUPLE_ON_EPS_PORT_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_AC_COUPLE_ON_EPS_PORT_EN"] button[onclick*="' + response.FUNC_AC_COUPLE_ON_EPS_PORT_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+
+	if(response.hasOwnProperty('FUNC_AC_COUPLE_DARK_START_EN')) {
+		$('div[functionParam="FUNC_AC_COUPLE_DARK_START_EN"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_AC_COUPLE_DARK_START_EN"] button[onclick*="' + response.FUNC_AC_COUPLE_DARK_START_EN + '"]').addClass('btn-success').removeClass('btn-default');
+	}
+
+	if(response.hasOwnProperty('BIT_AC_COUPLE_ON_EPS_PORT')) {
+		$('select[bitParam="BIT_AC_COUPLE_ON_EPS_PORT"]').val(response.BIT_AC_COUPLE_ON_EPS_PORT);
+	}
+
+	if(response.hasOwnProperty('HOLD_DARK_START_POWER')) {
+		$('input[holdParam="HOLD_DARK_START_POWER"]').val(response.HOLD_DARK_START_POWER);
+	}
+	if(response.hasOwnProperty('HOLD_DARK_START_START_HOUR')) {
+		$('input[holdParam="HOLD_DARK_START_START_HOUR"]').val(response.HOLD_DARK_START_START_HOUR);
+	}
+	if(response.hasOwnProperty('HOLD_DARK_START_START_MINUTE')) {
+		$('input[holdParam="HOLD_DARK_START_START_MINUTE"]').val(response.HOLD_DARK_START_START_MINUTE);
+	}
+	if(response.hasOwnProperty('HOLD_DARK_START_END_HOUR')) {
+		$('input[holdParam="HOLD_DARK_START_END_HOUR"]').val(response.HOLD_DARK_START_END_HOUR);
+	}
+	if(response.hasOwnProperty('HOLD_DARK_START_END_MINUTE')) {
+		$('input[holdParam="HOLD_DARK_START_END_MINUTE"]').val(response.HOLD_DARK_START_END_MINUTE);
+	}
+
+	if(currentWithbatteryData) {
+		for(var i = 0; i <= 31; i++) {
+			if(response.hasOwnProperty('HOLD_BATT_MODULE_SOC_' + i)) {
+				$('input[holdParam="HOLD_BATT_MODULE_SOC_' + i + '"]').val(response['HOLD_BATT_MODULE_SOC_' + i]);
+			}
+		}
+	}
+}
+var isShowNewSettingPage = false
+
+function getPageSwitching() {
+	$.post(baseUrl + '/web/system/user/getUseNewSettingPageValue', {
+			userId: userId },
+		function(response) {
+			if(response) {			//参数读取成功
+				isShowNewSettingPage = response.useNewSettingPage
+				/*if (isShowNewSettingPage) {
+					$('#toSettingsPageButton').show()
+					$('#toggleNewSettingsPageButton').hide()
+				}
+				if (!isShowNewSettingPage) {
+					$('#toSettingsPageButton').hide()
+					$('#toggleNewSettingsPageButton').show()
+				}*/
+			}
+		}, 'json');
+}
+
+function handleModelData(response) {
+	if(response.hasOwnProperty('HOLD_MODEL')) {
+		$('input[holdParam="HOLD_MODEL"]').val(response.HOLD_MODEL);
+		$('#wirelessMeterModelInput').val(response.HOLD_MODEL_wirelessMeter);
+		$('#meterTypeModelInput').val(response.HOLD_MODEL_meterType);
+		$('#usVersionModelInput').val(response.HOLD_MODEL_usVersion);
+		$('#meterBrandModelInput').val(response.HOLD_MODEL_meterBrand);
+		if(currentDeviceType == 6) {
+			$('#meterBrandModelInput').change()
+		}
+
+		$('#measurementModelInput').val(response.HOLD_MODEL_measurement);
+		if(currentSetPageType == 'remoteSet' || currentSetPageType == 'remoteSet12K' || currentSetPageType == 'workingMode2_12K' || currentSetPageType == 'workingMode2_Hybrid') {
+			$('#measurementModelInput').change();
+		}
+
+		$('#ruleMaskModelInput').val(response.HOLD_MODEL_ruleMask);
+		$('#batteryTypeModelInput').val(response.HOLD_MODEL_batteryType);
+		$('#batteryTypeModelInput').change();
+
+		$leadAcidTypeModelInput = $('#leadAcidTypeModelInput');
+		$lithiumTypeModelInput = $('#lithiumTypeModelInput');
+		if(response.HOLD_MODEL_batteryType == 1) {
+			$lithiumTypeModelInput.val("-1");
+			$lithiumTypeModelInput.attr('disabled', 'disabled');
+
+			$leadAcidTypeModelInput.removeAttr('disabled');
+			$leadAcidTypeModelInput.val(response.HOLD_MODEL_leadAcidType);
+			if(response.HOLD_MODEL_leadAcidType == 31) {
+				$('.customBatteryCapacity').fadeIn();
+			} else {
+				$('.customBatteryCapacity').fadeOut();
+			}
+		} else if(response.HOLD_MODEL_batteryType == 2) {
+			$leadAcidTypeModelInput.val("-1");
+			$leadAcidTypeModelInput.attr('disabled', 'disabled');
+			$('.customBatteryCapacity').hide();
+
+			$lithiumTypeModelInput.removeAttr('disabled');
+			$lithiumTypeModelInput.val(response.HOLD_MODEL_lithiumType);
+
+			if(response.HOLD_MODEL_lithiumType == 1 && (isAdmin || (userId && userId == 57103))) {
+				$('#battComponent').show();
+			}
+		} else {
+			$leadAcidTypeModelInput.val("-1");
+			$leadAcidTypeModelInput.attr('disabled', 'disabled');
+			$('.customBatteryCapacity').hide();
+
+			$lithiumTypeModelInput.val("-1");
+			$lithiumTypeModelInput.attr('disabled', 'disabled');
+		}
+
+		$('#powerRatingModelInput').val(response.HOLD_MODEL_powerRating);
+
+		$('#ruleModelInput').val(response.HOLD_MODEL_rule);
+		if(currentSetPageType == 'remoteSetOffGrid' || currentSetPageType == 'workingMode2_OffGrid') {
+			if(isViewer && currentDeviceType == 3 && currentPhase == 1 && response.HOLD_MODEL_rule == 5 || isEG4Platform) {
+				$('#hybridSetGroupHolder').hide()
+				$('#basicBox').hide()
+			} else {
+				$('#hybridSetGroupHolder').show()
+				$('#basicBox').show()
+			}
+			$('#ruleModelInput').change();
+		}
+	}
+}
+
+function handleBatChgDisChgControl(response) {
+	if(response.hasOwnProperty('FUNC_BAT_CHARGE_CONTROL')) {
+		$('div[functionParam="FUNC_BAT_CHARGE_CONTROL"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_BAT_CHARGE_CONTROL"] button[onclick*="' + response.FUNC_BAT_CHARGE_CONTROL + '"]').addClass('btn-success').removeClass('btn-default');
+
+		if(response.FUNC_BAT_CHARGE_CONTROL) {
+			$('.chgVoltEnable').removeAttr('disabled');
+			$('.chgSocEnable').attr('disabled', 'disabled');
+		} else {
+			$('.chgSocEnable').removeAttr('disabled');
+			$('.chgVoltEnable').attr('disabled', 'disabled');
+		}
+	}
+	if(response.hasOwnProperty('FUNC_BAT_DISCHARGE_CONTROL') && !isSnaSeries()) {
+		$('div[functionParam="FUNC_BAT_DISCHARGE_CONTROL"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_BAT_DISCHARGE_CONTROL"] button[onclick*="' + response.FUNC_BAT_DISCHARGE_CONTROL + '"]').addClass('btn-success').removeClass('btn-default');
+
+		if(response.FUNC_BAT_DISCHARGE_CONTROL) {
+			$('.disChgVoltEnable').removeAttr('disabled');
+			$('.disChgSocEnable').attr('disabled', 'disabled');
+		} else {
+			$('.disChgSocEnable').removeAttr('disabled');
+			$('.disChgVoltEnable').attr('disabled', 'disabled');
+		}
+	}
+	if(response.hasOwnProperty('FUNC_SNA_BAT_DISCHARGE_CONTROL')) {
+		$('div[functionParam="FUNC_SNA_BAT_DISCHARGE_CONTROL"] button').each(function(index, element) {
+			if($(element).hasClass('btn-success')) {
+				$(element).addClass('btn-default').removeClass('btn-success');
+			}
+		});
+		$('div[functionParam="FUNC_SNA_BAT_DISCHARGE_CONTROL"] button[onclick*="' + response.FUNC_SNA_BAT_DISCHARGE_CONTROL + '"]').addClass('btn-success').removeClass('btn-default');
+
+		if(response.FUNC_SNA_BAT_DISCHARGE_CONTROL) {
+			$('.disChgSocEnable').removeAttr('disabled');
+			$('.disChgVoltEnable').attr('disabled', 'disabled');
+		} else {
+			$('.disChgVoltEnable').removeAttr('disabled');
+			$('.disChgSocEnable').attr('disabled', 'disabled');
+		}
+	}
+}
+
+function handleMidboxUseSheddingMode(i, useSheddingMode) {
+	if(useSheddingMode) {
+		$('.useSheddingModeCtrl' + i).removeAttr('disabled');
+		if($('div[functionparam="FUNC_BAT_DISCHARGE_CONTROL"] button[onclick*="true"]').hasClass('btn-success')) {		//Volt
+			$('.disChgSocEnable.useSheddingModeCtrl' + i).attr('disabled', 'disabled');
+		}
+		if($('div[functionparam="FUNC_BAT_DISCHARGE_CONTROL"] button[onclick*="false"]').hasClass('btn-success')) {		//SOC
+			$('.disChgVoltEnable.useSheddingModeCtrl' + i).attr('disabled', 'disabled');
+		}
+	} else {
+		$('.useSheddingModeCtrl' + i).attr('disabled', 'disabled');
+	}
+}
+
+$(function () {
+	getPageSwitching()
+})

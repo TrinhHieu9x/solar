@@ -1,0 +1,443 @@
+(function ($) {
+    $.fn.customScrollbar = function (initialPercentage1, initialPercentage2, data, valueCallback) {
+        // initialPercentage1 !== null ? initialPercentage1 = parseInt(initialPercentage1) : null
+        // initialPercentage2 !== null ? initialPercentage2 = parseInt(initialPercentage2) : null
+        initialPercentage1 !== null ? initialPercentage1 = initialPercentage1 : null
+        initialPercentage2 !== null ? initialPercentage2 = initialPercentage2 : null
+
+        //如果都不为空，判断是否超出范围。如果1不为空判断1是否超出范围，如果2不为空判断2是否超出范围，如果都为空则退出
+        if(initialPercentage1 !== null && initialPercentage2 !== null) {
+            if (!(initialPercentage1 >= data.min && initialPercentage1 <= data.max && initialPercentage2 >= data.min && initialPercentage2 <= data.max || initialPercentage2 == 0 ||  initialPercentage1 == 0)) return
+        }
+        if(initialPercentage1 !== null) {
+            if (!(initialPercentage1 >= data.min && initialPercentage1 <= data.max || initialPercentage2 == 0 ||  initialPercentage1 == 0)) return ;
+        }
+        if(initialPercentage2 !== null){
+            if (!(initialPercentage2 >= data.min && initialPercentage2 <= data.max || initialPercentage2 == 0 ||  initialPercentage1 == 0)) return ;
+        }
+        if(initialPercentage1 == null && initialPercentage2 == null){
+            return
+        }
+        return this.each(function () {
+            //初始化...
+            let $scrollbar = $(this);
+
+
+            // if ($scrollbar.context.id == 'customScrollbar4'){
+            //     console.log(initialPercentage1, initialPercentage2, data)
+            // }
+
+            // let slider1 = $('<div class="slider slider1"></div>').appendTo($scrollbar);
+            // let slider2 = $('<div class="slider slider2"></div>').appendTo($scrollbar);
+
+            let slider1 = $scrollbar.find('.slider1')
+            let slider2 = $scrollbar.find('.slider2')
+
+            let slider1titleTop = $scrollbar.find('.slider1titleTop')
+            let slider1titleBottom = $scrollbar.find('.slider1titleBottom')
+
+            let slider2titleTop = $scrollbar.find('.slider2titleTop')
+            let slider2titleBottom = $scrollbar.find('.slider2titleBottom')
+
+            let colorBlock1 = $scrollbar.find('.colorBlock:eq(1)');
+            let colorBlock2 = $scrollbar.find('.colorBlock:eq(0)');
+
+            let isDragging1 = false;
+            let isDragging2 = false;
+
+            // let sliderL1 = initialPercentage1 !== null ? setInitialPosition(slider1, initialPercentage1) : slider1.position().left;
+            // let sliderL2 = initialPercentage2 !== null ? setInitialPosition(slider2, initialPercentage2) : slider2.position().left;
+
+            let sliderL1 = initialPercentage1 !== null ? setInitialPosition(slider1, initialPercentage1) : slider1.position().left;
+            let sliderL2 = initialPercentage2 !== null ? setInitialPosition(slider2, initialPercentage2) : slider2.position().left;
+
+            slider1.mousedown(function (e) {
+                isDragging1 = true;
+                e.preventDefault();
+            });
+
+            slider2.mousedown(function (e) {
+                isDragging2 = true;
+                e.preventDefault();
+            });
+
+            $(document).mouseup(function () {
+                isDragging1 = false;
+                isDragging2 = false;
+            });
+
+            $(document).mousemove(function (e) {
+                if (isDragging1 && e.which == 1) {
+                    updateSliderPosition(slider1, slider2, e.clientX - $scrollbar.offset().left);
+                }
+
+                if (isDragging2 && e.which == 1) {
+                    updateSliderPosition(slider2, slider1, e.clientX - $scrollbar.offset().left);
+                }
+            });
+
+
+            function setInitialPosition(slider, percentage) {
+                let newPosition =  Math.round((percentage - data.min) / (data.max - data.min) * ($scrollbar.width() - 6));
+                if (percentage == 0) newPosition = 0
+
+                slider.css('left', newPosition + 'px');
+                return newPosition
+            }
+
+            //更新滑块滑过区域颜色位置
+            function updateSliderColor(w, l, colorBlock, color1, color2){
+                colorBlock.css('width', w + 'px');
+                colorBlock.css('left', l + 'px');
+                colorBlock.css('background', 'linear-gradient(to right, ' + color1 + ', ' + color2 + ')');
+            }
+
+            //更新滑块上下title位置
+            function updateSliderTitle(l, slidertitle) {
+                slidertitle.css('left', l + 'px');
+            }
+
+            //更新title值
+            function updateSliderTitleData(startV, name, slidertitleTop, slidertitleBottom){
+                if((slidertitleTop && slidertitleTop.parent().hasClass('isInt')) || (slidertitleBottom && slidertitleBottom.parent().hasClass('isInt'))) {
+                    startV = parseInt(startV)
+                }
+                if (slidertitleTop){
+                    slidertitleTop.text(name + ': ' + startV + data.units)
+                }else {
+                    slidertitleBottom.text(name + ': ' +startV + data.units)
+                }
+
+            }
+
+            let value1 = (parseFloat(slider1.css('left')) / ($scrollbar.width() - slider1.width())) * 100;
+            let value2 = (parseFloat(slider2.css('left')) / ($scrollbar.width() - slider2.width())) * 100;
+
+            let w1 = sliderL1
+            let w2 = sliderL2
+
+            let l1 = 0;
+            let l2 = 0;
+
+            initialPercentage1 !== null ? updateSliderColor(w1, l1, colorBlock1, '#F5FAB2', '#BFE1B8') : ''
+            initialPercentage2 !== null ? updateSliderColor(w2, l2, colorBlock2, '#C5E3B8', '#7FC8BB') : ''
+
+            // let startV =  Math.floor(parseFloat(slider1.css('left')) / $scrollbar.width() * (data.max - data.min) + data.min )
+            // let endV =  Math.floor(parseFloat(slider2.css('left')) / $scrollbar.width() * (data.max - data.min) + data.min )
+            let startV =  initialPercentage1
+            let endV =  initialPercentage2
+
+            initialPercentage1 !== null ? updateSliderTitleData(startV, data.name1, slider1titleTop) : ''
+            initialPercentage2 !== null ? updateSliderTitleData(endV, data.name2, slider2titleBottom) : ''
+
+            var titleL1 = sliderL1 - slider1titleTop.width()
+            var titleL2 = sliderL1 - slider1titleBottom.width()
+
+            let titleL3 = sliderL2 - slider2titleTop.width()
+            let titleL4 = sliderL2 - slider2titleBottom.width()
+
+            // if ($scrollbar.context.id == 'customScrollbar5'){
+            //     console.log(initialPercentage1, titleL1, slider1titleTop.text(),slider1titleTop.width())
+            // }
+            // console.log(titleL1, slider1titleTop.width())
+            initialPercentage1 !== null ? updateSliderTitle(titleL1 + 8, slider1titleTop) : ''
+            initialPercentage2 !== null ? updateSliderTitle(titleL4 + 8, slider2titleBottom) : ''
+
+            if (typeof valueCallback === 'function') {
+                valueCallback(startV, endV);
+            }
+
+            // 滑块滚动后...
+            function updateSliderPosition(slider, $otherSlider, mouseX) {
+                let minPosition = 0;
+                let maxPosition = $scrollbar.width() - slider.width();
+                let otherSliderPosition = $otherSlider.position().left;
+
+                if (data.name1 == 'off-grid') {
+                    if (slider[0] === slider1[0] && mouseX + slider.width() > otherSliderPosition) {
+                        // 滑块1碰到滑块2时停止移动
+                        maxPosition = otherSliderPosition - slider.width() - 2;
+                    } else if (slider[0] === slider2[0] && mouseX < otherSliderPosition + $otherSlider.width()) {
+                        // 滑块2碰到滑块1时停止移动
+                        minPosition = otherSliderPosition + $otherSlider.width() + 2;
+                    }
+                }
+
+                let newPosition = Math.min(Math.max(minPosition, mouseX), maxPosition);
+                slider.css('left', newPosition + 'px');
+
+                // 计算滑块的百分比值
+                let percentage = (newPosition / ($scrollbar.width() - slider.width())) * 100;
+
+                // 返回滑块1和滑块2的值
+                // let value1 = (parseFloat(slider1.css('left')) / ($scrollbar.width() - slider1.width())) * 100;
+                // let value2 = (parseFloat(slider2.css('left')) / ($scrollbar.width() - slider2.width())) * 100;
+
+                value1 = (parseFloat(slider1.css('left')) / ($scrollbar.width() - slider1.width())) * 100;
+                value2 = (parseFloat(slider2.css('left')) / ($scrollbar.width() - slider2.width())) * 100;
+
+                startV =  Math.floor(parseFloat(slider1.css('left')) / ($scrollbar.width()) * (data.max - data.min) + data.min )
+                endV =  Math.floor(parseFloat(slider2.css('left')) / ($scrollbar.width()) * (data.max - data.min) + data.min )
+
+                //计算两个颜色块的宽度和x值
+                // w1 = Number(value1.toFixed(2))
+                // w2 = Number((value2 - value1).toFixed(2)) - 4
+                w1 = Math.floor(parseFloat(slider1.css('left')))
+                w2 = Math.floor(parseFloat(slider2.css('left')))
+
+                l1 = 0;
+                l2 = 0;
+
+
+                titleL1 = slider1.position().left - slider1titleTop.width()
+                titleL2 = slider1.position().left - slider1titleBottom.width()
+
+                titleL3 = slider2.position().left - slider2titleTop.width()
+                titleL4 = slider2.position().left - slider2titleBottom.width()
+
+                // name1 = Math.floor( data.min + ( slider1.position().left / ($scrollbar.width() - 6)) * ( data.max - data.min ))
+                // name2 = Math.floor(data.min + ( slider2.position().left / ($scrollbar.width() - 6)) * ( data.max - data.min ))
+
+                name1 = Math.round( (data.min + ( slider1.position().left / ($scrollbar.width() - 6)) * ( data.max - data.min )) * 10) / 10 //保留一位小数
+                name2 = Math.round((data.min + ( slider2.position().left / ($scrollbar.width() - 6)) * ( data.max - data.min )) * 10) / 10
+
+                // console.log('left1: ' + slider1.position().left,'left2: ' + slider2.position().left)
+
+                initialPercentage1 !== null ? (slider.hasClass("slider1") ? updateSliderColor(w1,l1, colorBlock1, '#F5FAB2','#BFE1B8') : '') : ''
+                initialPercentage2 !== null ? updateSliderColor(w2,l2, colorBlock2, '#C5E3B8','#7FC8BB') : ''
+
+
+                initialPercentage1 !== null ? updateSliderTitleData(name1, data.name1, slider1titleTop) : ''
+                initialPercentage2 !== null ? updateSliderTitleData(name2, data.name2, slider2titleBottom) : ''
+
+                initialPercentage1 !== null ? updateSliderTitle(titleL1 + 8, slider1titleTop) : ''
+                initialPercentage2 !== null ? updateSliderTitle(titleL4 + 8, slider2titleBottom) : ''
+                if((slider1titleTop && slider1titleTop.parent().hasClass('isInt')) || (slider2titleBottom && slider2titleBottom.parent().hasClass('isInt'))) {
+                    name1 = parseInt(name1)
+                    name2 = parseInt(name2)
+                }
+                if (typeof valueCallback === 'function') {
+                    valueCallback(name1, name2);
+                }
+            }
+        });
+    }
+
+    $.fn.customLimitScrollbar = function (initialPercentage1, initialPercentage2, data, valueCallback) {
+        var testName = "customScrollbar2"
+        let $scrollbar = $(this);
+
+        initialPercentage1 !== null ? initialPercentage1 = parseInt(initialPercentage1) : null
+        initialPercentage2 !== null ? initialPercentage2 = parseInt(initialPercentage2) : null
+
+        //如果都不为空，判断是否超出范围。如果1不为空判断1是否超出范围，如果2不为空判断2是否超出范围，如果都为空则退出
+        if(initialPercentage1 !== null && initialPercentage2 !== null) {
+            if (!(initialPercentage1 >= data.min && initialPercentage1 <= data.max && initialPercentage2 >= data.min && initialPercentage2 <= data.max || initialPercentage2 == 0 ||  initialPercentage1 == 0)) return
+        }
+        if(initialPercentage1 !== null) {
+            if (!(initialPercentage1 >= data.min && initialPercentage1 <= data.max || initialPercentage2 == 0 ||  initialPercentage1 == 0)) return ;
+        }
+        if(initialPercentage2 !== null) {
+            if (!(initialPercentage2 >= data.min && initialPercentage2 <= data.max || initialPercentage2 == 0 ||  initialPercentage1 == 0)) return ;
+        }
+        if(initialPercentage1 == null && initialPercentage2 == null) {
+            return
+        }
+
+        return this.each(function () {
+            let $scrollbar = $(this);
+            // if ($scrollbar.context.id == 'customScrollbar4'){
+            //     console.log(initialPercentage1, initialPercentage2, data)
+            // }
+
+            // let slider1 = $('<div class="slider slider1"></div>').appendTo($scrollbar);
+            // let slider2 = $('<div class="slider slider2"></div>').appendTo($scrollbar);
+
+            let slider1 = $scrollbar.find('.slider1')
+            let slider2 = $scrollbar.find('.slider2')
+
+            let slider1titleTop = $scrollbar.find('.slider1titleTop')
+            let slider1titleBottom = $scrollbar.find('.slider1titleBottom')
+
+            let slider2titleTop = $scrollbar.find('.slider2titleTop')
+            let slider2titleBottom = $scrollbar.find('.slider2titleBottom')
+
+            let colorBlock1 = $scrollbar.find('.colorBlock:eq(1)');
+            let colorBlock2 = $scrollbar.find('.colorBlock:eq(0)');
+
+            let isDragging1 = false;
+            let isDragging2 = false;
+
+            // let sliderL1 = initialPercentage1 !== null ? setInitialPosition(slider1, initialPercentage1) : slider1.position().left;
+            // let sliderL2 = initialPercentage2 !== null ? setInitialPosition(slider2, initialPercentage2) : slider2.position().left;
+
+            let sliderL1 = initialPercentage1 !== null ? setInitialPosition(slider1, initialPercentage1) : slider1.position().left;
+            let sliderL2 = initialPercentage2 !== null ? setInitialPosition(slider2, initialPercentage2) : slider2.position().left;
+
+
+            slider1.mousedown(function (e) {
+                isDragging1 = true;
+                e.preventDefault();
+            });
+
+            slider2.mousedown(function (e) {
+                isDragging2 = true;
+                e.preventDefault();
+            });
+
+            $(document).mouseup(function () {
+                isDragging1 = false;
+                isDragging2 = false;
+            });
+
+            $(document).mousemove(function (e) {
+                if (isDragging1 && e.which == 1) {
+                    updateSliderPosition(slider1, slider2, e.clientX - $scrollbar.offset().left,slider1titleTop );
+                }
+
+                if (isDragging2 && e.which == 1) {
+                    updateSliderPosition(slider2, slider1, e.clientX - $scrollbar.offset().left, slider2titleBottom);
+                }
+            });
+
+
+            function setInitialPosition(slider, percentage) {
+                let newPosition =  Math.round((percentage - data.min) / (data.max - data.min) * ($scrollbar.width() - 6));
+                if (percentage == 0) newPosition = 0
+                slider.css('left', newPosition + 'px');
+                return newPosition
+            }
+
+            //更新滑块滑过区域颜色位置
+            function updateSliderColor(w, l, colorBlock, color1, color2){
+                colorBlock.css('width', w + 'px');
+                colorBlock.css('left', l + 'px');
+                colorBlock.css('background', 'linear-gradient(to right, ' + color1 + ', ' + color2 + ')');
+            }
+
+            //更新滑块上下title位置
+            function updateSliderTitle(l, slidertitle) {
+                slidertitle.css('left', l + 'px');
+            }
+
+            //更新title值
+            function updateSliderTitleData(startV, name, slidertitleTop, slidertitleBottom){
+                if (slidertitleTop) {
+                    slidertitleTop.text(name + ': ' + startV + data.units)
+                } else {
+                    slidertitleBottom.text(name + ': ' +startV + data.units)
+                }
+            }
+
+            let value1 = (parseFloat(slider1.css('left')) / ($scrollbar.width() - slider1.width())) * 100;
+            let value2 = (parseFloat(slider2.css('left')) / ($scrollbar.width() - slider2.width())) * 100;
+
+            let w1 = sliderL1
+            let w2 = sliderL2
+
+            let l1 = 0;
+            let l2 = 0;
+            initialPercentage1 !== null ? updateSliderColor(w1,l1, colorBlock1, '#F5FAB2', '#BFE1B8') : ''
+            initialPercentage2 !== null ? updateSliderColor(w2,l2, colorBlock2, '#C5E3B8', '#7FC8BB') : ''
+
+            // let startV =  Math.floor(parseFloat(slider1.css('left')) / $scrollbar.width() * (data.max - data.min) + data.min )
+            // let endV =  Math.floor(parseFloat(slider2.css('left')) / $scrollbar.width() * (data.max - data.min) + data.min )
+            let startV =  initialPercentage1
+            let endV =  initialPercentage2
+
+            initialPercentage1 !== null ? updateSliderTitleData(startV, data.name1, slider1titleTop) : ''
+            initialPercentage2 !== null ? updateSliderTitleData(endV, data.name2, slider2titleBottom) : ''
+
+            var titleL1 = sliderL1 - slider1titleTop.width()
+            var titleL2 = sliderL1 - slider1titleBottom.width()
+
+            let titleL3 = sliderL2 - slider2titleTop.width()
+            let titleL4 = sliderL2 - slider2titleBottom.width()
+
+            // if ($scrollbar.context.id == 'customScrollbar5'){
+            //     console.log(initialPercentage1, titleL1, slider1titleTop.text(),slider1titleTop.width())
+            // }
+
+            initialPercentage1 !== null ? updateSliderTitle(titleL1 + 8, slider1titleTop) : ''
+            initialPercentage2 !== null ? updateSliderTitle(titleL4 + 8, slider2titleBottom) : ''
+
+            if (typeof valueCallback === 'function') {
+                valueCallback(startV, endV);
+            }
+
+            function updateSliderPosition(slider, $otherSlider, mouseX) {
+                let minPosition = 0;
+                let maxPosition = $scrollbar.width() - slider.width();
+                let otherSliderPosition = $otherSlider.position().left;
+
+                if ( slider[0] === slider1[0] && mouseX + slider.width() > otherSliderPosition) {
+                    // 滑块1碰到滑块2时停止移动
+                    maxPosition = otherSliderPosition - slider.width() - 2;
+                } else if (slider[0] === slider2[0] && mouseX < otherSliderPosition + $otherSlider.width()) {
+                    // 滑块2碰到滑块1时停止移动
+                    minPosition = otherSliderPosition + $otherSlider.width() + 2;
+                }
+
+                let newPosition = Math.min(Math.max(minPosition, mouseX), maxPosition);
+                slider.css('left', newPosition + 'px');
+
+                // 计算滑块的百分比值
+                let percentage = (newPosition / ($scrollbar.width() - slider.width())) * 100;
+
+                // 返回滑块1和滑块2的值
+                // let value1 = (parseFloat(slider1.css('left')) / ($scrollbar.width() - slider1.width())) * 100;
+                // let value2 = (parseFloat(slider2.css('left')) / ($scrollbar.width() - slider2.width())) * 100;
+
+                value1 = (parseFloat(slider1.css('left')) / ($scrollbar.width() - slider1.width())) * 100;
+                value2 = (parseFloat(slider2.css('left')) / ($scrollbar.width() - slider2.width())) * 100;
+
+                startV =  Math.floor(parseFloat(slider1.css('left')) / ($scrollbar.width()) * (data.max - data.min) + data.min )
+                endV =  Math.floor(parseFloat(slider2.css('left')) / ($scrollbar.width()) * (data.max - data.min) + data.min )
+
+                //计算两个颜色块的宽度和x值
+                // w1 = Number(value1.toFixed(2))
+                // w2 = Number((value2 - value1).toFixed(2)) - 4
+                w1 = Math.floor(parseFloat(slider1.css('left')))
+                w2 = Math.floor(parseFloat(slider2.css('left')))
+                l1 = 0;
+                l2 = 0;
+
+
+                titleL1 = slider1.position().left - slider1titleTop.width()
+                titleL2 = slider1.position().left - slider1titleBottom.width()
+
+                titleL3 = slider2.position().left - slider2titleTop.width()
+                titleL4 = slider2.position().left - slider2titleBottom.width()
+
+                // console.log('left1: ' + slider1.position().left,'left2: ' + slider2.position().left)
+                initialPercentage1 !== null ? updateSliderColor(w1, l1, colorBlock1, '#F5FAB2', '#BFE1B8') : ''
+                initialPercentage2 !== null ? updateSliderColor(w2, l2, colorBlock2, '#C5E3B8', '#7FC8BB') : ''
+
+                name1 = Math.floor( data.min + ( slider1.position().left / ($scrollbar.width() - 6)) * ( data.max - data.min ))
+                name2 = Math.floor(data.min + ( slider2.position().left / ($scrollbar.width() - 6)) * ( data.max - data.min ))
+
+                // if (slider.selector == '.slider1')
+                // if (slider.selector == '.slider2')
+
+                initialPercentage1 !== null ? (slider.hasClass("slider1") ? updateSliderTitleData(name1, data.name1, slider1titleTop) : '') : ''
+                initialPercentage2 !== null ? updateSliderTitleData(name2, data.name2, slider2titleBottom) : ''
+                // initialPercentage1 !== null ? updateSliderTitleData(name1, data.name1, slider1titleTop) : ''
+                // initialPercentage2 !== null ? updateSliderTitleData(name2, data.name2,slider2titleBottom) : ''
+
+                initialPercentage1 !== null ? updateSliderTitle(titleL1 + 8, slider1titleTop) : ''
+                initialPercentage2 !== null ? updateSliderTitle(titleL4 + 8, slider2titleBottom) : ''
+
+                if (typeof valueCallback === 'function') {
+                    valueCallback(name1, name2);
+                }
+
+
+                // 配置 MutationObserver 监听属性变化
+                // let config = { attributes: true };
+
+                // 开始监听
+                // observer.observe(targetElement, config);
+            }
+        });
+    };
+})(jQuery);
