@@ -593,13 +593,13 @@ function refreshPageAt1Minute() {   // Vòng nặng 20–30s
     getParallelGroupDetails();
   }
 
-  refreshInverterInformation(currentSerialNum);
+  //refreshInverterInformation(currentSerialNum);
 
   if (typeof (refreshTigoDataIfSystemLayoutValid) == "function") {
     refreshTigoDataIfSystemLayoutValid();
   }
 
-  setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (20 * 1000) : (30 * 1000));
+  setTimeout(refreshPageAt1Minute, (showParallelData || redisRunning) ? (30 * 1000) : (60 * 1000));
 }
 /////////////Viết thêm
 let inverterQuickLocked = false;
