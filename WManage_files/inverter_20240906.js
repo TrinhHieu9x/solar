@@ -1665,10 +1665,10 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 // sau khi có response
 if (response.vacr > 0) {
     // có áp
-    $('.infoBlockImg').attr('src', './WManage_files/icon_consumption.png');
+    $('.consumptionImg').attr('src', './WManage_files/icon_consumption.png');
 } else {
     // không có áp
-    $('.infoBlockImg').attr('src', './WManage_files/icon_consumption_gray.png');
+    $('.consumptionImg').attr('src', './WManage_files/icon_consumption_gray.png');
 }
 
 			var usingGenerator = false;
