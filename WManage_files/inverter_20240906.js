@@ -1670,6 +1670,13 @@ if (response.vacr > 0) {
     // không có áp
     $('.consumptionImg').attr('src', './WManage_files/icon_consumption_Gray.png');
 }
+if (response.vpv1 > 0) {
+    // có áp
+    $('.consumptionImg').attr('src', './WManage_files/icon_consumption.png');
+} else {
+    // không có áp
+    $('.consumptionImg').attr('src', './WManage_files/icon_consumption_Gray.png');
+}
 
 			var usingGenerator = false;
 			var gridPower = response.pToGrid - response.pToUser;
