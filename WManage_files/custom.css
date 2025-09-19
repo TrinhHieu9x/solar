@@ -1,11 +1,11 @@
 body>header {
-	background-color: rgba(99, 173, 130, 1)!important;
+	background-color: rgb(25, 118, 210,1)!important;
 }
 
 .topLeftLogoHolder {
 	float: left;
 	height: 48px;
-	background-color: rgba(99, 173, 130, 1)
+	background-color: rgba(25, 118, 210, 1)
 }
 
 #companyLogoTopLeftImg {
@@ -15,12 +15,12 @@ body>header {
 
 .op-ebase-leftMenu .menuItem.level-leaf.selected, .op-ebase-leftMenu .menuItem.level-leaf:hover {
 	border-left: none!important;
-	background: rgba(99, 173, 130, 1);
+	background: rgba(25, 118, 210, 1);
     color: white!important;
 }
 
 .default_border {
-	border: solid 1px #63C099 !important;
+	border: solid 1px #1976D2 !important;
 }
 
 .default_box_shadow::-webkit-slider-thumb {
