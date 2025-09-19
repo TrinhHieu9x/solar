@@ -1672,10 +1672,10 @@ if (response.vacr > 0) {
 }
 if (response.vpv1 > 0) {
     // có áp
-    $('.consumptionImg').attr('src', './WManage_files/icon_consumption.png');
+    $('.pvImg').attr('src', './WManage_files/icon_consumption.png');
 } else {
     // không có áp
-    $('.consumptionImg').attr('src', './WManage_files/icon_consumption_Gray.png');
+    $('.pvImg').attr('src', './WManage_files/icon_consumption_Gray.png');
 }
 
 			var usingGenerator = false;
