@@ -1662,6 +1662,15 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vpv3Text').text(response.vpv3  );
 			}
 
+// sau khi có response
+if (response.vacr > 0) {
+    // có áp
+    $('.consumptionImg').attr('src', './WManage_files/icon_consumption.png');
+} else {
+    // không có áp
+    $('.consumptionImg').attr('src', './WManage_files/icon_consumption_gray.png');
+}
+
 			var usingGenerator = false;
 			var gridPower = response.pToGrid - response.pToUser;
 			var $gridImage = $('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] img.gridImg');

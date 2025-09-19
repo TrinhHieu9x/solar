@@ -243,7 +243,9 @@ div.tool button {
 .colorGreen {
 	color: #63AD82!important;
 }
-
+.colorBlue {
+  color: #1E90FF !important; /* xanh dương tươi */
+}
 .colorRed {
 	color: red!important;
 }
