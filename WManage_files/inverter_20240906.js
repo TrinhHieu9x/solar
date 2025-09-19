@@ -1668,7 +1668,7 @@ if (response.vacr > 0) {
     $('.consumptionImg').attr('src', './WManage_files/icon_consumption.png');
 } else {
     // không có áp
-    $('.consumptionImg').attr('src', './WManage_files/icon_consumption_gray.png');
+    $('.consumptionImg').attr('src', './WManage_files/icon_consumption_Gray.png');
 }
 
 			var usingGenerator = false;
