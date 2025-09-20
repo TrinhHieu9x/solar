@@ -1086,7 +1086,7 @@ function refreshInverterInformationParallel(snForRefreshInfo) {
 					usingGenerator = true;
 				}
 			} else {
-				$gridImage.attr('src', gridImageDirPath + 'icon_grid.png');
+				$gridImage.attr('src', gridImageDirPath + 'generator.png');
 			}
 
 			var showGenDryContact = false;
