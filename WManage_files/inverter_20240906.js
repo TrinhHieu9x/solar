@@ -1662,14 +1662,6 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vpv3Text').text(response.vpv3  );
 			}
 
-// sau khi có response
-if (response.vacr > 0) {
-    // có áp
-    $('.consumptionImg').attr('src', './WManage_files/icon_consumption.png');
-} else {
-    // không có áp
-    $('.consumptionImg').attr('src', './WManage_files/icon_consumption_Gray.png');
-}
 if (response.vpv1 > 0) {
     // có áp
     $('.pvImg').attr('src', './WManage_files/icon_solor_yielding.png');
@@ -1757,9 +1749,11 @@ if (response.vpv1 > 0) {
 if (response.vacr > 0) {
     // có áp
     $('.gridImg').attr('src', './WManage_files/icon_grid.png');
+    $('.consumptionImg').attr('src', './WManage_files/icon_consumption.png');
 } else {
     // không có áp
-    $('.gridImg').attr('src', './WManage_files/icon_grid_Gray.png');
+    $('.gridImg').attr('src', './WManage_files/icon_grid.png');
+    $('.consumptionImg').attr('src', './WManage_files/icon_consumption.png');
 }
 
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vacText').text(response.vacr );
