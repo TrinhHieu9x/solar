@@ -1691,16 +1691,8 @@ if (response.vpv1 > 0) {
 			} else if((currentDeviceType == 6 || currentDeviceType == 7 || currentDeviceType == 8 || currentDeviceType == 10) && response._12KUsingGenerator) {
 				usingGenerator = true;
 
-				//$gridImage.attr('src', gridImageDirPath + 'generator.png');
-					
-if (response.vacr > 0) {
-    // có áp
-    $('.gridImg').attr('src', './WManage_files/icon_grid.png');
-} else {
-    // không có áp
-    $('.gridImg').attr('src', './WManage_files/icon_grid_Gray.png');
-}
-
+				$gridImage.attr('src', gridImageDirPath + 'generator.png');
+				
 				gridPower = response.genPower;
 
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vacText').text(response.genVolt / 10);
@@ -1715,7 +1707,7 @@ if (response.vacr > 0) {
 				if(response._12KUsingGenerator) {
 					usingGenerator = true;
 
-					$gridImage.attr('src', gridImageDirPath + 'icon_grid.png');
+					$gridImage.attr('src', gridImageDirPath + 'generator.png');
 
 					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3VacrText').text(response.genVolt );
 					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3VacsText').text(response.genVolts / 10);
@@ -1760,7 +1752,15 @@ if (response.vacr > 0) {
 					}
 				}
 			} else {
-				$gridImage.attr('src', gridImageDirPath + 'generator.png');
+				//$gridImage.attr('src', gridImageDirPath + 'icon_grid.png');
+				
+if (response.vacr > 0) {
+    // có áp
+    $('.gridImg').attr('src', './WManage_files/icon_grid.png');
+} else {
+    // không có áp
+    $('.gridImg').attr('src', './WManage_files/icon_grid_Gray.png');
+}
 
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vacText').text(response.vacr );
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .facText').text(response.fac );
