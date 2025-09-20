@@ -1086,7 +1086,7 @@ function refreshInverterInformationParallel(snForRefreshInfo) {
 					usingGenerator = true;
 				}
 			} else {
-				$gridImage.attr('src', gridImageDirPath + 'generator.png');
+				$gridImage.attr('src', gridImageDirPath + 'icon_grid.png');
 			}
 
 			var showGenDryContact = false;
@@ -1752,7 +1752,7 @@ if (response.vpv1 > 0) {
 					}
 				}
 			} else {
-				$gridImage.attr('src', gridImageDirPath + 'icon_grid.png');
+				$gridImage.attr('src', gridImageDirPath + 'generator.png');
 
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vacText').text(response.vacr );
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .facText').text(response.fac );
