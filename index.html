@@ -284,7 +284,7 @@
 
 	var baseUrl = 'https://view.solarvn.workers.dev/WManage';
 	var resourceBaseUrl = 'https://resource.solarcloudsystem.com/WManage';
-
+	var fixBaseUrl = 'https://solar.pages.dev';
 	
 		var isAdmin = false;
 	
@@ -1309,7 +1309,7 @@
 					} else if (currentSubDeviceType == 131) {
 						inverterImgSrc = resourceBaseUrl + offGridUsInverterImagePath;
 					} else {
-						inverterImgSrc = resourceBaseUrl + offGridInverterImagePath;
+						inverterImgSrc = fixBaseUrl + offGridInverterImagePath;
 					}
 					if(currentPowerRating == 7 && platform == 'CROWN') {
 						inverterImgSrc = resourceBaseUrl + sna6k_6_6_5ImagePath;
