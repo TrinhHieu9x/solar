@@ -1711,10 +1711,10 @@ if (response.vpv1 > 0) {
 					
 if (response.vacr > 0) {
     // có áp
-    $('.gridImage').attr('src', './WManage_files/icon_grid.png');
+    $('.gridImg').attr('src', './WManage_files/icon_grid.png');
 } else {
     // không có áp
-    $('.gridImage').attr('src', './WManage_files/icon_grid_Gray.png');
+    $('.gridImg').attr('src', './WManage_files/icon_grid_Gray.png');
 }
 					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3VacrText').text(response.genVolt );
 					$('.flowChartHolder .phase3ParallelGridTextHolder .phase3VacsText').text(response.genVolts / 10);
