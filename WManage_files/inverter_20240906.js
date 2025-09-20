@@ -1707,7 +1707,7 @@ if (response.vpv1 > 0) {
 				if(response._12KUsingGenerator) {
 					usingGenerator = true;
 
-					$gridImage.attr('src', gridImageDirPath + 'generator.png');
+					//$gridImage.attr('src', gridImageDirPath + 'generator.png');
 					
 if (response.vacr > 0) {
     // có áp
