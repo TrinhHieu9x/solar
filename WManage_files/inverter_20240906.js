@@ -1644,7 +1644,7 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 					$('.pvTextHolder').css('left', '30px');
 				} else {
 					$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .acPvImg').hide();
-					$('.pvTextHolder').css('left', (screen.width < 800 ? (395 - 36) : 395) + 'px');
+					$('.pvTextHolder').css('left', (screen.width < 800 ? (395 - 16) : 395) + 'px');
 				}
 
 				var ppv = response.ppv;
