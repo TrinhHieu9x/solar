@@ -2135,7 +2135,7 @@ $('#narrowChart').click(function () {
 	$('#lineChartContent').css('height', '400px')
 	$('#powerLineHolder').css('height', '360px')
 	var width = document.getElementById('lineChartContent').offsetWidth
-	powerChart.setSize(width-"20%", null)
+	powerChart.setSize(width-"10%", null)
 	$('#enlargeChart').show()
 	$('#narrowChart').hide()
 	$('#rightContent').show()
