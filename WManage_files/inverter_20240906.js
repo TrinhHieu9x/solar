@@ -2125,7 +2125,7 @@ $('#enlargeChart').click(function () {
 	$('#lineChartContent').css('height', '600px')
 	$('#powerLineHolder').css('height', '560px')
 	var width = document.getElementById('lineChartContent').offsetWidth
-	powerChart.setSize(width-"5%", null)
+	powerChart.setSize(width-"8%", null)
 	$('#rightContent').hide()
 	$('#enlargeChart').hide()
 	$('#narrowChart').show()
@@ -2135,7 +2135,7 @@ $('#narrowChart').click(function () {
 	$('#lineChartContent').css('height', '400px')
 	$('#powerLineHolder').css('height', '360px')
 	var width = document.getElementById('lineChartContent').offsetWidth
-	powerChart.setSize(width-"10%", null)
+	powerChart.setSize(width-"15%", null)
 	$('#enlargeChart').show()
 	$('#narrowChart').hide()
 	$('#rightContent').show()
