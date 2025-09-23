@@ -2196,7 +2196,7 @@
 							</div>
 
 							
-							<div id="plantYearMenuContent" class="menuContent btn-group">
+							<div id="plantYearMenuContent" class="menuContent btn-group" style="display: none">
 								<button type="button" class="btn btn-sm btn-default" onclick="tabPlantChart.changeYearColumnChartDate(-1)" style="height: 30px;">
 									<span class="glyphicon glyphicon-chevron-left"></span>
 								</button>
@@ -2213,10 +2213,10 @@
 						<div class="btn-group" style="float: right;" data-toggle="buttons" id="plantChartRadioHolder">
 							<a style="float: left; font-size: 16px; display: inline-block; height: 30px; line-height: 30px; margin-right: 10px;" href="javascript:void();" title="Dữ liệu này chỉ được ghi lại khi biến tần đang trực tuyến"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">(?)</font></font></a>
 
-							<label id="monthButton" class="btn btn-sm btn-default active" chartholder="plantMonthColumnHolder" timerangetype="month" menucontentid="plantMonthMenuContent" axistitley="Month(kWh)">
+							<label id="monthButton" class="btn btn-sm btn-default" chartholder="plantMonthColumnHolder" timerangetype="month" menucontentid="plantMonthMenuContent" axistitley="Month(kWh)">
 								<input type="radio"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Tháng
 							</font></font></label>
-							<label id="yearButton" class="btn btn-sm btn-default" chartholder="plantYearColumnHolder" timerangetype="year" menucontentid="plantYearMenuContent" axistitley="Year(kWh)">
+							<label id="yearButton" class="btn btn-sm btn-default active" chartholder="plantYearColumnHolder" timerangetype="year" menucontentid="plantYearMenuContent" axistitley="Year(kWh)">
 								<input type="radio"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Năm
 							</font></font></label>
 						</div>
