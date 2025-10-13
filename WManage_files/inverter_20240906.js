@@ -1476,7 +1476,7 @@ function refreshInverterInformationSingle(snForRefreshInfo) {
 			} else {
 				$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .socHolder').show().find('.monitorDataText').text(response.soc);
 			}
-			$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vbatText').text(response.vBat.toFixed(1));
+			$('.flowChartHolder[chartTarget=' + snForRefreshInfo + '] .vbatText').text(response.vBat.toFixed(2));
 
 			var hasCustomBatteryEnergyIcon = false;
 			if(response.batteryType == 'LITHIUM') {
