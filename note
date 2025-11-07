@@ -1,0 +1,25 @@
+proot-distro login debian --termux-home
+apt update && apt install -y python3 python3-venv python3-pip libffi-dev libssl-dev
+mkdir -p ~/hass
+cd ~/hass
+python3 -m venv venv
+source venv/bin/activate
+pip install wheel setuptools
+pip install homeassistant
+hass
+echo '{"version": 1, "minor_version": 1, "key": "core.config_entries", "data": {"entries": []}}' > /root/.homeassistant/.storage/core.config_entries
+
+
+
+
+
+
+proot-distro login debian
+cd ~/hass
+source venv/bin/activate
+pkill -f hass 2>/dev/null
+hass --config /root/.homeassistant
+
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements_full.txt
