@@ -120,7 +120,7 @@ s<!DOCTYPE html>
     // Hiển thị hộp thoại xác nhận
         if (confirm("Bạn có muốn hủy bỏ các thay đổi và quay lại?")) {
             // Nếu nhấn OK, trình duyệt sẽ chuyển hướng về trang chủ của bạn
-            window.location.href = "https://solars.pages.dev/"; 
+            window.location.href = "https://solars.pages.dev/?refresh=" + new Date().getTime();
         }
     }
 </script>
