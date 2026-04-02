@@ -257,7 +257,7 @@ nav .menu-list {
 .op-ebase-topMenu .menu-list {
 	position: relative;
 	z-index: 9;
-	min-width: 460px
+	min-width: 100% !important;
 }
 
 .op-ebase-topMenu .menu-list .item {
