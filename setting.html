@@ -116,7 +116,13 @@ s<!DOCTYPE html>
             setTimeout(() => { btn.innerText = originalText; btn.style.background = "#27ae60"; }, 2500);
         }, 1200);
     }
-    function confirmCancel() { if(confirm("Bạn có muốn hủy bỏ các thay đổi và quay lại?")) alert("Đang điều hướng về Home view..."); }
+        function confirmCancel() {
+    // Hiển thị hộp thoại xác nhận
+        if (confirm("Bạn có muốn hủy bỏ các thay đổi và quay lại?")) {
+            // Nếu nhấn OK, trình duyệt sẽ chuyển hướng về trang chủ của bạn
+            window.location.href = "https://solars.pages.dev/"; 
+        }
+    }
 </script>
 
 </body>
