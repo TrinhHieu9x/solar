@@ -1,4 +1,4 @@
-s<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -8,30 +8,38 @@ s<!DOCTYPE html>
         :root { --primary: #27ae60; --bg: #f5f7fa; --card-bg: #fff; --text: #2c3e50; --border: #f0f1f3; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 0 0 80px 0; color: var(--text); -webkit-tap-highlight-color: transparent; }
         
-        /* Header & Footer Cố Định */
-        .header { background: #fff; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #eee; sticky: top; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
-        .btn-close { font-size: 24px; color: #95a5a6; cursor: pointer; }
+        /* Header & Footer */
+        .header { background: #fff; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .btn-close { font-size: 24px; color: #95a5a6; cursor: pointer; padding-right: 10px; }
         .header-title { flex: 1; text-align: center; font-weight: 600; font-size: 18px; margin-right: 34px; }
-        .footer-actions { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 12px 15px; display: flex; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .footer-actions { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 12px 15px; display: flex; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
         .btn-save { flex: 1; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: .2s; }
         .btn-save:active { opacity: 0.8; transform: scale(0.98); }
 
         /* Cấu trúc các thẻ cài đặt */
         .section-title { font-size: 11px; color: #7f8c8d; text-transform: uppercase; margin: 20px 15px 8px; font-weight: 700; letter-spacing: 0.8px; }
         .card { background: var(--card-bg); border-radius: 12px; margin: 0 10px 15px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
-        .row { display: flex; justify-content: space-between; align-items: flex-start; padding: 15px 15px 12px; border-bottom: 1px solid var(--border); }
+        .row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--border); }
         .row:last-child { border-bottom: none; }
-        .label-group { flex: 1; margin-right: 15px; }
-        .label { font-size: 15px; color: #34495e; font-weight: 500; }
-        .sub-label { font-size: 11px; color: #95a5a6; margin-top: 3px; display: block; line-height: 1.3; }
-        .value { font-size: 15px; font-weight: 600; color: #2c3e50; text-align: right; }
-        .unit { color: #95a5a6; font-size: 13px; margin-left: 4px; font-weight: 400; }
+        .label-group { flex: 1; margin-right: 10px; }
+        .label { font-size: 14px; color: #34495e; font-weight: 500; }
+        .sub-label { font-size: 10px; color: #95a5a6; margin-top: 2px; display: block; line-height: 1.2; }
+
+        /* INPUT & SELECT STYLES */
+        .val-edit { 
+            border: 1px solid #e0e0e0; background: #fafafa; border-radius: 6px; 
+            padding: 6px 8px; font-size: 14px; font-weight: 600; color: #27ae60; 
+            text-align: right; width: 85px; outline: none; transition: 0.2s;
+        }
+        .val-edit:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 2px rgba(39,174,96,0.1); }
+        select.val-edit { width: auto; max-width: 140px; text-align-last: right; }
+        .unit { color: #95a5a6; font-size: 11px; margin-left: 2px; font-weight: 400; }
 
         /* Nút Gạt Switch */
-        .switch { width: 46px; height: 24px; background: #e0e0e0; border-radius: 15px; position: relative; cursor: pointer; transition: .3s; }
+        .switch { width: 44px; height: 24px; background: #e0e0e0; border-radius: 15px; position: relative; cursor: pointer; transition: .3s; flex-shrink: 0; }
         .switch.on { background: var(--primary); }
         .switch::after { content: ''; position: absolute; width: 20px; height: 20px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: .3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-        .switch.on::after { left: 24px; }
+        .switch.on::after { left: 22px; }
     </style>
 </head>
 <body>
@@ -41,66 +49,116 @@ s<!DOCTYPE html>
     <div class="header-title">Cài đặt nâng cao</div>
 </div>
 
-<div class="section-title">PIN</div>
+<div class="section-title">CÀI ĐẶT PIN</div>
 <div class="card">
-    <div class="row"><div class="label">Thương hiệu</div><div class="value">Lead-Acid battery</div></div>
-    <div class="row"><div class="label-group"><span class="label">Chế độ quản lý dung lượng</span><span class="sub-label">Kiểu hiển thị dung lượng pin</span></div><div class="value">SOC</div></div>
-    <div class="row"><div class="label">Dung lượng <span class="unit">(Ah)</span></div><div class="value">100</div></div>
-    <div class="row"><div class="label">Điện áp sạc duy trì <span class="unit">(V)</span></div><div class="value">55.4</div></div>
-    <div class="row"><div class="label">Điện áp sạc hấp thụ <span class="unit">(V)</span></div><div class="value">55.5</div></div>
-    <div class="row"><div class="label">Điện trở trong <span class="unit">(mΩ)</span></div><div class="value">5</div></div>
-    <div class="row"><div class="label">Thời gian hấp thụ <span class="unit">(min)</span></div><div class="value">20</div></div>
-    <div class="row"><div class="label-group"><span class="label">Xả và sạc đến <span class="unit">(%)</span></span><span class="sub-label">Phạm vi sử dụng pin theo SOC</span></div><div class="value">20 % - 100 %</div></div>
-    <div class="row"><div class="label-group"><span class="label">Tối đa. Công suất sạc <span class="unit">(W)</span></span><span class="sub-label">Công suất sạc tối đa được phép của pin</span></div><div class="value">2200</div></div>
-    <div class="row"><div class="label-group"><span class="label">Tối đa. Công suất xả <span class="unit">(W)</span></span><span class="sub-label">Công suất xả tối đa được phép của pin</div><div class="value">4000</div></div>
-    <div class="row"><div class="label-group"><span class="label">Dự phòng <span class="unit">(%)</span></span><span class="sub-label">Dung lượng pin dùng cho chế độ có lưới điện theo SOC</span></div><div class="value">18</div></div>
-    <div class="row"><div class="label-group"><span class="label">SOC kết nối lại pin <span class="unit">(%)</span></span><span class="sub-label">SOC tái kết nối pin khi không có lưới điện sau khi đạt EOD</span></div><div class="value">25</div></div>
+    <div class="row">
+        <div class="label">Thương hiệu</div>
+        <select class="val-edit">
+            <option selected>Lead-Acid</option>
+            <option>Lithium (CAN)</option>
+            <option>Lithium (485)</option>
+        </select>
+    </div>
+    <div class="row">
+        <div class="label-group"><span class="label">Quản lý dung lượng</span></div>
+        <select class="val-edit"><option selected>SOC (%)</option><option>Voltage (V)</option></select>
+    </div>
+    <div class="row">
+        <div class="label">Dung lượng <span class="unit">(Ah)</span></div>
+        <input type="number" class="val-edit" value="100">
+    </div>
+    <div class="row">
+        <div class="label">Áp sạc duy trì <span class="unit">(V)</span></div>
+        <input type="number" step="0.1" class="val-edit" value="55.4">
+    </div>
+    <div class="row">
+        <div class="label">Áp sạc hấp thụ <span class="unit">(V)</span></div>
+        <input type="number" step="0.1" class="val-edit" value="55.5">
+    </div>
+    <div class="row">
+        <div class="label">Xả/Sạc <span class="unit">(%)</span></div>
+        <div style="display:flex; align-items:center;">
+            <input type="number" class="val-edit" style="width:45px" value="20">
+            <span style="margin:0 5px">-</span>
+            <input type="number" class="val-edit" style="width:45px" value="100">
+        </div>
+    </div>
+    <div class="row">
+        <div class="label">CS Sạc tối đa <span class="unit">(W)</span></div>
+        <input type="number" class="val-edit" value="2200">
+    </div>
+    <div class="row">
+        <div class="label">CS Xả tối đa <span class="unit">(W)</span></div>
+        <input type="number" class="val-edit" value="4000">
+    </div>
 </div>
 
-<div class="section-title">CÂN BẰNG PIN AXIT-CHÌ (EQ)</div>
+<div class="section-title">CÂN BẰNG PIN (EQ)</div>
 <div class="card">
-    <div class="row"><div class="label">Điện áp cân bằng EQ <span class="unit">(V)</span></div><div class="value">55.1</div></div>
-    <div class="row"><div class="label">Thời gian EQ <span class="unit">(min)</span></div><div class="value">530</div></div>
-    <div class="row"><div class="label">Tối đa được phép thử EQ <span class="unit">(min)</span></div><div class="value">0</div></div>
-    <div class="row"><div class="label">Số ngày giữa các lần sạc EQ tự động <span class="unit">(Day)</span></div><div class="value">0</div></div>
-    <div class="row"><div class="label">Cưỡng chế EQ ngay</div><div class="switch" onclick="this.classList.toggle('on')"></div></div>
+    <div class="row">
+        <div class="label">Áp cân bằng EQ <span class="unit">(V)</span></div>
+        <input type="number" step="0.1" class="val-edit" value="55.1">
+    </div>
+    <div class="row">
+        <div class="label">Thời gian EQ <span class="unit">(min)</span></div>
+        <input type="number" class="val-edit" value="530">
+    </div>
+    <div class="row">
+        <div class="label">Cưỡng chế EQ ngay</div>
+        <div class="switch" onclick="toggleSwitch(this)"></div>
+    </div>
 </div>
 
 <div class="section-title">SẠC TỪ LƯỚI ĐIỆN</div>
 <div class="card">
-    <div class="row"><div class="label-group"><span class="label">Sạc từ lưới điện</span><span class="sub-label">Cho phép sạc từ lưới điện</span></div><div class="switch" onclick="this.classList.toggle('on')"></div></div>
-    <div class="row"><div class="label">Tối đa. Công suất sạc lưới <span class="unit">(W)</span></div><div class="value">180</div></div>
-    <div class="row"><div class="label-group"><span class="label">SOC dừng sạc <span class="unit">(%)</span></span><span class="sub-label">SOC dừng sạc từ lưới điện</span></div><div class="value">25</div></div>
-</div>
-
-<div class="section-title">KHÔI PHỤC</div>
-<div class="card">
-    <div class="row"><div class="label-group"><span class="label">Sạc hồi phục khi đạt <span class="unit">(%)</span></span><span class="sub-label">Ngưỡng SOC kích hoạt sạc hồi phục pin</span></div><div class="value">9 % - 21 %</div></div>
-    <div class="row"><div class="label-group"><span class="label">Tối đa. Công suất hồi phục <span class="unit">(W)</span></span><span class="sub-label">Công suất sạc tối đa từ lưới khi hồi phục</span></div><div class="value">201</div></div>
+    <div class="row">
+        <div class="label">Cho phép sạc lưới</div>
+        <div class="switch" onclick="toggleSwitch(this)"></div>
+    </div>
+    <div class="row">
+        <div class="label">CS sạc lưới tối đa <span class="unit">(W)</span></div>
+        <input type="number" class="val-edit" value="180">
+    </div>
+    <div class="row">
+        <div class="label">SOC dừng sạc <span class="unit">(%)</span></div>
+        <input type="number" class="val-edit" value="25">
+    </div>
 </div>
 
 <div class="section-title">ĐIỀU KHIỂN CÔNG SUẤT</div>
 <div class="card">
-    <div class="row"><div class="label">Điều khiển công suất</div><div class="value">Cảm biến CT</div></div>
-    <div class="row"><div class="label">Vị trí công tơ</div><div class="value">Phía lưới điện</div></div>
-    <div class="row"><div class="label">Hướng hướng dòng năng lượng</div><div class="value">Lưới điện → Biến tần</div></div>
-    <div class="row"><div class="label">Phương pháp giới hạn công suất</div><div class="value">Một pha nhỏ nhất</div></div>
-    <div class="row"><div class="label">Tối đa phát lên lưới <span class="unit">(W)</span></div><div class="value">4</div></div>
-    <div class="row"><div class="label">Tối đa nhập lưới <span class="unit">(W)</span></div><div class="value">30</div></div>
-    <div class="row"><div class="label">Xả đến tải bình thường</div><div class="switch on" onclick="this.classList.toggle('on')"></div></div>
-    <div class="row"><div class="label">Phát công suất pin lên lưới</div><div class="switch on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="row">
+        <div class="label">Điều khiển</div>
+        <select class="val-edit"><option selected>Cảm biến CT</option><option>Meter</option></select>
+    </div>
+    <div class="row">
+        <div class="label">Tối đa phát lưới <span class="unit">(W)</span></div>
+        <input type="number" class="val-edit" value="4">
+    </div>
+    <div class="row">
+        <div class="label">Xả đến tải</div>
+        <div class="switch on" onclick="toggleSwitch(this)"></div>
+    </div>
+    <div class="row">
+        <div class="label">Phát pin lên lưới</div>
+        <div class="switch on" onclick="toggleSwitch(this)"></div>
+    </div>
 </div>
 
-<div class="section-title">BẢO VỆ LƯỚI & HỆ THỐNG</div>
+<div class="section-title">BẢO VỆ HỆ THỐNG</div>
 <div class="card">
-    <div class="row"><div class="label">Áp thấp Mức 2 <span class="unit">(V)</span></div><div class="value">115</div></div>
-    <div class="row"><div class="label">Áp thấp Mức 1 <span class="unit">(V)</span></div><div class="value">160</div></div>
-    <div class="row"><div class="label">Áp cao Mức 2 <span class="unit">(V)</span></div><div class="value">310.5</div></div>
-    <div class="row"><div class="label">Áp cao Mức 1 <span class="unit">(V)</span></div><div class="value">253</div></div>
-    <div class="row"><div class="label">Tần số thấp Mức 1 <span class="unit">(Hz)</span></div><div class="value">49</div></div>
-    <div class="row"><div class="label">Tần số cao Mức 1 <span class="unit">(Hz)</span></div><div class="value">51</div></div>
-    <div class="row"><div class="label">Phát hiện đảo lưới</div><div class="switch on" onclick="this.classList.toggle('on')"></div></div>
-    <div class="row"><div class="label">Phát hiện rò rỉ (GFCI)</div><div class="switch on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="row">
+        <div class="label">Áp thấp Mức 1 <span class="unit">(V)</span></div>
+        <input type="number" class="val-edit" value="160">
+    </div>
+    <div class="row">
+        <div class="label">Áp cao Mức 1 <span class="unit">(V)</span></div>
+        <input type="number" step="0.1" class="val-edit" value="253">
+    </div>
+    <div class="row">
+        <div class="label">Phát hiện đảo lưới</div>
+        <div class="switch on" onclick="toggleSwitch(this)"></div>
+    </div>
 </div>
 
 <div class="footer-actions">
@@ -108,18 +166,33 @@ s<!DOCTYPE html>
 </div>
 
 <script>
+    function toggleSwitch(el) {
+        el.classList.toggle('on');
+        if (navigator.vibrate) navigator.vibrate(10);
+    }
+
     function saveData(btn) {
         const originalText = btn.innerText;
-        btn.innerText = "ĐANG GỬI LỆNH LƯU..."; btn.style.background = "#2ecc71";
+        btn.innerText = "ĐANG GỬI LỆNH LƯU..."; 
+        btn.style.background = "#2ecc71";
+        
+        // Thu thập dữ liệu (ví dụ)
+        let data = {};
+        document.querySelectorAll('.val-edit').forEach((el, index) => {
+            data['param_' + index] = el.value;
+        });
+
         setTimeout(() => {
-            btn.innerText = "ĐÃ LƯU TẤT CẢ 58 PARAMS!";
-            setTimeout(() => { btn.innerText = originalText; btn.style.background = "#27ae60"; }, 2500);
+            btn.innerText = "ĐÃ LƯU THÀNH CÔNG!";
+            setTimeout(() => { 
+                btn.innerText = originalText; 
+                btn.style.background = "#27ae60"; 
+            }, 2000);
         }, 1200);
     }
-        function confirmCancel() {
-    // Hiển thị hộp thoại xác nhận
-        if (confirm("Bạn có muốn hủy bỏ các thay đổi và quay lại?")) {
-            // Nếu nhấn OK, trình duyệt sẽ chuyển hướng về trang chủ của bạn
+
+    function confirmCancel() {
+        if (confirm("Hủy bỏ thay đổi và quay lại trang chủ?")) {
             window.location.href = "https://solars.pages.dev/?refresh=" + new Date().getTime();
         }
     }
