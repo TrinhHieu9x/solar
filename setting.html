@@ -196,6 +196,89 @@
         <div class="switch on" onclick="toggleSwitch(this)"></div>
     </div>
 </div>
+    
+<div class="section-title">TẢI DỰ PHÒNG</div>
+<div class="card">
+    <div class="row">
+        <div class="label-group">
+            <span class="label">Đầu ra dự phòng</span>
+            <span class="sub-label">Bật/Tắt cổng ra điện dự phòng (EPS)</span>
+        </div>
+        <div class="switch on" onclick="toggleSwitch(this)"></div>
+    </div>
+    <div class="row">
+        <div class="label">Điện áp đầu ra định mức <span class="unit">(V)</span></div>
+        <input type="number" class="val-edit" value="230" step="1">
+    </div>
+    <div class="row">
+        <div class="label-group">
+            <span class="label">Tối đa. Điện áp đầu ra dự phòng <span class="unit">(V)</span></span>
+        </div>
+        <input type="number" class="val-edit" value="264" step="1">
+    </div>
+    <div class="row">
+        <div class="label-group">
+            <span class="label">Tối thiểu Điện áp đầu ra dự phòng <span class="unit">(V)</span></span>
+        </div>
+        <input type="number" class="val-edit" value="176" step="1">
+    </div>
+    <div class="row">
+        <div class="label">Tần số đầu ra định mức <span class="unit">(HZ)</span></div>
+        <select class="val-edit">
+            <option selected>50</option>
+            <option>60</option>
+        </select>
+    </div>
+</div>
+
+<div class="section-title">BẢO VỆ</div>
+<div class="card">
+    <div class="row" style="background: #fafafa; border-bottom: none;">
+        <div class="sub-label" style="text-transform: uppercase; font-weight: 700; color: #95a5a6;">DUY TRÌ VẬN HÀNH Ở ĐIỆN ÁP THẤP</div>
+    </div>
+    <div class="row">
+        <div class="label">Duy trì vận hành ở điện áp thấp</div>
+        <div class="switch on" onclick="toggleSwitch(this)"></div>
+    </div>
+    <div class="row">
+        <div class="label">Ngưỡng kích hoạt LVRT <span class="unit">(V)</span></div>
+        <input type="number" class="val-edit" value="46" step="1">
+    </div>
+    <div class="row">
+        <div class="label">Ngưỡng kích hoạt HVRT <span class="unit">(V)</span></div>
+        <input type="number" class="val-edit" value="345" step="1">
+    </div>
+</div>
+
+<div class="card">
+    <div class="row">
+        <div class="label">Phát hiện đảo lưới điện</div>
+        <div class="switch on" onclick="toggleSwitch(this)"></div>
+    </div>
+    <div class="row">
+        <div class="label">Phát hiện cách ly</div>
+        <div class="switch on" onclick="toggleSwitch(this)"></div>
+    </div>
+    <div class="row">
+        <div class="label">Phát hiện dòng rò (GFCI)</div>
+        <div class="switch on" onclick="toggleSwitch(this)"></div>
+    </div>
+    <div class="row">
+        <div class="label">Điểm điện trở cách điện PV <span class="unit">(kΩ)</span></div>
+        <input type="number" class="val-edit" value="100" step="1">
+    </div>
+    <div class="row">
+        <div class="label">Điểm dòng rò PV <span class="unit">(mA)</span></div>
+        <input type="number" class="val-edit" value="300" step="10">
+    </div>
+    <div class="row">
+        <div class="label-group">
+            <span class="label">Giảm công suất <span class="unit">(%)</span></span>
+            <span class="sub-label">Cài đặt giảm công suất của biến tần</span>
+        </div>
+        <input type="number" class="val-edit" value="110" step="1">
+    </div>
+</div>
 
 <div class="footer-actions">
     <button class="btn-save" onclick="saveData(this)">LƯU TẤT CẢ THIẾT LẬP</button>
