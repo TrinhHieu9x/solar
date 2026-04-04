@@ -41,22 +41,21 @@
         .switch::after { content: ''; position: absolute; width: 20px; height: 20px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: .3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
         .switch.on::after { left: 22px; }
 
-        /* Style cho nút Refresh */
         .btn-refresh {
-            font-size: 20px;
+            width: 40px;  /* Đặt kích thước cố định cho vùng chứa */
+            height: 40px;
             color: var(--primary);
             cursor: pointer;
-            padding-left: 10px;
             display: flex;
             align-items: center;
+            justify-content: center; /* Căn giữa SVG theo chiều ngang */
             transition: transform 0.3s ease;
         }
         
-        /* Hiệu ứng xoay tròn khi đang tải */
-        .spinning {
+        /* Khi xoay, ta xoay chính cái SVG bên trong thay vì xoay cả cái div */
+        .spinning svg {
             animation: spin 1s linear infinite;
-            pointer-events: none; /* Khóa nút khi đang xoay */
-            opacity: 0.5;
+            transform-origin: center; /* Ép nó xoay quanh tâm */
         }
         
         @keyframes spin {
@@ -357,48 +356,58 @@
     async function loadInverterData() {
         const btn = document.getElementById('refreshBtn');
         const title = document.querySelector('.header-title');
+        const originalTitle = "Cài đặt nâng cao";
         
+        // 1. Trạng thái Đang chạy
         btn.classList.add('spinning');
-        title.innerText = "ĐANG TẢI...";
+        title.innerText = "🔄 ĐANG ĐỌC...";
+        title.style.color = "#27ae60";
     
         try {
             const response = await fetch('https://api.solarvn.workers.dev/read', { cache: 'no-store' });
-            if (!response.ok) throw new Error("Server lỗi");
+            if (!response.ok) throw new Error("Mất kết nối server");
             
             const data = await response.json();
             
+            // Kiểm tra nếu data rỗng
+            if (!data || data.length === 0) {
+                throw new Error("Không có dữ liệu");
+            }
+    
             data.forEach(item => {
                 const address = Object.keys(item)[0];
                 const value = item[address];
                 const element = document.getElementById('reg_' + address);
     
                 if (element) {
+                    // Đổ dữ liệu
                     if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
-                        // Xử lý số thực cho điện áp (chia 10)
-                        if (element.step === "0.1") {
-                            element.value = (parseFloat(value) / 10).toFixed(1);
-                        } else {
-                            element.value = value;
-                        }
+                        element.value = (element.step === "0.1") ? (parseFloat(value) / 10).toFixed(1) : value;
                     } else if (element.classList.contains('switch')) {
-                        // Cập nhật trạng thái switch
                         value == "1" ? element.classList.add('on') : element.classList.remove('on');
                     }
-                    // Hiệu ứng highlight nhẹ để biết dữ liệu đã mới
-                    element.style.transition = "background 0.5s";
-                    element.style.backgroundColor = "#e8f5e9";
-                    setTimeout(() => { element.style.backgroundColor = ""; }, 1000);
+    
+                    // 2. DẤU HIỆU THÀNH CÔNG: Nháy xanh ô dữ liệu
+                    element.style.backgroundColor = "#d4edda"; // Màu xanh nhạt
+                    element.style.transition = "background 0.5s ease";
+                    setTimeout(() => { element.style.backgroundColor = "#fafafa"; }, 800);
                 }
             });
     
-            title.innerText = "Cài đặt nâng cao";
+            // Hiện thông báo thành công ngắn hạn
+            title.innerText = "✅ ĐÃ CẬP NHẬT";
+            setTimeout(() => { title.innerText = originalTitle; title.style.color = ""; }, 2000);
+    
         } catch (error) {
-            title.innerText = "LỖI KẾT NỐI!";
-            console.error("Lỗi fetch:", error);
+            // 3. DẤU HIỆU LỖI: Hiện chữ đỏ và rung nhẹ (nếu trên điện thoại)
+            title.innerText = "❌ LỖI: " + error.message;
+            title.style.color = "#e74c3c";
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]); 
+            
+            // Sau 3 giây trả lại tiêu đề cũ để người dùng bấm lại
+            setTimeout(() => { title.innerText = originalTitle; title.style.color = ""; }, 3000);
         } finally {
-            setTimeout(() => {
-                btn.classList.remove('spinning');
-            }, 500); 
+            btn.classList.remove('spinning');
         }
     }
     
