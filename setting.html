@@ -374,25 +374,34 @@
                 throw new Error("Không có dữ liệu");
             }
     
-            data.forEach(item => {
-                const address = Object.keys(item)[0];
-                const value = item[address];
-                const element = document.getElementById('reg_' + address);
-    
-                if (element) {
-                    // Đổ dữ liệu
-                    if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
-                        element.value = (element.step === "0.1") ? (parseFloat(value) / 10).toFixed(1) : value;
-                    } else if (element.classList.contains('switch')) {
-                        value == "1" ? element.classList.add('on') : element.classList.remove('on');
+          data.forEach(item => {
+                    const address = Object.keys(item)[0];
+                    const value = item[address];
+                    const element = document.getElementById('reg_' + address);
+        
+                    if (element) {
+                        if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
+                            // CÁCH SỬA MỚI: Kiểm tra cả thuộc tính step trong HTML
+                            const stepValue = element.getAttribute('step');
+                            
+                            if (stepValue === "0.1") {
+                                // Chia 10 cho các thông số điện áp (V)
+                                element.value = (parseFloat(value) / 10).toFixed(1);
+                            } else {
+                                // Giữ nguyên cho Ah, W, min...
+                                element.value = value;
+                            }
+                        } else if (element.classList.contains('switch')) {
+                            // Ép kiểu value về String/Number để so sánh chuẩn
+                            parseInt(value) === 1 ? element.classList.add('on') : element.classList.remove('on');
+                        }
+        
+                        // Nháy xanh báo hiệu update thành công
+                        element.style.backgroundColor = "#d4edda";
+                        element.style.transition = "background 0.4s";
+                        setTimeout(() => { element.style.backgroundColor = ""; }, 600);
                     }
-    
-                    // 2. DẤU HIỆU THÀNH CÔNG: Nháy xanh ô dữ liệu
-                    element.style.backgroundColor = "#d4edda"; // Màu xanh nhạt
-                    element.style.transition = "background 0.5s ease";
-                    setTimeout(() => { element.style.backgroundColor = "#fafafa"; }, 800);
-                }
-            });
+                });
     
             // Hiện thông báo thành công ngắn hạn
             title.innerText = "✅ ĐÃ CẬP NHẬT";
