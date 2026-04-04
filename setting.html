@@ -323,7 +323,7 @@
     
         try {
             // Thêm tham số cache: 'no-store' để đảm bảo luôn lấy số mới nhất, không lấy số cũ trong máy
-            const response = await fetch('https://cloud.solarvn.workers.dev/read', { cache: 'no-store' });
+            const response = await fetch('https://api.solarvn.workers.dev/read', { cache: 'no-store' });
             
             if (!response.ok) throw new Error("Server lỗi");
             
@@ -353,7 +353,7 @@
             });
     
             title.innerText = "✅ ĐÃ CẬP NHẬT";
-            setTimeout(() => { title.innerText = originalTitle; }, 10000);
+            setTimeout(() => { title.innerText = originalTitle; }, 50000);
     
         } catch (error) {
             title.innerText = "❌ LỖI KẾT NỐI API";
