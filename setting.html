@@ -40,6 +40,38 @@
         .switch.on { background: var(--primary); }
         .switch::after { content: ''; position: absolute; width: 20px; height: 20px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: .3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
         .switch.on::after { left: 22px; }
+
+        /* Style cho nút Refresh */
+        .btn-refresh {
+            font-size: 20px;
+            color: var(--primary);
+            cursor: pointer;
+            padding-left: 10px;
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+        
+        /* Hiệu ứng xoay tròn khi đang tải */
+        .spinning {
+            animation: spin 1s linear infinite;
+            pointer-events: none; /* Khóa nút khi đang xoay */
+            opacity: 0.5;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Đảm bảo Header Title luôn nằm giữa khi có 2 nút 2 bên */
+        .header-title {
+            flex: 1;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 0; /* Bỏ margin-right cũ để căn giữa tuyệt đối */
+        }
     </style>
 </head>
 <body>
@@ -47,6 +79,13 @@
 <div class="header">
     <div class="btn-close" onclick="confirmCancel()">✕</div>
     <div class="header-title">Cài đặt nâng cao</div>
+    <div class="btn-refresh" id="refreshBtn" onclick="loadInverterData()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 4v6h-6"></path>
+            <path d="M1 20v-6h6"></path>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+    </div>
 </div>
 
 <div class="section-title">CÀI ĐẶT PIN</div>
@@ -315,53 +354,54 @@
             window.location.href = "https://solars.pages.dev/?refresh=" + new Date().getTime();
         }
     }
-        async function loadInverterData() {
+    async function loadInverterData() {
+        const btn = document.getElementById('refreshBtn');
         const title = document.querySelector('.header-title');
-        const originalTitle = title.innerText;
         
-        title.innerText = "🔄 ĐANG TẢI DỮ LIỆU..."; // Thông báo cho Hiếu biết là đang đợi API
+        btn.classList.add('spinning');
+        title.innerText = "ĐANG TẢI...";
     
         try {
-            // Thêm tham số cache: 'no-store' để đảm bảo luôn lấy số mới nhất, không lấy số cũ trong máy
             const response = await fetch('https://api.solarvn.workers.dev/read', { cache: 'no-store' });
-            
             if (!response.ok) throw new Error("Server lỗi");
             
             const data = await response.json();
-            console.log("Dữ liệu nhận được:", data); // Hiếu nhấn F12 trên máy tính để xem dòng này
-    
+            
             data.forEach(item => {
                 const address = Object.keys(item)[0];
                 const value = item[address];
                 const element = document.getElementById('reg_' + address);
     
                 if (element) {
-                    // Đổ dữ liệu vào ô
                     if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
-                        // Tự động chia 10 nếu là ô nhập áp sạc (có step 0.1)
+                        // Xử lý số thực cho điện áp (chia 10)
                         if (element.step === "0.1") {
                             element.value = (parseFloat(value) / 10).toFixed(1);
                         } else {
                             element.value = value;
                         }
                     } else if (element.classList.contains('switch')) {
+                        // Cập nhật trạng thái switch
                         value == "1" ? element.classList.add('on') : element.classList.remove('on');
                     }
-                    // Thêm màu xanh nhẹ vào ô vừa được cập nhật để dễ nhìn
-                    element.style.backgroundColor = "#e8f5e9"; 
+                    // Hiệu ứng highlight nhẹ để biết dữ liệu đã mới
+                    element.style.transition = "background 0.5s";
+                    element.style.backgroundColor = "#e8f5e9";
+                    setTimeout(() => { element.style.backgroundColor = ""; }, 1000);
                 }
             });
     
-            title.innerText = "✅ ĐÃ CẬP NHẬT";
-            setTimeout(() => { title.innerText = originalTitle; }, 50000);
-    
+            title.innerText = "Cài đặt nâng cao";
         } catch (error) {
-            title.innerText = "❌ LỖI KẾT NỐI API";
-            console.error("Lỗi:", error);
+            title.innerText = "LỖI KẾT NỐI!";
+            console.error("Lỗi fetch:", error);
+        } finally {
+            setTimeout(() => {
+                btn.classList.remove('spinning');
+            }, 500); 
         }
     }
     
-    // Gọi hàm ngay khi trang web vừa tải xong
     window.onload = loadInverterData;
 </script>
 
