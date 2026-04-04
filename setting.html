@@ -315,6 +315,52 @@
             window.location.href = "https://solars.pages.dev/?refresh=" + new Date().getTime();
         }
     }
+        async function loadInverterData() {
+        try {
+            const response = await fetch('https://cloud.solarvn.workers.dev/read');
+            const data = await response.json();
+    
+            // data là một mảng các object: [{ "1A18": "1049" }, ...]
+            data.forEach(item => {
+                // Lấy key (địa chỉ) và value
+                const address = Object.keys(item)[0];
+                let value = item[address];
+    
+                // Tìm phần tử HTML có ID tương ứng
+                const element = document.getElementById('reg_' + address);
+    
+                if (element) {
+                    // 1. Nếu là ô nhập liệu (Input) hoặc ô chọn (Select)
+                    if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
+                        
+                        // Xử lý các giá trị cần chia cho 10 (áp dụng cho Volt/Ampe tùy hãng)
+                        // Ví dụ: 2113 là 487 -> 48.7V
+                        if (['2113', '2114', '2180', '2181'].includes(address)) {
+                            element.value = (parseFloat(value) / 10).toFixed(1);
+                        } else {
+                            element.value = value;
+                        }
+                    } 
+                    // 2. Nếu là nút gạt (Switch)
+                    else if (element.classList.contains('switch')) {
+                        // Thường 1 là On, 0 là Off
+                        if (value == "1") {
+                            element.classList.add('on');
+                        } else {
+                            element.classList.remove('on');
+                        }
+                    }
+                }
+            });
+    
+            console.log("Đã cập nhật dữ liệu từ API thành công!");
+        } catch (error) {
+            console.error("Lỗi lấy dữ liệu:", error);
+        }
+    }
+    
+    // Gọi hàm ngay khi trang web vừa tải xong
+    window.onload = loadInverterData;
 </script>
 
 </body>
