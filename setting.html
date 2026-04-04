@@ -353,11 +353,11 @@
 
     // Hàm ẩn/hiện dựa trên chế độ SOC/Volt
     function toggleCapacityMode() {
-        const mode = document.getElementById('reg_2110').value;
+        const mode = document.getElementById('reg_2124').value;
         const socGroup = document.getElementById('group_soc_settings');
         const voltGroup = document.getElementById('group_volt_settings');
 
-        if (mode === "2") { // Chế độ SOC
+        if (mode === "0") { // Chế độ SOC
             socGroup.style.display = 'block';
             voltGroup.style.display = 'none';
         } else { // Chế độ Volt
