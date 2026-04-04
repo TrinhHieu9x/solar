@@ -375,33 +375,33 @@
             }
     
           data.forEach(item => {
-                    const address = Object.keys(item)[0];
-                    const value = item[address];
-                    const element = document.getElementById('reg_' + address);
+            // Lấy object con (ví dụ: {"2112": "100"})
+            const innerObj = Object.values(item)[0]; 
+            const address = Object.keys(innerObj)[0]; // "2112"
+            const value = innerObj[address];          // "100"
         
-                    if (element) {
-                        if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
-                            // CÁCH SỬA MỚI: Kiểm tra cả thuộc tính step trong HTML
-                            const stepValue = element.getAttribute('step');
-                            
-                            if (stepValue === "0.1") {
-                                // Chia 10 cho các thông số điện áp (V)
-                                element.value = (parseFloat(value) / 10).toFixed(1);
-                            } else {
-                                // Giữ nguyên cho Ah, W, min...
-                                element.value = value;
-                            }
-                        } else if (element.classList.contains('switch')) {
-                            // Ép kiểu value về String/Number để so sánh chuẩn
-                            parseInt(value) === 1 ? element.classList.add('on') : element.classList.remove('on');
-                        }
+            const element = document.getElementById('reg_' + address);
         
-                        // Nháy xanh báo hiệu update thành công
-                        element.style.backgroundColor = "#d4edda";
-                        element.style.transition = "background 0.4s";
-                        setTimeout(() => { element.style.backgroundColor = ""; }, 600);
+            if (element) {
+                if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
+                    const stepValue = element.getAttribute('step');
+                    
+                    if (stepValue === "0.1") {
+                        // Chia 10 cho các thông số có bước nhảy 0.1 (thường là Điện áp)
+                        element.value = (parseFloat(value) / 10).toFixed(1);
+                    } else {
+                        element.value = value;
                     }
-                });
+                } else if (element.classList.contains('switch')) {
+                    // Logic cho switch: 1 là On, 0 là Off
+                    parseInt(value) === 1 ? element.classList.add('on') : element.classList.remove('on');
+                }
+        
+                // Hiệu ứng phản hồi trực quan
+                element.style.backgroundColor = "#d4edda";
+                setTimeout(() => { element.style.backgroundColor = ""; }, 600);
+            }
+        });
     
             // Hiện thông báo thành công ngắn hạn
             title.innerText = "✅ ĐÃ CẬP NHẬT";
