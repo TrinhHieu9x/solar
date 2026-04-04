@@ -366,7 +366,7 @@
         }
     }
     
-    function saveData(btn) {
+    /*function saveData(btn) {
         const originalText = btn.innerText;
         btn.innerText = "ĐANG GỬI LỆNH LƯU..."; 
         btn.style.background = "#2ecc71";
@@ -395,7 +395,7 @@
                 btn.style.background = "#27ae60"; 
             }, 2000);
         }, 1200);
-    }
+    }*/
 
     function confirmCancel() {
         if (confirm("Hủy bỏ thay đổi và quay lại trang chủ?")) {
@@ -435,7 +435,7 @@
                         }
                         
                         // Kích hoạt ẩn/hiện nếu là thanh ghi chế độ
-                        if (address === "2110") toggleCapacityMode();
+                        if (address === "2124") toggleCapacityMode();
                     } else if (element.classList.contains('switch')) {
                         parseInt(value) === 1 ? element.classList.add('on') : element.classList.remove('on');
                     }
