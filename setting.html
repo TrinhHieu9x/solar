@@ -190,7 +190,7 @@
 <div class="card">
     <div class="row">
         <div class="label">Cho phép sạc lưới</div>
-        <div class="switch" onclick="(this)"></div>
+        <div class="switch" id="reg_2115" onclick="toggleSwitch(this)"></div>
     </div>
     <div class="row">
         <div class="label">CS sạc lưới tối đa <span class="unit">(W)</span></div>
@@ -403,6 +403,12 @@
         }
     }
 
+    function toggleSwitch(el) {
+        el.classList.toggle('on');
+        // Phản hồi rung nhẹ trên điện thoại cho sướng tay
+        if (navigator.vibrate) navigator.vibrate(10);
+    }
+
     async function loadInverterData() {
         const btn = document.getElementById('refreshBtn');
         const title = document.querySelector('.header-title');
@@ -424,6 +430,11 @@
                 const address = Object.keys(innerObj)[0]; 
                 const value = innerObj[address]; 
                 const element = document.getElementById('reg_' + address);
+                
+                if (element.classList.contains('switch')) {
+                    // Nếu value từ inverter là 1 thì thêm class 'on' (sáng xanh), nếu 0 thì xóa class 'on'
+                    parseInt(value) === 1 ? element.classList.add('on') : element.classList.remove('on');
+                }
         
                 if (element) {
                     if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
