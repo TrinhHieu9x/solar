@@ -153,21 +153,20 @@
             <div id="pylon_params" style="display:none;">
                 <div class="row">
                     <div class="label">Điện áp ngắt xả <span class="unit">(V)</span></div>
-                    <input type="number" id="reg_2113" step="0.1" class="val-edit" value="55.5">
-                    <input type="number" id="reg_2113" step="0.1" class="val-edit" oninput="syncVoltageDisplay()">
+                    <input type="number" id="reg_2113" step="0.1" class="val-edit" value="55.5" oninput="syncVoltageDisplay()">
                 </div>
                 <div class="row">
                     <div class="label">Điện áp ngắt sạc <span class="unit">(V)</span></div>
-                    <input type="number" id="reg_2114" step="0.1" class="val-edit" value="55.4">
-                    <input type="number" id="reg_2114" step="0.1" class="val-edit" oninput="syncVoltageDisplay()">
+                    <input type="number" id="reg_2114" step="0.1" class="val-edit" value="55.4" oninput="syncVoltageDisplay()">
                 </div>
             </div>
+            
             <div class="row">
                 <div class="label">Xả/Sạc <span class="unit">(V)</span></div>
                 <div style="display:flex; align-items:center;">
-                    <input type="number" id="display_2113" class="val-edit" style="width:45px" value="48.0" readonly>
+                    <input type="number" id="display_2113" class="val-edit" style="width:45px" value="55.5" readonly>
                     <span style="margin:0 5px">-</span>
-                    <input type="number" id="display_2114" class="val-edit" style="width:45px" value="56.0" readonly>
+                    <input type="number" id="display_2114" class="val-edit" style="width:45px" value="55.4" readonly>
                 </div>
             </div>
     </div>
