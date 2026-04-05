@@ -446,12 +446,14 @@
                 const value = innerObj[address]; 
                 const element = document.getElementById('reg_' + address);
                 
-                if (element.classList.contains('switch')) {
-                    // Nếu value từ inverter là 1 thì thêm class 'on' (sáng xanh), nếu 0 thì xóa class 'on'
-                    parseInt(value) === 1 ? element.classList.add('on') : element.classList.remove('on');
-                }
-        
+                // KIỂM TRA ELEMENT TỒN TẠI TRƯỚC KHI LÀM BẤT CỨ GÌ
                 if (element) {
+                    // 1. Xử lý Switch
+                    if (element.classList.contains('switch')) {
+                        parseInt(value) === 1 ? element.classList.add('on') : element.classList.remove('on');
+                    }
+                    
+                    // 2. Xử lý Input và Select
                     if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
                         const stepValue = element.getAttribute('step');
                         if (stepValue === "0.1") {
@@ -459,15 +461,13 @@
                         } else {
                             element.value = value;
                         }
-                        
-                        // Kích hoạt ẩn/hiện nếu là thanh ghi chế độ
-                        if (address === "2110") TypeBatteryMode();
-                        if (address === "2124") toggleCapacityMode();
-                    } else if (element.classList.contains('switch')) {
-                        parseInt(value) === 1 ? element.classList.add('on') : element.classList.remove('on');
                     }
-        
-                    // Hiệu ứng highlight khi có dữ liệu mới
+    
+                    // 3. Kích hoạt logic ẩn/hiện dựa trên giá trị vừa nhận
+                    if (address === "2110") TypeBatteryMode();
+                    if (address === "2124") toggleCapacityMode();
+    
+                    // 4. Hiệu ứng highlight
                     element.style.backgroundColor = "#d4edda";
                     setTimeout(() => { element.style.backgroundColor = ""; }, 600);
                 }
@@ -477,6 +477,7 @@
             setTimeout(() => { title.innerText = originalTitle; title.style.color = ""; }, 2000);
     
         } catch (error) {
+            console.error(error);
             title.innerText = "❌ LỖI: " + error.message;
             title.style.color = "#e74c3c";
             if (navigator.vibrate) navigator.vibrate([100, 50, 100]); 
