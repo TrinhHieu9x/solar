@@ -424,12 +424,6 @@
         }
     }
 
-    function toggleSwitch(el) {
-        el.classList.toggle('on');
-        // Phản hồi rung nhẹ trên điện thoại cho sướng tay
-        if (navigator.vibrate) navigator.vibrate(10);
-    }
-
     async function loadInverterData() {
         const btn = document.getElementById('refreshBtn');
         const title = document.querySelector('.header-title');
