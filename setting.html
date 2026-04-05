@@ -125,9 +125,9 @@
         <div class="row">
             <div class="label">Xả/Sạc <span class="unit">(%)</span></div>
             <div style="display:flex; align-items:center;">
-                <input type="number" id="display_212D" class="val-edit" style="width:45px" value="0.0" readonly>
+                <input type="number" id="display_soc_low" class="val-edit" style="width:45px" value="20" readonly>
                 <span style="margin:0 5px">-</span>
-                <input type="number" id="display_212F" class="val-edit" style="width:45px" value="0.0" readonly>
+                <input type="number" id="display_soc_high" class="val-edit" style="width:45px" value="100" readonly>
             </div>
         </div>
     </div>
@@ -416,20 +416,24 @@
         }
     }
     function syncVoltageDisplay() {
-        const vCutOff = document.getElementById('reg_2113').value; // Ngắt xả
-        const vFull = document.getElementById('reg_2114').value;   // Ngắt sạc
-        const socCutOff = document.getElementById('reg_212D').value; // Ngắt xả
-        const socFull = document.getElementById('reg_212F').value;   // Ngắt sạc
+        // 1. Lấy giá trị từ các ô nhập liệu
+        const vCutOff = document.getElementById('reg_2113').value; 
+        const vFull = document.getElementById('reg_2114').value;   
+        const socCutOff = document.getElementById('reg_212D').value; 
+        const socFull = document.getElementById('reg_212F').value;   
         
-        const displayLow = document.getElementById('display_2113');
-        const displayHigh = document.getElementById('display_2114');
-        const socdisplayLow = document.getElementById('display_2113');
-        const socdisplayHigh = document.getElementById('display_2114');
+        // 2. Lấy các ô hiển thị (Target)
+        const displayVLow = document.getElementById('display_2113');
+        const displayVHigh = document.getElementById('display_2114');
+        const displaySLow = document.getElementById('display_soc_low');
+        const displaySHigh = document.getElementById('display_soc_high');
     
-        if (displayLow) displayLow.value = vCutOff;
-        if (displayHigh) displayHigh.value = vFull;
-        if (socdisplayLow) displayLow.value = socCutOff;
-        if (socdisplayHigh) displayHigh.value = socFull;
+        // 3. Đổ dữ liệu vào (Check xem ô đó có tồn tại trên màn hình không rồi mới đổ)
+        if (displayVLow) displayVLow.value = vCutOff;
+        if (displayVHigh) displayVHigh.value = vFull;
+        
+        if (displaySLow) displaySLow.value = socCutOff;
+        if (displaySHigh) displaySHigh.value = socFull;
     }
     /*function saveData(btn) {
         const originalText = btn.innerText;
