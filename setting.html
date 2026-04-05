@@ -154,10 +154,12 @@
                 <div class="row">
                     <div class="label">Điện áp ngắt xả <span class="unit">(V)</span></div>
                     <input type="number" id="reg_2113" step="0.1" class="val-edit" value="55.5">
+                    <input type="number" id="reg_2113" step="0.1" class="val-edit" oninput="syncVoltageDisplay()">
                 </div>
                 <div class="row">
                     <div class="label">Điện áp ngắt sạc <span class="unit">(V)</span></div>
                     <input type="number" id="reg_2114" step="0.1" class="val-edit" value="55.4">
+                    <input type="number" id="reg_2114" step="0.1" class="val-edit" oninput="syncVoltageDisplay()">
                 </div>
             </div>
             <div class="row">
@@ -414,6 +416,16 @@
             eqSection.style.display = 'none';
         }
     }
+    function syncVoltageDisplay() {
+        const vCutOff = document.getElementById('reg_2113').value; // Ngắt xả
+        const vFull = document.getElementById('reg_2114').value;   // Ngắt sạc
+        
+        const displayLow = document.getElementById('display_2113');
+        const displayHigh = document.getElementById('display_2114');
+    
+        if (displayLow) displayLow.value = vCutOff;
+        if (displayHigh) displayHigh.value = vFull;
+    }
     /*function saveData(btn) {
         const originalText = btn.innerText;
         btn.innerText = "ĐANG GỬI LỆNH LƯU..."; 
@@ -502,6 +514,7 @@
     
             title.innerText = "✅ ĐÃ CẬP NHẬT";
             setTimeout(() => { title.innerText = originalTitle; title.style.color = ""; }, 2000);
+            syncVoltageDisplay();
     
         } catch (error) {
             console.error(error);
