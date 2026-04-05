@@ -467,6 +467,7 @@
                         }
                         
                         // Kích hoạt ẩn/hiện nếu là thanh ghi chế độ
+                        if (address === "2110") TypeBatteryMode();
                         if (address === "2124") toggleCapacityMode();
                     } else if (element.classList.contains('switch')) {
                         parseInt(value) === 1 ? element.classList.add('on') : element.classList.remove('on');
