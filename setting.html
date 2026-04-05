@@ -116,18 +116,18 @@
     <div id="group_soc_settings">
         <div class="row">
             <div class="label">Điểm dừng xả (SOC) <span class="unit">(%)</span></div>
-            <input type="number" id="reg_212D" class="val-edit" value="20">
+            <input type="number" id="reg_212D" class="val-edit" value="20" oninput="syncVoltageDisplay()">
         </div>
         <div class="row">
             <div class="label">Điểm dừng sạc (SOC) <span class="unit">(%)</span></div>
-            <input type="number" id="reg_212F" class="val-edit" value="100">
+            <input type="number" id="reg_212F" class="val-edit" value="100" oninput="syncVoltageDisplay()">
         </div>
         <div class="row">
             <div class="label">Xả/Sạc <span class="unit">(%)</span></div>
             <div style="display:flex; align-items:center;">
-                <input type="number" class="val-edit" style="width:45px" value="20">
+                <input type="number" id="display_212D" class="val-edit" style="width:45px" value="0.0" readonly>
                 <span style="margin:0 5px">-</span>
-                <input type="number" class="val-edit" style="width:45px" value="100">
+                <input type="number" id="display_212F" class="val-edit" style="width:45px" value="0.0" readonly>
             </div>
         </div>
     </div>
@@ -418,12 +418,18 @@
     function syncVoltageDisplay() {
         const vCutOff = document.getElementById('reg_2113').value; // Ngắt xả
         const vFull = document.getElementById('reg_2114').value;   // Ngắt sạc
+        const socCutOff = document.getElementById('reg_212D').value; // Ngắt xả
+        const socFull = document.getElementById('reg_212F').value;   // Ngắt sạc
         
         const displayLow = document.getElementById('display_2113');
         const displayHigh = document.getElementById('display_2114');
+        const socdisplayLow = document.getElementById('display_2113');
+        const socdisplayHigh = document.getElementById('display_2114');
     
         if (displayLow) displayLow.value = vCutOff;
         if (displayHigh) displayHigh.value = vFull;
+        if (socdisplayLow) displayLow.value = socCutOff;
+        if (socdisplayHigh) displayHigh.value = socFull;
     }
     /*function saveData(btn) {
         const originalText = btn.innerText;
