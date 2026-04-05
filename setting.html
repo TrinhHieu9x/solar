@@ -204,15 +204,15 @@
         <div class="label">CS sạc lưới tối đa <span class="unit">(W)</span></div>
         <input type="number" id="reg_2116" class="val-edit" value="0">
     </div>
-    <div id="group_eq_settings" style="display:none;">
-        <div class="row">
-            <div class="label">Áp pin dừng sạc từ lưới <span class="unit">(V)</span></div>
-            <input type="number" id="reg_2148" class="val-edit" value="0">
-        </div>
-    </div>
-    <div id="group_soc_settings">
+    <div id="group_soc_Charge">
         <div class="row">
             <div class="label">SOC dừng sạc từ lưới <span class="unit">(%)</span></div>
+            <input type="number" id="reg_2117" class="val-edit" value="0">
+        </div>
+    </div>
+    <div id="group_volt_Charge" style="display:none;">
+        <div class="row">
+            <div class="label">Áp pin dừng sạc từ lưới <span class="unit">(V)</span></div>
             <input type="number" id="reg_2148" class="val-edit" value="0">
         </div>
     </div>
@@ -372,12 +372,18 @@
         const mode = document.getElementById('reg_2124').value;
         const socGroup = document.getElementById('group_soc_settings');
         const voltGroup = document.getElementById('group_volt_settings');
+        const socCharge = document.getElementById('group_soc_charge');
+        const voltCharge = document.getElementById('group_volt_charge');
 
         if (mode === "0") { // Chế độ SOC
             socGroup.style.display = 'block';
+            socCharge.style.display = 'block';
+            voltGroup.style.display = 'none';
             voltGroup.style.display = 'none';
         } else { // Chế độ Volt
             socGroup.style.display = 'none';
+            socCharge.style.display = 'none';
+            voltGroup.style.display = 'block';
             voltGroup.style.display = 'block';
         }
     }
