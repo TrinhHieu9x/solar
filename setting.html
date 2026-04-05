@@ -202,11 +202,19 @@
     </div>
     <div class="row">
         <div class="label">CS sạc lưới tối đa <span class="unit">(W)</span></div>
-        <input type="number" class="val-edit" value="180">
+        <input type="number" id="reg_2116" class="val-edit" value="0">
     </div>
-    <div class="row">
-        <div class="label">SOC dừng sạc <span class="unit">(%)</span></div>
-        <input type="number" class="val-edit" value="25">
+    <div id="group_eq_settings" style="display:none;">
+        <div class="row">
+            <div class="label">Áp pin dừng sạc từ lưới <span class="unit">(%)</span></div>
+            <input type="number" id="reg_2148" class="val-edit" value="0">
+        </div>
+    </div>
+    <div id="group_soc_settings">
+        <div class="row">
+            <div class="label">SOC dừng sạc từ lưới <span class="unit">(%)</span></div>
+            <input type="number" id="reg_2148" class="val-edit" value="0">
+        </div>
     </div>
 </div>
 
