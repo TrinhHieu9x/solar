@@ -402,11 +402,14 @@
         const mode = document.getElementById('reg_2110').value;
         const leadParams = document.getElementById('lead_acid_params');
         const eqSection = document.getElementById('group_eq_settings');
+        const pylonParams = document.getElementById('pylon_params');
     
         if (mode === "1") { // 1 là Lead-Acid
             leadParams.style.display = 'block';
             eqSection.style.display = 'block';
+            pylonParams.style.display = 'none';
         } else {
+            pylonParams.style.display = 'block';
             leadParams.style.display = 'none';
             eqSection.style.display = 'none';
         }
