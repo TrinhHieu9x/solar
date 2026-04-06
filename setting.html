@@ -251,43 +251,53 @@
     </div>
 </div>
 
-<div class="section-title">SẠC TỪ LƯỚI ĐIỆN</div>
-<div class="card">
-    <div class="row">
-        <div class="label">Cho phép sạc lưới</div>
-        <div class="switch" id="reg_2115" onclick="toggleSwitch(this)"></div>
-    </div>
-    <div class="row">
-        <div class="label">CS sạc lưới tối đa <span class="unit">(W)</span></div>
-        <input type="number" id="reg_2116" class="val-edit" value="0">
-    </div>
-    <div id="group_soc_charge">
+<div class="section-header" onclick="toggleAcc(this, 'sec_grid_charge')">
+    <span>🔌 SẠC TỪ LƯỚI ĐIỆN </span>
+    <div class="arrow">▼</div>
+</div>
+    
+<div id="sec_grid_charge" class="accordion-content">
+    <div class="card">
         <div class="row">
-            <div class="label">SOC dừng sạc từ lưới <span class="unit">(%)</span></div>
-            <input type="number" id="reg_2117" class="val-edit" value="0">
+            <div class="label">Cho phép sạc lưới</div>
+            <div class="switch" id="reg_2115" onclick="toggleSwitch(this)"></div>
         </div>
-    </div>
-    <div id="group_volt_charge" style="display:none;">
         <div class="row">
-            <div class="label">Áp pin dừng sạc từ lưới <span class="unit">(V)</span></div>
-            <input type="number" id="reg_2148" step="0.1" class="val-edit" value="0">
+            <div class="label">CS sạc lưới tối đa <span class="unit">(W)</span></div>
+            <input type="number" id="reg_2116" class="val-edit" value="0">
+        </div>
+        <div id="group_soc_charge">
+            <div class="row">
+                <div class="label">SOC dừng sạc lưới <span class="unit">(%)</span></div>
+                <input type="number" id="reg_2117" class="val-edit" value="0">
+            </div>
+        </div>
+        <div id="group_volt_charge" style="display:none;">
+            <div class="row">
+                <div class="label">Áp pin dừng sạc lưới <span class="unit">(V)</span></div>
+                <input type="number" id="reg_2148" step="0.1" class="val-edit" value="0">
+            </div>
         </div>
     </div>
 </div>
-
-<div class="section-title">Xả</div>
-<div class="card">
-    <div class="row">
-        <div class="label">Ngắt xả khí mất lưới <span class="unit">(%)</span></div>
-        <input type="number" class="val-edit" value="18">
-    </div>
-    <div class="row">
-        <div class="label">Xả đến tải</div>
-        <div class="switch on" onclick="(this)"></div>
-    </div>
-    <div class="row">
-        <div class="label">Phát pin lên lưới</div>
-        <div class="switch on" onclick="toggleSwitch(this)"></div>
+<div class="section-header" onclick="toggleAcc(this, 'sec_discharge')">
+    <span>🔋 CÀI ĐẶT XẢ PIN </span>
+    <div class="arrow">▼</div>
+</div>
+<div id="sec_discharge" class="accordion-content">
+    <div class="card">
+        <div class="row">
+            <div class="label">Ngắt xả khi mất lưới <span class="unit">(%)</span></div>
+            <input type="number" id="reg_212E" class="val-edit" value="18">
+        </div>
+        <div class="row">
+            <div class="label">Xả đến tải</div>
+            <div class="switch on" id="reg_5113" onclick="toggleSwitch(this)"></div>
+        </div>
+        <div class="row">
+            <div class="label">Phát pin lên lưới</div>
+            <div class="switch on" id="reg_5114" onclick="toggleSwitch(this)"></div>
+        </div>
     </div>
 </div>
     
@@ -300,7 +310,6 @@
         <div class="row">
             <div class="label-group">
                 <span class="label">Đầu ra dự phòng</span>
-                <span class="sub-label">Bật/Tắt cổng ra điện dự phòng (EPS)</span>
             </div>
             <div class="switch on" id="reg_211C" onclick="toggleSwitch(this)"></div>
         </div>
