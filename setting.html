@@ -1,265 +1,180 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inverter Dashboard - Pro</title>
-    <style>
-        :root { --primary: #27ae60; --bg: #f5f7fa; --card-bg: #fff; --text: #2c3e50; --border: #f0f1f3; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 0 0 100px 0; color: var(--text); -webkit-tap-highlight-color: transparent; }
-        
-        .header { background: #fff; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
-        .btn-close { font-size: 24px; color: #95a5a6; cursor: pointer; padding-right: 10px; }
-        .header-title { flex: 1; text-align: center; font-weight: 600; font-size: 16px; margin: 0; }
-        
-        .section-title { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #ebedef; border-radius: 8px; margin: 15px 10px 5px; color: #2c3e50; font-size: 13px; font-weight: 700; }
-        .section-title::after { content: '▼'; font-size: 10px; transition: transform 0.3s; color: #95a5a6; }
-        .section-title.open::after { transform: rotate(180deg); }
-        
-        .card { background: var(--card-bg); border-radius: 12px; margin: 0 10px 15px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.03); transition: 0.3s; }
-        .collapsed { display: none; }
-        
-        .row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--border); }
-        .row:last-child { border-bottom: none; }
-        .label { font-size: 14px; color: #34495e; font-weight: 500; }
-        .sub-label { font-size: 11px; color: #95a5a6; display: block; margin-top: 2px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard</title>
 
-        .val-edit { border: 1px solid #e0e0e0; background: #fafafa; border-radius: 6px; padding: 6px 8px; font-size: 14px; font-weight: 600; color: var(--primary); text-align: right; width: 90px; outline: none; }
-        .val-edit:focus { border-color: var(--primary); background: #fff; }
-        select.val-edit { width: auto; max-width: 150px; }
-        .unit { color: #95a5a6; font-size: 11px; font-weight: 400; }
+<style>
+:root { --primary:#27ae60; --bg:#f5f7fa; --card-bg:#fff; --text:#2c3e50; --border:#f0f1f3; }
 
-        .switch { width: 44px; height: 24px; background: #e0e0e0; border-radius: 15px; position: relative; cursor: pointer; transition: .3s; }
-        .switch.on { background: var(--primary); }
-        .switch::after { content: ''; position: absolute; width: 20px; height: 20px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: .3s; }
-        .switch.on::after { left: 22px; }
+body { font-family:-apple-system,sans-serif;background:var(--bg);margin:0;padding:0 0 80px;color:var(--text); }
 
-        .btn-refresh.spinning svg { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.header { background:#fff;padding:15px;display:flex;align-items:center;border-bottom:1px solid #eee;position:sticky;top:0;z-index:100; }
+.header-title { flex:1;text-align:center;font-weight:600; }
 
-        .footer-actions { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
-        .btn-save { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; }
-    </style>
+.section-title { font-size:12px;color:#7f8c8d;margin:15px;font-weight:700; }
+.card { background:#fff;border-radius:12px;margin:0 10px 15px;overflow:hidden; }
+.row { display:flex;justify-content:space-between;padding:12px 15px;border-bottom:1px solid var(--border); }
+.row:last-child{border-bottom:none;}
+
+.val-edit { border:1px solid #ddd;border-radius:6px;padding:5px;width:80px;text-align:right; }
+
+/* ===== COLLAPSIBLE ===== */
+.collapsible .card { display:none; }
+.collapsible.active .card { display:block; }
+
+.section-title.clickable {
+    cursor:pointer;
+    position:relative;
+}
+
+.section-title.clickable::after {
+    content:"›";
+    position:absolute;
+    right:10px;
+    transition:.3s;
+}
+
+.collapsible.active .section-title::after {
+    transform:rotate(90deg);
+}
+</style>
 </head>
+
 <body>
 
 <div class="header">
-    <div class="btn-close" onclick="confirmCancel()">✕</div>
-    <div class="header-title" id="main-title">CÀI ĐẶT NÂNG CAO</div>
-    <div class="btn-refresh" id="refreshBtn" onclick="loadInverterData()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+    <div class="header-title">CÀI ĐẶT NÂNG CAO</div>
+</div>
+
+<!-- ================= PIN (MỞ SẴN) ================= -->
+<div class="collapsible active">
+    <div class="section-title clickable" onclick="toggleSection(this)">
+        CÀI ĐẶT PIN
+    </div>
+    <div class="card">
+        <div class="row">
+            <div>Thương hiệu</div>
+            <select class="val-edit">
+                <option>No Battery</option>
+                <option>Lead-Acid</option>
+            </select>
+        </div>
+
+        <div class="row">
+            <div>Dung lượng</div>
+            <input class="val-edit" type="number" value="100">
+        </div>
+
+        <div class="row">
+            <div>CS Sạc</div>
+            <input class="val-edit" type="number" value="2200">
+        </div>
+
+        <div class="row">
+            <div>CS Xả</div>
+            <input class="val-edit" type="number" value="4000">
+        </div>
     </div>
 </div>
 
-<div class="section-title open" onclick="toggleSection(this, 'group_pin')">CÀI ĐẶT PIN</div>
-<div class="card" id="group_pin">
-    <div class="row">
-        <div class="label">Thương hiệu</div>
-        <select class="val-edit" id="reg_2110" onchange="TypeBatteryMode()">
-            <option value="0">No Battery</option>
-            <option value="1">Lead-Acid</option>
-            <option value="2">PYLON</option>
-            <option value="5">Lithium (No COMM)</option>
-        </select>
+<!-- ================= SẠC LƯỚI ================= -->
+<div class="collapsible">
+    <div class="section-title clickable" onclick="toggleSection(this)">
+        SẠC TỪ LƯỚI
     </div>
-    <div class="row">
-        <div class="label">Quản lý bằng</div>
-        <select class="val-edit" id="reg_2124" onchange="toggleCapacityMode()">
-            <option value="0">SOC (%)</option>
-            <option value="1">Voltage (V)</option>
-        </select>
-    </div>
-    
-    <div id="group_soc_settings">
+    <div class="card">
         <div class="row">
-            <div class="label">Dừng xả (SOC) <span class="unit">%</span></div>
-            <input type="number" id="reg_212D" class="val-edit" value="20" oninput="syncVoltageDisplay()">
+            <div>Cho phép sạc</div>
+            <input type="checkbox">
         </div>
         <div class="row">
-            <div class="label">Dừng sạc (SOC) <span class="unit">%</span></div>
-            <input type="number" id="reg_212F" class="val-edit" value="100" oninput="syncVoltageDisplay()">
+            <div>Công suất</div>
+            <input class="val-edit" type="number">
         </div>
-    </div>
-
-    <div id="group_volt_settings" style="display:none;">
-        <div class="row">
-            <div class="label">Áp ngắt xả <span class="unit">V</span></div>
-            <input type="number" id="reg_2113" step="0.1" class="val-edit" value="44.0" oninput="syncVoltageDisplay()">
-        </div>
-        <div class="row">
-            <div class="label">Áp ngắt sạc <span class="unit">V</span></div>
-            <input type="number" id="reg_2114" step="0.1" class="val-edit" value="58.0" oninput="syncVoltageDisplay()">
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="label">Dung lượng <span class="unit">Ah</span></div>
-        <input type="number" id="reg_2112" class="val-edit" value="100">
     </div>
 </div>
 
-<div class="section-title" onclick="toggleSection(this, 'group_grid_charge')">SẠC TỪ LƯỚI</div>
-<div class="card collapsed" id="group_grid_charge">
-    <div class="row">
-        <div class="label">Cho phép sạc lưới</div>
-        <div class="switch" id="reg_2115" onclick="toggleSwitch(this)"></div>
+<!-- ================= XẢ ================= -->
+<div class="collapsible">
+    <div class="section-title clickable" onclick="toggleSection(this)">
+        XẢ
     </div>
-    <div class="row">
-        <div class="label">Công suất sạc <span class="unit">W</span></div>
-        <input type="number" id="reg_2116" class="val-edit" value="2000">
-    </div>
-    <div class="row" id="grid_soc_stop">
-        <div class="label">Dừng sạc lưới tại <span class="unit">%</span></div>
-        <input type="number" id="reg_2117" class="val-edit" value="90">
+    <div class="card">
+        <div class="row">
+            <div>Ngắt xả</div>
+            <input class="val-edit" type="number">
+        </div>
     </div>
 </div>
 
-<div class="section-title" onclick="toggleSection(this, 'group_protection')">BẢO VỆ HỆ THỐNG</div>
-<div class="card collapsed" id="group_protection">
-    <div class="row">
-        <div class="label">Áp thấp lưới <span class="unit">V</span></div>
-        <input type="number" id="reg_5005" class="val-edit" value="180">
+<!-- ================= ĐIỀU KHIỂN ================= -->
+<div class="collapsible">
+    <div class="section-title clickable" onclick="toggleSection(this)">
+        ĐIỀU KHIỂN CÔNG SUẤT
     </div>
-    <div class="row">
-        <div class="label">Áp cao lưới <span class="unit">V</span></div>
-        <input type="number" id="reg_5004" step="0.1" class="val-edit" value="265.0">
-    </div>
-    <div class="row">
-        <div class="label">Ngưỡng LVRT <span class="unit">V</span></div>
-        <input type="number" id="reg_5063" step="0.1" class="val-edit" value="46.0">
-    </div>
-    <div class="row">
-        <div class="label">Ngưỡng HVRT <span class="unit">V</span></div>
-        <input type="number" id="reg_5064" class="val-edit" value="345"> 
+    <div class="card">
+        <div class="row">
+            <div>Mode</div>
+            <select class="val-edit">
+                <option>CT</option>
+                <option>Meter</option>
+            </select>
+        </div>
     </div>
 </div>
 
-<div class="footer-actions">
-    <button class="btn-save" id="saveBtn" onclick="saveData()">LƯU TẤT CẢ THIẾT LẬP</button>
+<!-- ================= BẢO VỆ ================= -->
+<div class="collapsible">
+    <div class="section-title clickable" onclick="toggleSection(this)">
+        BẢO VỆ HỆ THỐNG
+    </div>
+    <div class="card">
+        <div class="row">
+            <div>Áp thấp</div>
+            <input class="val-edit" type="number">
+        </div>
+    </div>
+</div>
+
+<!-- ================= TẢI DỰ PHÒNG ================= -->
+<div class="collapsible">
+    <div class="section-title clickable" onclick="toggleSection(this)">
+        TẢI DỰ PHÒNG
+    </div>
+    <div class="card">
+        <div class="row">
+            <div>EPS</div>
+            <input type="checkbox">
+        </div>
+    </div>
+</div>
+
+<!-- ================= BẢO VỆ NÂNG CAO ================= -->
+<div class="collapsible">
+    <div class="section-title clickable" onclick="toggleSection(this)">
+        BẢO VỆ NÂNG CAO
+    </div>
+    <div class="card">
+        <div class="row">
+            <div>LVRT</div>
+            <input type="checkbox">
+        </div>
+    </div>
 </div>
 
 <script>
-    // 1. Xử lý Switch
-    function toggleSwitch(el) {
-        el.classList.toggle('on');
-        if (navigator.vibrate) navigator.vibrate(15);
-    }
+function toggleSection(el) {
+    const parent = el.parentElement;
 
-    // 2. Ẩn/Hiện Section
-    async function toggleSection(titleEl, groupId) {
-        const card = document.getElementById(groupId);
-        const isOpen = titleEl.classList.contains('open');
-        if (isOpen) {
-            card.classList.add('collapsed');
-            titleEl.classList.remove('open');
-        } else {
-            card.classList.remove('collapsed');
-            titleEl.classList.add('open');
-            await loadInverterData(groupId);
-        }
-    }
+    // accordion: mở 1 đóng hết
+    document.querySelectorAll('.collapsible').forEach(sec => {
+        if (sec !== parent) sec.classList.remove('active');
+    });
 
-    // 3. Logic hiển thị theo loại Pin/Chế độ
-    function toggleCapacityMode() {
-        const isSOC = document.getElementById('reg_2124').value === "0";
-        document.getElementById('group_soc_settings').style.display = isSOC ? 'block' : 'none';
-        document.getElementById('group_volt_settings').style.display = isSOC ? 'none' : 'block';
-        document.getElementById('grid_soc_stop').style.display = isSOC ? 'flex' : 'none';
-    }
-
-    function TypeBatteryMode() {
-        // Có thể thêm logic ẩn hiện các dòng đặc thù cho Pylontech/Lead-Acid ở đây
-        syncVoltageDisplay();
-    }
-
-    function syncVoltageDisplay() {
-        // Đồng bộ logic nếu cần
-    }
-
-    // 4. ĐỌC DỮ LIỆU TỪ API
-    async function loadInverterData(targetGroupId = null) {
-        const btn = document.getElementById('refreshBtn');
-        const title = document.getElementById('main-title');
-        let scope = targetGroupId ? document.getElementById(targetGroupId) : document;
-        
-        let registers = [];
-        scope.querySelectorAll('[id^="reg_"]').forEach(el => registers.push(el.id.replace('reg_', '')));
-        if (registers.length === 0) return;
-
-        btn.classList.add('spinning');
-        title.innerText = "🔄 ĐANG ĐỌC...";
-
-        try {
-            const url = `https://api.solarvn.workers.dev/read?ids=${registers.join(',')}`;
-            const response = await fetch(url, { cache: 'no-store' });
-            const data = await response.json();
-
-            data.forEach(item => {
-                const innerObj = Object.values(item)[0]; 
-                const addr = Object.keys(innerObj)[0]; 
-                const val = innerObj[addr]; 
-                const el = document.getElementById('reg_' + addr);
-
-                if (el) {
-                    if (el.classList.contains('switch')) {
-                        parseInt(val) === 1 ? el.classList.add('on') : el.classList.remove('on');
-                    } else {
-                        const step = el.getAttribute('step');
-                        el.value = (step === "0.1") ? (parseFloat(val) / 10).toFixed(1) : val;
-                    }
-                    el.style.backgroundColor = "#d4edda";
-                    setTimeout(() => el.style.backgroundColor = "", 500);
-                }
-            });
-            title.innerText = "✅ THÀNH CÔNG";
-        } catch (e) {
-            title.innerText = "❌ LỖI KẾT NỐI";
-        } finally {
-            btn.classList.remove('spinning');
-            setTimeout(() => title.innerText = "CÀI ĐẶT NÂNG CAO", 2000);
-            toggleCapacityMode();
-        }
-    }
-
-    // 5. LƯU DỮ LIỆU
-    async function saveData() {
-        const btn = document.getElementById('saveBtn');
-        const originalText = btn.innerText;
-        btn.innerText = "⌛ ĐANG LƯU...";
-        btn.disabled = true;
-
-        let payload = {};
-        document.querySelectorAll('[id^="reg_"]').forEach(el => {
-            let val = el.value;
-            if (el.classList.contains('switch')) {
-                val = el.classList.contains('on') ? 1 : 0;
-            } else if (el.getAttribute('step') === "0.1") {
-                val = Math.round(parseFloat(val) * 10);
-            }
-            payload[el.id.replace('reg_', '')] = parseInt(val);
-        });
-
-        console.log("Gửi dữ liệu:", payload);
-
-        // Giả lập gửi API lưu
-        setTimeout(() => {
-            btn.innerText = "✅ ĐÃ LƯU TẤT CẢ!";
-            btn.style.background = "#2ecc71";
-            setTimeout(() => {
-                btn.innerText = originalText;
-                btn.style.background = "";
-                btn.disabled = false;
-            }, 2000);
-        }, 1000);
-    }
-
-    function confirmCancel() {
-        if (confirm("Thoát mà không lưu thay đổi?")) {
-            window.location.reload();
-        }
-    }
-
-    window.onload = () => loadInverterData('group_pin');
+    parent.classList.toggle('active');
+}
 </script>
 
 </body>
