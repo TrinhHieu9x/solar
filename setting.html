@@ -16,8 +16,35 @@
         .btn-save { flex: 1; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: .2s; }
         .btn-save:active { opacity: 0.8; transform: scale(0.98); }
 
-        /* Cấu trúc các thẻ cài đặt */
-        .section-title { font-size: 11px; color: #7f8c8d; text-transform: uppercase; margin: 20px 15px 8px; font-weight: 700; letter-spacing: 0.8px; }
+        /* Tùy chỉnh tiêu đề để có thể nhấn */
+        .section-title {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #ebedef;
+            border-radius: 8px;
+            margin: 15px 10px 5px;
+            color: #2c3e50;
+        }
+        
+        .section-title::after {
+            content: '▼';
+            font-size: 10px;
+            transition: transform 0.3s;
+            color: #95a5a6;
+        }
+        
+        /* Xoay mũi tên khi mở */
+        .section-title.open::after {
+            transform: rotate(180deg);
+        }
+        
+        /* Card ẩn mặc định */
+        .card.collapsed {
+            display: none;
+        }
         .card { background: var(--card-bg); border-radius: 12px; margin: 0 10px 15px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
         .row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--border); }
         .row:last-child { border-bottom: none; }
@@ -87,8 +114,8 @@
     </div>
 </div>
 
-<div class="section-title">CÀI ĐẶT PIN</div>
-<div class="card">
+<div class="section-title open" onclick="toggleSection(this, 'group_pin')">CÀI ĐẶT PIN</div>
+<div class="card" id="group_pin">
     <div class="row">
         <div class="label">Thương hiệu</div>
         <select class="val-edit" id="reg_2110" onchange="TypeBatteryMode()">
@@ -205,8 +232,8 @@
     </div>
 </div>
 
-<div class="section-title">SẠC TỪ LƯỚI ĐIỆN</div>
-<div class="card">
+<div class="section-title" onclick="toggleSection(this, 'group_grid_charge')">SẠC TỪ LƯỚI ĐIỆN</div>
+<div class="card collapsed" id="group_grid_charge">
     <div class="row">
         <div class="label">Cho phép sạc lưới</div>
         <div class="switch" id="reg_2115" onclick="toggleSwitch(this)"></div>
@@ -245,8 +272,8 @@
     </div>
 </div>
 
-<div class="section-title">ĐIỀU KHIỂN CÔNG SUẤT</div>
-<div class="card">
+<div class="section-title" onclick="toggleSection(this, 'group_power_ctrl')">ĐIỀU KHIỂN CÔNG SUẤT</div>
+<div class="card collapsed" id="group_power_ctrl">
     <div class="row">
         <div class="label">Điều khiển công suất </div>
         <select class="val-edit" id="reg_30B3" ><option selected>Cảm biến CT</option><option>Meter</option></select>
@@ -439,6 +466,21 @@
         if (displaySLow) displaySLow.value = socCutOff;
         if (displaySHigh) displaySHigh.value = socFull;
     }
+    // 1. Hàm Toggle: Đóng mở và kích hoạt Load API
+    async function toggleSection(titleEl, groupId) {
+        const card = document.getElementById(groupId);
+        const isOpen = titleEl.classList.contains('open');
+    
+        if (isOpen) {
+            card.classList.add('collapsed');
+            titleEl.classList.remove('open');
+        } else {
+            card.classList.remove('collapsed');
+            titleEl.classList.add('open');
+            // Khi mở ra thì mới load dữ liệu của riêng nhóm đó
+            await loadInverterData(groupId); 
+        }
+    }
     /*function saveData(btn) {
         const originalText = btn.innerText;
         btn.innerText = "ĐANG GỬI LỆNH LƯU..."; 
@@ -476,71 +518,95 @@
         }
     }
 
-    async function loadInverterData() {
+// 1. Hàm Toggle: Đóng mở và kích hoạt Load API
+async function toggleSection(titleEl, groupId) {
+    const card = document.getElementById(groupId);
+    const isOpen = titleEl.classList.contains('open');
+
+    if (isOpen) {
+        card.classList.add('collapsed');
+        titleEl.classList.remove('open');
+    } else {
+        card.classList.remove('collapsed');
+        titleEl.classList.add('open');
+        // Khi mở ra thì mới load dữ liệu của riêng nhóm đó
+        await loadInverterData(groupId); 
+    }
+}
+
+    // 2. Sửa lại hàm loadInverterData để hỗ trợ load có chọn lọc
+    async function loadInverterData(targetGroupId = null) {
         const btn = document.getElementById('refreshBtn');
         const title = document.querySelector('.header-title');
         const originalTitle = "CÀI ĐẶT NÂNG CAO";
+    
+        // Tìm các ID cần đọc
+        let registers = [];
+        let scope = document;
         
+        // Nếu có truyền groupId, chỉ tìm các input trong group đó (Lazy Load)
+        if (targetGroupId) {
+            scope = document.getElementById(targetGroupId);
+        }
+        
+        scope.querySelectorAll('[id^="reg_"]').forEach(el => {
+            registers.push(el.id.replace('reg_', ''));
+        });
+    
+        if (registers.length === 0) return;
+    
         btn.classList.add('spinning');
         title.innerText = "🔄 ĐANG ĐỌC...";
-        title.style.color = "#27ae60";
     
         try {
-            const response = await fetch('https://api.solarvn.workers.dev/read', { cache: 'no-store' });
-            if (!response.ok) throw new Error("Mất kết nối server");
-            
+            // Gửi danh sách ID qua query param ?ids=2110,2112...
+            const url = `https://api.solarvn.workers.dev/read?ids=${registers.join(',')}`;
+            const response = await fetch(url, { cache: 'no-store' });
+            if (!response.ok) throw new Error("Lỗi kết nối");
+    
             const data = await response.json();
-            if (!data || data.length === 0) throw new Error("Không có dữ liệu");
     
             data.forEach(item => {
+                // Logic xử lý object lồng nhau của bạn
                 const innerObj = Object.values(item)[0]; 
                 const address = Object.keys(innerObj)[0]; 
                 const value = innerObj[address]; 
                 const element = document.getElementById('reg_' + address);
-                
-                // KIỂM TRA ELEMENT TỒN TẠI TRƯỚC KHI LÀM BẤT CỨ GÌ
+    
                 if (element) {
-                    // 1. Xử lý Switch
                     if (element.classList.contains('switch')) {
                         parseInt(value) === 1 ? element.classList.add('on') : element.classList.remove('on');
+                    } else {
+                        const stepValue = element.getAttribute('step');
+                        element.value = (stepValue === "0.1") ? (parseFloat(value) / 10).toFixed(1) : value;
                     }
                     
-                    // 2. Xử lý Input và Select
-                    if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
-                        const stepValue = element.getAttribute('step');
-                        if (stepValue === "0.1") {
-                            element.value = (parseFloat(value) / 10).toFixed(1);
-                        } else {
-                            element.value = value;
-                        }
-                    }
-    
-                    // 3. Kích hoạt logic ẩn/hiện dựa trên giá trị vừa nhận
-                    if (address === "2110") TypeBatteryMode();
-                    if (address === "2124") toggleCapacityMode();
-    
-                    // 4. Hiệu ứng highlight
+                    // Highlight nhẹ để biết dữ liệu đã về
                     element.style.backgroundColor = "#d4edda";
-                    setTimeout(() => { element.style.backgroundColor = ""; }, 600);
+                    setTimeout(() => { element.style.backgroundColor = ""; }, 500);
                 }
             });
     
-            title.innerText = "✅ ĐÃ CẬP NHẬT";
-            setTimeout(() => { title.innerText = originalTitle; title.style.color = ""; }, 2000);
+            // Cập nhật các trạng thái ẩn hiện dựa trên dữ liệu mới
+            TypeBatteryMode();
+            toggleCapacityMode();
             syncVoltageDisplay();
     
+            title.innerText = "✅ HOÀN TẤT";
+            setTimeout(() => { title.innerText = originalTitle; }, 1500);
+    
         } catch (error) {
+            title.innerText = "❌ LỖI TẢI";
             console.error(error);
-            title.innerText = "❌ LỖI: " + error.message;
-            title.style.color = "#e74c3c";
-            if (navigator.vibrate) navigator.vibrate([100, 50, 100]); 
-            setTimeout(() => { title.innerText = originalTitle; title.style.color = ""; }, 3000);
         } finally {
             btn.classList.remove('spinning');
         }
     }
     
-    window.onload = loadInverterData;
+    // 3. Khi load trang lần đầu, chỉ load nhóm PIN
+    window.onload = () => {
+        loadInverterData('group_pin');
+    };
 </script>
 
 </body>
