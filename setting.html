@@ -3,114 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inverter Full Parameters Dashboard</title>
+    <title>Inverter Dashboard - Pro</title>
     <style>
         :root { --primary: #27ae60; --bg: #f5f7fa; --card-bg: #fff; --text: #2c3e50; --border: #f0f1f3; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 0 0 80px 0; color: var(--text); -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 0 0 100px 0; color: var(--text); -webkit-tap-highlight-color: transparent; }
         
-        /* Header & Footer */
         .header { background: #fff; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
         .btn-close { font-size: 24px; color: #95a5a6; cursor: pointer; padding-right: 10px; }
-        .header-title { flex: 1; text-align: center; font-weight: 600; font-size: 18px; margin-right: 34px; }
-        .footer-actions { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 12px 15px; display: flex; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
-        .btn-save { flex: 1; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: .2s; }
-        .btn-save:active { opacity: 0.8; transform: scale(0.98); }
-
-        /* Tùy chỉnh tiêu đề để có thể nhấn */
-        .section-title {
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: #ebedef;
-            border-radius: 8px;
-            margin: 15px 10px 5px;
-            color: #2c3e50;
-        }
+        .header-title { flex: 1; text-align: center; font-weight: 600; font-size: 16px; margin: 0; }
         
-        .section-title::after {
-            content: '▼';
-            font-size: 10px;
-            transition: transform 0.3s;
-            color: #95a5a6;
-        }
+        .section-title { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #ebedef; border-radius: 8px; margin: 15px 10px 5px; color: #2c3e50; font-size: 13px; font-weight: 700; }
+        .section-title::after { content: '▼'; font-size: 10px; transition: transform 0.3s; color: #95a5a6; }
+        .section-title.open::after { transform: rotate(180deg); }
         
-        /* Xoay mũi tên khi mở */
-        .section-title.open::after {
-            transform: rotate(180deg);
-        }
+        .card { background: var(--card-bg); border-radius: 12px; margin: 0 10px 15px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.03); transition: 0.3s; }
+        .collapsed { display: none; }
         
-        /* Card ẩn mặc định */
-        .card.collapsed {
-            display: none;
-        }
-        .card { background: var(--card-bg); border-radius: 12px; margin: 0 10px 15px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
         .row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--border); }
         .row:last-child { border-bottom: none; }
-        .label-group { flex: 1; margin-right: 10px; }
         .label { font-size: 14px; color: #34495e; font-weight: 500; }
-        .sub-label { font-size: 10px; color: #95a5a6; margin-top: 2px; display: block; line-height: 1.2; }
+        .sub-label { font-size: 11px; color: #95a5a6; display: block; margin-top: 2px; }
 
-        /* INPUT & SELECT STYLES */
-        .val-edit { 
-            border: 1px solid #e0e0e0; background: #fafafa; border-radius: 6px; 
-            padding: 6px 8px; font-size: 14px; font-weight: 600; color: #27ae60; 
-            text-align: right; width: 85px; outline: none; transition: 0.2s;
-        }
-        .val-edit:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 2px rgba(39,174,96,0.1); }
-        select.val-edit { width: auto; max-width: 140px; text-align-last: right; }
-        .unit { color: #95a5a6; font-size: 11px; margin-left: 2px; font-weight: 400; }
+        .val-edit { border: 1px solid #e0e0e0; background: #fafafa; border-radius: 6px; padding: 6px 8px; font-size: 14px; font-weight: 600; color: var(--primary); text-align: right; width: 90px; outline: none; }
+        .val-edit:focus { border-color: var(--primary); background: #fff; }
+        select.val-edit { width: auto; max-width: 150px; }
+        .unit { color: #95a5a6; font-size: 11px; font-weight: 400; }
 
-        /* Nút Gạt Switch */
-        .switch { width: 44px; height: 24px; background: #e0e0e0; border-radius: 15px; position: relative; cursor: pointer; transition: .3s; flex-shrink: 0; }
+        .switch { width: 44px; height: 24px; background: #e0e0e0; border-radius: 15px; position: relative; cursor: pointer; transition: .3s; }
         .switch.on { background: var(--primary); }
-        .switch::after { content: ''; position: absolute; width: 20px; height: 20px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: .3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .switch::after { content: ''; position: absolute; width: 20px; height: 20px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: .3s; }
         .switch.on::after { left: 22px; }
 
-        .btn-refresh {
-            width: 40px;  /* Đặt kích thước cố định cho vùng chứa */
-            height: 40px;
-            color: var(--primary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center; /* Căn giữa SVG theo chiều ngang */
-            transition: transform 0.3s ease;
-        }
-        
-        /* Khi xoay, ta xoay chính cái SVG bên trong thay vì xoay cả cái div */
-        .spinning svg {
-            animation: spin 1s linear infinite;
-            transform-origin: center; /* Ép nó xoay quanh tâm */
-        }
-        
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Đảm bảo Header Title luôn nằm giữa khi có 2 nút 2 bên */
-        .header-title {
-            flex: 1;
-            text-align: center;
-            font-weight: 600;
-            font-size: 16px;
-            margin: 0; /* Bỏ margin-right cũ để căn giữa tuyệt đối */
-        }
+        .btn-refresh.spinning svg { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .footer-actions { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .btn-save { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="btn-close" onclick="confirmCancel()">✕</div>
-    <div class="header-title">Cài đặt nâng cao</div>
+    <div class="header-title" id="main-title">CÀI ĐẶT NÂNG CAO</div>
     <div class="btn-refresh" id="refreshBtn" onclick="loadInverterData()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M23 4v6h-6"></path>
-            <path d="M1 20v-6h6"></path>
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-        </svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
     </div>
 </div>
 
@@ -119,494 +56,210 @@
     <div class="row">
         <div class="label">Thương hiệu</div>
         <select class="val-edit" id="reg_2110" onchange="TypeBatteryMode()">
-            <option value="0"> No Battery </option>
-            <option value="1"> Lead-Acid Battery</option>
-            <option value="2"> PYLON </option>
-            <option value="3"> Dyness </option>
-            <option value="4"> UZ </option>
-            <option value="5"> Lithium Battery (Without COMM) </option>
-            <option value="6"> PrimeVOLT_LV </option>
-            <option value="7"> Lithium-LV </option>
+            <option value="0">No Battery</option>
+            <option value="1">Lead-Acid</option>
+            <option value="2">PYLON</option>
+            <option value="5">Lithium (No COMM)</option>
         </select>
     </div>
     <div class="row">
-        <div class="label-group"><span class="label">Quản lý dung lượng</span></div>
+        <div class="label">Quản lý bằng</div>
         <select class="val-edit" id="reg_2124" onchange="toggleCapacityMode()">
             <option value="0">SOC (%)</option>
             <option value="1">Voltage (V)</option>
         </select>
     </div>
-    <div class="row">
-        <div class="label">Dung lượng <span class="unit">(Ah)</span></div>
-        <input type="number" id="reg_2112" class="val-edit" value="100">
-    </div>
+    
     <div id="group_soc_settings">
         <div class="row">
-            <div class="label">Điểm dừng xả (SOC) <span class="unit">(%)</span></div>
+            <div class="label">Dừng xả (SOC) <span class="unit">%</span></div>
             <input type="number" id="reg_212D" class="val-edit" value="20" oninput="syncVoltageDisplay()">
         </div>
         <div class="row">
-            <div class="label">Điểm dừng sạc (SOC) <span class="unit">(%)</span></div>
+            <div class="label">Dừng sạc (SOC) <span class="unit">%</span></div>
             <input type="number" id="reg_212F" class="val-edit" value="100" oninput="syncVoltageDisplay()">
         </div>
-        <div class="row">
-            <div class="label">Xả/Sạc <span class="unit">(%)</span></div>
-            <div style="display:flex; align-items:center;">
-                <input type="number" id="display_soc_low" class="val-edit" style="width:45px" value="20" readonly>
-                <span style="margin:0 5px">-</span>
-                <input type="number" id="display_soc_high" class="val-edit" style="width:45px" value="100" readonly>
-            </div>
-        </div>
     </div>
+
     <div id="group_volt_settings" style="display:none;">
-            <div id="lead_acid_params" style="display:none;">
-                <div class="row">
-                    <div class="label">Điện áp sạc duy trì <span class="unit">(V)</span></div>
-                    <input type="number" id="reg_2180" step="0.1" class="val-edit" value="55.4">
-                </div>
-                <div class="row">
-                    <div class="label">Điện áp sạc hấp thụ <span class="unit">(V)</span></div>
-                    <input type="number" id="reg_2181" step="0.1" class="val-edit" value="55.5">
-                </div>
-                <div class="row">
-                    <div class="label">Điện trở trong <span class="unit">(mΩ)</span></div>
-                    <input type="number" id="reg_211B" class="val-edit" value="5">
-                </div>
-                <div class="row">
-                    <div class="label">Thời gian hấp thụ <span class="unit">(m)</span></div>
-                    <input type="number" id="reg_2186" class="val-edit" value="20">
-                </div>
-            </div>
-            <div id="pylon_params" style="display:none;">
-                <div class="row">
-                    <div class="label">Điện áp ngắt xả <span class="unit">(V)</span></div>
-                    <input type="number" id="reg_2113" step="0.1" class="val-edit" value="55.5" oninput="syncVoltageDisplay()">
-                </div>
-                <div class="row">
-                    <div class="label">Điện áp ngắt sạc <span class="unit">(V)</span></div>
-                    <input type="number" id="reg_2114" step="0.1" class="val-edit" value="55.4" oninput="syncVoltageDisplay()">
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="label">Xả/Sạc <span class="unit">(V)</span></div>
-                <div style="display:flex; align-items:center;">
-                    <input type="number" id="display_2113" class="val-edit" style="width:45px" value="55.5" readonly>
-                    <span style="margin:0 5px">-</span>
-                    <input type="number" id="display_2114" class="val-edit" style="width:45px" value="55.4" readonly>
-                </div>
-            </div>
+        <div class="row">
+            <div class="label">Áp ngắt xả <span class="unit">V</span></div>
+            <input type="number" id="reg_2113" step="0.1" class="val-edit" value="44.0" oninput="syncVoltageDisplay()">
+        </div>
+        <div class="row">
+            <div class="label">Áp ngắt sạc <span class="unit">V</span></div>
+            <input type="number" id="reg_2114" step="0.1" class="val-edit" value="58.0" oninput="syncVoltageDisplay()">
+        </div>
     </div>
+
     <div class="row">
-        <div class="label">CS Sạc tối đa <span class="unit">(W)</span></div>
-        <input type="number" id="reg_2118" class="val-edit" value="2200">
-    </div>
-    <div class="row">
-        <div class="label">CS Xả tối đa <span class="unit">(W)</span></div>
-        <input type="number" id="reg_211A" class="val-edit" value="4000">
-    </div>
-</div>
-<div id="group_eq_settings" style="display:none;">
-    <div class="section-title">CÂN BẰNG PIN (EQ)</div>
-    <div class="card">
-        <div class="row">
-            <div class="label">Áp cân bằng EQ <span class="unit">(V)</span></div>
-            <input type="number" step="0.1" class="val-edit" value="55.1">
-        </div>
-        <div class="row">
-            <div class="label">Thời gian EQ <span class="unit">(min)</span></div>
-            <input type="number" class="val-edit" value="530">
-        </div>
-        <div class="row">
-            <div class="label">Thời gian tối đa được phép thử cân bằng EQ <span class="unit">(min)</span></div>
-            <input type="number" class="val-edit" value="0">
-        </div>
-        <div class="row">
-            <div class="label">Số ngày giữa các lần sạc EQ tự động <span class="unit">(Day)</span></div>
-            <input type="number" class="val-edit" value="0">
-        </div>
-        <div class="row">
-            <div class="label">Cưỡng chế EQ ngay</div>
-            <div class="switch" onclick="(this)"></div>
-        </div>
+        <div class="label">Dung lượng <span class="unit">Ah</span></div>
+        <input type="number" id="reg_2112" class="val-edit" value="100">
     </div>
 </div>
 
-<div class="section-title" onclick="toggleSection(this, 'group_grid_charge')">SẠC TỪ LƯỚI ĐIỆN</div>
+<div class="section-title" onclick="toggleSection(this, 'group_grid_charge')">SẠC TỪ LƯỚI</div>
 <div class="card collapsed" id="group_grid_charge">
     <div class="row">
         <div class="label">Cho phép sạc lưới</div>
         <div class="switch" id="reg_2115" onclick="toggleSwitch(this)"></div>
     </div>
     <div class="row">
-        <div class="label">CS sạc lưới tối đa <span class="unit">(W)</span></div>
-        <input type="number" id="reg_2116" class="val-edit" value="0">
+        <div class="label">Công suất sạc <span class="unit">W</span></div>
+        <input type="number" id="reg_2116" class="val-edit" value="2000">
     </div>
-    <div id="group_soc_charge">
-        <div class="row">
-            <div class="label">SOC dừng sạc từ lưới <span class="unit">(%)</span></div>
-            <input type="number" id="reg_2117" class="val-edit" value="0">
-        </div>
-    </div>
-    <div id="group_volt_charge" style="display:none;">
-        <div class="row">
-            <div class="label">Áp pin dừng sạc từ lưới <span class="unit">(V)</span></div>
-            <input type="number" id="reg_2148" step="0.1" class="val-edit" value="0">
-        </div>
+    <div class="row" id="grid_soc_stop">
+        <div class="label">Dừng sạc lưới tại <span class="unit">%</span></div>
+        <input type="number" id="reg_2117" class="val-edit" value="90">
     </div>
 </div>
 
-<div class="section-title">Xả</div>
-<div class="card">
+<div class="section-title" onclick="toggleSection(this, 'group_protection')">BẢO VỆ HỆ THỐNG</div>
+<div class="card collapsed" id="group_protection">
     <div class="row">
-        <div class="label">Ngắt xả khí mất lưới <span class="unit">(%)</span></div>
-        <input type="number" class="val-edit" value="18">
+        <div class="label">Áp thấp lưới <span class="unit">V</span></div>
+        <input type="number" id="reg_5005" class="val-edit" value="180">
     </div>
     <div class="row">
-        <div class="label">Xả đến tải</div>
-        <div class="switch on" onclick="(this)"></div>
+        <div class="label">Áp cao lưới <span class="unit">V</span></div>
+        <input type="number" id="reg_5004" step="0.1" class="val-edit" value="265.0">
     </div>
     <div class="row">
-        <div class="label">Phát pin lên lưới</div>
-        <div class="switch on" onclick="toggleSwitch(this)"></div>
-    </div>
-</div>
-
-<div class="section-title" onclick="toggleSection(this, 'group_power_ctrl')">ĐIỀU KHIỂN CÔNG SUẤT</div>
-<div class="card collapsed" id="group_power_ctrl">
-    <div class="row">
-        <div class="label">Điều khiển công suất </div>
-        <select class="val-edit" id="reg_30B3" ><option selected>Cảm biến CT</option><option>Meter</option></select>
+        <div class="label">Ngưỡng LVRT <span class="unit">V</span></div>
+        <input type="number" id="reg_5063" step="0.1" class="val-edit" value="46.0">
     </div>
     <div class="row">
-        <div class="label">Vị trí công tơ </div>
-        <select class="val-edit" id="reg_30B5" ><option selected>Phía lưới điện</option><option>Phía tải</option></select>
-    </div>
-    <div class="row">
-        <div class="label">Hướng dòng năng lượng </div>
-        <select class="val-edit" id="reg_30B2" ><option selected>Từ lưới đến biến tần</option><option>Từ biến tần đến tải</option></select>
-    </div>
-    <div class="row">
-        <div class="label">Phương pháp giới hạn CS </div>
-        <select class="val-edit" id="reg_3089" ><option selected>CS một pha nhỏ nhất </option><option>Tổng công suất </option></select>
-    </div>
-    <div class="row">
-        <div class="label">CS Tối đa phát lưới <span class="unit">(W)</span></div>
-        <input type="number" id="reg_30BA" class="val-edit" value="4">
-    </div>
-    <div class="row">
-        <div class="label">CS Tối đa nhập lưới <span class="unit">(W)</span></div>
-        <input type="number" id="reg_308E" class="val-edit" value="30">
-    </div>
-</div>
-
-<div class="section-title">BẢO VỆ HỆ THỐNG</div>
-<div class="card">
-    <div class="row">
-        <div class="label">Áp thấp Mức 1 <span class="unit">(V)</span></div>
-        <input type="number" id="reg_5005" class="val-edit" value="160">
-    </div>
-    <div class="row">
-        <div class="label">Áp cao Mức 1 <span class="unit">(V)</span></div>
-        <input type="number" id="reg_5004" step="0.1" class="val-edit" value="253">
-    </div>
-    <div class="row">
-        <div class="label">Phát hiện đảo lưới</div>
-        <div class="switch on" onclick="toggleSwitch(this)"></div>
-    </div>
-</div>
-    
-<div class="section-title">TẢI DỰ PHÒNG</div>
-<div class="card">
-    <div class="row">
-        <div class="label-group">
-            <span class="label">Đầu ra dự phòng</span>
-            <span class="sub-label">Bật/Tắt cổng ra điện dự phòng (EPS)</span>
-        </div>
-        <div class="switch on" id="reg_211C" onclick="toggleSwitch(this)"></div>
-    </div>
-    <div class="row">
-        <div class="label">Điện áp đầu ra định mức <span class="unit">(V)</span></div>
-        <input type="number" id="reg_211D" class="val-edit" value="230" step="0.1">
-    </div>
-    <div class="row">
-        <div class="label-group">
-            <span class="label">Tối đa. Điện áp đầu ra dự phòng <span class="unit">(V)</span></span>
-        </div>
-        <input type="number" id="reg_2133" class="val-edit" value="264" step="0.1">
-    </div>
-    <div class="row">
-        <div class="label-group">
-            <span class="label">Tối thiểu Điện áp đầu ra dự phòng <span class="unit">(V)</span></span>
-        </div>
-        <input type="number" id="reg_2132" class="val-edit" value="176" step="0.1">
-    </div>
-    <div class="row">
-        <div class="label">Tần số đầu ra định mức <span class="unit">(HZ)</span></div>
-        <select class="val-edit" id="reg_211E">
-            <option selected>50</option>
-            <option>60</option>
-        </select>
-    </div>
-</div>
-
-<div class="section-title">BẢO VỆ</div>
-<div class="card">
-    <div class="row" style="background: #fafafa; border-bottom: none;">
-        <div class="sub-label" style="text-transform: uppercase; font-weight: 700; color: #95a5a6;">DUY TRÌ VẬN HÀNH Ở ĐIỆN ÁP THẤP</div>
-    </div>
-    <div class="row">
-        <div class="label">Duy trì vận hành ở điện áp thấp</div>
-        <div class="switch on" id="reg_510E" onclick="toggleSwitch(this)"></div>
-    </div>
-    <div class="row">
-        <div class="label">Ngưỡng kích hoạt LVRT <span class="unit">(V)</span></div>
-        <input type="number" id="reg_5063" class="val-edit" value="46" step="0.1">
-    </div>
-    <div class="row">
-        <div class="label">Ngưỡng kích hoạt HVRT <span class="unit">(V)</span></div>
-        <input type="number" id="reg_5063" class="val-edit" value="345" step="1">
-    </div>
-</div>
-
-<div class="card">
-    <div class="row">
-        <div class="label">Phát hiện đảo lưới điện</div>
-        <div class="switch on" id="reg_5112" onclick="toggleSwitch(this)"></div>
-    </div>
-    <div class="row">
-        <div class="label">Phát hiện cách ly</div>
-        <div class="switch on" id="reg_5117" onclick="toggleSwitch(this)"></div>
-    </div>
-    <div class="row">
-        <div class="label">Phát hiện dòng rò (GFCI)</div>
-        <div class="switch on" id="reg_5118" onclick="toggleSwitch(this)"></div>
-    </div>
-    <div class="row">
-        <div class="label">Điểm điện trở cách điện PV <span class="unit">(kΩ)</span></div>
-        <input type="number" id="reg_501B" class="val-edit" value="100" step="1">
-    </div>
-    <div class="row">
-        <div class="label">Điểm dòng rò PV <span class="unit">(mA)</span></div>
-        <input type="number" id="reg_5110" class="val-edit" value="300" step="1">
-    </div>
-    <div class="row">
-        <div class="label-group">
-            <span class="label">Giảm công suất <span class="unit">(%)</span></span>
-            <span class="sub-label">Cài đặt giảm công suất của biến tần</span>
-        </div>
-        <input type="number" id="reg_5104" class="val-edit" value="110" step="1">
+        <div class="label">Ngưỡng HVRT <span class="unit">V</span></div>
+        <input type="number" id="reg_5064" class="val-edit" value="345"> 
     </div>
 </div>
 
 <div class="footer-actions">
-    <button class="btn-save" onclick="saveData(this)">LƯU TẤT CẢ THIẾT LẬP</button>
+    <button class="btn-save" id="saveBtn" onclick="saveData()">LƯU TẤT CẢ THIẾT LẬP</button>
 </div>
 
 <script>
+    // 1. Xử lý Switch
     function toggleSwitch(el) {
         el.classList.toggle('on');
-        if (navigator.vibrate) navigator.vibrate(10);
+        if (navigator.vibrate) navigator.vibrate(15);
     }
 
-    // Hàm ẩn/hiện dựa trên chế độ SOC/Volt
-    function toggleCapacityMode() {
-        const mode = document.getElementById('reg_2124').value;
-        const socGroup = document.getElementById('group_soc_settings');
-        const voltGroup = document.getElementById('group_volt_settings');
-        const socCharge = document.getElementById('group_soc_charge');
-        const voltCharge = document.getElementById('group_volt_charge');
-
-        if (mode === "0") { // Chế độ SOC
-            socGroup.style.display = 'block';
-            socCharge.style.display = 'block';
-            voltGroup.style.display = 'none';
-            voltCharge.style.display = 'none';
-        } else { // Chế độ Volt
-            voltGroup.style.display = 'block';
-            voltCharge.style.display = 'block';
-            socGroup.style.display = 'none';
-            socCharge.style.display = 'none';
-        }
-    }
-
-    function TypeBatteryMode() {
-        const mode = document.getElementById('reg_2110').value;
-        const leadParams = document.getElementById('lead_acid_params');
-        const eqSection = document.getElementById('group_eq_settings');
-        const pylonParams = document.getElementById('pylon_params');
-    
-        if (mode === "1") { // 1 là Lead-Acid
-            leadParams.style.display = 'block';
-            eqSection.style.display = 'block';
-            pylonParams.style.display = 'none';
-        } else {
-            pylonParams.style.display = 'block';
-            leadParams.style.display = 'none';
-            eqSection.style.display = 'none';
-        }
-    }
-    function syncVoltageDisplay() {
-        // 1. Lấy giá trị từ các ô nhập liệu
-        const vCutOff = document.getElementById('reg_2113').value; 
-        const vFull = document.getElementById('reg_2114').value;   
-        const socCutOff = document.getElementById('reg_212D').value; 
-        const socFull = document.getElementById('reg_212F').value;   
-        
-        // 2. Lấy các ô hiển thị (Target)
-        const displayVLow = document.getElementById('display_2113');
-        const displayVHigh = document.getElementById('display_2114');
-        const displaySLow = document.getElementById('display_soc_low');
-        const displaySHigh = document.getElementById('display_soc_high');
-    
-        // 3. Đổ dữ liệu vào (Check xem ô đó có tồn tại trên màn hình không rồi mới đổ)
-        if (displayVLow) displayVLow.value = vCutOff;
-        if (displayVHigh) displayVHigh.value = vFull;
-        
-        if (displaySLow) displaySLow.value = socCutOff;
-        if (displaySHigh) displaySHigh.value = socFull;
-    }
-    // 1. Hàm Toggle: Đóng mở và kích hoạt Load API
+    // 2. Ẩn/Hiện Section
     async function toggleSection(titleEl, groupId) {
         const card = document.getElementById(groupId);
         const isOpen = titleEl.classList.contains('open');
-    
         if (isOpen) {
             card.classList.add('collapsed');
             titleEl.classList.remove('open');
         } else {
             card.classList.remove('collapsed');
             titleEl.classList.add('open');
-            // Khi mở ra thì mới load dữ liệu của riêng nhóm đó
-            await loadInverterData(groupId); 
-        }
-    }
-    /*function saveData(btn) {
-        const originalText = btn.innerText;
-        btn.innerText = "ĐANG GỬI LỆNH LƯU..."; 
-        btn.style.background = "#2ecc71";
-        
-        let data = {};
-        // Thu thập các giá trị từ input và select có ID bắt đầu bằng reg_
-        document.querySelectorAll('[id^="reg_"]').forEach((el) => {
-            let val = el.value;
-            // Nếu là switch, lấy 1 hoặc 0
-            if(el.classList.contains('switch')) {
-                val = el.classList.contains('on') ? 1 : 0;
-            }
-            // Nếu có bước nhảy 0.1, nhân 10 trước khi gửi về biến tần
-            if(el.getAttribute('step') === "0.1") {
-                val = Math.round(parseFloat(val) * 10);
-            }
-            data[el.id.replace('reg_', '')] = val;
-        });
-
-        console.log("Dữ liệu gửi đi:", data);
-
-        setTimeout(() => {
-            btn.innerText = "ĐÃ LƯU THÀNH CÔNG!";
-            setTimeout(() => { 
-                btn.innerText = originalText; 
-                btn.style.background = "#27ae60"; 
-            }, 2000);
-        }, 1200);
-    }*/
-
-    function confirmCancel() {
-        if (confirm("Hủy bỏ thay đổi và quay lại trang chủ?")) {
-            window.location.href = "https://solars.pages.dev/?refresh=" + new Date().getTime();
+            await loadInverterData(groupId);
         }
     }
 
-// 1. Hàm Toggle: Đóng mở và kích hoạt Load API
-async function toggleSection(titleEl, groupId) {
-    const card = document.getElementById(groupId);
-    const isOpen = titleEl.classList.contains('open');
-
-    if (isOpen) {
-        card.classList.add('collapsed');
-        titleEl.classList.remove('open');
-    } else {
-        card.classList.remove('collapsed');
-        titleEl.classList.add('open');
-        // Khi mở ra thì mới load dữ liệu của riêng nhóm đó
-        await loadInverterData(groupId); 
+    // 3. Logic hiển thị theo loại Pin/Chế độ
+    function toggleCapacityMode() {
+        const isSOC = document.getElementById('reg_2124').value === "0";
+        document.getElementById('group_soc_settings').style.display = isSOC ? 'block' : 'none';
+        document.getElementById('group_volt_settings').style.display = isSOC ? 'none' : 'block';
+        document.getElementById('grid_soc_stop').style.display = isSOC ? 'flex' : 'none';
     }
-}
 
-    // 2. Sửa lại hàm loadInverterData để hỗ trợ load có chọn lọc
+    function TypeBatteryMode() {
+        // Có thể thêm logic ẩn hiện các dòng đặc thù cho Pylontech/Lead-Acid ở đây
+        syncVoltageDisplay();
+    }
+
+    function syncVoltageDisplay() {
+        // Đồng bộ logic nếu cần
+    }
+
+    // 4. ĐỌC DỮ LIỆU TỪ API
     async function loadInverterData(targetGroupId = null) {
         const btn = document.getElementById('refreshBtn');
-        const title = document.querySelector('.header-title');
-        const originalTitle = "CÀI ĐẶT NÂNG CAO";
-    
-        // Tìm các ID cần đọc
+        const title = document.getElementById('main-title');
+        let scope = targetGroupId ? document.getElementById(targetGroupId) : document;
+        
         let registers = [];
-        let scope = document;
-        
-        // Nếu có truyền groupId, chỉ tìm các input trong group đó (Lazy Load)
-        if (targetGroupId) {
-            scope = document.getElementById(targetGroupId);
-        }
-        
-        scope.querySelectorAll('[id^="reg_"]').forEach(el => {
-            registers.push(el.id.replace('reg_', ''));
-        });
-    
+        scope.querySelectorAll('[id^="reg_"]').forEach(el => registers.push(el.id.replace('reg_', '')));
         if (registers.length === 0) return;
-    
+
         btn.classList.add('spinning');
         title.innerText = "🔄 ĐANG ĐỌC...";
-    
+
         try {
-            // Gửi danh sách ID qua query param ?ids=2110,2112...
             const url = `https://api.solarvn.workers.dev/read?ids=${registers.join(',')}`;
             const response = await fetch(url, { cache: 'no-store' });
-            if (!response.ok) throw new Error("Lỗi kết nối");
-    
             const data = await response.json();
-    
+
             data.forEach(item => {
-                // Logic xử lý object lồng nhau của bạn
                 const innerObj = Object.values(item)[0]; 
-                const address = Object.keys(innerObj)[0]; 
-                const value = innerObj[address]; 
-                const element = document.getElementById('reg_' + address);
-    
-                if (element) {
-                    if (element.classList.contains('switch')) {
-                        parseInt(value) === 1 ? element.classList.add('on') : element.classList.remove('on');
+                const addr = Object.keys(innerObj)[0]; 
+                const val = innerObj[addr]; 
+                const el = document.getElementById('reg_' + addr);
+
+                if (el) {
+                    if (el.classList.contains('switch')) {
+                        parseInt(val) === 1 ? el.classList.add('on') : el.classList.remove('on');
                     } else {
-                        const stepValue = element.getAttribute('step');
-                        element.value = (stepValue === "0.1") ? (parseFloat(value) / 10).toFixed(1) : value;
+                        const step = el.getAttribute('step');
+                        el.value = (step === "0.1") ? (parseFloat(val) / 10).toFixed(1) : val;
                     }
-                    
-                    // Highlight nhẹ để biết dữ liệu đã về
-                    element.style.backgroundColor = "#d4edda";
-                    setTimeout(() => { element.style.backgroundColor = ""; }, 500);
+                    el.style.backgroundColor = "#d4edda";
+                    setTimeout(() => el.style.backgroundColor = "", 500);
                 }
             });
-    
-            // Cập nhật các trạng thái ẩn hiện dựa trên dữ liệu mới
-            TypeBatteryMode();
-            toggleCapacityMode();
-            syncVoltageDisplay();
-    
-            title.innerText = "✅ HOÀN TẤT";
-            setTimeout(() => { title.innerText = originalTitle; }, 1500);
-    
-        } catch (error) {
-            title.innerText = "❌ LỖI TẢI";
-            console.error(error);
+            title.innerText = "✅ THÀNH CÔNG";
+        } catch (e) {
+            title.innerText = "❌ LỖI KẾT NỐI";
         } finally {
             btn.classList.remove('spinning');
+            setTimeout(() => title.innerText = "CÀI ĐẶT NÂNG CAO", 2000);
+            toggleCapacityMode();
         }
     }
-    
-    // 3. Khi load trang lần đầu, chỉ load nhóm PIN
-    window.onload = () => {
-        loadInverterData('group_pin');
-    };
+
+    // 5. LƯU DỮ LIỆU
+    async function saveData() {
+        const btn = document.getElementById('saveBtn');
+        const originalText = btn.innerText;
+        btn.innerText = "⌛ ĐANG LƯU...";
+        btn.disabled = true;
+
+        let payload = {};
+        document.querySelectorAll('[id^="reg_"]').forEach(el => {
+            let val = el.value;
+            if (el.classList.contains('switch')) {
+                val = el.classList.contains('on') ? 1 : 0;
+            } else if (el.getAttribute('step') === "0.1") {
+                val = Math.round(parseFloat(val) * 10);
+            }
+            payload[el.id.replace('reg_', '')] = parseInt(val);
+        });
+
+        console.log("Gửi dữ liệu:", payload);
+
+        // Giả lập gửi API lưu
+        setTimeout(() => {
+            btn.innerText = "✅ ĐÃ LƯU TẤT CẢ!";
+            btn.style.background = "#2ecc71";
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.background = "";
+                btn.disabled = false;
+            }, 2000);
+        }, 1000);
+    }
+
+    function confirmCancel() {
+        if (confirm("Thoát mà không lưu thay đổi?")) {
+            window.location.reload();
+        }
+    }
+
+    window.onload = () => loadInverterData('group_pin');
 </script>
 
 </body>
