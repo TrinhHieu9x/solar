@@ -281,7 +281,7 @@
     </div>
 </div>
 <div class="section-header" onclick="toggleAcc(this, 'sec_discharge')">
-    <span>🔋 CÀI ĐẶT XẢ PIN </span>
+    <span>⚡ CÀI ĐẶT XẢ PIN </span>
     <div class="arrow">▼</div>
 </div>
 <div id="sec_discharge" class="accordion-content">
@@ -302,7 +302,7 @@
 </div>
     
 <div class="section-header" onclick="toggleAcc(this, 'sec_backup')">
-    <span>🌐 TẢI DỰ PHÒNG </span>
+    <span>🏠 TẢI DỰ PHÒNG </span>
     <div class="arrow">▼</div>
 </div>
 <div id="sec_backup" class="accordion-content">
@@ -340,7 +340,7 @@
 </div>
 
 <div class="section-header" onclick="toggleAcc(this, 'sec_power')">
-    <span>🌐 ĐIỀU KHIỂN CÔNG SUẤT </span>
+    <span>⚙️ ĐIỀU KHIỂN CÔNG SUẤT </span>
     <div class="arrow">▼</div>
 </div>
 <div id="sec_power" class="accordion-content">
@@ -440,31 +440,166 @@
         if (navigator.vibrate) navigator.vibrate(15);
     }
 
-    async function loadInverterData() {
-        const btn = document.getElementById('refreshBtn');
-        btn.classList.add('spinning');
-        // Giả lập load
-        setTimeout(() => btn.classList.remove('spinning'), 1000);
+    // Hàm ẩn/hiện dựa trên chế độ SOC/Volt
+    function toggleCapacityMode() {
+        const mode = document.getElementById('reg_2124').value;
+        const socGroup = document.getElementById('group_soc_settings');
+        const voltGroup = document.getElementById('group_volt_settings');
+        const socCharge = document.getElementById('group_soc_charge');
+        const voltCharge = document.getElementById('group_volt_charge');
+
+        if (mode === "0") { // Chế độ SOC
+            socGroup.style.display = 'block';
+            socCharge.style.display = 'block';
+            voltGroup.style.display = 'none';
+            voltCharge.style.display = 'none';
+        } else { // Chế độ Volt
+            voltGroup.style.display = 'block';
+            voltCharge.style.display = 'block';
+            socGroup.style.display = 'none';
+            socCharge.style.display = 'none';
+        }
     }
 
-    function saveAll(btn) {
-        const oldText = btn.innerText;
-        btn.innerText = "ĐANG LƯU...";
-        btn.style.opacity = "0.7";
-        setTimeout(() => {
-            btn.innerText = "THÀNH CÔNG!";
-            btn.style.background = "#27ae60";
-            setTimeout(() => {
-                btn.innerText = oldText;
-                btn.style.background = "";
-                btn.style.opacity = "1";
-            }, 2000);
-        }, 1500);
+    function TypeBatteryMode() {
+        const mode = document.getElementById('reg_2110').value;
+        const leadParams = document.getElementById('lead_acid_params');
+        const eqSection = document.getElementById('group_eq_settings');
+        const pylonParams = document.getElementById('pylon_params');
+    
+        if (mode === "1") { // 1 là Lead-Acid
+            leadParams.style.display = 'block';
+            eqSection.style.display = 'block';
+            pylonParams.style.display = 'none';
+        } else {
+            pylonParams.style.display = 'block';
+            leadParams.style.display = 'none';
+            eqSection.style.display = 'none';
+        }
     }
+    function syncVoltageDisplay() {
+        // 1. Lấy giá trị từ các ô nhập liệu
+        const vCutOff = document.getElementById('reg_2113').value; 
+        const vFull = document.getElementById('reg_2114').value;   
+        const socCutOff = document.getElementById('reg_212D').value; 
+        const socFull = document.getElementById('reg_212F').value;   
+        
+        // 2. Lấy các ô hiển thị (Target)
+        const displayVLow = document.getElementById('display_2113');
+        const displayVHigh = document.getElementById('display_2114');
+        const displaySLow = document.getElementById('display_soc_low');
+        const displaySHigh = document.getElementById('display_soc_high');
+    
+        // 3. Đổ dữ liệu vào (Check xem ô đó có tồn tại trên màn hình không rồi mới đổ)
+        if (displayVLow) displayVLow.value = vCutOff;
+        if (displayVHigh) displayVHigh.value = vFull;
+        
+        if (displaySLow) displaySLow.value = socCutOff;
+        if (displaySHigh) displaySHigh.value = socFull;
+    }
+    /*function saveData(btn) {
+        const originalText = btn.innerText;
+        btn.innerText = "ĐANG GỬI LỆNH LƯU..."; 
+        btn.style.background = "#2ecc71";
+        
+        let data = {};
+        // Thu thập các giá trị từ input và select có ID bắt đầu bằng reg_
+        document.querySelectorAll('[id^="reg_"]').forEach((el) => {
+            let val = el.value;
+            // Nếu là switch, lấy 1 hoặc 0
+            if(el.classList.contains('switch')) {
+                val = el.classList.contains('on') ? 1 : 0;
+            }
+            // Nếu có bước nhảy 0.1, nhân 10 trước khi gửi về biến tần
+            if(el.getAttribute('step') === "0.1") {
+                val = Math.round(parseFloat(val) * 10);
+            }
+            data[el.id.replace('reg_', '')] = val;
+        });
+
+        console.log("Dữ liệu gửi đi:", data);
+
+        setTimeout(() => {
+            btn.innerText = "ĐÃ LƯU THÀNH CÔNG!";
+            setTimeout(() => { 
+                btn.innerText = originalText; 
+                btn.style.background = "#27ae60"; 
+            }, 2000);
+        }, 1200);
+    }*/
 
     function confirmCancel() {
-        if(confirm("Thoát cài đặt?")) window.history.back();
+        if (confirm("Hủy bỏ thay đổi và quay lại trang chủ?")) {
+            window.location.href = "https://solars.pages.dev/?refresh=" + new Date().getTime();
+        }
     }
+
+    async function loadInverterData() {
+        const btn = document.getElementById('refreshBtn');
+        const title = document.querySelector('.header-title');
+        const originalTitle = "CÀI ĐẶT NÂNG CAO";
+        
+        btn.classList.add('spinning');
+        title.innerText = "🔄 ĐANG ĐỌC...";
+        title.style.color = "#27ae60";
+    
+        try {
+            const response = await fetch('https://api.solarvn.workers.dev/read', { cache: 'no-store' });
+            if (!response.ok) throw new Error("Mất kết nối server");
+            
+            const data = await response.json();
+            if (!data || data.length === 0) throw new Error("Không có dữ liệu");
+    
+            data.forEach(item => {
+                const innerObj = Object.values(item)[0]; 
+                const address = Object.keys(innerObj)[0]; 
+                const value = innerObj[address]; 
+                const element = document.getElementById('reg_' + address);
+                
+                // KIỂM TRA ELEMENT TỒN TẠI TRƯỚC KHI LÀM BẤT CỨ GÌ
+                if (element) {
+                    // 1. Xử lý Switch
+                    if (element.classList.contains('switch')) {
+                        parseInt(value) === 1 ? element.classList.add('on') : element.classList.remove('on');
+                    }
+                    
+                    // 2. Xử lý Input và Select
+                    if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
+                        const stepValue = element.getAttribute('step');
+                        if (stepValue === "0.1") {
+                            element.value = (parseFloat(value) / 10).toFixed(1);
+                        } else {
+                            element.value = value;
+                        }
+                    }
+    
+                    // 3. Kích hoạt logic ẩn/hiện dựa trên giá trị vừa nhận
+                    if (address === "2110") TypeBatteryMode();
+                    if (address === "2124") toggleCapacityMode();
+    
+                    // 4. Hiệu ứng highlight
+                    element.style.backgroundColor = "#d4edda";
+                    setTimeout(() => { element.style.backgroundColor = ""; }, 600);
+                }
+            });
+    
+            title.innerText = "✅ ĐÃ CẬP NHẬT";
+            setTimeout(() => { title.innerText = originalTitle; title.style.color = ""; }, 2000);
+            syncVoltageDisplay();
+    
+        } catch (error) {
+            console.error(error);
+            title.innerText = "❌ LỖI: " + error.message;
+            title.style.color = "#e74c3c";
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]); 
+            setTimeout(() => { title.innerText = originalTitle; title.style.color = ""; }, 3000);
+        } finally {
+            btn.classList.remove('spinning');
+        }
+    }
+    
+    window.onload = loadInverterData;
+
 </script>
 
 </body>
