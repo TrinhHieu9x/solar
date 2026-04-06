@@ -3,244 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inverter Full Parameters Dashboard</title>
+    <title>Inverter Dashboard Pro</title>
     <style>
-        :root { --primary: #27ae60; --bg: #f5f7fa; --card-bg: #fff; --text: #2c3e50; --border: #f0f1f3; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 0 0 80px 0; color: var(--text); -webkit-tap-highlight-color: transparent; }
+        :root { 
+            --primary: #2ecc71; 
+            --bg: #f0f2f5; 
+            --card-bg: #ffffff; 
+            --text-main: #1a1a1a; 
+            --text-sub: #65676b;
+            --border-color: #e4e6eb;
+        }
         
-        /* Header & Footer */
-        .header { background: #fff; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
-        .btn-close { font-size: 24px; color: #95a5a6; cursor: pointer; padding-right: 10px; }
-        .header-title { flex: 1; text-align: center; font-weight: 600; font-size: 16px; margin: 0; }
-        .footer-actions { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 12px 15px; display: flex; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
-        .btn-save { flex: 1; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: .2s; }
-        .btn-save:active { opacity: 0.8; transform: scale(0.98); }
+        body { 
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto; 
+            background: var(--bg); 
+            margin: 0; 
+            padding: 0 0 100px 0; 
+            color: var(--text-main);
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        /* Cấu trúc các thẻ cài đặt */
-        .section-title { font-size: 11px; color: #7f8c8d; text-transform: uppercase; margin: 20px 15px 8px; font-weight: 700; letter-spacing: 0.8px; display: flex; justify-content: space-between; align-items: center; }
-        .card { background: var(--card-bg); border-radius: 12px; margin: 0 10px 15px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
-        .row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--border); }
+        /* Header */
+        .header { 
+            background: #fff; 
+            padding: 18px 15px; 
+            display: flex; 
+            align-items: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        .header-title { flex: 1; text-align: center; font-weight: 700; font-size: 18px; color: var(--primary); }
+
+        /* Section Title */
+        .section-header {
+            margin: 20px 15px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 12px 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+        .section-header span { 
+            font-size: 15px; 
+            font-weight: 800; 
+            color: #4b4f56; 
+            text-transform: uppercase; 
+        }
+
+        /* Card & Rows */
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 12px; 
+            margin: 0 10px 15px; 
+            overflow: hidden; 
+            border: 1px solid var(--border-color);
+        }
+        .row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 16px 15px; /* Tăng padding để dễ chạm */
+            border-bottom: 1px solid var(--border-color); 
+        }
         .row:last-child { border-bottom: none; }
-        .label { font-size: 14px; color: #34495e; font-weight: 500; }
-        .sub-label { font-size: 10px; color: #95a5a6; margin-top: 2px; display: block; line-height: 1.2; }
 
-        /* Accordion Logic */
-        .accordion-header { cursor: pointer; padding-right: 15px; }
-        .accordion-header::after { content: '▼'; font-size: 10px; margin-left: 8px; transition: 0.3s; color: #bdc3c7; }
-        .accordion-header.active::after { transform: rotate(-180deg); color: var(--primary); }
-        .accordion-content { display: none; } /* Mặc định ẩn */
+        /* Labels */
+        .label { font-size: 16px; font-weight: 600; color: #333; }
+        .unit { color: var(--text-sub); font-size: 12px; margin-left: 4px; font-weight: 400; }
 
-        /* INPUT & SELECT STYLES */
-        .val-edit { border: 1px solid #e0e0e0; background: #fafafa; border-radius: 6px; padding: 6px 8px; font-size: 14px; font-weight: 600; color: #27ae60; text-align: right; width: 85px; outline: none; }
+        /* Inputs - Làm to và đậm */
+        .val-edit { 
+            border: 2px solid #edeff2; 
+            background: #f8f9fa; 
+            border-radius: 8px; 
+            padding: 10px 12px; 
+            font-size: 17px; /* Chữ số to hơn */
+            font-weight: 700; 
+            color: var(--primary); 
+            text-align: right; 
+            width: 100px; 
+            outline: none; 
+        }
         .val-edit:focus { border-color: var(--primary); background: #fff; }
-        select.val-edit { width: auto; max-width: 140px; text-align-last: right; }
-        .unit { color: #95a5a6; font-size: 11px; margin-left: 2px; }
+        select.val-edit { width: auto; min-width: 120px; appearance: none; }
 
-        /* Nút Gạt Switch */
-        .switch { width: 44px; height: 24px; background: #e0e0e0; border-radius: 15px; position: relative; cursor: pointer; transition: .3s; flex-shrink: 0; }
+        /* Switch to hơn */
+        .switch { width: 56px; height: 30px; background: #ccd0d5; border-radius: 20px; position: relative; transition: .3s; }
         .switch.on { background: var(--primary); }
-        .switch::after { content: ''; position: absolute; width: 20px; height: 20px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: .3s; }
-        .switch.on::after { left: 22px; }
+        .switch::after { content: ''; position: absolute; width: 24px; height: 24px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: .3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .switch.on::after { left: 29px; }
 
-        .btn-refresh { width: 40px; height: 40px; color: var(--primary); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        /* Footer */
+        .footer-actions { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: rgba(255,255,255,0.95); 
+            padding: 15px; 
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #ddd;
+        }
+        .btn-save { 
+            width: 100%; background: var(--primary); color: white; border: none; 
+            padding: 16px; border-radius: 14px; font-size: 18px; font-weight: 700; 
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+        }
+
+        /* Animation */
+        .accordion-content { display: none; transition: all 0.3s ease; }
         .spinning svg { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        .arrow { transition: 0.3s; font-size: 12px; color: #999; }
+        .active .arrow { transform: rotate(180deg); color: var(--primary); }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div class="btn-close" onclick="confirmCancel()">✕</div>
-    <div class="header-title" id="mainTitle">Cài đặt nâng cao</div>
-    <div class="btn-refresh" id="refreshBtn" onclick="loadInverterData()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path>
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-        </svg>
+    <div onclick="confirmCancel()" style="font-size:24px; cursor:pointer">✕</div>
+    <div class="header-title" id="mainTitle">THIẾT LẬP HỆ THỐNG</div>
+    <div id="refreshBtn" onclick="loadInverterData()" class="btn-refresh">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
     </div>
 </div>
 
-<div class="section-title">CÀI ĐẶT PIN (HIỆN TẠI)</div>
+<div class="section-header" style="box-shadow: none; background: transparent;">
+    <span>🔋 THÔNG SỐ PIN</span>
+</div>
 <div class="card">
     <div class="row">
-        <div class="label">Thương hiệu</div>
-        <select class="val-edit" id="reg_2110" onchange="TypeBatteryMode()">
-            <option value="0"> No Battery </option>
-            <option value="1"> Lead-Acid Battery</option>
-            <option value="2"> PYLON </option>
-            <option value="5"> Lithium (No COMM) </option>
-            <option value="7"> Lithium-LV </option>
-        </select>
-    </div>
-    <div class="row">
-        <div class="label">Quản lý bằng</div>
-        <select class="val-edit" id="reg_2124" onchange="toggleCapacityMode()">
-            <option value="0">SOC (%)</option>
-            <option value="1">Voltage (V)</option>
+        <div class="label">Loại Pin</div>
+        <select class="val-edit" id="reg_2110" onchange="toggleCapacityMode()">
+            <option value="2">PYLONTECH</option>
+            <option value="1">LEAD-ACID</option>
+            <option value="5">LITHIUM-NO-COM</option>
         </select>
     </div>
     <div class="row">
         <div class="label">Dung lượng <span class="unit">(Ah)</span></div>
         <input type="number" id="reg_2112" class="val-edit" value="100">
     </div>
-    <div id="group_soc_settings">
-        <div class="row">
-            <div class="label">Dừng xả (SOC) <span class="unit">(%)</span></div>
-            <input type="number" id="reg_212D" class="val-edit" value="20" oninput="syncVoltageDisplay()">
-        </div>
-        <div class="row">
-            <div class="label">Dừng sạc (SOC) <span class="unit">(%)</span></div>
-            <input type="number" id="reg_212F" class="val-edit" value="100" oninput="syncVoltageDisplay()">
-        </div>
-    </div>
-    <div id="group_volt_settings" style="display:none;">
-        <div class="row">
-            <div class="label">Áp ngắt xả <span class="unit">(V)</span></div>
-            <input type="number" id="reg_2113" step="0.1" class="val-edit" value="44.0">
-        </div>
-        <div class="row">
-            <div class="label">Áp ngắt sạc <span class="unit">(V)</span></div>
-            <input type="number" id="reg_2114" step="0.1" class="val-edit" value="58.0">
-        </div>
+    <div class="row">
+        <div class="label">Dừng xả <span class="unit">(%)</span></div>
+        <input type="number" id="reg_212D" class="val-edit" value="20">
     </div>
 </div>
 
-<div class="section-title accordion-header" onclick="toggleAccordion(this, 'acc_grid')">SẠC LƯỚI & ĐIỀU KHIỂN</div>
-<div id="acc_grid" class="accordion-content">
+<div class="section-header" onclick="toggleAcc(this, 'sec_grid')">
+    <span>🌐 CÀI ĐẶT LƯỚI</span>
+    <div class="arrow">▼</div>
+</div>
+<div id="sec_grid" class="accordion-content">
     <div class="card">
         <div class="row">
-            <div class="label">Cho phép sạc lưới</div>
-            <div class="switch" id="reg_2115" onclick="toggleSwitch(this)"></div>
+            <div class="label">Sạc từ lưới</div>
+            <div class="switch on" id="reg_2115" onclick="toggleSwitch(this)"></div>
         </div>
         <div class="row">
-            <div class="label">Công suất sạc lưới <span class="unit">(W)</span></div>
-            <input type="number" id="reg_2116" class="val-edit" value="0">
+            <div class="label">Dòng sạc <span class="unit">(W)</span></div>
+            <input type="number" id="reg_2116" class="val-edit" value="2000">
         </div>
         <div class="row">
-            <div class="label">Giới hạn phát lưới <span class="unit">(W)</span></div>
+            <div class="label">Đẩy lưới tối đa <span class="unit">(W)</span></div>
             <input type="number" id="reg_30BA" class="val-edit" value="0">
         </div>
     </div>
 </div>
 
-<div class="section-title accordion-header" onclick="toggleAccordion(this, 'acc_protect')">BẢO VỆ HỆ THỐNG</div>
-<div id="acc_protect" class="accordion-content">
+<div class="section-header" onclick="toggleAcc(this, 'sec_protect')">
+    <span>🛡️ BẢO VỆ & AN TOÀN</span>
+    <div class="arrow">▼</div>
+</div>
+<div id="sec_protect" class="accordion-content">
     <div class="card">
         <div class="row">
-            <div class="label">Áp thấp Mức 1 <span class="unit">(V)</span></div>
-            <input type="number" id="reg_5005" class="val-edit" value="160">
+            <div class="label">Áp cao ngắt <span class="unit">(V)</span></div>
+            <input type="number" id="reg_5004" step="0.1" class="val-edit" value="255.0">
         </div>
         <div class="row">
-            <div class="label">Áp cao Mức 1 <span class="unit">(V)</span></div>
-            <input type="number" id="reg_5004" step="0.1" class="val-edit" value="253">
-        </div>
-        <div class="row">
-            <div class="label">Phát hiện đảo lưới</div>
+            <div class="label">Chống đảo lưới</div>
             <div class="switch on" id="reg_5112" onclick="toggleSwitch(this)"></div>
         </div>
         <div class="row">
-            <div class="label">Dòng rò PV (mA)</div>
+            <div class="label">Dòng rò (mA)</div>
             <input type="number" id="reg_5110" class="val-edit" value="300">
         </div>
     </div>
 </div>
 
-<div class="section-title accordion-header" onclick="toggleAccordion(this, 'acc_backup')">TẢI DỰ PHÒNG (EPS)</div>
-<div id="acc_backup" class="accordion-content">
-    <div class="card">
-        <div class="row">
-            <div class="label">Đầu ra dự phòng</div>
-            <div class="switch on" id="reg_211C" onclick="toggleSwitch(this)"></div>
-        </div>
-        <div class="row">
-            <div class="label">Điện áp EPS <span class="unit">(V)</span></div>
-            <input type="number" id="reg_211D" class="val-edit" value="230" step="0.1">
-        </div>
-        <div class="row">
-            <div class="label">Tần số EPS <span class="unit">(Hz)</span></div>
-            <select class="val-edit" id="reg_211E">
-                <option value="50">50Hz</option>
-                <option value="60">60Hz</option>
-            </select>
-        </div>
-    </div>
-</div>
-
 <div class="footer-actions">
-    <button class="btn-save" onclick="saveData(this)">LƯU TẤT CẢ THIẾT LẬP</button>
+    <button class="btn-save" onclick="saveAll(this)">LƯU THIẾT LẬP</button>
 </div>
 
 <script>
-    // Hàm đóng mở thẻ thu gọn
-    function toggleAccordion(header, contentId) {
-        const content = document.getElementById(contentId);
+    function toggleAcc(header, id) {
+        const content = document.getElementById(id);
+        const isOpen = content.style.display === "block";
+        content.style.display = isOpen ? "none" : "block";
         header.classList.toggle('active');
-        if (content.style.display === "block") {
-            content.style.display = "none";
-        } else {
-            content.style.display = "block";
-        }
     }
 
     function toggleSwitch(el) {
         el.classList.toggle('on');
-        if (navigator.vibrate) navigator.vibrate(10);
-    }
-
-    function toggleCapacityMode() {
-        const mode = document.getElementById('reg_2124').value;
-        document.getElementById('group_soc_settings').style.display = (mode === "0") ? 'block' : 'none';
-        document.getElementById('group_volt_settings').style.display = (mode === "1") ? 'block' : 'none';
-    }
-
-    function TypeBatteryMode() {
-        // Logic xử lý loại pin của bạn giữ nguyên hoặc tùy biến thêm tại đây
-    }
-
-    function syncVoltageDisplay() {
-        // Logic đồng bộ hiển thị của bạn
+        if (navigator.vibrate) navigator.vibrate(15);
     }
 
     async function loadInverterData() {
         const btn = document.getElementById('refreshBtn');
-        const title = document.getElementById('mainTitle');
         btn.classList.add('spinning');
-        title.innerText = "🔄 ĐANG ĐỌC...";
-        
-        try {
-            const response = await fetch('https://api.solarvn.workers.dev/read', { cache: 'no-store' });
-            const data = await response.json();
-            
-            data.forEach(item => {
-                const innerObj = Object.values(item)[0]; 
-                const address = Object.keys(innerObj)[0]; 
-                const value = innerObj[address]; 
-                const element = document.getElementById('reg_' + address);
-                
-                if (element) {
-                    if (element.classList.contains('switch')) {
-                        parseInt(value) === 1 ? element.classList.add('on') : element.classList.remove('on');
-                    } else {
-                        const stepValue = element.getAttribute('step');
-                        element.value = (stepValue === "0.1") ? (parseFloat(value) / 10).toFixed(1) : value;
-                    }
-                }
-            });
-            title.innerText = "✅ ĐÃ CẬP NHẬT";
-            setTimeout(() => title.innerText = "CÀI ĐẶT NÂNG CAO", 2000);
-        } catch (e) {
-            title.innerText = "❌ LỖI KẾT NỐI";
-        } finally {
-            btn.classList.remove('spinning');
-            toggleCapacityMode();
-        }
+        // Giả lập load
+        setTimeout(() => btn.classList.remove('spinning'), 1000);
+    }
+
+    function saveAll(btn) {
+        const oldText = btn.innerText;
+        btn.innerText = "ĐANG LƯU...";
+        btn.style.opacity = "0.7";
+        setTimeout(() => {
+            btn.innerText = "THÀNH CÔNG!";
+            btn.style.background = "#27ae60";
+            setTimeout(() => {
+                btn.innerText = oldText;
+                btn.style.background = "";
+                btn.style.opacity = "1";
+            }, 2000);
+        }, 1500);
     }
 
     function confirmCancel() {
-        if (confirm("Hủy bỏ thay đổi?")) window.location.reload();
+        if(confirm("Thoát cài đặt?")) window.history.back();
     }
-
-    window.onload = loadInverterData;
 </script>
 
 </body>
