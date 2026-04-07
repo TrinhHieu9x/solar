@@ -134,7 +134,7 @@
 <div class="section-header" style="box-shadow: none; background: transparent;">
     <span>CÀI ĐẶT PIN </span>
 </div>
-<div class="card">
+<div class="card" id="sec_battery_main">
     <div class="row">
         <div class="label">Thương hiệu</div>
         <select class="val-edit" id="reg_2110" onchange="TypeBatteryMode()">
@@ -630,15 +630,22 @@
         }
     }
     
-    // Hàm lấy ID riêng cho phần Pin (phần không nằm trong accordion)
     function getIdsFromPinSection() {
-        // Tìm trong thẻ card đầu tiên (Cài đặt pin)
-        const firstCard = document.querySelector('.card'); 
-        const elements = firstCard.querySelectorAll('[id^="reg_"]');
+        const mainSection = document.getElementById('sec_battery_main');
+        if (!mainSection) return [];
+        const elements = mainSection.querySelectorAll('[id^="reg_"]');
         return Array.from(elements).map(el => el.id.replace('reg_', ''));
     }
-    
-    window.onload = loadInverterData;
+        
+    // Thay vì: window.onload = loadInverterData;
+// Hãy đổi thành:
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            console.log("Tự động tải dữ liệu lần đầu...");
+            loadInverterData();
+        }, 500); // Trễ 0.5s để chắc chắn DOM đã render xong
+    });
 
 </script>
 
