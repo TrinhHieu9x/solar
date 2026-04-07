@@ -563,67 +563,70 @@
         const title = document.getElementById('mainTitle');
         const originalTitle = "THIẾT LẬP HỆ THỐNG";
         
-        // Nếu không truyền ID nào, mặc định lấy ID trong phần Pin (phần luôn hiện)
+        // 1. Xác định danh sách ID cần lấy
         const idsToFetch = specificIds || getIdsFromPinSection(); 
-        
         if (idsToFetch.length === 0) return;
     
+        // 2. Hiệu ứng chờ
         btn.classList.add('spinning');
         title.innerText = "🔄 ĐANG ĐỌC...";
     
         try {
-            // Gửi kèm danh sách ID muốn lấy qua API (Giả sử API của bạn hỗ trợ query params)
-            // Ví dụ: https://api.solarvn.workers.dev/read?ids=2110,2112,2124
             const url = `https://api.solarvn.workers.dev/read?ids=${idsToFetch.join(',')}`;
             const response = await fetch(url, { cache: 'no-store' });
             
-            if (!response.ok) throw new Error("Mất kết nối");
-            // --- ĐOẠN SỬA TRONG HÀM loadInverterData ---
-            const data = await response.json();
-            console.log("Dữ liệu sạch nhận được:", data);
-            
-            data.forEach(item => {
-                // Vì item có dạng { "2110": "2" }, ta lấy Key và Value ra
-                const address = Object.keys(item)[0]; 
-                const value = item[address];
-                
-                const element = document.getElementById('reg_' + address);
-                
-                if (element) {
-                    // Xử lý cho nút Gạt (Switch)
-                    if (element.classList.contains('switch')) {
-                        if (parseInt(value) === 1) {
-                            element.classList.add('on');
-                        } else {
-                            element.classList.remove('on');
-                        }
-                    } 
-                    // Xử lý cho ô nhập số và ô Chọn (Select)
-                    else {
-                        const stepValue = element.getAttribute('step');
-                        // Nếu có step 0.1 thì chia 10 (vd: 555 -> 55.5)
-                        if (stepValue === "0.1") {
-                            element.value = (parseFloat(value) / 10).toFixed(1);
-                        } else {
-                            element.value = value;
-                        }
-                    }
+            if (!response.ok) throw new Error("Server Worker lỗi");
+    
+            const data = await response.json(); 
+            console.log("Dữ liệu nhận về từ Worker:", data);
+    
+            // 3. Đổ dữ liệu vào giao diện
+            if (Array.isArray(data)) {
+                data.forEach(item => {
+                    // item có dạng { "2110": "1" }
+                    const address = Object.keys(item)[0]; 
+                    const value = item[address];
                     
-                    // Hiệu ứng đổi màu báo hiệu đã cập nhật xong
-                    element.style.transition = "background 0.3s";
-                    element.style.backgroundColor = "#d4edda";
-                    setTimeout(() => { element.style.backgroundColor = ""; }, 800);
-                }
-            });
-                
-            title.innerText = "✅ ĐÃ CẬP NHẬT";
-            setTimeout(() => { title.innerText = originalTitle; }, 2000);
-            syncVoltageDisplay();
+                    const element = document.getElementById('reg_' + address);
+                    
+                    if (element) {
+                        // Xử lý Switch (Nút gạt)
+                        if (element.classList.contains('switch')) {
+                            if (parseInt(value) === 1) {
+                                element.classList.add('on');
+                            } else {
+                                element.classList.remove('on');
+                            }
+                        } 
+                        // Xử lý Input số và Select
+                        else {
+                            const stepValue = element.getAttribute('step');
+                            // Nếu có step 0.1 thì chia 10 (ví dụ 555 -> 55.5)
+                            if (stepValue === "0.1") {
+                                element.value = (parseFloat(value) / 10).toFixed(1);
+                            } else {
+                                element.value = value;
+                            }
+                        }
+    
+                        // Hiệu ứng xanh nhẹ báo hiệu cập nhật thành công
+                        element.style.backgroundColor = "#d4edda";
+                        setTimeout(() => { element.style.backgroundColor = ""; }, 800);
+                    }
+                });
+    
+                title.innerText = "✅ ĐÃ CẬP NHẬT";
+            } else {
+                throw new Error("Dữ liệu không phải mảng");
+            }
     
         } catch (error) {
+            console.error("Lỗi chi tiết:", error);
             title.innerText = "❌ LỖI ĐỌC";
         } finally {
             btn.classList.remove('spinning');
+            setTimeout(() => { if(title.innerText !== "❌ LỖI ĐỌC") title.innerText = originalTitle; }, 2000);
+            syncVoltageDisplay();
         }
     }
     
