@@ -96,6 +96,43 @@
         .val-edit:focus { border-color: var(--primary); background: #fff; }
         select.val-edit { width: auto; min-width: 70px; text-align-last: center; appearance: none; }
 
+        /* CSS cho PC (Màn hình rộng từ 768px trở lên) */
+        @media (min-width: 768px) {
+            .card, .section-header {
+                max-width: 800px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            .header {
+                padding: 25px; /* Header to hơn trên PC */
+            }
+            .val-edit {
+                width: 80px;      /* PC hiển thị rộng hẳn ra cho dễ nhìn */
+                padding: 10px;    /* Tăng khoảng cách trong ô */
+                font-size: 16px;  /* Chữ to rõ ràng hơn */
+                border-width: 2px;
+            }
+            
+            .row {
+                padding: 20px 25px; /* Dòng cao hơn cho thoáng mắt trên màn hình lớn */
+            }
+            
+            .label {
+                font-size: 18px;    /* Chữ tiêu đề bên trái to hơn */
+            }
+        }
+        
+        /* Ẩn mũi tên input number trên mọi thiết bị để layout không bị nhảy */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
         /* Switch to hơn */
         .switch { width: 56px; height: 30px; background: #ccd0d5; border-radius: 20px; position: relative; transition: .3s; }
         .switch.on { background: var(--primary); }
