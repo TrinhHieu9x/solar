@@ -335,8 +335,8 @@
         <div class="row">
             <div class="label">Tần số đầu ra định mức <span class="unit">(HZ)</span></div>
             <select class="val-edit" id="reg_211E">
-                <option selected>50</option>
-                <option>60</option>
+                <option value="5000">50</option>
+                <option value="6000">60</option>
             </select>
         </div>
     </div>
@@ -575,22 +575,17 @@
             if (!response.ok) throw new Error("Server Worker lỗi");
     
             const data = await response.json(); 
-            console.log("Dữ liệu gốc từ Worker:", data);
-    
+            
             if (Array.isArray(data)) {
                 data.forEach(item => {
-                    // Bước 1: Lấy object con bên trong (bỏ qua cái index 0, 1, 2...)
-                    const innerKey = Object.keys(item)[0]; // Lấy "0", "1", "2"...
-                    const innerObj = item[innerKey];       // Lấy { "2110": "2" }
-                    
-                    // Bước 2: Lấy địa chỉ thanh ghi và giá trị thực tế
-                    const address = Object.keys(innerObj)[0]; // Lấy "2110"
-                    const value = innerObj[address];          // Lấy "2"
+                    const innerKey = Object.keys(item)[0];
+                    const innerObj = item[innerKey];
+                    const address = Object.keys(innerObj)[0];
+                    const value = innerObj[address];
                     
                     const element = document.getElementById('reg_' + address);
-                    
                     if (element) {
-                        // Xử lý Switch
+                        // 1. Xử lý Switch (Nút gạt)
                         if (element.classList.contains('switch')) {
                             if (parseInt(value) === 1) {
                                 element.classList.add('on');
@@ -598,10 +593,13 @@
                                 element.classList.remove('on');
                             }
                         } 
-                        // Xử lý Input và Select
+                        // 2. Xử lý trường hợp đặc biệt: Tần số (chia 100)
+                        else if (address === "211E") {
+                            element.value = value; // Gán 5000 hoặc 6000 trực tiếp vào select
+                        }
+                        // 3. Xử lý Input số có bước nhảy 0.1 (chia 10)
                         else {
                             const stepValue = element.getAttribute('step');
-                            // Nếu step là 0.1 thì chia cho 10 (ví dụ 487 -> 48.7)
                             if (stepValue === "0.1") {
                                 element.value = (parseFloat(value) / 10).toFixed(1);
                             } else {
@@ -609,12 +607,11 @@
                             }
                         }
     
-                        // Hiệu ứng báo cập nhật thành công
+                        // Hiệu ứng xanh nhẹ khi thành công
                         element.style.backgroundColor = "#d4edda";
                         setTimeout(() => { element.style.backgroundColor = ""; }, 800);
                     }
                 });
-    
                 title.innerText = "✅ ĐÃ CẬP NHẬT";
             }
         } catch (error) {
@@ -624,7 +621,7 @@
             btn.classList.remove('spinning');
             setTimeout(() => { if(title.innerText !== "❌ LỖI ĐỌC") title.innerText = originalTitle; }, 2000);
             
-            // Cập nhật lại giao diện ẩn hiện (SOC/Volt) và các ô hiển thị phụ
+            // Gọi các hàm đồng bộ giao diện
             toggleCapacityMode();
             TypeBatteryMode();
             syncVoltageDisplay();
