@@ -99,15 +99,28 @@
         /* CSS cho PC (Màn hình rộng từ 768px trở lên) */
         @media (min-width: 768px) {
             /* Giữ card không bị quá dài trên màn hình PC cực lớn */
-            .card, .section-header {
-                max-width: 800px;
-                margin-left: auto;
-                margin-right: auto;
-            }
-            
-            .header {
-                padding: 25px; /* Header to hơn trên PC */
-            }
+ /* CSS cho PC */
+@media (min-width: 768px) {
+    /* Gom tất cả nội dung chính, bao gồm cả Header và Footer vào một độ rộng chung */
+    .header, .card, .section-header, .footer-actions {
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+        left: 0; right: 0; /* Cần thiết cho các phần tử fixed/sticky như Header/Footer */
+    }
+
+    .header {
+        border-radius: 0 0 12px 12px; /* Bo góc dưới cho đẹp khi nằm giữa màn hình PC */
+        padding: 20px;
+    }
+
+    .footer-actions {
+        border-radius: 14px 14px 0 0;
+        bottom: 10px; /* Nhấc lên một chút cho chuyên nghiệp */
+        width: calc(100% - 20px); /* Trừ hao margin */
+    }
+}
+
             .val-edit {
                 width: 80px;      /* PC hiển thị rộng hẳn ra cho dễ nhìn */
                 padding: 10px;    /* Tăng khoảng cách trong ô */
@@ -140,14 +153,7 @@
         .switch::after { content: ''; position: absolute; width: 24px; height: 24px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: .3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .switch.on::after { left: 29px; }
 
-        /* Footer */
-        .footer-actions { 
-            position: fixed; bottom: 0; left: 0; right: 0; 
-            background: rgba(255,255,255,0.95); 
-            padding: 15px; 
-            backdrop-filter: blur(10px);
-            border-top: 1px solid #ddd;
-        }
+
         .btn-save { 
             width: 100%; background: var(--primary); color: white; border: none; 
             padding: 16px; border-radius: 14px; font-size: 18px; font-weight: 700; 
