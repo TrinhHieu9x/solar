@@ -162,7 +162,7 @@
     <div id="group_soc_settings">
         <div class="row">
             <div class="label">Điểm dừng xả (SOC) <span class="unit">(%)</span></div>
-            <input type="number" id="reg_212B" class="val-edit" value="20" oninput="syncVoltageDisplay()">
+            <input type="number" id="reg_211B" class="val-edit" value="20" oninput="syncVoltageDisplay()">
         </div>
         <div class="row">
             <div class="label">Điểm dừng sạc (SOC) <span class="unit">(%)</span></div>
@@ -190,7 +190,7 @@
                 </div>
                 <div class="row">
                     <div class="label">Điện trở trong <span class="unit">(mΩ)</span></div>
-                    <input type="number" id="reg_211B" class="val-edit" value="5">
+                    <input type="number" id="reg_214F" class="val-edit" value="5">
                 </div>
                 <div class="row">
                     <div class="label">Thời gian hấp thụ <span class="unit">(m)</span></div>
@@ -505,7 +505,7 @@
         // 1. Lấy giá trị từ các ô nhập liệu
         const vCutOff = document.getElementById('reg_2113').value; 
         const vFull = document.getElementById('reg_2114').value;   
-        const socCutOff = document.getElementById('reg_212B').value; 
+        const socCutOff = document.getElementById('reg_211B').value; 
         const socFull = document.getElementById('reg_2119').value;   
         
         // 2. Lấy các ô hiển thị (Target)
