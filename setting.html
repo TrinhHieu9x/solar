@@ -578,31 +578,44 @@
             const response = await fetch(url, { cache: 'no-store' });
             
             if (!response.ok) throw new Error("Mất kết nối");
+            // --- ĐOẠN SỬA TRONG HÀM loadInverterData ---
             const data = await response.json();
-    
-            // Log ra để Hiếu kiểm tra dữ liệu trả về
-            console.log("Dữ liệu nhận được cho nhóm:", idsToFetch, data);
-    
-            // Logic đổ dữ liệu vào Input (giữ nguyên logic cũ của bạn)
+            console.log("Dữ liệu sạch nhận được:", data);
+            
             data.forEach(item => {
-                const innerObj = Object.values(item)[0]; 
-                const address = Object.keys(innerObj)[0]; 
-                const value = innerObj[address]; 
+                // Vì item có dạng { "2110": "2" }, ta lấy Key và Value ra
+                const address = Object.keys(item)[0]; 
+                const value = item[address];
+                
                 const element = document.getElementById('reg_' + address);
                 
                 if (element) {
+                    // Xử lý cho nút Gạt (Switch)
                     if (element.classList.contains('switch')) {
-                        parseInt(value) === 1 ? element.classList.add('on') : element.classList.remove('on');
-                    } else {
+                        if (parseInt(value) === 1) {
+                            element.classList.add('on');
+                        } else {
+                            element.classList.remove('on');
+                        }
+                    } 
+                    // Xử lý cho ô nhập số và ô Chọn (Select)
+                    else {
                         const stepValue = element.getAttribute('step');
-                        element.value = (stepValue === "0.1") ? (parseFloat(value) / 10).toFixed(1) : value;
+                        // Nếu có step 0.1 thì chia 10 (vd: 555 -> 55.5)
+                        if (stepValue === "0.1") {
+                            element.value = (parseFloat(value) / 10).toFixed(1);
+                        } else {
+                            element.value = value;
+                        }
                     }
-                    // Hiệu ứng xanh nhẹ khi cập nhật xong
+                    
+                    // Hiệu ứng đổi màu báo hiệu đã cập nhật xong
+                    element.style.transition = "background 0.3s";
                     element.style.backgroundColor = "#d4edda";
-                    setTimeout(() => { element.style.backgroundColor = ""; }, 600);
+                    setTimeout(() => { element.style.backgroundColor = ""; }, 800);
                 }
             });
-    
+                
             title.innerText = "✅ ĐÃ CẬP NHẬT";
             setTimeout(() => { title.innerText = originalTitle; }, 2000);
             syncVoltageDisplay();
