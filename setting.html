@@ -563,34 +563,34 @@
         const title = document.getElementById('mainTitle');
         const originalTitle = "THIẾT LẬP HỆ THỐNG";
         
-        // 1. Xác định danh sách ID cần lấy
         const idsToFetch = specificIds || getIdsFromPinSection(); 
         if (idsToFetch.length === 0) return;
     
-        // 2. Hiệu ứng chờ
         btn.classList.add('spinning');
         title.innerText = "🔄 ĐANG ĐỌC...";
     
         try {
             const url = `https://api.solarvn.workers.dev/read?ids=${idsToFetch.join(',')}`;
             const response = await fetch(url, { cache: 'no-store' });
-            
             if (!response.ok) throw new Error("Server Worker lỗi");
     
             const data = await response.json(); 
-            console.log("Dữ liệu nhận về từ Worker:", data);
+            console.log("Dữ liệu gốc từ Worker:", data);
     
-            // 3. Đổ dữ liệu vào giao diện
             if (Array.isArray(data)) {
                 data.forEach(item => {
-                    // item có dạng { "2110": "1" }
-                    const address = Object.keys(item)[0]; 
-                    const value = item[address];
+                    // Bước 1: Lấy object con bên trong (bỏ qua cái index 0, 1, 2...)
+                    const innerKey = Object.keys(item)[0]; // Lấy "0", "1", "2"...
+                    const innerObj = item[innerKey];       // Lấy { "2110": "2" }
+                    
+                    // Bước 2: Lấy địa chỉ thanh ghi và giá trị thực tế
+                    const address = Object.keys(innerObj)[0]; // Lấy "2110"
+                    const value = innerObj[address];          // Lấy "2"
                     
                     const element = document.getElementById('reg_' + address);
                     
                     if (element) {
-                        // Xử lý Switch (Nút gạt)
+                        // Xử lý Switch
                         if (element.classList.contains('switch')) {
                             if (parseInt(value) === 1) {
                                 element.classList.add('on');
@@ -598,10 +598,10 @@
                                 element.classList.remove('on');
                             }
                         } 
-                        // Xử lý Input số và Select
+                        // Xử lý Input và Select
                         else {
                             const stepValue = element.getAttribute('step');
-                            // Nếu có step 0.1 thì chia 10 (ví dụ 555 -> 55.5)
+                            // Nếu step là 0.1 thì chia cho 10 (ví dụ 487 -> 48.7)
                             if (stepValue === "0.1") {
                                 element.value = (parseFloat(value) / 10).toFixed(1);
                             } else {
@@ -609,23 +609,24 @@
                             }
                         }
     
-                        // Hiệu ứng xanh nhẹ báo hiệu cập nhật thành công
+                        // Hiệu ứng báo cập nhật thành công
                         element.style.backgroundColor = "#d4edda";
                         setTimeout(() => { element.style.backgroundColor = ""; }, 800);
                     }
                 });
     
                 title.innerText = "✅ ĐÃ CẬP NHẬT";
-            } else {
-                throw new Error("Dữ liệu không phải mảng");
             }
-    
         } catch (error) {
-            console.error("Lỗi chi tiết:", error);
+            console.error("Lỗi:", error);
             title.innerText = "❌ LỖI ĐỌC";
         } finally {
             btn.classList.remove('spinning');
             setTimeout(() => { if(title.innerText !== "❌ LỖI ĐỌC") title.innerText = originalTitle; }, 2000);
+            
+            // Cập nhật lại giao diện ẩn hiện (SOC/Volt) và các ô hiển thị phụ
+            toggleCapacityMode();
+            TypeBatteryMode();
             syncVoltageDisplay();
         }
     }
