@@ -219,7 +219,7 @@
     <div id="group_soc_settings">
         <div class="row">
             <div class="label">Điểm dừng xả (SOC) <span class="unit">(%)</span></div>
-            <input type="number" id="reg_211B" class="val-edit" value="--" oninput="syncVoltageDisplay()">
+            <input type="number" id="reg_211B" class="val-edit" value="---" oninput="syncVoltageDisplay()">
         </div>
         <div class="row">
             <div class="label">Điểm dừng sạc (SOC) <span class="unit">(%)</span></div>
@@ -227,12 +227,12 @@
         </div>
         <div class="row">
             <div class="label">Điểm kết nối lại pin khi mất lưới (SOC) <span class="unit">(%)</span></div>
-            <input type="number" id="reg_2186" class="val-edit" value="--" oninput="syncVoltageDisplay()">
+            <input type="number" id="reg_2186" class="val-edit" value="---" oninput="syncVoltageDisplay()">
         </div>
         <div class="row">
             <div class="label">Xả/Sạc <span class="unit">(%)</span></div>
             <div style="display:flex; align-items:center;">
-                <input type="number" id="display_soc_low" class="val-edit" style="width:45px" value="--" readonly>
+                <input type="number" id="display_soc_low" class="val-edit" style="width:45px" value="---" readonly>
                 <span style="margin:0 5px">-</span>
                 <input type="number" id="display_soc_high" class="val-edit" style="width:45px" value="---" readonly>
             </div>
@@ -286,11 +286,11 @@
     </div>
     <div class="row">
         <div class="label">CS Sạc tối đa <span class="unit">(W)</span></div>
-        <input type="number" id="reg_2118" class="val-edit" value="----">
+        <input type="number" id="reg_2118" class="val-edit" value="---">
     </div>
     <div class="row">
         <div class="label">CS Xả tối đa <span class="unit">(W)</span></div>
-        <input type="number" id="reg_211A" class="val-edit" value="----">
+        <input type="number" id="reg_211A" class="val-edit" value="---">
     </div>
 </div>
 <div id="group_eq_settings" style="display:none;">
@@ -360,11 +360,11 @@
         </div>
         <div class="row">
             <div class="label">Xả pin đến tải</div>
-            <div class="switch on" id="reg_2141" onclick="toggleSwitch(this)"></div>
+            <div class="switch" id="reg_2141" onclick="toggleSwitch(this)"></div>
         </div>
         <div class="row">
             <div class="label">Xả pin lên lưới</div>
-            <div class="switch on" id="reg_2149" onclick="toggleSwitch(this)"></div>
+            <div class="switch" id="reg_2149" onclick="toggleSwitch(this)"></div>
         </div>
     </div>
 </div>
@@ -379,7 +379,7 @@
             <div class="label-group">
                 <span class="label">Đầu ra dự phòng</span>
             </div>
-            <div class="switch on" id="reg_211C" onclick="toggleSwitch(this)"></div>
+            <div class="switch" id="reg_211C" onclick="toggleSwitch(this)"></div>
         </div>
         <div class="row">
             <div class="label">Điện áp đầu ra định mức <span class="unit">(V)</span></div>
@@ -448,7 +448,7 @@
     <div class="card">
         <div class="row">
             <div class="label">Duy trì vận hành ở điện áp thấp</div>
-            <div class="switch on" id="reg_510E" onclick="toggleSwitch(this)"></div>
+            <div class="switch" id="reg_510E" onclick="toggleSwitch(this)"></div>
         </div>
         <div class="row">
             <div class="label">Ngưỡng kích hoạt LVRT <span class="unit">(V)</span></div>
@@ -463,15 +463,15 @@
     <div class="card">
         <div class="row">
             <div class="label">Phát hiện đảo lưới điện</div>
-            <div class="switch on" id="reg_5112" onclick="toggleSwitch(this)"></div>
+            <div class="switch" id="reg_5112" onclick="toggleSwitch(this)"></div>
         </div>
         <div class="row">
             <div class="label">Phát hiện cách ly</div>
-            <div class="switch on" id="reg_5117" onclick="toggleSwitch(this)"></div>
+            <div class="switch" id="reg_5117" onclick="toggleSwitch(this)"></div>
         </div>
         <div class="row">
             <div class="label">Phát hiện dòng rò (GFCI)</div>
-            <div class="switch on" id="reg_5118" onclick="toggleSwitch(this)"></div>
+            <div class="switch" id="reg_5118" onclick="toggleSwitch(this)"></div>
         </div>
         <div class="row">
             <div class="label">Điểm điện trở cách điện PV <span class="unit">(kΩ)</span></div>
