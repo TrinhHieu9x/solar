@@ -125,11 +125,16 @@
 
         /* CSS cho PC (Màn hình rộng từ 768px trở lên) */
         @media (min-width: 768px) {
-            /* Giữ card không bị quá dài trên màn hình PC cực lớn */
-            section-header, .section-header.active, {
+        /* Gom tất cả các thành phần chính vào một độ rộng cố định */
+            .card, 
+            .section-header, 
+            .header, 
+            .footer-actions {
                 max-width: 800px;
                 margin-left: auto;
                 margin-right: auto;
+                left: 0;   /* Cần thiết cho các phần tử fixed/sticky như header/footer */
+                right: 0;
             }
             
             .header {
