@@ -1,241 +1,167 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html class="translated-ltr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta name="renderer" content="webkit">
-	//<meta name="viewport" content="width=1000, initial-scale=0.35, minimum-scale=0.50, user-scalable=yes">
-
-	
+	<meta name="viewport" content="width=1000, initial-scale=0.35, minimum-scale=0.50, user-scalable=yes">
 
 
+<style type="text/css">
+    /* MẶC ĐỊNH: Cho màn hình lớn (Desktop - screen.width >= 800) */
+    .infoBlockImg { width: 84px; }
+    .infoTextBlock p.mainInfoText { font-size: 18px; }
+    .infoTextBlock p.mainInfoText strong { font-size: 22px; }
 
+    #monitorHolder .flowChartHolder { left: 60px; }
+    #monitorHolder .flowChartHolder .pvTextHolder, 
+    #monitorHolder .flowChartHolder .pvParallelTextHolder { left: 395px; }
+    
+    #parallelMonitorHolder .flowChartHolder .pvTextHolder { left: 309px; }
+    #monitorHolder .flowChartHolder .acPvTextHolder { left: 475px; }
+    #parallelMonitorHolder .flowChartHolder .acPvTextHolder { left: 310px; }
+    
+    #monitorHolder .flowChartHolder ._12kAcPvTextHolder, 
+    #monitorHolder .flowChartHolder .trip12kAcPvTextHolder { left: 475px; }
+    
+    #monitorHolder .flowChartHolder .epsTextHolder,
+    #monitorHolder .flowChartHolder .epsPhase3TextHolder,
+    #monitorHolder .flowChartHolder .epsLnTextHolder { left: 377px; }
+    
+    #parallelMonitorHolder .flowChartHolder .epsTextHolder { left: 289px; }
+    
+    #monitorHolder .flowChartHolder .consumptionTextHolder,
+    #monitorHolder .flowChartHolder .consumptionPhase3TextHolder { left: 665px; }
+    
+    #parallelMonitorHolder .flowChartHolder .consumptionTextHolder { left: 505px; }
+    
+    #monitorHolder .flowChartHolder .gridTextHolder { left: 850px; }
+    #parallelMonitorHolder .flowChartHolder .gridTextHolder { left: 650px; }
+    
+    #monitorHolder .flowChartHolder .phase1ParallelGridTextHolder,
+    #monitorHolder .flowChartHolder .phase3ParallelGridTextHolder { left: 750px; }
+    
+    #monitorHolder .flowChartHolder .vacTextHolder,
+    #monitorHolder .flowChartHolder .facTextHolder { left: 850px; }
+    
+    #parallelMonitorHolder .flowChartHolder .vacTextHolder,
+    #parallelMonitorHolder .flowChartHolder .facTextHolder { left: 650px; }
+    
+    #monitorHolder .flowChartHolder .genDryContactTextHolder { left: 765px; }
+    
+    #monitorHolder .flowChartHolder .pvImg,
+    #monitorHolder .flowChartHolder .inverterImg,
+    #monitorHolder .flowChartHolder .epsImg { left: 285px; }
+    
+    #parallelMonitorHolder .flowChartHolder .pvImg { left: 207px; }
+    #parallelMonitorHolder .flowChartHolder .inverterImg { left: 204px; }
+    #parallelMonitorHolder .flowChartHolder .epsImg { left: 209px; }
+    
+    #monitorHolder .flowChartHolder .consumptionImg { left: 570px; }
+    #parallelMonitorHolder .flowChartHolder .consumptionImg { left: 410px; }
+    
+    #monitorHolder .flowChartHolder .acPvImg { left: 575px; }
+    #parallelMonitorHolder .flowChartHolder .acPvImg { left: 415px; }
+    
+    #monitorHolder .flowChartHolder .gridImg { left: 765px; } /* Theo logic JS của bạn cho màn hình lớn */
+    #parallelMonitorHolder .flowChartHolder .gridImg { left: 555px; }
+    
+    #monitorHolder .flowChartHolder .statusTextHolder { left: 720px; }
+    #parallelMonitorHolder .flowChartHolder .statusTextHolder { left: 660px; }
+    
+    #monitorHolder .flowChartHolder .ctrlBtnHolder, 
+    #monitorHolder .flowChartHolder .quickDisChgCtrlBtnHolder, 
+    #monitorHolder .flowChartHolder .genQuickStartBtnHolder, 
+    #monitorHolder .flowChartHolder .batteryBackupModeBtnHolder { left: 810px; }
+    
+    #parallelMonitorHolder .flowChartHolder .ctrlBtnHolder, 
+    #parallelMonitorHolder .flowChartHolder .quickDisChgCtrlBtnHolder { left: 630px; }
+    
+    #monitorHolder .flowChartHolder .pvArrowImg, 
+    #monitorHolder .flowChartHolder .epsArrowImg { left: 324px; }
+    #parallelMonitorHolder .flowChartHolder .pvArrowImg, 
+    #parallelMonitorHolder .flowChartHolder .epsArrowImg { left: 242px; }
+    
+    #monitorHolder .flowChartHolder .loadArrowImg,
+    #monitorHolder .flowChartHolder .acPvArrowImg { left: 602px; }
+    #parallelMonitorHolder .flowChartHolder .loadArrowImg,
+    #parallelMonitorHolder .flowChartHolder .acPvArrowImg { left: 442px; }
+    
+    #monitorHolder .flowChartHolder .inverterArrayImg1 { left: 380px; }
+    #monitorHolder .flowChartHolder .inverterArrayImg2 { left: 455px; }
+    #monitorHolder .flowChartHolder .inverterArrayImg3 { left: 530px; }
+    
+    #parallelMonitorHolder .flowChartHolder .inverterArrayImg1 { left: 294px; }
+    #parallelMonitorHolder .flowChartHolder .inverterArrayImg2 { left: 370px; }
+    #parallelMonitorHolder .flowChartHolder .inverterArrayImg3 { left: 446px; }
+    
+    #monitorHolder .flowChartHolder .gridArrayImg1 { left: 605px; }
+    #monitorHolder .flowChartHolder .gridArrayImg2 { left: 680px; }
+    #parallelMonitorHolder .flowChartHolder .gridArrayImg1 { left: 445px; }
+    #parallelMonitorHolder .flowChartHolder .gridArrayImg2 { left: 520px; }
+    
+    #reductionContainer .reductionImgHolder { margin-left: 30px; }
+    #reductionContainer .reductionTextHolder { margin-left: 20px; margin-top: 16px; }
 
-	<script language="JavaScript">
-		
-			var platform = 'LUX_POWER';
-		
-		
-		
-		document.write('<style type="text/css">');
-		
-		document.write('.infoBlockImg {');
-		document.write('width: ' + (screen.width < 800 ? 64 : 84) + 'px;');
-		document.write('}');
-		
-		document.write('.infoTextBlock p.mainInfoText {');
-		document.write('font-size: ' + (screen.width < 800 ? 12 : 18) + 'px;');
-		document.write('}');
-		
-		document.write('.infoTextBlock p.mainInfoText strong {');
-		document.write('font-size: ' + (screen.width < 800 ? 16 : 22) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder {');
-		document.write('left: ' + (screen.width < 800 ? 60 : 60) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .pvTextHolder, #monitorHolder .flowChartHolder .pvParallelTextHolder {');
-		document.write('left: ' + (screen.width < 800 ? (395 - 86) : 395) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .pvTextHolder {');
-		document.write('left: ' + (395 - 86) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .acPvTextHolder {');
-		document.write('left: ' + (screen.width < 800 ? (475 - 86) : 475) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .acPvTextHolder {');
-		document.write('left: ' + (475 - 165) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder ._12kAcPvTextHolder, #monitorHolder .flowChartHolder .trip12kAcPvTextHolder {');
-		document.write('left: ' + (screen.width < 800 ? (475 - 86) : 475) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .epsTextHolder {');
-		document.write('left: ' + (screen.width < 800 ? (385 - 86) : 377) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .epsTextHolder {');
-		document.write('left: ' + (375 - 86) + 'px;');
-		document.write('}');
-		document.write('#monitorHolder .flowChartHolder .epsPhase3TextHolder {');
-		document.write('left: ' + (screen.width < 800 ? (385 - 86) : 377) + 'px;');
-		document.write('}');
-		document.write('#monitorHolder .flowChartHolder .epsLnTextHolder {');
-		document.write('left: ' + (screen.width < 800 ? (385 - 86) : 377) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .consumptionTextHolder {');
-		document.write('left: ' + (screen.width < 800 ? (665 - 160) : 665) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .consumptionTextHolder {');
-		document.write('left: ' + (665 - 160) + 'px;');
-		document.write('}');
-		document.write('#monitorHolder .flowChartHolder .consumptionPhase3TextHolder {');
-		document.write('left: ' + (screen.width < 800 ? (665 - 160) : 665) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .gridTextHolder {');
-		document.write('left: ' + (screen.width < 800 ? (850 - 160) : 850) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .gridTextHolder {');
-		document.write('left: ' + (850 - 200) + 'px;');
-		document.write('}');
-		document.write('#monitorHolder .flowChartHolder .phase1ParallelGridTextHolder {');
-		document.write('left: ' + (screen.width < 800 ? (850 - 160) : 750) + 'px;');
-		document.write('}');
-		document.write('#monitorHolder .flowChartHolder .phase3ParallelGridTextHolder {');
-		document.write('left: ' + (screen.width < 800 ? (850 - 160) : 750) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .vacTextHolder {');
-		document.write('left: ' + (screen.width < 800 ? (850 - 160) : 850) + 'px;');
-		document.write('}');
-		document.write('#monitorHolder .flowChartHolder .facTextHolder {');
-		document.write('left: ' + (screen.width < 800 ? (850 - 160) : 850) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .vacTextHolder {');
-		document.write('left: ' + (850 - 200) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .facTextHolder {');
-		document.write('left: ' + (850 - 200) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .genDryContactTextHolder {');
-		document.write('left: ' + (screen.width < 800 ? (765 - 160) : 765) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .pvImg {');
-		document.write('left: ' + (screen.width < 800 ? (293 - 86) : 285) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .pvImg {');
-		document.write('left: ' + (293 - 86) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .inverterImg {');
-		document.write('left: ' + (screen.width < 800 ? (290 - 86) : 285) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .inverterImg {');
-		document.write('left: ' + (290 - 86) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .epsImg {');
-		document.write('left: ' + (screen.width < 800 ? (295 - 86) : 285) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .epsImg {');
-		document.write('left: ' + (295 - 86) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .consumptionImg {');
-		
-		
-			document.write('left: ' + (screen.width < 800 ? (570 - 160) : 570) + 'px;');
-		
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .consumptionImg {');
-		
-		
-			document.write('left: ' + (570 - 160) + 'px;');
-		
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .acPvImg {');
-		document.write('left: ' + (screen.width < 800 ? (575 - 160) : 575) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .acPvImg {');
-		document.write('left: ' + (575 - 160) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .gridImg {');
-		document.write('left: ' + (screen.width < 800 ? (765 - 160) : 765) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .gridImg {');
-		document.write('left: ' + (765 - 210) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .statusTextHolder {');
-		document.write('left: ' + (screen.width < 800 ? (720 - 60) : 720) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .statusTextHolder {');
-		document.write('left: ' + (720 - 60) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .ctrlBtnHolder, #monitorHolder .flowChartHolder .quickDisChgCtrlBtnHolder, #monitorHolder .flowChartHolder .genQuickStartBtnHolder, #monitorHolder .flowChartHolder .batteryBackupModeBtnHolder {');
-		document.write('left: ' + (screen.width < 800 ? (810 - 160) : 810) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .ctrlBtnHolder, #parallelMonitorHolder .flowChartHolder .quickDisChgCtrlBtnHolder {');
-		document.write('left: ' + (810 - 180) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .pvArrowImg, #monitorHolder .flowChartHolder .epsArrowImg {');
-		document.write('left: ' + (screen.width < 800 ? (324 - 86) : 324) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .pvArrowImg, #parallelMonitorHolder .flowChartHolder .epsArrowImg {');
-		document.write('left: ' + (324 - 86) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .loadArrowImg {');
-		document.write('left: ' + (screen.width < 800 ? (602 - 160) : 602) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .loadArrowImg {');
-		document.write('left: ' + (602 - 160) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .acPvArrowImg {');
-		document.write('left: ' + (screen.width < 800 ? (602 - 160) : 602) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .acPvArrowImg {');
-		document.write('left: ' + (602 - 160) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .inverterArrayImg1 {');
-		document.write('left: ' + (screen.width < 800 ? (380 - 86) : 380) + 'px;');
-		document.write('}');
-		document.write('#monitorHolder .flowChartHolder .inverterArrayImg2 {');
-		document.write('left: ' + (screen.width < 800 ? (455 - 85) : 455) + 'px;');
-		document.write('}');
-		document.write('#monitorHolder .flowChartHolder .inverterArrayImg3 {');
-		document.write('left: ' + (screen.width < 800 ? (530 - 84) : 530) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .inverterArrayImg1 {');
-		document.write('left: ' + (380 - 86) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .inverterArrayImg2 {');
-		document.write('left: ' + (455 - 85) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .inverterArrayImg3 {');
-		document.write('left: ' + (530 - 84) + 'px;');
-		document.write('}');
-		
-		document.write('#monitorHolder .flowChartHolder .gridArrayImg1 {');
-		document.write('left: ' + (screen.width < 800 ? (605 - 160) : 605) + 'px;');
-		document.write('}');
-		document.write('#monitorHolder .flowChartHolder .gridArrayImg2 {');
-		document.write('left: ' + (screen.width < 800 ? (680 - 160) : 680) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .gridArrayImg1 {');
-		document.write('left: ' + (605 - 160) + 'px;');
-		document.write('}');
-		document.write('#parallelMonitorHolder .flowChartHolder .gridArrayImg2 {');
-		document.write('left: ' + (680 - 160) + 'px;');
-		document.write('}');
-		
-		document.write('#reductionContainer .reductionImgHolder {');
-		document.write('margin-left: ' + (screen.width < 800 ? 5 : 30) + 'px;');
-		document.write('}');
-		
-		if(screen.width < 800) {
-			document.write('#reductionContainer .reductionImgHolder img {');
-			document.write('width: 80px;');
-			document.write('}');
-		}
-		
-		document.write('#reductionContainer .reductionTextHolder {');
-		document.write('margin-left: ' + (screen.width < 800 ? 15 : 20) + 'px;');
-		document.write('margin-top: ' + (screen.width < 800 ? 10 : 16) + 'px;');
-		document.write('}');
-		
-		document.write('</style>');
-    </script><style type="text/css">.infoBlockImg {width: 84px;}.infoTextBlock p.mainInfoText {font-size: 18px;}.infoTextBlock p.mainInfoText strong {font-size: 22px;}#monitorHolder .flowChartHolder {left: 60px;}#monitorHolder .flowChartHolder .pvTextHolder, #monitorHolder .flowChartHolder .pvParallelTextHolder {left: 395px;}#parallelMonitorHolder .flowChartHolder .pvTextHolder {left: 309px;}#monitorHolder .flowChartHolder .acPvTextHolder {left: 475px;}#parallelMonitorHolder .flowChartHolder .acPvTextHolder {left: 310px;}#monitorHolder .flowChartHolder ._12kAcPvTextHolder, #monitorHolder .flowChartHolder .trip12kAcPvTextHolder {left: 475px;}#monitorHolder .flowChartHolder .epsTextHolder {left: 377px;}#parallelMonitorHolder .flowChartHolder .epsTextHolder {left: 289px;}#monitorHolder .flowChartHolder .epsPhase3TextHolder {left: 377px;}#monitorHolder .flowChartHolder .epsLnTextHolder {left: 377px;}#monitorHolder .flowChartHolder .consumptionTextHolder {left: 665px;}#parallelMonitorHolder .flowChartHolder .consumptionTextHolder {left: 505px;}#monitorHolder .flowChartHolder .consumptionPhase3TextHolder {left: 665px;}#monitorHolder .flowChartHolder .gridTextHolder {left: 850px;}#parallelMonitorHolder .flowChartHolder .gridTextHolder {left: 650px;}#monitorHolder .flowChartHolder .phase1ParallelGridTextHolder {left: 750px;}#monitorHolder .flowChartHolder .phase3ParallelGridTextHolder {left: 750px;}#monitorHolder .flowChartHolder .vacTextHolder {left: 850px;}#monitorHolder .flowChartHolder .facTextHolder {left: 850px;}#parallelMonitorHolder .flowChartHolder .vacTextHolder {left: 650px;}#parallelMonitorHolder .flowChartHolder .facTextHolder {left: 650px;}#monitorHolder .flowChartHolder .genDryContactTextHolder {left: 765px;}#monitorHolder .flowChartHolder .pvImg {left: 285px;}#parallelMonitorHolder .flowChartHolder .pvImg {left: 207px;}#monitorHolder .flowChartHolder .inverterImg {left: 285px;}#parallelMonitorHolder .flowChartHolder .inverterImg {left: 204px;}#monitorHolder .flowChartHolder .epsImg {left: 285px;}#parallelMonitorHolder .flowChartHolder .epsImg {left: 209px;}#monitorHolder .flowChartHolder .consumptionImg {left: 570px;}#parallelMonitorHolder .flowChartHolder .consumptionImg {left: 410px;}#monitorHolder .flowChartHolder .acPvImg {left: 575px;}#parallelMonitorHolder .flowChartHolder .acPvImg {left: 415px;}#monitorHolder .flowChartHolder .gridImg {left: 765px;}#parallelMonitorHolder .flowChartHolder .gridImg {left: 555px;}#monitorHolder .flowChartHolder .statusTextHolder {left: 720px;}#parallelMonitorHolder .flowChartHolder .statusTextHolder {left: 660px;}#monitorHolder .flowChartHolder .ctrlBtnHolder, #monitorHolder .flowChartHolder .quickDisChgCtrlBtnHolder, #monitorHolder .flowChartHolder .genQuickStartBtnHolder, #monitorHolder .flowChartHolder .batteryBackupModeBtnHolder {left: 810px;}#parallelMonitorHolder .flowChartHolder .ctrlBtnHolder, #parallelMonitorHolder .flowChartHolder .quickDisChgCtrlBtnHolder {left: 630px;}#monitorHolder .flowChartHolder .pvArrowImg, #monitorHolder .flowChartHolder .epsArrowImg {left: 324px;}#parallelMonitorHolder .flowChartHolder .pvArrowImg, #parallelMonitorHolder .flowChartHolder .epsArrowImg {left: 242px;}#monitorHolder .flowChartHolder .loadArrowImg {left: 602px;}#parallelMonitorHolder .flowChartHolder .loadArrowImg {left: 442px;}#monitorHolder .flowChartHolder .acPvArrowImg {left: 602px;}#parallelMonitorHolder .flowChartHolder .acPvArrowImg {left: 442px;}#monitorHolder .flowChartHolder .inverterArrayImg1 {left: 380px;}#monitorHolder .flowChartHolder .inverterArrayImg2 {left: 455px;}#monitorHolder .flowChartHolder .inverterArrayImg3 {left: 530px;}#parallelMonitorHolder .flowChartHolder .inverterArrayImg1 {left: 294px;}#parallelMonitorHolder .flowChartHolder .inverterArrayImg2 {left: 370px;}#parallelMonitorHolder .flowChartHolder .inverterArrayImg3 {left: 446px;}#monitorHolder .flowChartHolder .gridArrayImg1 {left: 605px;}#monitorHolder .flowChartHolder .gridArrayImg2 {left: 680px;}#parallelMonitorHolder .flowChartHolder .gridArrayImg1 {left: 445px;}#parallelMonitorHolder .flowChartHolder .gridArrayImg2 {left: 520px;}#reductionContainer .reductionImgHolder {margin-left: 30px;}#reductionContainer .reductionTextHolder {margin-left: 20px;margin-top: 16px;}</style><style type="text/css">.infoBlockImg {width: 84px;}.infoTextBlock p.mainInfoText {font-size: 18px;}.infoTextBlock p.mainInfoText strong {font-size: 22px;}#monitorHolder .flowChartHolder {left: 60px;}#monitorHolder .flowChartHolder .pvTextHolder, #monitorHolder .flowChartHolder .pvParallelTextHolder {left: 395px;}#parallelMonitorHolder .flowChartHolder .pvTextHolder {left: 309px;}#monitorHolder .flowChartHolder .acPvTextHolder {left: 475px;}#parallelMonitorHolder .flowChartHolder .acPvTextHolder {left: 310px;}#monitorHolder .flowChartHolder ._12kAcPvTextHolder, #monitorHolder .flowChartHolder .trip12kAcPvTextHolder {left: 475px;}#monitorHolder .flowChartHolder .epsTextHolder {left: 377px;}#parallelMonitorHolder .flowChartHolder .epsTextHolder {left: 289px;}#monitorHolder .flowChartHolder .epsPhase3TextHolder {left: 377px;}#monitorHolder .flowChartHolder .epsLnTextHolder {left: 377px;}#monitorHolder .flowChartHolder .consumptionTextHolder {left: 665px;}#parallelMonitorHolder .flowChartHolder .consumptionTextHolder {left: 505px;}#monitorHolder .flowChartHolder .consumptionPhase3TextHolder {left: 665px;}#monitorHolder .flowChartHolder .gridTextHolder {left: 850px;}#parallelMonitorHolder .flowChartHolder .gridTextHolder {left: 650px;}#monitorHolder .flowChartHolder .phase1ParallelGridTextHolder {left: 750px;}#monitorHolder .flowChartHolder .phase3ParallelGridTextHolder {left: 750px;}#monitorHolder .flowChartHolder .vacTextHolder {left: 850px;}#monitorHolder .flowChartHolder .facTextHolder {left: 850px;}#parallelMonitorHolder .flowChartHolder .vacTextHolder {left: 650px;}#parallelMonitorHolder .flowChartHolder .facTextHolder {left: 650px;}#monitorHolder .flowChartHolder .genDryContactTextHolder {left: 765px;}#monitorHolder .flowChartHolder .pvImg {left: 285px;}#parallelMonitorHolder .flowChartHolder .pvImg {left: 207px;}#monitorHolder .flowChartHolder .inverterImg {left: 285px;}#parallelMonitorHolder .flowChartHolder .inverterImg {left: 204px;}#monitorHolder .flowChartHolder .epsImg {left: 285px;}#parallelMonitorHolder .flowChartHolder .epsImg {left: 209px;}#monitorHolder .flowChartHolder .consumptionImg {left: 570px;}#parallelMonitorHolder .flowChartHolder .consumptionImg {left: 410px;}#monitorHolder .flowChartHolder .acPvImg {left: 575px;}#parallelMonitorHolder .flowChartHolder .acPvImg {left: 415px;}#monitorHolder .flowChartHolder .gridImg {left: 765px;}#parallelMonitorHolder .flowChartHolder .gridImg {left: 555px;}#monitorHolder .flowChartHolder .statusTextHolder {left: 720px;}#parallelMonitorHolder .flowChartHolder .statusTextHolder {left: 660px;}#monitorHolder .flowChartHolder .ctrlBtnHolder, #monitorHolder .flowChartHolder .quickDisChgCtrlBtnHolder, #monitorHolder .flowChartHolder .genQuickStartBtnHolder, #monitorHolder .flowChartHolder .batteryBackupModeBtnHolder {left: 810px;}#parallelMonitorHolder .flowChartHolder .ctrlBtnHolder, #parallelMonitorHolder .flowChartHolder .quickDisChgCtrlBtnHolder {left: 630px;}#monitorHolder .flowChartHolder .pvArrowImg, #monitorHolder .flowChartHolder .epsArrowImg {left: 324px;}#parallelMonitorHolder .flowChartHolder .pvArrowImg, #parallelMonitorHolder .flowChartHolder .epsArrowImg {left: 242px;}#monitorHolder .flowChartHolder .loadArrowImg {left: 602px;}#parallelMonitorHolder .flowChartHolder .loadArrowImg {left: 442px;}#monitorHolder .flowChartHolder .acPvArrowImg {left: 602px;}#parallelMonitorHolder .flowChartHolder .acPvArrowImg {left: 442px;}#monitorHolder .flowChartHolder .inverterArrayImg1 {left: 380px;}#monitorHolder .flowChartHolder .inverterArrayImg2 {left: 455px;}#monitorHolder .flowChartHolder .inverterArrayImg3 {left: 530px;}#parallelMonitorHolder .flowChartHolder .inverterArrayImg1 {left: 294px;}#parallelMonitorHolder .flowChartHolder .inverterArrayImg2 {left: 370px;}#parallelMonitorHolder .flowChartHolder .inverterArrayImg3 {left: 446px;}#monitorHolder .flowChartHolder .gridArrayImg1 {left: 605px;}#monitorHolder .flowChartHolder .gridArrayImg2 {left: 680px;}#parallelMonitorHolder .flowChartHolder .gridArrayImg1 {left: 445px;}#parallelMonitorHolder .flowChartHolder .gridArrayImg2 {left: 520px;}#reductionContainer .reductionImgHolder {margin-left: 30px;}#reductionContainer .reductionTextHolder {margin-left: 20px;margin-top: 16px;}</style>
-
+    /* MOBILE: Cho màn hình nhỏ (Dưới 800px) */
+    @media screen and (max-width: 799px) {
+        .infoBlockImg { width: 64px; }
+        .infoTextBlock p.mainInfoText { font-size: 12px; }
+        .infoTextBlock p.mainInfoText strong { font-size: 16px; }
+        
+        #monitorHolder .flowChartHolder .pvTextHolder, 
+        #monitorHolder .flowChartHolder .pvParallelTextHolder { left: 309px; }
+        
+        #monitorHolder .flowChartHolder .acPvTextHolder,
+        #monitorHolder .flowChartHolder ._12kAcPvTextHolder,
+        #monitorHolder .flowChartHolder .trip12kAcPvTextHolder { left: 389px; }
+        
+        #monitorHolder .flowChartHolder .epsTextHolder,
+        #monitorHolder .flowChartHolder .epsPhase3TextHolder,
+        #monitorHolder .flowChartHolder .epsLnTextHolder { left: 299px; }
+        
+        #monitorHolder .flowChartHolder .consumptionTextHolder,
+        #monitorHolder .flowChartHolder .consumptionPhase3TextHolder { left: 505px; }
+        
+        #monitorHolder .flowChartHolder .gridTextHolder { left: 615px; }
+        
+        #monitorHolder .flowChartHolder .phase1ParallelGridTextHolder,
+        #monitorHolder .flowChartHolder .phase3ParallelGridTextHolder,
+        #monitorHolder .flowChartHolder .vacTextHolder,
+        #monitorHolder .flowChartHolder .facTextHolder { left: 690px; }
+        
+        #monitorHolder .flowChartHolder .genDryContactTextHolder { left: 605px; }
+        
+        #monitorHolder .flowChartHolder .pvImg { left: 207px; }
+        #monitorHolder .flowChartHolder .inverterImg { left: 204px; }
+        #monitorHolder .flowChartHolder .epsImg { left: 209px; }
+        
+        #monitorHolder .flowChartHolder .consumptionImg { left: 335px; }
+        #monitorHolder .flowChartHolder .acPvImg { left: 415px; }
+        #monitorHolder .flowChartHolder .gridImg { left: 530px; }
+        
+        #monitorHolder .flowChartHolder .statusTextHolder { left: 660px; }
+        
+        #monitorHolder .flowChartHolder .ctrlBtnHolder, 
+        #monitorHolder .flowChartHolder .quickDisChgCtrlBtnHolder, 
+        #monitorHolder .flowChartHolder .genQuickStartBtnHolder, 
+        #monitorHolder .flowChartHolder .batteryBackupModeBtnHolder { left: 650px; }
+        
+        #monitorHolder .flowChartHolder .pvArrowImg, 
+        #monitorHolder .flowChartHolder .epsArrowImg { left: 238px; }
+        
+        #monitorHolder .flowChartHolder .loadArrowImg,
+        #monitorHolder .flowChartHolder .acPvArrowImg { left: 442px; }
+        
+        #monitorHolder .flowChartHolder .inverterArrayImg1 { left: 294px; }
+        #monitorHolder .flowChartHolder .inverterArrayImg2 { left: 370px; }
+        #monitorHolder .flowChartHolder .inverterArrayImg3 { left: 370px; } /* 530-160 */
+        
+        #monitorHolder .flowChartHolder .gridArrayImg1 { left: 445px; }
+        #monitorHolder .flowChartHolder .gridArrayImg2 { left: 520px; }
+        
+        #reductionContainer .reductionImgHolder { margin-left: 5px; }
+        #reductionContainer .reductionImgHolder img { width: 80px; }
+        #reductionContainer .reductionTextHolder { margin-left: 15px; margin-top: 10px; }
+    }
+</style>
 	
 
 
@@ -869,7 +795,7 @@
 	<div class="page-container hasInvertImg" style="margin-left: 0px; padding-left: 5px; padding-right: 10px; background-color: rgb(242, 247, 248); padding-top: 60px;">
 
 		<!-- Page Content Part -->
-			<div id="pageToolHolder" class="menuContent" style="padding: 3px; height: 40px; width: 100%; background-color: white; margin-bottom: 15px; position: fixed; z-index: 1100; border-bottom: 1px solid #AAA;">
+			<div id="pageToolHolder" class="menuContent" style="padding: 20px; height: 50px; width: 100%; background-color: white; margin-bottom: 10px; position: fixed; z-index: 1100; border-bottom: 1px solid #AAA;">
 				
 
 
@@ -2381,4 +2307,3 @@
 			})
 		});
 	</script>
-
