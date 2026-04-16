@@ -517,27 +517,19 @@
 </div>
 
 <script>
-    function toggleAcc(header, id) {
-        const content = document.getElementById(id);
-        const isOpen = content.style.display === "block";
-        
-        if (!isOpen) {
-            // 1. Mở ra
-            content.style.display = "block";
-            header.classList.add('active');
-            
-            // 2. Lấy danh sách ID trong vùng vừa mở
-            const ids = getIdsFromContainer(id);
-            console.log("Đang lấy dữ liệu cho mục mới mở:", ids);
-            
-            // 3. Gọi API chỉ cho những ID này
-            loadInverterData(ids);
-        } else {
-            // Đóng lại thì thôi
-            content.style.display = "none";
-            header.classList.remove('active');
-        }
+function toggleAcc(header, id) {
+    const content = document.getElementById(id);
+    const isOpen = header.classList.contains('active');
+
+    if (!isOpen) {
+        content.style.display = "block";
+        header.classList.add('active');
+    } else {
+        content.style.display = "none";
+        header.classList.remove('active');
     }
+}
+
 
     function toggleSwitch(el) {
         el.classList.toggle('on');
@@ -645,75 +637,81 @@
         }
     }
 
-    async function loadInverterData(specificIds = null) {
-        const btn = document.getElementById('refreshBtn');
-        const title = document.getElementById('mainTitle');
-        const originalTitle = "THIẾT LẬP HỆ THỐNG";
+async function loadInverterData() {
+    const btn = document.getElementById('refreshBtn');
+    const title = document.getElementById('mainTitle');
+    const originalTitle = "THIẾT LẬP HỆ THỐNG";
+    
+    // 1. Quét toàn bộ trang để lấy TẤT CẢ ID có tiền tố reg_
+    const allElements = document.querySelectorAll('[id^="reg_"]');
+    const idsToFetch = Array.from(allElements).map(el => el.id.replace('reg_', ''));
+
+    if (idsToFetch.length === 0) return;
+
+    btn.classList.add('spinning');
+    title.innerText = "🔄 ĐANG ĐỌC TẤT CẢ...";
+
+    try {
+        // Chia nhỏ danh sách ID nếu quá dài (Worker thường giới hạn độ dài URL)
+        // Nhưng với số lượng thanh ghi biến tần, gửi 1 lần vẫn ổn.
+        const url = `https://api.solarvn.workers.dev/read?ids=${idsToFetch.join(',')}`;
+        const response = await fetch(url, { cache: 'no-store' });
+        if (!response.ok) throw new Error("Server Worker lỗi");
+
+        const data = await response.json(); 
         
-        const idsToFetch = specificIds || getIdsFromPinSection(); 
-        if (idsToFetch.length === 0) return;
-    
-        btn.classList.add('spinning');
-        title.innerText = "🔄 ĐANG ĐỌC...";
-    
-        try {
-            const url = `https://api.solarvn.workers.dev/read?ids=${idsToFetch.join(',')}`;
-            const response = await fetch(url, { cache: 'no-store' });
-            if (!response.ok) throw new Error("Server Worker lỗi");
-    
-            const data = await response.json(); 
-            
-            if (Array.isArray(data)) {
-                data.forEach(item => {
-                    const innerKey = Object.keys(item)[0];
-                    const innerObj = item[innerKey];
-                    const address = Object.keys(innerObj)[0];
-                    const value = innerObj[address];
-                    
-                    const element = document.getElementById('reg_' + address);
-                    if (element) {
-                        // 1. Xử lý Switch (Nút gạt)
-                        if (element.classList.contains('switch')) {
-                            if (parseInt(value) === 1) {
-                                element.classList.add('on');
-                            } else {
-                                element.classList.remove('on');
-                            }
-                        } 
-                        // 2. Xử lý trường hợp đặc biệt: Tần số (chia 100)
-                        else if (address === "211E") {
-                            element.value = value; // Gán 5000 hoặc 6000 trực tiếp vào select
+        if (Array.isArray(data)) {
+            data.forEach(item => {
+                const innerKey = Object.keys(item)[0];
+                const innerObj = item[innerKey];
+                const address = Object.keys(innerObj)[0];
+                const value = innerObj[address];
+                
+                const element = document.getElementById('reg_' + address);
+                if (element) {
+                    // Xử lý Switch (Nút gạt)
+                    if (element.classList.contains('switch')) {
+                        if (parseInt(value) === 1) {
+                            element.classList.add('on');
+                        } else {
+                            element.classList.remove('on');
                         }
-                        // 3. Xử lý Input số có bước nhảy 0.1 (chia 10)
-                        else {
-                            const stepValue = element.getAttribute('step');
-                            if (stepValue === "0.1") {
-                                element.value = (parseFloat(value) / 10).toFixed(1);
-                            } else {
-                                element.value = value;
-                            }
-                        }
-    
-                        // Hiệu ứng xanh nhẹ khi thành công
-                        element.style.backgroundColor = "#d4edda";
-                        setTimeout(() => { element.style.backgroundColor = ""; }, 800);
+                    } 
+                    // Xử lý Tần số (chia 100 nếu cần, hiện tại đang để nguyên theo code cũ)
+                    else if (address === "211E") {
+                        element.value = value;
                     }
-                });
-                title.innerText = "✅ ĐÃ CẬP NHẬT";
-            }
-        } catch (error) {
-            console.error("Lỗi:", error);
-            title.innerText = "❌ LỖI ĐỌC";
-        } finally {
-            btn.classList.remove('spinning');
-            setTimeout(() => { if(title.innerText !== "❌ LỖI ĐỌC") title.innerText = originalTitle; }, 2000);
-            
-            // Gọi các hàm đồng bộ giao diện
-            toggleCapacityMode();
-            TypeBatteryMode();
-            syncVoltageDisplay();
+                    // Xử lý Input số có bước nhảy 0.1
+                    else {
+                        const stepValue = element.getAttribute('step');
+                        if (stepValue === "0.1") {
+                            element.value = (parseFloat(value) / 10).toFixed(1);
+                        } else {
+                            element.value = value;
+                        }
+                    }
+
+                    // Hiệu ứng xanh nhẹ báo hiệu đã cập nhật xong
+                    element.style.backgroundColor = "#d4edda";
+                    setTimeout(() => { element.style.backgroundColor = ""; }, 800);
+                }
+            });
+            title.innerText = "✅ ĐÃ CẬP NHẬT";
         }
+    } catch (error) {
+        console.error("Lỗi:", error);
+        title.innerText = "❌ LỖI ĐỌC";
+    } finally {
+        btn.classList.remove('spinning');
+        setTimeout(() => { if(title.innerText !== "❌ LỖI ĐỌC") title.innerText = originalTitle; }, 2000);
+        
+        // Gọi các hàm đồng bộ giao diện cho toàn bộ các mục
+        toggleCapacityMode();
+        TypeBatteryMode();
+        syncVoltageDisplay();
     }
+}
+
     
     function getIdsFromPinSection() {
         const mainSection = document.getElementById('sec_battery_main');
