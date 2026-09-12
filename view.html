@@ -72,28 +72,28 @@
                 <select id="station-select" class="border border-slate-300 rounded px-1.5 py-0.5 bg-slate-50 font-semibold text-slate-700 outline-none text-[11px]">
                     <option value="station-1">Hiếu Trịnh Định</option>
                 </select>
-                <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-bold border border-slate-200 text-[10px]">2530-95670646PH</span>
+                <span id="system-serial-badge" class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-bold border border-slate-200 text-[10px]">--</span>
             </div>
-            <div class="flex items-center gap-1 text-[10px] text-emerald-600 font-medium">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Trực tuyến
+            <div id="connection-status-indicator" class="flex items-center gap-1 text-[10px] text-slate-400 font-medium">
+                <span id="connection-dot" class="w-2 h-2 rounded-full bg-slate-300"></span> <span id="connection-text">Đang chờ API...</span>
             </div>
         </div>
 
         <div class="grid grid-cols-4 gap-1 sm:gap-1.5">
             <!-- KPI 1: Solar Yield -->
             <div id="kpi-pv-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-amber-300 transition-colors" onclick="togglePVCardMode()" title="Nhấp chuyển đổi hiển thị công suất cực đại trong ngày">
-                <div id="kpi-pv-header" class="bg-amber-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center transition-colors">
+                <div id="kpi-pv-header" class="bg-slate-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center transition-colors">
                     <span id="kpi-pv-title" class="truncate">Năng suất MT</span>
                     <i class="fa-solid fa-solar-panel shrink-0 text-[10px]"></i>
                 </div>
                 <div class="p-1 sm:p-1.5 flex items-center justify-between gap-1">
-                    <div id="kpi-pv-icon" class="text-amber-500 text-base sm:text-xl shrink-0 transition-colors">
+                    <div id="kpi-pv-icon" class="text-slate-400 text-base sm:text-xl shrink-0 transition-colors">
                         <i class="fa-solid fa-sun"></i>
                     </div>
                     <div class="text-right w-full min-w-0">
-                        <div class="text-xs sm:text-base font-bold font-mono text-slate-800 leading-none"><span id="kpi-pv-today">3.00</span> <span id="kpi-pv-unit" class="text-[8px] sm:text-[9px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-xs sm:text-base font-bold font-mono text-slate-800 leading-none"><span id="kpi-pv-today">--</span> <span id="kpi-pv-unit" class="text-[8px] sm:text-[9px] font-normal text-slate-500">kWh</span></div>
                         <div class="text-[8px] text-slate-400" id="kpi-pv-label1">Hôm nay</div>
-                        <div class="text-[10px] sm:text-xs font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-pv-total">688.0</span> <span class="text-[8px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[10px] sm:text-xs font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-pv-total">--</span> <span class="text-[8px] font-normal text-slate-500">kWh</span></div>
                         <div class="text-[8px] text-slate-400" id="kpi-pv-label2">Tổng cộng</div>
                     </div>
                 </div>
@@ -101,38 +101,38 @@
 
             <!-- KPI 2: Battery -->
             <div id="kpi-bat-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-slate-300 transition-colors" onclick="toggleBatteryMode()">
-                <div id="kpi-bat-header" class="bg-emerald-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center">
-                    <span id="kpi-bat-title" class="truncate">Xả pin</span>
+                <div id="kpi-bat-header" class="bg-slate-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center">
+                    <span id="kpi-bat-title" class="truncate">Pin</span>
                     <i id="kpi-bat-header-icon" class="fa-solid fa-battery-half shrink-0 text-[10px]"></i>
                 </div>
                 <div class="p-1 sm:p-1.5 flex items-center justify-between gap-1">
-                    <div id="kpi-bat-icon" class="text-emerald-500 text-base sm:text-xl shrink-0">
+                    <div id="kpi-bat-icon" class="text-slate-400 text-base sm:text-xl shrink-0">
                         <i class="fa-solid fa-car-battery"></i>
                     </div>
                     <div class="text-right w-full min-w-0">
-                        <div class="text-xs sm:text-base font-bold font-mono text-slate-800 leading-none"><span id="kpi-bat-val1">1.00</span> <span class="text-[8px] sm:text-[9px] font-normal text-slate-500">kWh</span></div>
-                        <div class="text-[8px] text-slate-400" id="kpi-bat-label1">Xả hôm nay</div>
-                        <div class="text-[10px] sm:text-xs font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-bat-val2">337.0</span> <span class="text-[8px] font-normal text-slate-500">kWh</span></div>
-                        <div class="text-[8px] text-slate-400" id="kpi-bat-label2">Tổng xả</div>
+                        <div class="text-xs sm:text-base font-bold font-mono text-slate-800 leading-none"><span id="kpi-bat-val1">--</span> <span class="text-[8px] sm:text-[9px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[8px] text-slate-400" id="kpi-bat-label1">Hôm nay</div>
+                        <div class="text-[10px] sm:text-xs font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-bat-val2">--</span> <span class="text-[8px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[8px] text-slate-400" id="kpi-bat-label2">Tổng</div>
                     </div>
                 </div>
             </div>
 
             <!-- KPI 3: Grid -->
             <div id="kpi-grid-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-slate-300 transition-colors" onclick="cycleGridMode()">
-                <div id="kpi-grid-header" class="bg-sky-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center">
-                    <span id="kpi-grid-title" class="truncate">Import</span>
+                <div id="kpi-grid-header" class="bg-slate-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center">
+                    <span id="kpi-grid-title" class="truncate">Lưới</span>
                     <i class="fa-solid fa-tower-cell shrink-0 text-[10px]"></i>
                 </div>
                 <div class="p-1 sm:p-1.5 flex items-center justify-between gap-1">
-                    <div id="kpi-grid-icon" class="text-sky-500 text-base sm:text-xl shrink-0">
+                    <div id="kpi-grid-icon" class="text-slate-400 text-base sm:text-xl shrink-0">
                         <i class="fa-solid fa-plug-circle-bolt"></i>
                     </div>
                     <div class="text-right w-full min-w-0">
-                        <div class="text-xs sm:text-base font-bold font-mono text-slate-800 leading-none"><span id="kpi-grid-val1">0.00</span> <span class="text-[8px] sm:text-[9px] font-normal text-slate-500">kWh</span></div>
-                        <div class="text-[8px] text-slate-400" id="kpi-grid-label1">Lấy hôm nay</div>
-                        <div class="text-[10px] sm:text-xs font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-grid-val2">109.0</span> <span class="text-[8px] font-normal text-slate-500">kWh</span></div>
-                        <div class="text-[8px] text-slate-400" id="kpi-grid-label2">Tổng lấy</div>
+                        <div class="text-xs sm:text-base font-bold font-mono text-slate-800 leading-none"><span id="kpi-grid-val1">--</span> <span class="text-[8px] sm:text-[9px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[8px] text-slate-400" id="kpi-grid-label1">Hôm nay</div>
+                        <div class="text-[10px] sm:text-xs font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-grid-val2">--</span> <span class="text-[8px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[8px] text-slate-400" id="kpi-grid-label2">Tổng</div>
                     </div>
                 </div>
             </div>
@@ -148,9 +148,9 @@
                         <i class="fa-solid fa-house-laptop"></i>
                     </div>
                     <div class="text-right w-full min-w-0">
-                        <div class="text-xs sm:text-base font-bold font-mono text-slate-800 leading-none"><span id="kpi-load-today">2.00</span> <span class="text-[8px] sm:text-[9px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-xs sm:text-base font-bold font-mono text-slate-800 leading-none"><span id="kpi-load-today">--</span> <span class="text-[8px] sm:text-[9px] font-normal text-slate-500">kWh</span></div>
                         <div class="text-[8px] text-slate-400">Dùng hôm nay</div>
-                        <div class="text-[10px] sm:text-xs font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-load-total">697.0</span> <span class="text-[8px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[10px] sm:text-xs font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-load-total">--</span> <span class="text-[8px] font-normal text-slate-500">kWh</span></div>
                         <div class="text-[8px] text-slate-400">Tổng dùng</div>
                     </div>
                 </div>
@@ -160,9 +160,9 @@
         <div class="bg-amber-50/90 rounded-lg px-2.5 py-1 border border-amber-200/80 shadow-2xs flex items-center justify-between gap-2 text-[10px] sm:text-[11px] text-amber-900">
             <div class="flex items-center gap-1.5 overflow-hidden">
                 <i class="fa-solid fa-bullhorn text-amber-500 text-xs shrink-0"></i>
-                <span class="font-medium truncate">Thông báo: App Android LuxCloud đã ra mắt phiên bản mới nhất. Vui lòng cập nhật để trải nghiệm.</span>
+                <span class="font-medium truncate">Thông báo: Đang kết nối trực tiếp đến dữ liệu API thời gian thực của biến tần.</span>
             </div>
-            <span class="text-[9px] sm:text-[10px] font-mono text-amber-600 shrink-0 font-semibold">2026-09-12</span>
+            <span id="notice-date" class="text-[9px] sm:text-[10px] font-mono text-amber-600 shrink-0 font-semibold">--</span>
         </div>
 
         <div class="bg-white rounded-xl border border-slate-200 shadow-2xs p-2.5 sm:p-3 relative overflow-hidden">
@@ -171,8 +171,8 @@
             <div class="flex items-center justify-between mb-2 border-b border-slate-100 pb-1.5">
                 <div class="flex items-center gap-2">
                     <span class="font-bold text-slate-800 text-xs sm:text-sm font-mono">Thông tin hệ thống</span>
-                    <span id="system-status-badge" class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] bg-emerald-100 text-emerald-800 font-semibold flex items-center gap-1 border border-emerald-300">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Normal
+                    <span id="system-status-badge" class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] bg-slate-100 text-slate-600 font-semibold flex items-center gap-1 border border-slate-300">
+                        <span id="status-dot" class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> <span id="system-status-text">Chờ API</span>
                     </span>
                 </div>
 
@@ -206,15 +206,15 @@
                     </defs>
 
                     <!-- Base Path Guides -->
-                    <path id="guide-path-pv" d="M 140 0 L 328 45 Q 340 45, 340 57 L 340 105 Q 340 117, 352 117 L 375 117" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+                    <path id="guide-path-pv" d="M 140 0 L 328 45 Q 340 45, 340 57 L 340 105 Q 340 117, 352 117 L 375 117" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none" style="display:none;"/>
                     
-                    <path id="guide-path-grid-import" d="M 710 0 L 522 45 Q 510 45, 510 57 L 510 105 Q 510 117, 498 117 L 475 117" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+                    <path id="guide-path-grid-import" d="M 710 0 L 522 45 Q 510 45, 510 57 L 510 105 Q 510 117, 498 117 L 475 117" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none" style="display:none;"/>
                     <path id="guide-path-grid-export" d="M 475 117 L 498 117 Q 510 117, 510 105 L 510 57 Q 510 45, 522 45 L 710 0" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none" style="display:none;"/>
 
-                    <path id="guide-path-bat-discharge" d="M 140 210 L 328 210 Q 340 210, 340 198 L 340 165 Q 340 153, 352 153 L 375 153" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+                    <path id="guide-path-bat-discharge" d="M 140 210 L 328 210 Q 340 210, 340 198 L 340 165 Q 340 153, 352 153 L 375 153" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none" style="display:none;"/>
                     <path id="guide-path-bat-charge" d="M 375 153 L 352 153 Q 340 153, 340 165 L 340 198 Q 340 210, 328 210 L 140 210" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none" style="display:none;"/>
 
-                    <path d="M 475 153 L 498 153 Q 510 153, 510 165 L 510 198 Q 510 210, 522 210 L 710 210" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+                    <path id="guide-path-load" d="M 475 153 L 498 153 Q 510 153, 510 165 L 510 198 Q 510 210, 522 210 L 710 210" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none" style="display:none;"/>
 
                     <!-- Animated Chevron Flow Stream Groups -->
                     <g id="stream-pv"></g>
@@ -227,11 +227,11 @@
                 <div class="absolute top-2 left-[6%] sm:left-[2%] flex items-center gap-2 z-10">
                     <div class="flex flex-col items-center text-center">
                         <div id="card-pv" onclick="togglePVMode()" title="Nhấp bật/tắt PV" class="cursor-pointer group bg-white rounded-2xl shadow-sm border border-slate-200/80 p-2 sm:p-2.5 w-20 h-20 sm:w-24 sm:h-24 flex flex-col items-center justify-center transition-all hover:shadow-md hover:border-amber-300">
-                            <i id="topo-pv-icon" class="fa-solid fa-solar-panel text-2xl sm:text-3xl text-amber-500 group-hover:scale-110 transition-transform"></i>
+                            <i id="topo-pv-icon" class="fa-solid fa-solar-panel text-2xl sm:text-3xl text-slate-400 group-hover:scale-110 transition-transform"></i>
                             <span id="topo-pv-label-text" class="text-[10px] sm:text-xs font-semibold text-slate-600 mt-1 truncate">Pin mặt trời</span>
                         </div>
                         <div class="mt-1 font-mono text-center">
-                            <div id="topo-pv-total-watts" class="font-bold text-slate-800 text-sm sm:text-base leading-tight">1103.0 W</div>
+                            <div id="topo-pv-total-watts" class="font-bold text-slate-400 text-sm sm:text-base leading-tight">-- W</div>
                             <div class="text-[9px] sm:text-[10px] text-slate-400 leading-tight mt-0.5">
                                 Công suất phát
                             </div>
@@ -239,8 +239,8 @@
                     </div>
                     <div id="topo-pv-subinfo" class="font-mono text-left bg-white/80 backdrop-blur-xs px-2 py-1 rounded-lg border border-slate-200/60 shadow-2xs self-start mt-1">
                         <div class="text-[9px] sm:text-[10px] text-slate-500 leading-tight space-y-0.5">
-                            <div>PV1: <span id="topo-pv1-watts" class="font-semibold text-slate-700">1103W</span> (<span id="topo-pv1-volts">223.7V</span>)</div>
-                            <div>PV2: <span id="topo-pv2-watts" class="font-semibold text-slate-500">0W</span> (<span id="topo-pv2-volts">0V</span>)</div>
+                            <div>PV1: <span id="topo-pv1-watts" class="font-semibold text-slate-700">--W</span> (<span id="topo-pv1-volts">--V</span>)</div>
+                            <div>PV2: <span id="topo-pv2-watts" class="font-semibold text-slate-500">--W</span> (<span id="topo-pv2-volts">--V</span>)</div>
                         </div>
                     </div>
                 </div>
@@ -248,29 +248,29 @@
                 <!-- NODE 2: Hòa Lưới (Grid) -->
                 <div class="absolute top-1 right-[2%] sm:right-[6%] flex flex-col items-center text-center z-10">
                     <div id="card-grid" onclick="cycleGridMode()" title="Nhấp chuyển Lấy/Bù/Tắt lưới" class="cursor-pointer group bg-white rounded-2xl shadow-sm border border-slate-200/80 p-2 sm:p-2.5 w-20 h-20 sm:w-24 sm:h-24 flex flex-col items-center justify-center transition-all hover:shadow-md hover:border-sky-300">
-                        <i id="topo-grid-icon" class="fa-solid fa-tower-cell text-2xl sm:text-3xl text-sky-600 group-hover:scale-110 transition-transform"></i>
+                        <i id="topo-grid-icon" class="fa-solid fa-tower-cell text-2xl sm:text-3xl text-slate-400 group-hover:scale-110 transition-transform"></i>
                         <span class="text-[10px] sm:text-xs font-semibold text-slate-600 mt-1 truncate">Hòa lưới</span>
                     </div>
                     <div class="mt-1 font-mono text-center">
-                        <div id="topo-grid-watts" class="font-bold text-slate-800 text-sm sm:text-base leading-tight">106.0 W</div>
+                        <div id="topo-grid-watts" class="font-bold text-slate-400 text-sm sm:text-base leading-tight">-- W</div>
                         <div class="text-[9px] sm:text-[10px] text-slate-400 leading-tight mt-0.5">
-                            <span id="topo-grid-volts">227.6 Vac</span> | <span id="topo-grid-freq">50.09 Hz</span>
+                            <span id="topo-grid-volts">-- Vac</span> | <span id="topo-grid-freq">-- Hz</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- NODE 3: Center Inverter Box -->
                 <div class="absolute top-[80px] left-1/2 -translate-x-1/2 flex flex-col items-center z-10">
-                    <div class="w-16 sm:w-20 h-20 sm:h-24 bg-gradient-to-b from-sky-50 via-sky-100 to-sky-200 border-2 border-sky-400 rounded-2xl shadow-md flex flex-col items-center justify-between p-1.5">
-                        <div class="w-10 sm:w-12 h-6 sm:h-7 bg-white rounded border border-sky-300 flex items-center justify-center shadow-inner mt-1">
-                            <div class="w-7 sm:w-8 h-3.5 sm:h-4 border border-sky-400 rounded bg-sky-50 flex items-center justify-center">
-                                <span class="text-[7px] font-bold text-sky-700 font-mono">LUX</span>
+                    <div class="w-16 sm:w-20 h-20 sm:h-24 bg-gradient-to-b from-slate-50 via-slate-100 to-slate-200 border-2 border-slate-300 rounded-2xl shadow-md flex flex-col items-center justify-between p-1.5">
+                        <div class="w-10 sm:w-12 h-6 sm:h-7 bg-white rounded border border-slate-300 flex items-center justify-center shadow-inner mt-1">
+                            <div class="w-7 sm:w-8 h-3.5 sm:h-4 border border-slate-300 rounded bg-slate-50 flex items-center justify-center">
+                                <span class="text-[7px] font-bold text-slate-500 font-mono">LUX</span>
                             </div>
                         </div>
                         <div class="flex gap-1 mb-1">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                            <span id="inverter-dot-1" class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                            <span id="inverter-dot-2" class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                            <span id="inverter-dot-3" class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
                         </div>
                     </div>
                 </div>
@@ -278,14 +278,14 @@
                 <!-- NODE 4: Pin Lưu Trữ (Battery) -->
                 <div class="absolute bottom-1 left-[2%] sm:left-[6%] flex flex-col items-center text-center z-10">
                     <div id="card-bat" onclick="toggleBatteryMode()" title="Nhấp chuyển Sạc/Xả pin" class="cursor-pointer group bg-white rounded-2xl shadow-sm border border-slate-200/80 p-2 sm:p-2.5 w-20 h-20 sm:w-24 sm:h-24 flex flex-col items-center justify-center relative transition-all hover:shadow-md hover:border-emerald-300">
-                        <span id="topo-bat-soc-badge" class="absolute top-1 right-1.5 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1 rounded border border-emerald-200">89%</span>
-                        <i id="topo-bat-icon" class="fa-solid fa-battery-three-quarters text-2xl sm:text-3xl text-emerald-500 group-hover:scale-110 transition-transform"></i>
+                        <span id="topo-bat-soc-badge" class="absolute top-1 right-1.5 text-[9px] font-bold text-slate-400 bg-slate-50 px-1 rounded border border-slate-200">--%</span>
+                        <i id="topo-bat-icon" class="fa-solid fa-battery-empty text-2xl sm:text-3xl text-slate-400 group-hover:scale-110 transition-transform"></i>
                         <span class="text-[10px] sm:text-xs font-semibold text-slate-600 mt-1 truncate">Pin lưu trữ</span>
                     </div>
                     <div class="mt-1 font-mono text-center">
-                        <div id="topo-bat-watts" class="font-bold text-slate-800 text-sm sm:text-base leading-tight">969 W</div>
+                        <div id="topo-bat-watts" class="font-bold text-slate-400 text-sm sm:text-base leading-tight">-- W</div>
                         <div class="text-[9px] sm:text-[10px] text-slate-400 leading-tight mt-0.5">
-                            SOC: <span id="topo-bat-soc" class="font-semibold text-emerald-600">89%</span> | <span id="topo-bat-volts">53.3 Vdc</span>
+                            SOC: <span id="topo-bat-soc" class="font-semibold text-slate-400">--%</span> | <span id="topo-bat-volts">-- Vdc</span>
                         </div>
                     </div>
                 </div>
@@ -293,11 +293,11 @@
                 <!-- NODE 5: Tải Tiêu Thụ (Load) -->
                 <div class="absolute bottom-1 right-[2%] sm:right-[6%] flex flex-col items-center text-center z-10">
                     <div id="card-load" class="group bg-white rounded-2xl shadow-sm border border-slate-200/80 p-2 sm:p-2.5 w-20 h-20 sm:w-24 sm:h-24 flex flex-col items-center justify-center transition-all hover:shadow-md hover:border-blue-300">
-                        <i class="fa-solid fa-house-chimney text-2xl sm:text-3xl text-blue-500 group-hover:scale-110 transition-transform"></i>
+                        <i class="fa-solid fa-house-chimney text-2xl sm:text-3xl text-slate-400 group-hover:scale-110 transition-transform"></i>
                         <span class="text-[10px] sm:text-xs font-semibold text-slate-600 mt-1 truncate">Tải</span>
                     </div>
                     <div class="mt-1 font-mono text-center">
-                        <div id="topo-load-watts" class="font-bold text-slate-800 text-sm sm:text-base leading-tight">134 W</div>
+                        <div id="topo-load-watts" class="font-bold text-slate-400 text-sm sm:text-base leading-tight">-- W</div>
                         <div class="text-[9px] sm:text-[10px] text-slate-400 leading-tight mt-0.5">
                             Công suất tiêu thụ
                         </div>
@@ -305,9 +305,9 @@
                 </div>
 
                 <!-- NODE 6: Bottom EPS Backup -->
-                <div class="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center text-center text-[10px] text-slate-500">
+                <div class="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center text-center text-[10px] text-slate-400">
                     <div class="w-9 h-9 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center mb-0.5 shadow-2xs">
-                        <i class="fa-solid fa-plug text-emerald-500 text-sm"></i>
+                        <i class="fa-solid fa-plug text-slate-400 text-sm"></i>
                     </div>
                     <span class="font-medium">Tải dự phòng (EPS)</span>
                     <span class="font-mono text-[9px] text-slate-400">--</span>
@@ -318,9 +318,9 @@
             <div class="mt-1 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500 font-mono">
                 <span class="flex items-center gap-1">
                     <i class="fa-regular fa-clock text-slate-400"></i>
-                    Cập nhật lần cuối: <strong id="last-updated-time" class="text-slate-700">2026-09-12 08:24:06</strong>
+                    Cập nhật lần cuối: <strong id="last-updated-time" class="text-slate-400">--</strong>
                 </span>
-                <span class="text-emerald-600 font-semibold text-[9px]">Status: Connected</span>
+                <span id="connection-status-footer" class="text-slate-400 font-semibold text-[9px]">Status: Disconnected</span>
             </div>
         </div>
 
@@ -329,7 +329,7 @@
             <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-2xs border border-slate-200 flex flex-col justify-between">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5">
                     <div class="flex items-center gap-1.5">
-                        <div class="w-6 h-6 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                        <div class="w-6 h-6 rounded-md bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
                             <i class="fa-solid fa-sliders text-xs"></i>
                         </div>
                         <h4 class="font-bold text-slate-800 text-xs sm:text-sm truncate">Chế độ đang chạy</h4>
@@ -339,17 +339,17 @@
                     </button>
                 </div>
                 <div class="space-y-0.5 py-0.5">
-                    <div class="text-emerald-600 font-bold text-xs sm:text-sm flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span id="mode-primary-title">Hòa lưới</span>
+                    <div class="text-slate-400 font-bold text-xs sm:text-sm flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+                        <span id="mode-primary-title">--</span>
                     </div>
-                    <div id="mode-secondary-desc" class="text-[11px] text-slate-500 font-medium truncate">
-                        Chế độ tự tiêu thụ (Self-consumption mode)
+                    <div id="mode-secondary-desc" class="text-[11px] text-slate-400 font-medium truncate">
+                        Chưa có dữ liệu API
                     </div>
                 </div>
                 <div class="mt-1 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[9px] sm:text-[10px] text-slate-400 font-mono">
-                    <span class="truncate">Ưu tiên: Tải > Pin > Lưới</span>
-                    <span class="text-emerald-600 font-semibold shrink-0">Tối ưu</span>
+                    <span class="truncate">Ưu tiên: --</span>
+                    <span id="mode-optimization-tag" class="text-slate-400 font-semibold shrink-0">--</span>
                 </div>
             </div>
 
@@ -357,7 +357,7 @@
             <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-2xs border border-slate-200 flex flex-col justify-between">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5">
                     <div class="flex items-center gap-1.5">
-                        <div class="w-6 h-6 rounded-md bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+                        <div class="w-6 h-6 rounded-md bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
                             <i class="fa-solid fa-clipboard-list text-xs"></i>
                         </div>
                         <div class="flex items-center gap-1">
@@ -369,13 +369,13 @@
                         <i class="fa-solid fa-chevron-right text-xs"></i>
                     </button>
                 </div>
-                <div id="log-status-container" class="py-1 flex items-center gap-1.5 text-xs text-slate-600">
-                    <i class="fa-solid fa-circle-check text-emerald-500 text-sm shrink-0"></i>
-                    <span class="font-medium text-slate-700 text-[11px] sm:text-xs truncate">Hiện tại không có cảnh báo</span>
+                <div id="log-status-container" class="py-1 flex items-center gap-1.5 text-xs text-slate-400">
+                    <i class="fa-solid fa-circle-exclamation text-slate-300 text-sm shrink-0"></i>
+                    <span id="log-status-text" class="font-medium text-slate-400 text-[11px] sm:text-xs truncate">Chờ dữ liệu từ API</span>
                 </div>
                 <div class="mt-1 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[9px] sm:text-[10px] text-slate-400 font-mono">
-                    <span>Mã lỗi: <strong class="text-slate-600">0x00</strong></span>
-                    <span class="text-emerald-600 font-semibold">Bình thường</span>
+                    <span>Mã lỗi: <strong id="error-code-val" class="text-slate-400">--</strong></span>
+                    <span id="error-status-label" class="text-slate-400 font-semibold">--</span>
                 </div>
             </div>
         </div>
@@ -384,7 +384,7 @@
             <div class="flex flex-wrap items-center justify-between mb-2 gap-2">
                 <h3 class="font-bold text-slate-800 text-xs sm:text-sm">Input & Output Power</h3>
                 <div class="flex items-center gap-1.5 text-xs">
-                    <input type="date" value="2026-09-12" class="border border-slate-300 rounded px-2 py-0.5 font-mono text-slate-600 outline-none text-[11px]">
+                    <input id="chart-date-input" type="date" class="border border-slate-300 rounded px-2 py-0.5 font-mono text-slate-600 outline-none text-[11px]">
                 </div>
             </div>
             <div class="chart-container">
@@ -394,7 +394,7 @@
 
         <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-2xs border border-slate-200">
             <div class="flex flex-wrap items-center justify-between mb-2 gap-2">
-                <h3 class="font-bold text-slate-800 text-xs sm:text-sm">Energy Overview (2026)</h3>
+                <h3 class="font-bold text-slate-800 text-xs sm:text-sm">Energy Overview</h3>
                 <div class="flex items-center gap-1 text-xs">
                     <button id="btn-chart-month" onclick="switchBarChartPeriod('month')" class="px-2.5 py-0.5 bg-sky-600 text-white rounded font-medium text-[11px] transition-colors cursor-pointer">Tháng</button>
                     <button id="btn-chart-year" onclick="switchBarChartPeriod('year')" class="px-2.5 py-0.5 bg-slate-100 border border-slate-300 text-slate-700 hover:bg-slate-200 rounded font-medium text-[11px] transition-colors cursor-pointer">Năm</button>
@@ -422,42 +422,46 @@
     </div>
 
     <script>
+        // Object chứa trạng thái thực tế từ API (Không còn dữ liệu ảo mặc định)
         let systemData = {
             pv: { 
-                active: true, 
-                pv1: { watts: 1103.0, volts: 223.7, amps: 4.93 },
+                active: false, 
+                pv1: { watts: 0.0, volts: 0.0, amps: 0.00 },
                 pv2: { watts: 0.0, volts: 0.0, amps: 0.00 },
-                totalWatts: 1103.0, 
-                todayKwh: 3.0, 
-                totalKwh: 688.0,
-                maxPeakToday: 2200.0,
+                totalWatts: 0.0, 
+                todayKwh: 0.0, 
+                totalKwh: 0.0,
+                maxPeakToday: 0.0,
                 isPeakView: false
             },
             battery: { 
                 discharging: true, 
-                watts: 969.0, 
-                volts: 53.3, 
-                soc: 89, 
-                todayKwh: 1.0, 
-                totalKwh: 337.0,
-                chargeTodayKwh: 2.5,
-                chargeTotalKwh: 310.0
+                watts: 0.0, 
+                volts: 0.0, 
+                soc: 0, 
+                todayKwh: 0.0, 
+                totalKwh: 0.0,
+                chargeTodayKwh: 0.0,
+                chargeTotalKwh: 0.0
             },
             grid: { 
-                state: 1, 
-                watts: 106.0, 
-                volts: 227.6, 
-                freq: "50.09 Hz", 
+                state: 0, 
+                watts: 0.0, 
+                volts: 0.0, 
+                freq: "0 Hz", 
                 importTodayKwh: 0.0, 
-                importTotalKwh: 109.0,
-                exportTodayKwh: 4.2,
-                exportTotalKwh: 450.0
+                importTotalKwh: 0.0,
+                exportTodayKwh: 0.0,
+                exportTotalKwh: 0.0
             },
-            load: { watts: 134.0, todayKwh: 2.0, totalKwh: 697.0 }
+            load: { watts: 0.0, todayKwh: 0.0, totalKwh: 0.0 }
         };
 
         let energyChartInstance = null;
         let powerChartInstance = null;
+
+        // Base URL cho Cloudflare Worker API
+        const API_BASE_URL = "https://view.solarvn.workers.dev";
 
         // Exact SVG Flow Paths
         const PATH_PV = 'M 140 0 L 328 45 Q 340 45, 340 57 L 340 105 Q 340 117, 352 117 L 375 117';
@@ -509,6 +513,7 @@
             const guideBatCharge = document.getElementById('guide-path-bat-charge');
             const guideGridImport = document.getElementById('guide-path-grid-import');
             const guideGridExport = document.getElementById('guide-path-grid-export');
+            const guideLoad = document.getElementById('guide-path-load');
 
             if (systemData.pv.active && systemData.pv.totalWatts > 0) {
                 if (guidePv) guidePv.style.display = 'block';
@@ -518,19 +523,29 @@
                 renderFlowStream('stream-pv', null, 'none');
             }
 
-            renderFlowStream('stream-load', PATH_LOAD, '#2563eb', 3.2, 3, 'arrow-blue');
+            if (systemData.load.watts > 0) {
+                if (guideLoad) guideLoad.style.display = 'block';
+                renderFlowStream('stream-load', PATH_LOAD, '#2563eb', 3.2, 3, 'arrow-blue');
+            } else {
+                if (guideLoad) guideLoad.style.display = 'none';
+                renderFlowStream('stream-load', null, 'none');
+            }
 
-            if (systemData.battery.discharging) {
+            if (systemData.battery.discharging && systemData.battery.watts > 0) {
                 if (guideBatDischarge) guideBatDischarge.style.display = 'block';
                 if (guideBatCharge) guideBatCharge.style.display = 'none';
                 renderFlowStream('stream-bat', PATH_BAT_DISCHARGE, '#10b981', 3.2, 3, 'arrow-emerald');
-            } else {
+            } else if (!systemData.battery.discharging && systemData.battery.watts > 0) {
                 if (guideBatDischarge) guideBatDischarge.style.display = 'none';
                 if (guideBatCharge) guideBatCharge.style.display = 'block';
                 renderFlowStream('stream-bat', PATH_BAT_CHARGE, '#0284c7', 3.2, 3, 'arrow-sky');
+            } else {
+                if (guideBatDischarge) guideBatDischarge.style.display = 'none';
+                if (guideBatCharge) guideBatCharge.style.display = 'none';
+                renderFlowStream('stream-bat', null, 'none');
             }
 
-            if (systemData.grid.state === 0 || systemData.grid.state === 3) {
+            if (systemData.grid.state === 0 || systemData.grid.watts === 0) {
                 if (guideGridImport) guideGridImport.style.display = 'none';
                 if (guideGridExport) guideGridExport.style.display = 'none';
                 renderFlowStream('stream-grid', null, 'none');
@@ -550,7 +565,7 @@
             const kpiPvIcon = document.getElementById('kpi-pv-icon');
             const topoPvIcon = document.getElementById('topo-pv-icon');
 
-            if (systemData.pv.active) {
+            if (systemData.pv.active && systemData.pv.totalWatts > 0) {
                 kpiPvHeader.className = "bg-amber-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center transition-colors";
                 kpiPvIcon.className = "text-amber-500 text-base sm:text-xl shrink-0 transition-colors";
                 topoPvIcon.className = "fa-solid fa-solar-panel text-2xl sm:text-3xl text-amber-500 group-hover:scale-110 transition-transform";
@@ -625,14 +640,14 @@
                 gridVal2.innerText = systemData.grid.exportTotalKwh.toFixed(1);
             } else {
                 gridHeader.className = "bg-slate-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center";
-                gridTitle.innerText = "Off-grid";
+                gridTitle.innerText = "Lưới";
                 gridIcon.innerHTML = '<i class="fa-solid fa-plug-circle-xmark"></i>';
                 gridIcon.className = "text-slate-400 text-base sm:text-xl shrink-0";
-                topoGridIcon.className = "fa-solid fa-plug-circle-xmark text-2xl sm:text-3xl text-slate-400 group-hover:scale-110 transition-transform";
-                gridLabel1.innerText = "Lấy hôm nay";
+                topoGridIcon.className = "fa-solid fa-tower-cell text-2xl sm:text-3xl text-slate-400 group-hover:scale-110 transition-transform";
+                gridLabel1.innerText = "Hôm nay";
                 gridVal1.innerText = "0.00";
-                gridLabel2.innerText = "Tổng lấy";
-                gridVal2.innerText = systemData.grid.importTotalKwh.toFixed(1);
+                gridLabel2.innerText = "Tổng";
+                gridVal2.innerText = "0.0";
             }
 
             document.getElementById('kpi-load-today').innerText = systemData.load.todayKwh.toFixed(2);
@@ -655,16 +670,6 @@
 
             document.getElementById('topo-load-watts').innerText = systemData.load.watts.toFixed(0) + ' W';
 
-            const cardPv = document.getElementById('card-pv');
-            const topoPvSub = document.getElementById('topo-pv-subinfo');
-            if (systemData.pv.active) {
-                cardPv.style.opacity = "1";
-                if (topoPvSub) topoPvSub.style.opacity = "1";
-            } else {
-                cardPv.style.opacity = "0.5";
-                if (topoPvSub) topoPvSub.style.opacity = "0.5";
-            }
-
             updateStreams();
         }
 
@@ -675,26 +680,16 @@
 
         function togglePVMode() {
             systemData.pv.active = !systemData.pv.active;
-            systemData.pv.totalWatts = systemData.pv.active ? 1103.0 : 0.0;
-            systemData.pv.pv1.watts = systemData.pv.active ? 1103.0 : 0.0;
             renderDashboard();
         }
 
         function toggleBatteryMode() {
             systemData.battery.discharging = !systemData.battery.discharging;
-            systemData.battery.watts = systemData.battery.discharging ? 969.0 : 1800.0;
             renderDashboard();
         }
 
         function cycleGridMode() {
             systemData.grid.state = (systemData.grid.state % 3) + 1;
-            if (systemData.grid.state === 1) {
-                systemData.grid.watts = 106.0;
-            } else if (systemData.grid.state === 2) {
-                systemData.grid.watts = 1200.0;
-            } else {
-                systemData.grid.watts = 0.0;
-            }
             renderDashboard();
         }
 
@@ -702,24 +697,23 @@
             systemData.battery.discharging = false;
             systemData.battery.watts = 2500.0;
             renderDashboard();
-            showNotification('Đã kích hoạt chế độ sạc nhanh biến tần thành công!');
+            showNotification('Đã gửi lệnh kích hoạt sạc nhanh!');
         }
 
         function initPowerLineChart() {
             const ctx = document.getElementById('powerLineChart');
             if (!ctx) return;
-            const timeLabels = ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'];
 
             powerChartInstance = new Chart(ctx.getContext('2d'), {
                 type: 'line',
                 data: {
-                    labels: timeLabels,
+                    labels: [],
                     datasets: [
-                        { label: 'Solar PV (W)', data: [0, 0, 0, 150, 850, 1800, 2200, 1400, 450, 20, 0, 0], borderColor: '#f59e0b', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2 },
-                        { label: 'Battery (W)', data: [-200, -200, -150, 300, 900, 1200, -500, -1100, 200, 800, 600, 300], borderColor: '#10b981', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2 },
-                        { label: 'Grid (W)', data: [300, 250, 200, -100, -500, -800, 300, -200, 100, 500, 400, 350], borderColor: '#f97316', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2 },
-                        { label: 'Consumption (W)', data: [500, 450, 350, 400, 1200, 1500, 1400, 1100, 950, 1300, 1000, 650], borderColor: '#2563eb', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2 },
-                        { label: 'SOC (%)', data: [85, 80, 75, 70, 80, 95, 100, 90, 85, 75, 65, 55], borderColor: '#a855f7', borderDash: [4, 4], yAxisID: 'ySOC', tension: 0.3, borderWidth: 1.5 }
+                        { label: 'Solar PV (W)', data: [], borderColor: '#f59e0b', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2 },
+                        { label: 'Battery (W)', data: [], borderColor: '#10b981', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2 },
+                        { label: 'Grid (W)', data: [], borderColor: '#f97316', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2 },
+                        { label: 'Consumption (W)', data: [], borderColor: '#2563eb', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2 },
+                        { label: 'SOC (%)', data: [], borderColor: '#a855f7', borderDash: [4, 4], yAxisID: 'ySOC', tension: 0.3, borderWidth: 1.5 }
                     ]
                 },
                 options: {
@@ -739,18 +733,17 @@
         function initEnergyBarChart() {
             const ctx = document.getElementById('energyBarChart');
             if (!ctx) return;
-            const monthLabels = Array.from({length: 31}, (_, i) => (i + 1).toString());
 
             energyChartInstance = new Chart(ctx.getContext('2d'), {
                 type: 'bar',
                 data: {
-                    labels: monthLabels,
+                    labels: [],
                     datasets: [
-                        { label: 'Solar Production', data: Array.from({length: 31}, () => Math.floor(Math.random() * 4) + 2), backgroundColor: '#4ade80' },
-                        { label: 'Battery Discharged', data: Array.from({length: 31}, () => Math.floor(Math.random() * 3) + 1), backgroundColor: '#60a5fa' },
-                        { label: 'Battery Charged', data: Array.from({length: 31}, () => Math.floor(Math.random() * 3) + 1), backgroundColor: '#818cf8' },
-                        { label: 'Export to Grid', data: Array.from({length: 31}, () => Math.floor(Math.random() * 2)), backgroundColor: '#f87171' },
-                        { label: 'Consumption', data: Array.from({length: 31}, () => Math.floor(Math.random() * 3) + 2), backgroundColor: '#f97316' }
+                        { label: 'Solar Production', data: [], backgroundColor: '#4ade80' },
+                        { label: 'Battery Discharged', data: [], backgroundColor: '#60a5fa' },
+                        { label: 'Battery Charged', data: [], backgroundColor: '#818cf8' },
+                        { label: 'Export to Grid', data: [], backgroundColor: '#f87171' },
+                        { label: 'Consumption', data: [], backgroundColor: '#f97316' }
                     ]
                 },
                 options: {
@@ -758,7 +751,7 @@
                     maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false },
                     scales: {
-                        x: { title: { display: true, text: 'Ngày trong tháng', font: { size: 10 } }, ticks: { font: { size: 9 } } },
+                        x: { title: { display: true, text: 'Thời gian', font: { size: 10 } }, ticks: { font: { size: 9 } } },
                         y: { title: { display: true, text: 'Năng lượng (kWh)', font: { size: 10 } }, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } }
                     },
                     plugins: {
@@ -774,99 +767,127 @@
             PERIODIC_INTERVAL: 60000   // 60 giây (1 phút): Cập nhật dữ liệu định kỳ
         };
 
-        /**
-         * Khởi tạo toàn bộ luồng dữ liệu khi tải trang (Load lần đầu)
-         * @param {string} deviceId - ID hoặc URL định danh thiết bị
-         * @param {Object} chartInstance - Instance của Chart.js đã tạo sẵn trên giao diện
-         */
         async function initDashboardAPI(deviceId, chartInstance) {
-            console.log("Đang tải dữ liệu ban đầu cho toàn bộ Charts và Dashboard...");
-
-            // 1. Gọi dữ liệu biểu đồ 1 lần duy nhất khi vào web và xử lý cập nhật chart
+            console.log("Khởi chạy kết nối API...");
             await fetchChartHistoryData(deviceId, 'day', chartInstance);
-
-            // 2. Gọi ngay dữ liệu runtime và periodic lần đầu tiên không phải chờ đợi
             await fetchAndRenderRuntime(deviceId);
             await fetchPeriodicData(deviceId);
-
-            // 3. Thiết lập các vòng lặp định kỳ (Intervals)
             startIntervals(deviceId);
         }
 
-        /**
-         * Thiết lập các tiến trình chạy định kỳ trong trang web
-         * @param {string} deviceId - ID thiết bị
-         */
         function startIntervals(deviceId) {
-            // Vòng lặp Runtime: 5 giây / lần
             setInterval(async () => {
                 await fetchAndRenderRuntime(deviceId);
             }, TIMING_CONFIG.RUNTIME_INTERVAL);
 
-            // Vòng lặp định kỳ: 1 phút / lần
             setInterval(async () => {
                 await fetchPeriodicData(deviceId);
             }, TIMING_CONFIG.PERIODIC_INTERVAL);
         }
 
-        // ==================== KHU VỰC GỌI API & XỬ LÝ DỮ LIỆU (PARSER) ====================
+        // ==================== KHU VỰC GỌI API & PARSER DỮ LIỆU THỰC TẾ ====================
 
         async function fetchAndRenderRuntime(deviceId) {
             try {
-                const response = await fetch(`/api/inverter/runtime?id=${deviceId}`);
+                const response = await fetch(`${API_BASE_URL}/WManage/api/inverter/getInverterRuntime`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: deviceId })
+                });
                 const rawData = await response.json();
                 
                 const processed = processRuntimeData(rawData);
                 updateRuntimeUI(processed);
             } catch (error) {
-                console.error("Lỗi khi tải dữ liệu runtime (5s):", error);
+                console.error("Lỗi khi tải dữ liệu runtime:", error);
+                setConnectionStatus(false, "Mất kết nối API");
             }
         }
 
-        function processRuntimeData(rawData) {
-            if (!rawData) return null;
+        function processRuntimeData(response) {
+            if (!response || !response.success) return null;
+            const d = response.data || response;
+
             return {
-                pvPower: Number(rawData.pv_power || 0),
-                loadPower: Number(rawData.load_power || 0),
-                gridPower: Number(rawData.grid_power || 0),
-                battPower: Number(rawData.batt_power || 0),
-                battSoc: Number(rawData.batt_soc || 0),
-                battVolt: Number(rawData.batt_volt || 0),
-                inverterStatus: rawData.status_code || 1
+                success: d.success,
+                serialNum: d.serialNum || '',
+                powerRatingText: d.powerRatingText || '0kW',
+                lost: d.lost || false,
+                hasRuntimeData: d.hasRuntimeData || true,
+                
+                // Công suất
+                ppv: Number(d.ppv || 0),             // Tổng công suất PV (kW) -> nhân 1000 ra W
+                ppv1: Number(d.ppv1 || 0),
+                ppv2: Number(d.ppv2 || 0),
+                consumptionPower: Number(d.consumptionPower || 0), // (W)
+                batPower: Number(d.batPower || 0),     // (W) Âm: Sạc, Dương: Xả
+                pCharge: Number(d.pCharge || 0),
+                pDisCharge: Number(d.pDisCharge || 0),
+                pToGrid: Number(d.pToGrid || 0),
+                pToUser: Number(d.pToUser || 0),
+                
+                // Pin & BMS
+                soc: Number(d.soc || 0),
+                vBat: Number(d.vBat || 0),
+                iBat: Number(d.iBat || 0),
+                tBat: Number(d.tBat || 0),
+                batteryColor: d.batteryColor || 'green',
+                
+                // Lưới & Biến tần
+                vacr: Number(d.vacr || 0),
+                fac: Number(d.fac || 0),
+                status: Number(d.status || 0),         
+                statusText: d.statusText || 'normal',
+                deviceTime: d.deviceTime || ''
             };
         }
 
         async function fetchPeriodicData(deviceId) {
             try {
-                const response = await fetch(`/api/inverter/periodic?id=${deviceId}`);
+                const response = await fetch(`${API_BASE_URL}/WManage/api/inverter/getInverterPeriodic`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: deviceId })
+                });
                 const rawData = await response.json();
                 
                 const processed = processPeriodicData(rawData);
                 updatePeriodicUI(processed);
             } catch (error) {
-                console.error("Lỗi khi tải dữ liệu định kỳ (1p):", error);
+                console.error("Lỗi khi tải dữ liệu định kỳ:", error);
             }
         }
 
         function processPeriodicData(rawData) {
             if (!rawData) return null;
+            const d = rawData.data || rawData;
             return {
-                dailyGeneration: rawData.e_day || 0,
-                totalGeneration: rawData.e_total || 0,
-                temperature: rawData.temp || 0,
-                gridFrequency: rawData.freq || 50,
-                gridVoltage: rawData.grid_volt || 220
+                dailyGeneration: Number(d.e_day || d.generationToday || 0),
+                totalGeneration: Number(d.e_total || d.generationTotal || 0),
+                temperature: Number(d.temp || 0),
+                gridFrequency: Number(d.freq || 50),
+                gridVoltage: Number(d.grid_volt || d.vacr || 220)
             };
         }
 
         async function fetchChartHistoryData(deviceId, type, chartInstance) {
             try {
-                const response = await fetch(`/api/inverter/charts?id=${deviceId}&type=${type}`);
+                const response = await fetch(`${API_BASE_URL}/WManage/api/inverter/getInverterCharts`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: deviceId, type: type })
+                });
                 const rawData = await response.json();
                 
                 const chartData = processChartHistoryData(rawData);
                 
-                if (chartInstance) {
+                if (chartInstance && chartData.labels.length > 0) {
                     chartInstance.data.labels = chartData.labels;
                     chartInstance.data.datasets = chartData.datasets;
                     chartInstance.update();
@@ -897,20 +918,107 @@
             };
         }
 
-        // ==================== CÁC HÀM CẬP NHẬT GIAO DIỆN (UI) ====================
+        // ==================== CẬP NHẬT GIAO DIỆN TỪ DỮ LIỆU API THẬT ====================
+
+        function setConnectionStatus(isConnected, message) {
+            const dot = document.getElementById('connection-dot');
+            const text = document.getElementById('connection-text');
+            const footerStatus = document.getElementById('connection-status-footer');
+            const systemBadge = document.getElementById('system-status-badge');
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('system-status-text');
+
+            if (isConnected) {
+                if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+                if (text) text.innerText = "Trực tuyến";
+                if (footerStatus) {
+                    footerStatus.innerText = "Status: Connected";
+                    footerStatus.className = "text-emerald-600 font-semibold text-[9px]";
+                }
+                if (systemBadge) systemBadge.className = "px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] bg-emerald-100 text-emerald-800 font-semibold flex items-center gap-1 border border-emerald-300";
+                if (statusDot) statusDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
+                if (statusText) statusText.innerText = "Normal";
+            } else {
+                if (dot) dot.className = "w-2 h-2 rounded-full bg-rose-500";
+                if (text) text.innerText = message || "Mất kết nối";
+                if (footerStatus) {
+                    footerStatus.innerText = "Status: Offline";
+                    footerStatus.className = "text-rose-600 font-semibold text-[9px]";
+                }
+                if (systemBadge) systemBadge.className = "px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] bg-rose-100 text-rose-800 font-semibold flex items-center gap-1 border border-rose-300";
+                if (statusDot) statusDot.className = "w-1.5 h-1.5 rounded-full bg-rose-500";
+                if (statusText) statusText.innerText = message || "Offline";
+            }
+        }
 
         function updateRuntimeUI(data) {
-            if (!data) return;
+            if (!data) {
+                setConnectionStatus(false, "Không có dữ liệu");
+                return;
+            }
 
-            // Đồng bộ dữ liệu real-time vào object cấu hình giao diện
-            systemData.pv.totalWatts = data.pvPower * 1000;
-            systemData.load.watts = data.loadPower * 1000;
-            systemData.grid.watts = Math.abs(data.gridPower * 1000);
-            systemData.grid.state = data.gridPower > 0 ? 1 : (data.gridPower < 0 ? 2 : 3);
-            systemData.battery.watts = Math.abs(data.battPower * 1000);
-            systemData.battery.discharging = data.battPower >= 0;
-            systemData.battery.soc = data.battSoc;
-            systemData.battery.volts = data.battVolt;
+            // Đánh dấu trạng thái kết nối thành công từ API
+            setConnectionStatus(true);
+
+            // Cập nhật Serial Number lên UI nếu có
+            if (data.serialNum) {
+                const serialBadge = document.getElementById('system-serial-badge');
+                if (serialBadge) serialBadge.innerText = data.serialNum;
+            }
+
+            if (data.deviceTime) {
+                const timeEl = document.getElementById('last-updated-time');
+                const noticeDate = document.getElementById('notice-date');
+                if (timeEl) timeEl.innerText = data.deviceTime;
+                if (noticeDate) noticeDate.innerText = data.deviceTime.split(' ')[0];
+            }
+
+            // Mapping thông số từ cấu trúc JSON thực tế vào systemData
+            systemData.pv.totalWatts = data.ppv * 1000; // ppv tính bằng kW chuyển sang W
+            systemData.pv.active = data.ppv > 0;
+            systemData.pv.pv1.watts = data.ppv1 * 1000;
+            systemData.pv.pv1.volts = data.vacr || 0;
+            systemData.pv.pv2.watts = data.ppv2 * 1000;
+
+            systemData.load.watts = data.consumptionPower;
+
+            // Xử lý dòng điện Pin & Lưới từ API thực tế
+            systemData.battery.soc = data.soc;
+            systemData.battery.volts = data.vBat;
+            systemData.battery.watts = Math.abs(data.batPower);
+            systemData.battery.discharging = data.batPower >= 0; // Dương là xả, Âm là sạc
+
+            // Trạng thái lưới
+            systemData.grid.watts = Math.abs(data.pToGrid > 0 ? data.pToGrid : data.pToUser);
+            if (data.pToGrid > 0) {
+                systemData.grid.state = 2; // Export
+            } else if (data.pToUser > 0) {
+                systemData.grid.state = 1; // Import
+            } else {
+                systemData.grid.state = 3; // Off-grid / Idle
+            }
+            systemData.grid.volts = data.vacr;
+            systemData.grid.freq = `${data.fac} Hz`;
+
+            // Trạng thái hoạt động & Lỗi từ API
+            const modeTitle = document.getElementById('mode-primary-title');
+            const modeDesc = document.getElementById('mode-secondary-desc');
+            const logText = document.getElementById('log-status-text');
+            const errorCodeVal = document.getElementById('error-code-val');
+            const errorStatusLabel = document.getElementById('error-status-label');
+
+            if (modeTitle) modeTitle.innerText = data.statusText.toUpperCase();
+            if (modeDesc) modeDesc.innerText = `Trạng thái mã: ${data.status} (Lost: ${data.lost})`;
+
+            if (data.lost) {
+                if (logText) logText.innerText = "Thiết bị mất tín hiệu kết nối (Lost)";
+                if (errorCodeVal) errorCodeVal.innerText = "0x01";
+                if (errorStatusLabel) errorStatusLabel.innerText = "Mất kết nối";
+            } else {
+                if (logText) logText.innerText = "Hệ thống vận hành bình thường không lỗi";
+                if (errorCodeVal) errorCodeVal.innerText = "0x00";
+                if (errorStatusLabel) errorStatusLabel.innerText = "Bình thường";
+            }
 
             renderDashboard();
         }
@@ -919,8 +1027,6 @@
             if (!data) return;
             systemData.pv.todayKwh = data.dailyGeneration;
             systemData.pv.totalKwh = data.totalGeneration;
-            systemData.grid.freq = `${data.gridFrequency} Hz`;
-            systemData.grid.volts = data.gridVoltage;
             renderDashboard();
         }
 
@@ -932,25 +1038,31 @@
             if (period === 'month') {
                 btnMonth.className = "px-2.5 py-0.5 bg-sky-600 text-white rounded font-medium text-[11px] transition-colors cursor-pointer";
                 btnYear.className = "px-2.5 py-0.5 bg-slate-100 border border-slate-300 text-slate-700 hover:bg-slate-200 rounded font-medium text-[11px] transition-colors cursor-pointer";
-                energyChartInstance.data.labels = Array.from({length: 31}, (_, i) => (i + 1).toString());
-                energyChartInstance.data.datasets[0].data = Array.from({length: 31}, () => Math.floor(Math.random() * 4) + 2);
-                energyChartInstance.options.scales.x.title.text = "Ngày trong tháng";
+                energyChartInstance.data.labels = [];
+                energyChartInstance.data.datasets[0].data = [];
             } else {
                 btnYear.className = "px-2.5 py-0.5 bg-sky-600 text-white rounded font-medium text-[11px] transition-colors cursor-pointer";
                 btnMonth.className = "px-2.5 py-0.5 bg-slate-100 border border-slate-300 text-slate-700 hover:bg-slate-200 rounded font-medium text-[11px] transition-colors cursor-pointer";
                 energyChartInstance.data.labels = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
-                energyChartInstance.data.datasets[0].data = [45, 52, 60, 75, 88, 95, 92, 85, 70, 55, 48, 42];
-                energyChartInstance.options.scales.x.title.text = "Tháng trong năm";
+                energyChartInstance.data.datasets[0].data = [];
             }
             energyChartInstance.update();
         }
 
         window.onload = function() {
+            // Khởi tạo các biểu đồ rỗng (không nạp dữ liệu ảo)
             renderDashboard();
             initPowerLineChart();
             initEnergyBarChart();
 
-            // Khởi chạy hệ thống gọi API tự động định kỳ với Device ID (Ví dụ: '2530-95670646PH')
+            // Đặt ngày hiện tại cho input date
+            const dateInput = document.getElementById('chart-date-input');
+            if (dateInput) {
+                const todayStr = new Date().toISOString().split('T')[0];
+                dateInput.value = todayStr;
+            }
+
+            // Khởi chạy hệ thống gọi API thời gian thực với Device ID chính thức từ dữ liệu API
             initDashboardAPI('2530-95670646PH', powerChartInstance);
         };
     </script>
