@@ -785,139 +785,171 @@
             }, TIMING_CONFIG.PERIODIC_INTERVAL);
         }
 
-        // ==================== KHU VỰC GỌI API & PARSER DỮ LIỆU THỰC TẾ ====================
+// ==================== KHU VỰC GỌI API & PARSER DỮ LIỆU THỰC TẾ ====================
 
-        async function fetchAndRenderRuntime(deviceId) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/WManage/api/inverter/getInverterRuntime`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ id: deviceId })
-                });
-                const rawData = await response.json();
-                
-                const processed = processRuntimeData(rawData);
-                updateRuntimeUI(processed);
-            } catch (error) {
-                console.error("Lỗi khi tải dữ liệu runtime:", error);
-                setConnectionStatus(false, "Mất kết nối API");
+    async function fetchAndRenderRuntime(deviceId) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/WManage/api/inverter/getInverterRuntime`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: deviceId })
+            });
+            const rawData = await response.json();
+            
+            const processed = processRuntimeData(rawData);
+            updateRuntimeUI(processed);
+            setConnectionStatus(true, "Đang hoạt động");
+        } catch (error) {
+            console.error("Lỗi khi tải dữ liệu runtime:", error);
+            setConnectionStatus(false, "Mất kết nối API");
+        }
+    }
+
+    function processRuntimeData(response) {
+        if (!response) return null;
+        const d = response.data || response;
+
+        return {
+            success: d.success,
+            serialNum: d.serialNum || '',
+            powerRatingText: d.powerRatingText || '0kW',
+            lost: d.lost || false,
+            hasRuntimeData: d.hasRuntimeData || true,
+            
+            // Công suất
+            ppv: Number(d.ppv || 0),             // Tổng công suất PV (kW)
+            ppv1: Number(d.ppv1 || 0),
+            ppv2: Number(d.ppv2 || 0),
+            consumptionPower: Number(d.consumptionPower || 0), // (W)
+            batPower: Number(d.batPower || 0),     // (W)
+            pCharge: Number(d.pCharge || 0),
+            pDisCharge: Number(d.pDisCharge || 0),
+            pToGrid: Number(d.pToGrid || 0),
+            pToUser: Number(d.pToUser || 0),
+            
+            // Pin & BMS
+            soc: Number(d.soc || 0),
+            vBat: Number(d.vBat || 0),
+            iBat: Number(d.iBat || 0),
+            tBat: Number(d.tBat || 0),
+            batteryColor: d.batteryColor || 'green',
+            
+            // Lưới & Biến tần
+            vacr: Number(d.vacr || 0),
+            fac: Number(d.fac || 0),
+            status: Number(d.status || 0),          
+            statusText: d.statusText || 'normal',
+            deviceTime: d.deviceTime || new Date().toLocaleTimeString('vi-VN')
+        };
+    }
+
+    // Hàm cập nhật dữ liệu Runtime lên giao diện UI
+    function updateRuntimeUI(data) {
+        if (!data) return;
+        document.getElementById('ui-sn').innerText = data.serialNum || '--';
+        document.getElementById('ui-time').innerText = data.deviceTime;
+        document.getElementById('ui-ppv').innerText = data.ppv.toFixed(2);
+        document.getElementById('ui-ppv1').innerText = data.ppv1.toFixed(2);
+        document.getElementById('ui-ppv2').innerText = data.ppv2.toFixed(2);
+        document.getElementById('ui-soc').innerText = data.soc;
+        document.getElementById('ui-vbat').innerText = data.vBat.toFixed(1);
+        document.getElementById('ui-pbat').innerText = data.batPower;
+        document.getElementById('ui-load').innerText = data.consumptionPower;
+        document.getElementById('ui-ptouser').innerText = data.pToUser;
+    }
+
+    async function fetchPeriodicData(deviceId) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/WManage/api/inverter/getInverterPeriodic`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: deviceId })
+            });
+            const rawData = await response.json();
+            
+            const processed = processPeriodicData(rawData);
+            updatePeriodicUI(processed);
+        } catch (error) {
+            console.error("Lỗi khi tải dữ liệu định kỳ:", error);
+        }
+    }
+
+    function processPeriodicData(rawData) {
+        if (!rawData) return null;
+        const d = rawData.data || rawData;
+        return {
+            dailyGeneration: Number(d.e_day || d.generationToday || 0),
+            totalGeneration: Number(d.e_total || d.generationTotal || 0),
+            temperature: Number(d.temp || 0),
+            gridFrequency: Number(d.freq || 50),
+            gridVoltage: Number(d.grid_volt || d.vacr || 220)
+        };
+    }
+
+    // Hàm cập nhật dữ liệu định kỳ lên giao diện UI
+    function updatePeriodicUI(data) {
+        if (!data) return;
+        document.getElementById('ui-eday').innerText = data.dailyGeneration.toFixed(1);
+        document.getElementById('ui-etotal').innerText = data.totalGeneration.toFixed(1);
+    }
+
+    async function fetchChartHistoryData(deviceId, type, chartInstance) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/WManage/api/inverter/getInverterCharts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: deviceId, type: type })
+            });
+            const rawData = await response.json();
+            
+            const chartData = processChartHistoryData(rawData);
+            
+            if (chartInstance && chartData.labels.length > 0) {
+                chartInstance.data.labels = chartData.labels;
+                chartInstance.data.datasets = chartData.datasets;
+                chartInstance.update();
             }
+        } catch (error) {
+            console.error(`Lỗi khi tải biểu đồ ${type}:`, error);
+        }
+    }
+
+    function processChartHistoryData(rawData) {
+        const items = rawData.items || (rawData.data ? rawData.data.items : []) || [];
+        if (!Array.isArray(items)) {
+            return { labels: [], datasets: [] };
         }
 
-        function processRuntimeData(response) {
-            if (!response || !response.success) return null;
-            const d = response.data || response;
+        const labels = items.map(item => item.time || item.x || '');
+        const powerValues = items.map(item => item.power || item.ppv || item.y || 0);
 
-            return {
-                success: d.success,
-                serialNum: d.serialNum || '',
-                powerRatingText: d.powerRatingText || '0kW',
-                lost: d.lost || false,
-                hasRuntimeData: d.hasRuntimeData || true,
-                
-                // Công suất
-                ppv: Number(d.ppv || 0),             // Tổng công suất PV (kW) -> nhân 1000 ra W
-                ppv1: Number(d.ppv1 || 0),
-                ppv2: Number(d.ppv2 || 0),
-                consumptionPower: Number(d.consumptionPower || 0), // (W)
-                batPower: Number(d.batPower || 0),     // (W) Âm: Sạc, Dương: Xả
-                pCharge: Number(d.pCharge || 0),
-                pDisCharge: Number(d.pDisCharge || 0),
-                pToGrid: Number(d.pToGrid || 0),
-                pToUser: Number(d.pToUser || 0),
-                
-                // Pin & BMS
-                soc: Number(d.soc || 0),
-                vBat: Number(d.vBat || 0),
-                iBat: Number(d.iBat || 0),
-                tBat: Number(d.tBat || 0),
-                batteryColor: d.batteryColor || 'green',
-                
-                // Lưới & Biến tần
-                vacr: Number(d.vacr || 0),
-                fac: Number(d.fac || 0),
-                status: Number(d.status || 0),         
-                statusText: d.statusText || 'normal',
-                deviceTime: d.deviceTime || ''
-            };
+        return {
+            labels: labels,
+            datasets: [{
+                label: 'Công suất PV (kW)',
+                data: powerValues,
+                borderColor: '#eab308',
+                backgroundColor: 'rgba(234, 179, 8, 0.1)',
+                fill: true,
+                tension: 0.3
+            }]
+        };
+    }
+
+    // Cập nhật trạng thái kết nối trên Header
+    function setConnectionStatus(isOk, text) {
+        const dot = document.getElementById('ui-status-dot');
+        const txt = document.getElementById('ui-status-text');
+        if (isOk) {
+            dot.className = "w-3 h-3 rounded-full bg-green-500 animate-pulse";
+            txt.innerText = text;
+            txt.className = "text-xs font-medium text-green-600";
+        } else {
+            dot.className = "w-3 h-3 rounded-full bg-red-500";
+            txt.innerText = text;
+            txt.className = "text-xs font-medium text-red-600";
         }
-
-        async function fetchPeriodicData(deviceId) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/WManage/api/inverter/getInverterPeriodic`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ id: deviceId })
-                });
-                const rawData = await response.json();
-                
-                const processed = processPeriodicData(rawData);
-                updatePeriodicUI(processed);
-            } catch (error) {
-                console.error("Lỗi khi tải dữ liệu định kỳ:", error);
-            }
-        }
-
-        function processPeriodicData(rawData) {
-            if (!rawData) return null;
-            const d = rawData.data || rawData;
-            return {
-                dailyGeneration: Number(d.e_day || d.generationToday || 0),
-                totalGeneration: Number(d.e_total || d.generationTotal || 0),
-                temperature: Number(d.temp || 0),
-                gridFrequency: Number(d.freq || 50),
-                gridVoltage: Number(d.grid_volt || d.vacr || 220)
-            };
-        }
-
-        async function fetchChartHistoryData(deviceId, type, chartInstance) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/WManage/api/inverter/getInverterCharts`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ id: deviceId, type: type })
-                });
-                const rawData = await response.json();
-                
-                const chartData = processChartHistoryData(rawData);
-                
-                if (chartInstance && chartData.labels.length > 0) {
-                    chartInstance.data.labels = chartData.labels;
-                    chartInstance.data.datasets = chartData.datasets;
-                    chartInstance.update();
-                }
-            } catch (error) {
-                console.error(`Lỗi khi tải biểu đồ ${type}:`, error);
-            }
-        }
-
-        function processChartHistoryData(rawData) {
-            if (!rawData || !Array.isArray(rawData.items)) {
-                return { labels: [], datasets: [] };
-            }
-
-            const labels = rawData.items.map(item => item.time);
-            const powerValues = rawData.items.map(item => item.power);
-
-            return {
-                labels: labels,
-                datasets: [{
-                    label: 'Công suất PV (kW)',
-                    data: powerValues,
-                    borderColor: '#eab308',
-                    backgroundColor: 'rgba(234, 179, 8, 0.1)',
-                    fill: true,
-                    tension: 0.3
-                }]
-            };
-        }
-
+    }
         // ==================== CẬP NHẬT GIAO DIỆN TỪ DỮ LIỆU API THẬT ====================
 
         function setConnectionStatus(isConnected, message) {
