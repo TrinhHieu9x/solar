@@ -510,7 +510,6 @@
             const guideGridImport = document.getElementById('guide-path-grid-import');
             const guideGridExport = document.getElementById('guide-path-grid-export');
 
-            // 1. PV Streams & Guide Path Visibility
             if (systemData.pv.active && systemData.pv.totalWatts > 0) {
                 if (guidePv) guidePv.style.display = 'block';
                 renderFlowStream('stream-pv', PATH_PV, '#f59e0b', 3.2, 3, 'arrow-amber');
@@ -519,10 +518,8 @@
                 renderFlowStream('stream-pv', null, 'none');
             }
 
-            // 2. Load Stream (Always active)
             renderFlowStream('stream-load', PATH_LOAD, '#2563eb', 3.2, 3, 'arrow-blue');
 
-            // 3. Battery Streams & Guide Paths Visibility
             if (systemData.battery.discharging) {
                 if (guideBatDischarge) guideBatDischarge.style.display = 'block';
                 if (guideBatCharge) guideBatCharge.style.display = 'none';
@@ -533,7 +530,6 @@
                 renderFlowStream('stream-bat', PATH_BAT_CHARGE, '#0284c7', 3.2, 3, 'arrow-sky');
             }
 
-            // 4. Grid Streams & Guide Paths Visibility
             if (systemData.grid.state === 0 || systemData.grid.state === 3) {
                 if (guideGridImport) guideGridImport.style.display = 'none';
                 if (guideGridExport) guideGridExport.style.display = 'none';
@@ -550,7 +546,6 @@
         }
 
         function renderDashboard() {
-            // PV KPI Header & Icon Styling Sync with State
             const kpiPvHeader = document.getElementById('kpi-pv-header');
             const kpiPvIcon = document.getElementById('kpi-pv-icon');
             const topoPvIcon = document.getElementById('topo-pv-icon');
@@ -565,13 +560,11 @@
                 topoPvIcon.className = "fa-solid fa-solar-panel text-2xl sm:text-3xl text-slate-400 group-hover:scale-110 transition-transform";
             }
 
-            // PV KPI Values
             document.getElementById('kpi-pv-today').innerText = systemData.pv.isPeakView ? systemData.pv.maxPeakToday.toFixed(0) : systemData.pv.todayKwh.toFixed(2);
             document.getElementById('kpi-pv-unit').innerText = systemData.pv.isPeakView ? 'W' : 'kWh';
             document.getElementById('kpi-pv-label1').innerText = systemData.pv.isPeakView ? 'CS Đỉnh (Hôm nay)' : 'Hôm nay';
             document.getElementById('kpi-pv-total').innerText = systemData.pv.totalKwh.toFixed(1);
 
-            // Battery KPI & Topology
             const kpiBatTitle = document.getElementById('kpi-bat-title');
             const kpiBatHeader = document.getElementById('kpi-bat-header');
             const kpiBatIcon = document.getElementById('kpi-bat-icon');
@@ -601,7 +594,6 @@
                 kpiBatVal2.innerText = systemData.battery.chargeTotalKwh.toFixed(1);
             }
 
-            // Grid KPI & Topology
             const gridTitle = document.getElementById('kpi-grid-title');
             const gridHeader = document.getElementById('kpi-grid-header');
             const gridIcon = document.getElementById('kpi-grid-icon');
@@ -643,7 +635,6 @@
                 gridVal2.innerText = systemData.grid.importTotalKwh.toFixed(1);
             }
 
-            // Load KPI & Topology
             document.getElementById('kpi-load-today').innerText = systemData.load.todayKwh.toFixed(2);
             document.getElementById('kpi-load-total').innerText = systemData.load.totalKwh.toFixed(1);
 
@@ -664,7 +655,6 @@
 
             document.getElementById('topo-load-watts').innerText = systemData.load.watts.toFixed(0) + ' W';
 
-            // Visual dimming effect for inactive PV card/icon
             const cardPv = document.getElementById('card-pv');
             const topoPvSub = document.getElementById('topo-pv-subinfo');
             if (systemData.pv.active) {
@@ -760,7 +750,7 @@
                         { label: 'Battery Discharged', data: Array.from({length: 31}, () => Math.floor(Math.random() * 3) + 1), backgroundColor: '#60a5fa' },
                         { label: 'Battery Charged', data: Array.from({length: 31}, () => Math.floor(Math.random() * 3) + 1), backgroundColor: '#818cf8' },
                         { label: 'Export to Grid', data: Array.from({length: 31}, () => Math.floor(Math.random() * 2)), backgroundColor: '#f87171' },
-                        { label: 'Consumption', data:Array.from({length: 31}, () => Math.floor(Math.random() * 3) + 2), backgroundColor: '#f97316' }
+                        { label: 'Consumption', data: Array.from({length: 31}, () => Math.floor(Math.random() * 3) + 2), backgroundColor: '#f97316' }
                     ]
                 },
                 options: {
@@ -776,6 +766,162 @@
                     }
                 }
             });
+        }
+
+        // Cấu hình thời gian (tính bằng mili-giây)
+        const TIMING_CONFIG = {
+            RUNTIME_INTERVAL: 5000,    // 5 giây: Cập nhật thông số thời gian thực
+            PERIODIC_INTERVAL: 60000   // 60 giây (1 phút): Cập nhật dữ liệu định kỳ
+        };
+
+        /**
+         * Khởi tạo toàn bộ luồng dữ liệu khi tải trang (Load lần đầu)
+         * @param {string} deviceId - ID hoặc URL định danh thiết bị
+         * @param {Object} chartInstance - Instance của Chart.js đã tạo sẵn trên giao diện
+         */
+        async function initDashboardAPI(deviceId, chartInstance) {
+            console.log("Đang tải dữ liệu ban đầu cho toàn bộ Charts và Dashboard...");
+
+            // 1. Gọi dữ liệu biểu đồ 1 lần duy nhất khi vào web và xử lý cập nhật chart
+            await fetchChartHistoryData(deviceId, 'day', chartInstance);
+
+            // 2. Gọi ngay dữ liệu runtime và periodic lần đầu tiên không phải chờ đợi
+            await fetchAndRenderRuntime(deviceId);
+            await fetchPeriodicData(deviceId);
+
+            // 3. Thiết lập các vòng lặp định kỳ (Intervals)
+            startIntervals(deviceId);
+        }
+
+        /**
+         * Thiết lập các tiến trình chạy định kỳ trong trang web
+         * @param {string} deviceId - ID thiết bị
+         */
+        function startIntervals(deviceId) {
+            // Vòng lặp Runtime: 5 giây / lần
+            setInterval(async () => {
+                await fetchAndRenderRuntime(deviceId);
+            }, TIMING_CONFIG.RUNTIME_INTERVAL);
+
+            // Vòng lặp định kỳ: 1 phút / lần
+            setInterval(async () => {
+                await fetchPeriodicData(deviceId);
+            }, TIMING_CONFIG.PERIODIC_INTERVAL);
+        }
+
+        // ==================== KHU VỰC GỌI API & XỬ LÝ DỮ LIỆU (PARSER) ====================
+
+        async function fetchAndRenderRuntime(deviceId) {
+            try {
+                const response = await fetch(`/api/inverter/runtime?id=${deviceId}`);
+                const rawData = await response.json();
+                
+                const processed = processRuntimeData(rawData);
+                updateRuntimeUI(processed);
+            } catch (error) {
+                console.error("Lỗi khi tải dữ liệu runtime (5s):", error);
+            }
+        }
+
+        function processRuntimeData(rawData) {
+            if (!rawData) return null;
+            return {
+                pvPower: Number(rawData.pv_power || 0),
+                loadPower: Number(rawData.load_power || 0),
+                gridPower: Number(rawData.grid_power || 0),
+                battPower: Number(rawData.batt_power || 0),
+                battSoc: Number(rawData.batt_soc || 0),
+                battVolt: Number(rawData.batt_volt || 0),
+                inverterStatus: rawData.status_code || 1
+            };
+        }
+
+        async function fetchPeriodicData(deviceId) {
+            try {
+                const response = await fetch(`/api/inverter/periodic?id=${deviceId}`);
+                const rawData = await response.json();
+                
+                const processed = processPeriodicData(rawData);
+                updatePeriodicUI(processed);
+            } catch (error) {
+                console.error("Lỗi khi tải dữ liệu định kỳ (1p):", error);
+            }
+        }
+
+        function processPeriodicData(rawData) {
+            if (!rawData) return null;
+            return {
+                dailyGeneration: rawData.e_day || 0,
+                totalGeneration: rawData.e_total || 0,
+                temperature: rawData.temp || 0,
+                gridFrequency: rawData.freq || 50,
+                gridVoltage: rawData.grid_volt || 220
+            };
+        }
+
+        async function fetchChartHistoryData(deviceId, type, chartInstance) {
+            try {
+                const response = await fetch(`/api/inverter/charts?id=${deviceId}&type=${type}`);
+                const rawData = await response.json();
+                
+                const chartData = processChartHistoryData(rawData);
+                
+                if (chartInstance) {
+                    chartInstance.data.labels = chartData.labels;
+                    chartInstance.data.datasets = chartData.datasets;
+                    chartInstance.update();
+                }
+            } catch (error) {
+                console.error(`Lỗi khi tải biểu đồ ${type}:`, error);
+            }
+        }
+
+        function processChartHistoryData(rawData) {
+            if (!rawData || !Array.isArray(rawData.items)) {
+                return { labels: [], datasets: [] };
+            }
+
+            const labels = rawData.items.map(item => item.time);
+            const powerValues = rawData.items.map(item => item.power);
+
+            return {
+                labels: labels,
+                datasets: [{
+                    label: 'Công suất PV (kW)',
+                    data: powerValues,
+                    borderColor: '#eab308',
+                    backgroundColor: 'rgba(234, 179, 8, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            };
+        }
+
+        // ==================== CÁC HÀM CẬP NHẬT GIAO DIỆN (UI) ====================
+
+        function updateRuntimeUI(data) {
+            if (!data) return;
+
+            // Đồng bộ dữ liệu real-time vào object cấu hình giao diện
+            systemData.pv.totalWatts = data.pvPower * 1000;
+            systemData.load.watts = data.loadPower * 1000;
+            systemData.grid.watts = Math.abs(data.gridPower * 1000);
+            systemData.grid.state = data.gridPower > 0 ? 1 : (data.gridPower < 0 ? 2 : 3);
+            systemData.battery.watts = Math.abs(data.battPower * 1000);
+            systemData.battery.discharging = data.battPower >= 0;
+            systemData.battery.soc = data.battSoc;
+            systemData.battery.volts = data.battVolt;
+
+            renderDashboard();
+        }
+
+        function updatePeriodicUI(data) {
+            if (!data) return;
+            systemData.pv.todayKwh = data.dailyGeneration;
+            systemData.pv.totalKwh = data.totalGeneration;
+            systemData.grid.freq = `${data.gridFrequency} Hz`;
+            systemData.grid.volts = data.gridVoltage;
+            renderDashboard();
         }
 
         function switchBarChartPeriod(period) {
@@ -803,6 +949,9 @@
             renderDashboard();
             initPowerLineChart();
             initEnergyBarChart();
+
+            // Khởi chạy hệ thống gọi API tự động định kỳ với Device ID (Ví dụ: '2530-95670646PH')
+            initDashboardAPI('2530-95670646PH', powerChartInstance);
         };
     </script>
 </body>
