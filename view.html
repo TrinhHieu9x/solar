@@ -82,12 +82,12 @@
         <div class="grid grid-cols-4 gap-1 sm:gap-1.5">
             <!-- KPI 1: Solar Yield -->
             <div id="kpi-pv-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-amber-300 transition-colors" onclick="togglePVCardMode()" title="Nhấp chuyển đổi hiển thị công suất cực đại trong ngày">
-                <div class="bg-amber-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center">
+                <div id="kpi-pv-header" class="bg-amber-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center transition-colors">
                     <span id="kpi-pv-title" class="truncate">Năng suất MT</span>
                     <i class="fa-solid fa-solar-panel shrink-0 text-[10px]"></i>
                 </div>
                 <div class="p-1 sm:p-1.5 flex items-center justify-between gap-1">
-                    <div class="text-amber-500 text-base sm:text-xl shrink-0">
+                    <div id="kpi-pv-icon" class="text-amber-500 text-base sm:text-xl shrink-0 transition-colors">
                         <i class="fa-solid fa-sun"></i>
                     </div>
                     <div class="text-right w-full min-w-0">
@@ -205,11 +205,11 @@
                         </marker>
                     </defs>
 
-                    <!-- Base Path Guides (Thêm id để điều khiển ẩn/hiện bằng JS) -->
-                    <path id="guide-path-pv" d="M 225 0 L 328 45 Q 340 45, 340 57 L 340 105 Q 340 117, 352 117 L 375 117" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+                    <!-- Base Path Guides -->
+                    <path id="guide-path-pv" d="M 140 0 L 328 45 Q 340 45, 340 57 L 340 105 Q 340 117, 352 117 L 375 117" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
                     
-                    <path id="guide-path-grid-import" d="M 625 0 L 522 45 Q 510 45, 510 57 L 510 105 Q 510 117, 498 117 L 475 117" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
-                    <path id="guide-path-grid-export" d="M 475 117 L 498 117 Q 510 117, 510 105 L 510 57 Q 510 45, 522 45 L 625 0" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none" style="display:none;"/>
+                    <path id="guide-path-grid-import" d="M 710 0 L 522 45 Q 510 45, 510 57 L 510 105 Q 510 117, 498 117 L 475 117" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+                    <path id="guide-path-grid-export" d="M 475 117 L 498 117 Q 510 117, 510 105 L 510 57 Q 510 45, 522 45 L 710 0" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none" style="display:none;"/>
 
                     <path id="guide-path-bat-discharge" d="M 140 210 L 328 210 Q 340 210, 340 198 L 340 165 Q 340 153, 352 153 L 375 153" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
                     <path id="guide-path-bat-charge" d="M 375 153 L 352 153 Q 340 153, 340 165 L 340 198 Q 340 210, 328 210 L 140 210" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none" style="display:none;"/>
@@ -460,11 +460,11 @@
         let powerChartInstance = null;
 
         // Exact SVG Flow Paths
-        const PATH_PV = 'M 225 0 L 328 45 Q 340 45, 340 57 L 340 105 Q 340 117, 352 117 L 375 117';
+        const PATH_PV = 'M 140 0 L 328 45 Q 340 45, 340 57 L 340 105 Q 340 117, 352 117 L 375 117';
         const PATH_BAT_DISCHARGE = 'M 140 210 L 328 210 Q 340 210, 340 198 L 340 165 Q 340 153, 352 153 L 375 153';
         const PATH_BAT_CHARGE = 'M 375 153 L 352 153 Q 340 153, 340 165 L 340 198 Q 340 210, 328 210 L 140 210';
-        const PATH_GRID_IMPORT = 'M 625 0 L 522 45 Q 510 45, 510 57 L 510 105 Q 510 117, 498 117 L 475 117';
-        const PATH_GRID_EXPORT = 'M 475 117 L 498 117 Q 510 117, 510 105 L 510 57 Q 510 45, 522 45 L 625 0';
+        const PATH_GRID_IMPORT = 'M 710 0 L 522 45 Q 510 45, 510 57 L 510 105 Q 510 117, 498 117 L 475 117';
+        const PATH_GRID_EXPORT = 'M 475 117 L 498 117 Q 510 117, 510 105 L 510 57 Q 510 45, 522 45 L 710 0';
         const PATH_LOAD = 'M 475 153 L 498 153 Q 510 153, 510 165 L 510 198 Q 510 210, 522 210 L 710 210';
 
         function showNotification(msg) {
@@ -550,7 +550,22 @@
         }
 
         function renderDashboard() {
-            // PV KPI
+            // PV KPI Header & Icon Styling Sync with State
+            const kpiPvHeader = document.getElementById('kpi-pv-header');
+            const kpiPvIcon = document.getElementById('kpi-pv-icon');
+            const topoPvIcon = document.getElementById('topo-pv-icon');
+
+            if (systemData.pv.active) {
+                kpiPvHeader.className = "bg-amber-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center transition-colors";
+                kpiPvIcon.className = "text-amber-500 text-base sm:text-xl shrink-0 transition-colors";
+                topoPvIcon.className = "fa-solid fa-solar-panel text-2xl sm:text-3xl text-amber-500 group-hover:scale-110 transition-transform";
+            } else {
+                kpiPvHeader.className = "bg-slate-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center transition-colors";
+                kpiPvIcon.className = "text-slate-400 text-base sm:text-xl shrink-0 transition-colors";
+                topoPvIcon.className = "fa-solid fa-solar-panel text-2xl sm:text-3xl text-slate-400 group-hover:scale-110 transition-transform";
+            }
+
+            // PV KPI Values
             document.getElementById('kpi-pv-today').innerText = systemData.pv.isPeakView ? systemData.pv.maxPeakToday.toFixed(0) : systemData.pv.todayKwh.toFixed(2);
             document.getElementById('kpi-pv-unit').innerText = systemData.pv.isPeakView ? 'W' : 'kWh';
             document.getElementById('kpi-pv-label1').innerText = systemData.pv.isPeakView ? 'CS Đỉnh (Hôm nay)' : 'Hôm nay';
@@ -656,8 +671,8 @@
                 cardPv.style.opacity = "1";
                 if (topoPvSub) topoPvSub.style.opacity = "1";
             } else {
-                cardPv.style.opacity = "0.4";
-                if (topoPvSub) topoPvSub.style.opacity = "0.4";
+                cardPv.style.opacity = "0.5";
+                if (topoPvSub) topoPvSub.style.opacity = "0.5";
             }
 
             updateStreams();
@@ -745,7 +760,7 @@
                         { label: 'Battery Discharged', data: Array.from({length: 31}, () => Math.floor(Math.random() * 3) + 1), backgroundColor: '#60a5fa' },
                         { label: 'Battery Charged', data: Array.from({length: 31}, () => Math.floor(Math.random() * 3) + 1), backgroundColor: '#818cf8' },
                         { label: 'Export to Grid', data: Array.from({length: 31}, () => Math.floor(Math.random() * 2)), backgroundColor: '#f87171' },
-                        { label: 'Consumption', data: Array.from({length: 31}, () => Math.floor(Math.random() * 3) + 2), backgroundColor: '#f97316' }
+                        { label: 'Consumption', data:Array.from({length: 31}, () => Math.floor(Math.random() * 3) + 2), backgroundColor: '#f97316' }
                     ]
                 },
                 options: {
