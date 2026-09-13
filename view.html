@@ -435,7 +435,7 @@
                 isPeakView: false
             },
             battery: { 
-                isPeakView: false,
+                isView: false,
                 discharging: true, 
                 watts: 0.0, 
                 volts: 0.0, 
@@ -608,7 +608,7 @@
     const batChargeToday = (systemData.battery && systemData.battery.chargeTodayKwh) || 0;
     const batChargeTotal = (systemData.battery && systemData.battery.chargeTotalKwh) || 0;
 
-    if (!isPeakView) {
+    if (!isView) {
         if (kpiBatHeader) kpiBatHeader.className = "bg-emerald-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center";
         if (kpiBatTitle) kpiBatTitle.innerText = "Xả pin";
         if (kpiBatHeaderIcon) kpiBatHeaderIcon.className = "fa-solid fa-battery-half shrink-0 text-[10px]";
