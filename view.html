@@ -764,6 +764,8 @@
 // CONFIG & TIMING CONSTANTS
 // ==========================================
 const API_CONFIG = {
+    // Trỏ trực tiếp tới Cloudflare Worker Domain
+    BASE_URL: 'https://view.solarvn.workers.dev',
     SERIAL_NUM: '2530-95670646PH',
     INTERVAL_QUICK_10S: 10000,   // 10 giây
     INTERVAL_PERIODIC_1M: 60000  // 60 giây (1 phút)
@@ -772,17 +774,37 @@ const API_CONFIG = {
 let quickTimer = null;
 let periodicTimer = null;
 
+// Lấy ngày hiện tại dạng YYYY-MM-DD
+function getTodayString() {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 // ==========================================
-// Helper gửi POST request dạng JSON Body
+// Helper gửi POST Form-Data (x-www-form-urlencoded)
 // ==========================================
-async function postAPI(url, data) {
+async function postFormAPI(path, paramsObj) {
+    // URL chuẩn dạng: https://view.solarvn.workers.dev/WManage/api/...
+    const url = `${API_CONFIG.BASE_URL}${path}`;
+    const formParams = new URLSearchParams();
+
+    for (const key in paramsObj) {
+        if (paramsObj.hasOwnProperty(key)) {
+            formParams.append(key, paramsObj[key]);
+        }
+    }
+
     const res = await fetch(url, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         },
-        body: JSON.stringify(data)
+        body: formParams.toString()
     });
+
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     return await res.json();
 }
@@ -791,13 +813,12 @@ async function postAPI(url, data) {
 // 1. CHÍNH: KHỞI TẠO VÀ ĐỒNG BỘ 4 API
 // ==========================================
 async function initDashboardAPI(serialNum = API_CONFIG.SERIAL_NUM) {
-    // Xóa timer cũ nếu tái khởi chạy
     if (quickTimer) clearInterval(quickTimer);
     if (periodicTimer) clearInterval(periodicTimer);
 
     setConnectionStatus(true, "Đang đồng bộ...");
 
-    // LUỒNG 1: Gọi ngay lập tức cả 4 API qua POST khi vừa vào Web (Initial Load)
+    // LUỒNG 1: Vào web gọi ngay đồng thời 4 API qua Worker
     try {
         await Promise.all([
             fetchRuntimeQuick(serialNum),
@@ -811,12 +832,12 @@ async function initDashboardAPI(serialNum = API_CONFIG.SERIAL_NUM) {
         setConnectionStatus(false, "Lỗi nạp dữ liệu");
     }
 
-    // LUỒNG 2: Vòng lặp 10s/lần cho getRuntimeQuick
+    // LUỒNG 2: Vòng lặp 10s/lần
     quickTimer = setInterval(() => {
         fetchRuntimeQuick(serialNum);
     }, API_CONFIG.INTERVAL_QUICK_10S);
 
-    // LUỒNG 3: Vòng lặp 1 phút/lần cho 3 API còn lại
+    // LUỒNG 3: Vòng lặp 1 phút/lần
     periodicTimer = setInterval(() => {
         fetchEnergyInfo(serialNum);
         fetchDayMultiLineChart(serialNum);
@@ -825,13 +846,17 @@ async function initDashboardAPI(serialNum = API_CONFIG.SERIAL_NUM) {
 }
 
 // ==========================================
-// 2. CÁC HÀM FETCH VÀ PARSE DỮ LIỆU (POST METHODS)
+// 2. CÁC HÀM FETCH API (GỬI ĐẾN WORKER)
 // ==========================================
 
 // --- API 1 (10s/lần): Runtime Quick ---
 async function fetchRuntimeQuick(serialNum) {
     try {
-        const data = await postAPI('/WManage/api/inverter/getRuntimeQuick', { id: serialNum });
+        const data = await postFormAPI('/WManage/api/inverter/getRuntimeQuick', { 
+            inverterSn: serialNum,
+            serialNum: serialNum,
+            id: serialNum 
+        });
         
         if (data && (data.success || data.hasRuntimeData)) {
             updateRuntimeUI(data);
@@ -848,7 +873,11 @@ async function fetchRuntimeQuick(serialNum) {
 // --- API 2 (1 phút/lần): Energy Info ---
 async function fetchEnergyInfo(serialNum) {
     try {
-        const data = await postAPI('/WManage/api/inverter/getInverterEnergyInfo', { id: serialNum });
+        const data = await postFormAPI('/WManage/api/inverter/getInverterEnergyInfo', { 
+            inverterSn: serialNum,
+            serialNum: serialNum,
+            id: serialNum 
+        });
 
         if (data && data.success) {
             updateEnergyUI(data);
@@ -861,7 +890,12 @@ async function fetchEnergyInfo(serialNum) {
 // --- API 3 (1 phút/lần): Day MultiLine Chart ---
 async function fetchDayMultiLineChart(serialNum) {
     try {
-        const result = await postAPI('/WManage/api/analyze/chart/dayMultiLine', { id: serialNum });
+        const todayStr = getTodayString();
+        const result = await postFormAPI('/WManage/api/analyze/chart/dayMultiLine', { 
+            inverterSn: serialNum,
+            serialNum: serialNum,
+            date: todayStr 
+        });
 
         if (result && result.success && Array.isArray(result.data)) {
             renderPowerLineChart(result.data);
@@ -874,7 +908,12 @@ async function fetchDayMultiLineChart(serialNum) {
 // --- API 4 (1 phút/lần): Month Column Chart ---
 async function fetchMonthColumnChart(serialNum) {
     try {
-        const result = await postAPI('/WManage/api/inverterChart/monthColumn', { id: serialNum });
+        const todayStr = getTodayString();
+        const result = await postFormAPI('/WManage/api/inverterChart/monthColumn', { 
+            inverterSn: serialNum,
+            serialNum: serialNum,
+            date: todayStr 
+        });
 
         if (result && result.success && Array.isArray(result.data)) {
             renderEnergyBarChart(result.data);
@@ -883,160 +922,6 @@ async function fetchMonthColumnChart(serialNum) {
         console.error("Fetch Month Column Chart Error:", err);
     }
 }
-
-// ==========================================
-// 3. MAPPING DỮ LIỆU VÀO SYSTEM DATA & UI
-// ==========================================
-
-function updateRuntimeUI(data) {
-    // PV Solar (ppv1, ppv2, ppv đơn vị kW -> đổi sang W)
-    systemData.pv.totalWatts = Math.round((data.ppv || 0) * 1000);
-    systemData.pv.pv1.watts = Math.round((data.ppv1 || 0) * 1000);
-    systemData.pv.pv1.volts = data.vpv1 || 0;
-    systemData.pv.pv2.watts = Math.round((data.ppv2 || 0) * 1000);
-    systemData.pv.pv2.volts = data.vpv2 || 0;
-
-    // Pin lưu trữ (Battery)
-    systemData.battery.soc = data.soc || 0;
-    systemData.battery.voltage = data.vBat || 0;
-    systemData.battery.current = data.iBat || 0;
-    systemData.battery.temp = data.tBat || 0;
-    systemData.battery.watts = Math.abs(data.batPower || 0);
-    systemData.battery.discharging = (data.batPower || 0) >= 0; // >=0 là xả, <0 là sạc
-
-    // Lưới điện (Grid)
-    const pGrid = data.pToGrid || 0;
-    const pUser = data.pToUser || 0;
-    systemData.grid.volts = data.vacr || 0;
-    systemData.grid.freq = `${data.fac || 50} Hz`;
-
-    if (pUser > 0) {
-        systemData.grid.state = 1; // Import
-        systemData.grid.watts = pUser;
-    } else if (pGrid > 0) {
-        systemData.grid.state = 2; // Export
-        systemData.grid.watts = pGrid;
-    } else {
-        systemData.grid.state = 3; // Off-grid / Idle
-        systemData.grid.watts = 0;
-    }
-
-    // Tải tiêu thụ (Load)
-    systemData.load.watts = data.consumptionPower || 0;
-
-    // Render lại giao diện chính
-    renderDashboard();
-}
-
-function updateEnergyUI(data) {
-    systemData.energy = {
-        todayYielding: parseFloat(data.todayYieldingText || data.todayYielding || 0),
-        totalYielding: parseFloat(data.totalYieldingText || data.totalYielding || 0),
-        todayUsage: parseFloat(data.todayUsageText || data.todayUsage || 0),
-        todayImport: parseFloat(data.todayImportText || data.todayImport || 0),
-        todayExport: parseFloat(data.todayExportText || data.todayExport || 0),
-        todayCharging: parseFloat(data.todayChargingText || data.todayCharging || 0),
-        todayDischarging: parseFloat(data.todayDischargingText || data.todayDischarging || 0)
-    };
-    
-    // Cập nhật lên UI nếu có phần tử tương ứng
-    const elTodayYield = document.getElementById('val-today-yielding');
-    if (elTodayYield) elTodayYield.innerText = `${systemData.energy.todayYielding} kWh`;
-}
-
-// ==========================================
-// 4. MAPPING DỮ LIỆU VÀO CHART.JS
-// ==========================================
-
-function renderPowerLineChart(dataItems) {
-    if (!powerChartInstance) return;
-
-    const labels = [];
-    const pvData = [];
-    const gridData = [];
-    const batData = [];
-    const loadData = [];
-    const socData = [];
-
-    dataItems.forEach(item => {
-        const timeStr = item.time ? item.time.substring(11, 16) : `${String(item.hour).padStart(2, '0')}:${String(item.minute).padStart(2, '0')}`;
-        labels.push(timeStr);
-
-        pvData.push(item.solarPv || 0);
-        gridData.push(item.gridPower || 0);
-        batData.push(item.batteryDischarging || 0);
-        loadData.push(item.consumption || 0);
-        socData.push(item.soc || 0);
-    });
-
-    powerChartInstance.data.labels = labels;
-    powerChartInstance.data.datasets[0].data = pvData;
-    powerChartInstance.data.datasets[1].data = batData;
-    powerChartInstance.data.datasets[2].data = gridData;
-    powerChartInstance.data.datasets[3].data = loadData;
-    if (powerChartInstance.data.datasets[4]) {
-        powerChartInstance.data.datasets[4].data = socData;
-    }
-    powerChartInstance.update('none');
-}
-
-function renderEnergyBarChart(dataItems) {
-    if (!energyChartInstance) return;
-
-    const labels = [];
-    const pvYieldData = [];
-    const consumptionData = [];
-
-    dataItems.forEach(item => {
-        labels.push(`Ngày ${item.day}`);
-        pvYieldData.push(item.ePv1Day || 0);
-        consumptionData.push(item.eConsumptionDay || 0);
-    });
-
-    energyChartInstance.data.labels = labels;
-    energyChartInstance.data.datasets[0].data = pvYieldData;
-    if (energyChartInstance.data.datasets[1]) {
-        energyChartInstance.data.datasets[1].data = consumptionData;
-    }
-    energyChartInstance.update('none');
-}
-
-// ==========================================
-// 5. STATUS BADGE CONTROL
-// ==========================================
-function setConnectionStatus(isConnected, message = "") {
-    const dot = document.getElementById('connection-dot');
-    const text = document.getElementById('connection-text');
-    const footerStatus = document.getElementById('connection-status-footer');
-
-    if (isConnected) {
-        if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
-        if (text) text.innerText = message || "Trực tuyến";
-        if (footerStatus) {
-            footerStatus.innerText = "Status: Connected";
-            footerStatus.className = "text-emerald-600 font-semibold text-[9px]";
-        }
-    } else {
-        if (dot) dot.className = "w-2 h-2 rounded-full bg-rose-500";
-        if (text) text.innerText = message || "Mất kết nối";
-        if (footerStatus) {
-            footerStatus.innerText = "Status: Offline";
-            footerStatus.className = "text-rose-600 font-semibold text-[9px]";
-        }
-    }
-}
-
-// ==========================================
-// 6. KHỞI CHẠY HỆ THỐNG
-// ==========================================
-window.onload = function () {
-    renderDashboard();
-    initPowerLineChart();
-    initEnergyBarChart();
-
-    // Kích hoạt nạp 4 API dạng POST & chạy Timer
-    initDashboardAPI(API_CONFIG.SERIAL_NUM);
-};
     </script>
 </body>
 </html>
