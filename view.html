@@ -562,32 +562,13 @@
             }
         }
 function renderDashboard() {
-            // --- Helper Cập Nhật Text & Màu Sắc ---
+            // Helper gắn nội dung văn bản
             const setElemText = (id, val) => {
                 const el = document.getElementById(id);
                 if (el) el.innerText = val;
             };
 
-            const setElemClass = (id, className) => {
-                const el = document.getElementById(id);
-                if (el) el.className = className;
-            };
-
-            // ==========================================
             // 1. TOPOLOGY PV (SOLAR)
-            // ==========================================
-            const isPvActive = systemData.pv && systemData.pv.active && systemData.pv.totalWatts > 0;
-            
-            // Icon PV
-            setElemClass('topo-pv-icon', isPvActive 
-                ? "fa-solid fa-solar-panel text-2xl sm:text-3xl text-amber-500 group-hover:scale-110 transition-transform" 
-                : "fa-solid fa-solar-panel text-2xl sm:text-3xl text-slate-400 group-hover:scale-110 transition-transform");
-            
-            // Con số Watts PV
-            setElemClass('topo-pv-total-watts', isPvActive 
-                ? "text-base sm:text-lg font-bold text-amber-500" 
-                : "text-base sm:text-lg font-bold text-slate-400");
-
             if (systemData.pv) {
                 setElemText('topo-pv-total-watts', (systemData.pv.totalWatts || 0).toFixed(1) + ' W');
                 if (systemData.pv.pv1) {
@@ -600,30 +581,7 @@ function renderDashboard() {
                 }
             }
 
-            // ==========================================
             // 2. TOPOLOGY BATTERY
-            // ==========================================
-            const isBatActive = systemData.battery && systemData.battery.watts > 0;
-            const isDischarging = systemData.battery && systemData.battery.discharging;
-
-            // Đổi màu Icon & Con số Pin: Emerald (Xả/Xanh lá) | Sky (Sạc/Xanh dương) | Slate (Nghỉ/Xám)
-            let batColorClass = "text-slate-400";
-            let batIconClass = "fa-solid fa-battery-half text-2xl sm:text-3xl text-slate-400 group-hover:scale-110 transition-transform";
-
-            if (isBatActive) {
-                if (isDischarging) {
-                    batColorClass = "text-emerald-500";
-                    batIconClass = "fa-solid fa-battery-half text-2xl sm:text-3xl text-emerald-500 group-hover:scale-110 transition-transform";
-                } else {
-                    batColorClass = "text-sky-500";
-                    batIconClass = "fa-solid fa-battery-bolt text-2xl sm:text-3xl text-sky-500 group-hover:scale-110 transition-transform";
-                }
-            }
-
-            setElemClass('topo-bat-icon', batIconClass);
-            setElemClass('topo-bat-watts', `text-base sm:text-lg font-bold ${batColorClass}`);
-            setElemClass('topo-bat-soc', `text-sm font-semibold ${batColorClass}`);
-
             if (systemData.battery) {
                 setElemText('topo-bat-watts', (systemData.battery.watts || 0).toFixed(0) + ' W');
                 setElemText('topo-bat-soc', (systemData.battery.soc || 0) + '%');
@@ -631,55 +589,19 @@ function renderDashboard() {
                 setElemText('topo-bat-volts', (systemData.battery.volts || systemData.battery.voltage || 0).toFixed(1) + ' Vdc');
             }
 
-            // ==========================================
             // 3. TOPOLOGY GRID
-            // ==========================================
-            const gridState = systemData.grid ? systemData.grid.state : 0;
-            const isGridActive = systemData.grid && systemData.grid.watts > 0;
-
-            // Đổi màu Grid: Amber (Import/Cam) | Purple (Export/Tím) | Slate (Xám)
-            let gridColorClass = "text-slate-400";
-            let gridIconClass = "fa-solid fa-plug-circle-bolt text-2xl sm:text-3xl text-slate-400 group-hover:scale-110 transition-transform";
-
-            if (isGridActive) {
-                if (gridState === 1) { // Import
-                    gridColorClass = "text-amber-500";
-                    gridIconClass = "fa-solid fa-plug-circle-bolt text-2xl sm:text-3xl text-amber-500 group-hover:scale-110 transition-transform";
-                } else if (gridState === 2) { // Export
-                    gridColorClass = "text-purple-500";
-                    gridIconClass = "fa-solid fa-tower-broadcast text-2xl sm:text-3xl text-purple-500 group-hover:scale-110 transition-transform";
-                }
-            }
-
-            setElemClass('topo-grid-icon', gridIconClass);
-            setElemClass('topo-grid-watts', `text-base sm:text-lg font-bold ${gridColorClass}`);
-
             if (systemData.grid) {
                 setElemText('topo-grid-watts', (systemData.grid.watts || 0).toFixed(1) + ' W');
                 setElemText('topo-grid-volts', (systemData.grid.volts || 0).toFixed(1) + ' Vac');
                 setElemText('topo-grid-freq', systemData.grid.freq || '50 Hz');
             }
 
-            // ==========================================
-            // 4. TOPOLOGY LOAD (TẢI TIÊU THỤ)
-            // ==========================================
-            const isLoadActive = systemData.load && systemData.load.watts > 0;
-
-            setElemClass('topo-load-icon', isLoadActive 
-                ? "fa-solid fa-house-signal text-2xl sm:text-3xl text-blue-600 group-hover:scale-110 transition-transform" 
-                : "fa-solid fa-house-signal text-2xl sm:text-3xl text-slate-400 group-hover:scale-110 transition-transform");
-            
-            setElemClass('topo-load-watts', isLoadActive 
-                ? "text-base sm:text-lg font-bold text-blue-600" 
-                : "text-base sm:text-lg font-bold text-slate-400");
-
+            // 4. TOPOLOGY LOAD
             if (systemData.load) {
                 setElemText('topo-load-watts', (systemData.load.watts || 0).toFixed(0) + ' W');
             }
 
-            // ==========================================
-            // 5. KPI CARDS UPDATES
-            // ==========================================
+            // 5. CẬP NHẬT CÁC THẺ KPI TRÊN CÙNG
             // --- KPI PV ---
             const elPvToday = document.getElementById('kpi-pv-today');
             if (elPvToday) {
@@ -776,11 +698,15 @@ function renderDashboard() {
             const elLoadTotal = document.getElementById('kpi-load-total');
             if (elLoadTotal) elLoadTotal.innerText = ((systemData.load && systemData.load.totalKwh) || 0).toFixed(1);
 
-            // Cập nhật luồng chuyển động dòng điện
+            // Cập nhật luồng chuyển động SVG
             if (typeof updateStreams === 'function') {
                 updateStreams();
             }
         }
+
+
+
+        
         function togglePVCardMode() {
             systemData.pv.isPeakView = !systemData.pv.isPeakView;
             renderDashboard();
