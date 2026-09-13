@@ -955,55 +955,51 @@ function updateRuntimeUI(data) {
 function updateEnergyUI(data) {
     if (!data) return;
 
-    // 1. Lưu dữ liệu đã làm tròn/chuẩn hóa vào systemData
+    // 1. Lưu dữ liệu đã làm tròn/chuẩn hóa từ API vào systemData
     systemData.energy = {
-        // Ưu tiên dùng *Text vì Luxpower đã định dạng đúng dấu thập phân (VD: 1.54 kWh)
+        // Solar Yield
         todayYielding: parseFloat(data.todayYieldingText || data.todayYielding || 0).toFixed(2),
         totalYielding: parseFloat(data.totalYieldingText || (data.totalYielding / 10) || 0).toFixed(2),
         
+        // Consumption (Sự tiêu thụ)
         todayUsage: parseFloat(data.todayUsageText || data.todayUsage || 0).toFixed(2),
         totalUsage: parseFloat(data.totalUsageText || data.totalUsage || 0).toFixed(2),
 
+        // Grid (Nhập/Xuất lưới)
         todayImport: parseFloat(data.todayImportText || data.todayImport || 0).toFixed(2),
         totalImport: parseFloat(data.totalImportText || data.totalImport || 0).toFixed(2),
-
         todayExport: parseFloat(data.todayExportText || data.todayExport || 0).toFixed(2),
         totalExport: parseFloat(data.totalExportText || data.totalExport || 0).toFixed(2),
 
+        // Battery (Sạc/Xả)
         todayCharging: parseFloat(data.todayChargingText || data.todayCharging || 0).toFixed(2),
         totalCharging: parseFloat(data.totalChargingText || data.totalCharging || 0).toFixed(2),
-
         todayDischarging: parseFloat(data.todayDischargingText || data.todayDischarging || 0).toFixed(2),
         totalDischarging: parseFloat(data.totalDischargingText || data.totalDischarging || 0).toFixed(2)
     };
 
-    // 2. Helper gán nhanh dữ liệu vào HTML (nếu ID tồn tại)
     const setElemText = (id, text) => {
         const el = document.getElementById(id);
         if (el) el.innerText = text;
     };
 
-    // 3. Cập nhật trực tiếp vào từng ô ID trên HTML
-    // PV Yielding (Sản lượng điện mặt trời)
-    setElemText('val-today-yielding', `${systemData.energy.todayYielding} kWh`);
-    setElemText('val-total-yielding', `${systemData.energy.totalYielding} kWh`);
+    // 2. Cập nhật chính xác vào từng ID trên giao diện HTML của bạn
 
-    // Usage (Tải tiêu thụ)
-    setElemText('val-today-usage', `${systemData.energy.todayUsage} kWh`);
-    setElemText('val-total-usage', `${systemData.energy.totalUsage} kWh`);
+    // KPI 1: Solar (Năng suất MT)
+    setElemText('kpi-pv-today', systemData.energy.todayYielding);
+    setElemText('kpi-pv-total', systemData.energy.totalYielding);
 
-    // Grid Import / Export (Lưới điện)
-    setElemText('val-today-import', `${systemData.energy.todayImport} kWh`);
-    setElemText('val-total-import', `${systemData.energy.totalImport} kWh`);
-    setElemText('val-today-export', `${systemData.energy.todayExport} kWh`);
-    setElemText('val-total-export', `${systemData.energy.totalExport} kWh`);
+    // KPI 2: Battery (Mặc định hiển thị Nạp/Sạc - val1 là Hôm nay, val2 là Tổng)
+    setElemText('kpi-bat-val1', systemData.energy.todayCharging);
+    setElemText('kpi-bat-val2', systemData.energy.totalCharging);
 
-    // Battery Charge / Discharge (Pin nạp / xả)
-    setElemText('val-today-charging', `${systemData.energy.todayCharging} kWh`);
-    setElemText('val-total-charging', `${systemData.energy.totalCharging} kWh`);
-    setElemText('val-today-discharging', `${systemData.energy.todayDischarging} kWh`);
-    setElemText('val-total-discharging', `${systemData.energy.totalDischarging} kWh`);
-    
+    // KPI 3: Grid (Mặc định hiển thị Mua/Nhập điện lưới)
+    setElemText('kpi-grid-val1', systemData.energy.todayImport);
+    setElemText('kpi-grid-val2', systemData.energy.totalImport);
+
+    // KPI 4: Consumption (Sự tiêu thụ)
+    setElemText('kpi-load-today', systemData.energy.todayUsage);
+    setElemText('kpi-load-total', systemData.energy.totalUsage);
 }
 
 // ==========================================
