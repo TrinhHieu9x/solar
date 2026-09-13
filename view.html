@@ -914,10 +914,10 @@ function updateRuntimeUI(data) {
     systemData.pv.pv2.watts = Math.round((data.ppv2 || 0) * 1000);
     systemData.pv.pv2.volts = data.vpv2 || 0;
     if ( data.vpv1 > 80 || data.vpv2 > 80){
-        systemData.pv.active;
+        !systemData.pv.active;
     } else
     {
-        !systemData.pv.active;
+        systemData.pv.active;
     }
 
     // Pin lưu trữ (Battery)
