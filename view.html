@@ -852,7 +852,7 @@ async function initDashboardAPI(serialNum = API_CONFIG.SERIAL_NUM) {
 // --- API 1 (10s/lần): Runtime Quick ---
 async function fetchRuntimeQuick(serialNum) {
     try {
-        const data = await postFormAPI('/WManage/api/inverter/getRuntimeQuick', { 
+        const data = await postFormAPI('/WManage/api/inverter/getInverterRuntime', { 
             inverterSn: serialNum,
             serialNum: serialNum,
             id: serialNum 
