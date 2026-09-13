@@ -678,6 +678,21 @@
             renderDashboard();
         }
 
+        function togglePVMode() {
+            systemData.pv.active = !systemData.pv.active;
+            renderDashboard();
+        }
+
+        function toggleBatteryMode() {
+            systemData.battery.discharging = !systemData.battery.discharging;
+            renderDashboard();
+        }
+
+        function cycleGridMode() {
+            systemData.grid.state = (systemData.grid.state % 3) + 1;
+            renderDashboard();
+        }
+
         function triggerFastCharge() {
             systemData.battery.discharging = false;
             systemData.battery.watts = 2500.0;
