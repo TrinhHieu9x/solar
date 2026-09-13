@@ -476,7 +476,7 @@
             },
             grid: { 
                 state: 0, 
-                isGridView: false, // false = Import (Lấy), true = Export (Đẩy)
+                isGridView: false, 
                 watts: 0.0, 
                 volts: 0.0, 
                 freq: "50 Hz", 
@@ -609,7 +609,6 @@
                 if (el) el.className = className;
             };
 
-            // 1. PIN MẶT TRỜI (PV)
             const isPvOnline = systemData.pv && systemData.pv.totalWatts > 0;
             setElemClass('topo-pv-icon', isPvOnline ? "fa-solid fa-solar-panel text-2xl sm:text-3xl text-amber-500 transition-transform" : "fa-solid fa-solar-panel text-2xl sm:text-3xl text-slate-400 transition-transform");
             setElemClass('topo-pv-total-watts', isPvOnline ? "font-bold text-slate-800 text-xs sm:text-sm" : "font-bold text-slate-400 text-xs sm:text-sm");
@@ -626,7 +625,6 @@
                 }
             }
 
-            // 2. HÒA LƯỚI (GRID)
             const gridVolts = (systemData.grid && systemData.grid.volts) || 0;
             const isGridOnline = systemData.grid && gridVolts > 90;
             const gridState = systemData.grid ? systemData.grid.state : 0;
@@ -641,7 +639,6 @@
                 setElemText('topo-grid-freq', systemData.grid.freq ? systemData.grid.freq : '50.00 Hz');
             }
 
-            // 3. PIN LƯU TRỮ (BATTERY)
             const batSoc = systemData.battery ? (systemData.battery.soc || 0) : 0;
             const isBatOnline = systemData.battery && batSoc > 0;
 
@@ -655,13 +652,11 @@
                 setElemText('topo-bat-volts', (systemData.battery.volts || 53.3) + ' Vdc');
             }
 
-            // 4. TẢI DỰ PHÒNG (EPS)
             const epsWatts = systemData.eps ? (systemData.eps.watts || 0) : 0;
             setElemText('topo-eps-watts', epsWatts.toFixed(0) + ' W');
             const elEpsW = document.getElementById('topo-eps-watts');
             if (elEpsW) elEpsW.className = epsWatts > 0 ? "font-bold text-slate-800 text-xs leading-tight" : "font-bold text-slate-400 text-xs leading-tight";
 
-            // 5. TẢI (LOAD)
             const loadWatts = systemData.load ? (systemData.load.watts || 0) : 0;
             const isLoadOnline = systemData.load && loadWatts > 0;
 
@@ -672,7 +667,6 @@
                 setElemText('topo-load-watts', loadWatts.toFixed(1) + ' W');
             }
 
-            // CÁC THẺ KPI PHÍA TRÊN
             const elPvToday = document.getElementById('kpi-pv-today');
             if (elPvToday) {
                 const pvTodayVal = (systemData.pv && systemData.pv.todayKwh) || 0;
@@ -686,7 +680,6 @@
             const elPvTotal = document.getElementById('kpi-pv-total');
             if (elPvTotal) elPvTotal.innerText = ((systemData.pv && systemData.pv.totalKwh) || 0).toFixed(1);
 
-            // KPI Battery (Discharge = Emerald Green, Charge = Teal)
             const isBatView = (systemData.battery && systemData.battery.isBatView) || false;
             const batDischargeToday = (systemData.battery && systemData.battery.todayKwh) || 0;
             const batDischargeTotal = (systemData.battery && systemData.battery.totalKwh) || 0;
@@ -709,7 +702,6 @@
                 document.getElementById('kpi-bat-label2').innerText = "Tổng sạc";
             }
 
-            // KPI Grid (Import = Sky Blue, Export = Purple)
             const isGridView = (systemData.grid && systemData.grid.isGridView) || false;
             const gridImportToday = (systemData.grid && systemData.grid.importTodayKwh) || 0;
             const gridImportTotal = (systemData.grid && systemData.grid.importTotalKwh) || 0;
@@ -760,36 +752,36 @@
             showNotification('Đã gửi lệnh kích hoạt sạc nhanh tới biến tần!');
         }
 
-        function initPowerLineChart() {
-            const ctx = document.getElementById('powerLineChart');
-            if (!ctx) return;
+function initPowerLineChart() {
+    const ctx = document.getElementById('dailyPowerChart');
+    if (!ctx) return;
 
-            powerChartInstance = new Chart(ctx.getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [
-                        { label: 'Solar PV (W)', data: [], borderColor: '#f59e0b', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2 },
-                        { label: 'Battery (W)', data: [], borderColor: '#10b981', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2 },
-                        { label: 'Grid (W)', data: [], borderColor: '#f97316', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2 },
-                        { label: 'Consumption (W)', data: [], borderColor: '#2563eb', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2 }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    scales: {
-                        y: { title: { display: true, text: 'Công suất (W)', font: { size: 10 } }, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
-                        x: { ticks: { font: { size: 10 } } }
-                    },
-                    plugins: { legend: { labels: { font: { size: 11 }, boxWidth: 12 } } }
-                }
-            });
+    powerChartInstance = new Chart(ctx.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [
+                { label: 'Solar PV (W)', data: [], borderColor: '#f59e0b', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
+                { label: 'Battery (W)', data: [], borderColor: '#10b981', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
+                { label: 'Grid (W)', data: [], borderColor: '#f97316', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
+                { label: 'Consumption (W)', data: [], borderColor: '#2563eb', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                y: { title: { display: true, text: 'Công suất (W)', font: { size: 10 } }, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
+                x: { ticks: { font: { size: 10 }, maxTicksLimit: 8 } }
+            },
+            plugins: { legend: { labels: { font: { size: 11 }, boxWidth: 12 } } }
         }
+    });
+}
 
         function initEnergyBarChart() {
-            const ctx = document.getElementById('energyBarChart');
+            const ctx = document.getElementById('energyOverviewChart');
             if (!ctx) return;
 
             energyChartInstance = new Chart(ctx.getContext('2d'), {
@@ -806,7 +798,7 @@
                     maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false },
                     scales: {
-                        x: { title: { display: true, text: 'Ngày trong tháng', font: { size: 10 } }, ticks: { font: { size: 9 } } },
+                        x: { title: { display: true, text: 'Thời gian', font: { size: 10 } }, ticks: { font: { size: 9 } } },
                         y: { title: { display: true, text: 'Năng lượng (kWh)', font: { size: 10 } }, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } }
                     },
                     plugins: {
@@ -843,7 +835,20 @@
             });
 
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            return await res.json();
+            
+            // Kiểm tra an toàn xem response trả về có phải JSON hay HTML (tránh lỗi !DOCTYPE html)
+            const contentType = res.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                return await res.json();
+            } else {
+                const text = await res.text();
+                try {
+                    return JSON.parse(text);
+                } catch(e) {
+                    console.warn(`API ${path} trả về không phải JSON thuần.`);
+                    return { success: false, data: [] };
+                }
+            }
         }
 
         async function initDashboardAPI(serialNum = API_CONFIG.SERIAL_NUM) {
@@ -856,8 +861,8 @@
                 await Promise.all([
                     fetchRuntimeQuick(serialNum),
                     fetchEnergyInfo(serialNum),
-                    fetchDayMultiLineChart(serialNum),
-                    fetchMonthColumnChart(serialNum)
+                    fetchDayMultiLineChartWithDate(serialNum, selectedDateStr),
+                    fetchMonthEnergyChart(serialNum, selectedYear, selectedMonth)
                 ]);
                 setConnectionStatus(true, "Connected");
             } catch (err) {
@@ -871,8 +876,7 @@
 
             periodicTimer = setInterval(() => {
                 fetchEnergyInfo(serialNum);
-                fetchDayMultiLineChart(serialNum);
-                fetchMonthColumnChart(serialNum);
+                fetchDayMultiLineChartWithDate(serialNum, selectedDateStr);
             }, API_CONFIG.INTERVAL_PERIODIC_1M);
         }
 
@@ -884,7 +888,7 @@
                     id: serialNum 
                 });
                 
-                if (data && (data.success || data.hasRuntimeData)) {
+                if (data && (data.success || data.hasRuntimeData || data.ppv !== undefined)) {
                     updateRuntimeUI(data);
                     setConnectionStatus(true, "Connected");
                 } else {
@@ -904,14 +908,13 @@
                     id: serialNum 
                 });
 
-                if (data && data.success) {
+                if (data) {
                     updateEnergyUI(data);
                 }
             } catch (err) {
                 console.error("Fetch Energy Info Error:", err);
             }
         }
-
 
         function updateRuntimeUI(data) {
             systemData.pv.totalWatts = Math.round((data.ppv || 0) * 1000);
@@ -987,10 +990,10 @@
                 const timeStr = item.time ? item.time.substring(11, 16) : `${String(item.hour || 0).padStart(2, '0')}:${String(item.minute || 0).padStart(2, '0')}`;
                 labels.push(timeStr);
 
-                pvData.push(item.solarPv || 0);
-                gridData.push(item.gridPower || 0);
-                batData.push(item.batteryDischarging || 0);
-                loadData.push(item.consumption || 0);
+                pvData.push(item.solarPv || item.ppv || 0);
+                gridData.push(item.gridPower || item.pGrid || 0);
+                batData.push(item.batteryDischarging || item.batPower || 0);
+                loadData.push(item.consumption || item.pLoad || 0);
             });
 
             powerChartInstance.data.labels = labels;
@@ -1001,126 +1004,119 @@
             powerChartInstance.update('none');
         }
 
-// Biến trạng thái thời gian biểu đồ
-    let selectedDateStr = "2026-09-13";
-    let currentEnergyMode = 'month'; // 'month' hoặc 'year'
-    let selectedYear = 2026;
-    let selectedMonth = 9; // 1 - 12
+        // Biến trạng thái thời gian biểu đồ
+        let selectedDateStr = getTodayString();
+        let currentEnergyMode = 'month'; 
+        let selectedYear = new Date().getFullYear();
+        let selectedMonth = new Date().getMonth() + 1;
 
-    // Cập nhật lại logic chuyển ngày cho biểu đồ công suất
-    function changeDayOffset(direction) {
-        let d = new Date(selectedDateStr);
-        d.setDate(d.getDate() + direction);
-        selectedDateStr = d.toISOString().split('T')[0];
-        document.getElementById('current-day-label').innerText = selectedDateStr;
-        // Gọi lại API lấy dữ liệu ngày mới với payload dateText
-        fetchDayMultiLineChartWithDate(API_CONFIG.SERIAL_NUM, selectedDateStr);
-    }
-
-    // Chuyển đổi qua lại giữa tab Tháng và Năm
-    function switchEnergyMode(mode) {
-        currentEnergyMode = mode;
-        const btnMonth = document.getElementById('btn-tab-month');
-        const btnYear = document.getElementById('btn-tab-year');
-        const titleEl = document.getElementById('energy-chart-title');
-        const periodLabel = document.getElementById('energy-period-label');
-
-        if (mode === 'month') {
-            btnMonth.className = "px-2.5 py-1 rounded-md bg-white text-blue-600 shadow-xs transition";
-            btnYear.className = "px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition";
-            titleEl.innerText = "Energy Overview (Năng lượng tháng)";
-            periodLabel.innerText = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
-            fetchMonthEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear, selectedMonth);
-        } else {
-            btnYear.className = "px-2.5 py-1 rounded-md bg-white text-blue-600 shadow-xs transition";
-            btnMonth.className = "px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition";
-            titleEl.innerText = "Energy Overview (Năng lượng năm)";
-            periodLabel.innerText = `${selectedYear}`;
-            fetchYearEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear);
+        // Hàm khớp với onclick="changeDay(-1)" trên HTML giao diện
+        function changeDay(direction) {
+            let d = new Date(selectedDateStr);
+            d.setDate(d.getDate() + direction);
+            selectedDateStr = d.toISOString().split('T')[0];
+            document.getElementById('current-day-label').innerText = `Ngày ${selectedDateStr.split('-')[2]} thg ${parseInt(selectedDateStr.split('-')[1])}, ${selectedDateStr.split('-')[0]}`;
+            fetchDayMultiLineChartWithDate(API_CONFIG.SERIAL_NUM, selectedDateStr);
         }
-    }
 
-    // Tăng giảm kỳ hạn (Tháng hoặc Năm) khi bấm nút mũi tên
-    function changeEnergyPeriod(direction) {
-        const periodLabel = document.getElementById('energy-period-label');
-        if (currentEnergyMode === 'month') {
-            selectedMonth += direction;
-            if (selectedMonth > 12) { selectedMonth = 1; selectedYear++; }
-            else if (selectedMonth < 1) { selectedMonth = 12; selectedYear--; }
-            periodLabel.innerText = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
-            fetchMonthEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear, selectedMonth);
-        } else {
-            selectedYear += direction;
-            periodLabel.innerText = `${selectedYear}`;
-            fetchYearEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear);
-        }
-    }
+        function switchEnergyMode(mode) {
+            currentEnergyMode = mode;
+            const btnMonth = document.getElementById('btn-tab-month');
+            const btnYear = document.getElementById('btn-tab-year');
+            const titleEl = document.getElementById('energy-chart-title');
+            const periodLabel = document.getElementById('energy-period-label');
 
-    // Các hàm gọi API với đúng chuẩn payload yêu cầu:
-    async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
-        try {
-            const result = await postFormAPI('/WManage/api/analyze/chart/dayMultiLine', { 
-                serialNum: serialNum,
-                dateText: dateText 
-            });
-            if (result && result.success && Array.isArray(result.data)) {
-                renderPowerLineChart(result.data);
+            if (mode === 'month') {
+                btnMonth.className = "px-3 py-1.5 rounded-md bg-white text-blue-600 shadow-sm transition";
+                btnYear.className = "px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 transition";
+                titleEl.innerText = "Energy Overview (Năng lượng tháng)";
+                periodLabel.innerText = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
+                fetchMonthEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear, selectedMonth);
+            } else {
+                btnYear.className = "px-3 py-1.5 rounded-md bg-white text-blue-600 shadow-sm transition";
+                btnMonth.className = "px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 transition";
+                titleEl.innerText = "Energy Overview (Năng lượng năm)";
+                periodLabel.innerText = `${selectedYear}`;
+                fetchYearEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear);
             }
-        } catch (err) {
-            console.error("Fetch Day Chart Error:", err);
         }
-    }
 
-    async function fetchMonthEnergyChart(serialNum, year, month) {
-        try {
-            const result = await postFormAPI('/WManage/api/inverterChart/monthColumn', { 
-                serialNum: serialNum,
-                year: year,
-                month: month
-            });
-            if (result && result.success && Array.isArray(result.data)) {
-                renderEnergyBarChart(result.data, 'month');
+        function changeEnergyPeriod(direction) {
+            const periodLabel = document.getElementById('energy-period-label');
+            if (currentEnergyMode === 'month') {
+                selectedMonth += direction;
+                if (selectedMonth > 12) { selectedMonth = 1; selectedYear++; }
+                else if (selectedMonth < 1) { selectedMonth = 12; selectedYear--; }
+                periodLabel.innerText = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
+                fetchMonthEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear, selectedMonth);
+            } else {
+                selectedYear += direction;
+                periodLabel.innerText = `${selectedYear}`;
+                fetchYearEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear);
             }
-        } catch (err) {
-            console.error("Fetch Month Chart Error:", err);
         }
-    }
 
-    async function fetchYearEnergyChart(serialNum, year) {
-        try {
-            // Thay đường dẫn API năm nếu hệ thống của bạn có endpoint riêng cho năm, ví dụ /WManage/api/inverterChart/yearColumn hoặc truyền chung
-            const result = await postFormAPI('/WManage/api/inverterChart/yearColumn', { 
-                serialNum: serialNum,
-                year: year
-            });
-            if (result && result.success && Array.isArray(result.data)) {
-                renderEnergyBarChart(result.data, 'year');
+        async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
+            try {
+                const result = await postFormAPI('/WManage/api/analyze/chart/dayMultiLine', { 
+                    serialNum: serialNum,
+                    dateText: dateText 
+                });
+                if (result && (result.success || Array.isArray(result.data))) {
+                    renderPowerLineChart(result.data || result);
+                }
+            } catch (err) {
+                console.error("Fetch Day Chart Error:", err);
             }
-        } catch (err) {
-            console.error("Fetch Year Chart Error:", err);
         }
-    }
-        
 
-function renderEnergyBarChart(dataItems, mode = 'month') {
+        async function fetchMonthEnergyChart(serialNum, year, month) {
+            try {
+                const result = await postFormAPI('/WManage/api/inverterChart/monthColumn', { 
+                    serialNum: serialNum,
+                    year: year,
+                    month: month
+                });
+                if (result && (result.success || Array.isArray(result.data))) {
+                    renderEnergyBarChart(result.data || result, 'month');
+                }
+            } catch (err) {
+                console.error("Fetch Month Chart Error:", err);
+            }
+        }
+
+        async function fetchYearEnergyChart(serialNum, year) {
+            try {
+                const result = await postFormAPI('/WManage/api/inverterChart/yearColumn', { 
+                    serialNum: serialNum,
+                    year: year
+                });
+                if (result && (result.success || Array.isArray(result.data))) {
+                    renderEnergyBarChart(result.data || result, 'year');
+                }
+            } catch (err) {
+                console.error("Fetch Year Chart Error:", err);
+            }
+        }
+
+        function renderEnergyBarChart(dataItems, mode = 'month') {
             if (!energyChartInstance) return;
 
             const labels = [];
             const pvYieldData = [];
             const consumptionData = [];
 
+            if (!Array.isArray(dataItems)) return;
+
             dataItems.forEach((item, index) => {
                 if (mode === 'year') {
-                    // Nếu là chế độ Năm, item thường trả về theo tháng (VD: item.month hoặc index từ 0-11)
                     labels.push(`Tháng ${item.month || index + 1}`);
                 } else {
-                    // Chế độ Tháng hiển thị theo ngày
                     labels.push(`Ngày ${item.day || index + 1}`);
                 }
                 
-                // Tùy thuộc vào keys trả về của API năm hay tháng (ví dụ ePv1Day hoặc ePvMonth...)
-                pvYieldData.push(item.ePv1Day || item.ePvMonth || item.solarPv || 0);
-                consumptionData.push(item.eConsumptionDay || item.eConsumptionMonth || item.consumption || 0);
+                pvYieldData.push(item.ePv1Day || item.ePvMonth || item.solarPv || item.pvYield || 0);
+                consumptionData.push(item.eConsumptionDay || item.eConsumptionMonth || item.consumption || item.loadConsumption || 0);
             });
 
             energyChartInstance.data.labels = labels;
@@ -1152,12 +1148,17 @@ function renderEnergyBarChart(dataItems, mode = 'month') {
         }
 
         window.onload = function () {
-            document.getElementById('chart-date-input').value = getTodayString();
+            // Khởi tạo label ngày hiện tại lên giao diện
+            const dObj = new Date();
+            document.getElementById('current-day-label').innerText = `Ngày ${dObj.getDate()} thg ${dObj.getMonth() + 1}, ${dObj.getFullYear()}`;
+            document.getElementById('energy-period-label').innerText = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
+            
             renderDashboard();
             initPowerLineChart();
             initEnergyBarChart();
             initDashboardAPI(API_CONFIG.SERIAL_NUM);
         };
     </script>
+
 </body>
 </html>
