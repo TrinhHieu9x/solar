@@ -435,7 +435,7 @@
                 isPeakView: false
             },
             battery: { 
-                isView: false,
+                isBatView: false,
                 discharging: true, 
                 watts: 0.0, 
                 volts: 0.0, 
@@ -602,13 +602,13 @@
     const kpiBatLabel2 = document.getElementById('kpi-bat-label2');
     const kpiBatVal2 = document.getElementById('kpi-bat-val2');
 
-    const batDischarging = systemData.battery && systemData.battery.discharging;
+    const isBatView = (systemData.battery && systemData.battery.isBatView) || false;
     const batDischargeToday = (systemData.battery && systemData.battery.todayKwh) || 0;
     const batDischargeTotal = (systemData.battery && systemData.battery.totalKwh) || 0;
     const batChargeToday = (systemData.battery && systemData.battery.chargeTodayKwh) || 0;
     const batChargeTotal = (systemData.battery && systemData.battery.chargeTotalKwh) || 0;
 
-    if (!isView) {
+    if (!isBatView) {
         if (kpiBatHeader) kpiBatHeader.className = "bg-emerald-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center";
         if (kpiBatTitle) kpiBatTitle.innerText = "Xả pin";
         if (kpiBatHeaderIcon) kpiBatHeaderIcon.className = "fa-solid fa-battery-half shrink-0 text-[10px]";
