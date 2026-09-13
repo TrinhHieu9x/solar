@@ -346,51 +346,57 @@
         </div>
 
         <div class="grid grid-cols-2 gap-2 sm:gap-2.5">
-            <!-- Card 1: Chế độ đang chạy -->
+            <!-- Card 1: Chế độ đang chạy (Working Mode) -->
             <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-2xs border border-slate-200 flex flex-col justify-between">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5">
                     <div class="flex items-center gap-1.5">
-                        <div class="w-6 h-6 rounded-md bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
+                        <div class="w-6 h-6 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                             <i class="fa-solid fa-sliders text-xs"></i>
                         </div>
                         <h4 class="font-bold text-slate-800 text-xs sm:text-sm truncate">Chế độ đang chạy</h4>
                     </div>
+                    <button onclick="alert('Mở cài đặt chế độ vận hành')" class="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer">
+                        <i class="fa-solid fa-sliders text-xs"></i>
+                    </button>
                 </div>
                 <div class="space-y-0.5 py-0.5">
-                    <div class="text-slate-700 font-bold text-xs sm:text-sm flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <div class="text-emerald-600 font-bold text-xs sm:text-sm flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         <span id="mode-primary-title">Hòa lưới</span>
                     </div>
                     <div id="mode-secondary-desc" class="text-[11px] text-slate-500 font-medium truncate">
-                        Chế độ tự tiêu thụ (Self-consumption)
-                    </div>
-                    <div class="text-[10px] text-slate-400 pt-0.5">
-                        Ưu tiên: Tải > Pin > Lưới <span class="text-emerald-600 font-bold">Tối ưu</span>
+                        Chế độ tự tiêu thụ (Self-consumption mode)
                     </div>
                 </div>
                 <div class="mt-1 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[9px] sm:text-[10px] text-slate-400 font-mono">
-                    <span class="truncate">Lux Inverter</span>
-                    <span id="mode-optimization-tag" class="text-emerald-600 font-semibold shrink-0">Online</span>
+                    <span class="truncate">Ưu tiên: Tải > Pin > Lưới</span>
+                    <span class="text-emerald-600 font-semibold shrink-0">Tối ưu</span>
                 </div>
             </div>
 
-            <!-- Card 2: Nhật ký / Cảnh báo -->
+            <!-- Card 2: Nhật ký / Cảnh báo (System Logs & Alarms) -->
             <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-2xs border border-slate-200 flex flex-col justify-between">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5">
                     <div class="flex items-center gap-1.5">
-                        <div class="w-6 h-6 rounded-md bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
+                        <div class="w-6 h-6 rounded-md bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
                             <i class="fa-solid fa-clipboard-list text-xs"></i>
                         </div>
-                        <h4 class="font-bold text-slate-800 text-xs sm:text-sm">Nhật ký</h4>
+                        <div class="flex items-center gap-1">
+                            <h4 class="font-bold text-slate-800 text-xs sm:text-sm">Nhật ký</h4>
+                            <i class="fa-regular fa-circle-question text-slate-400 text-xs cursor-pointer" onclick="alert('Nhật ký ghi nhận các cảnh báo và sự kiện vận hành hệ thống')"></i>
+                        </div>
                     </div>
+                    <button onclick="alert('Xem toàn bộ lịch sử cảnh báo')" class="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
                 </div>
                 <div id="log-status-container" class="py-1 flex items-center gap-1.5 text-xs text-slate-600">
                     <i class="fa-solid fa-circle-check text-emerald-500 text-sm shrink-0"></i>
-                    <span id="log-status-text" class="font-medium text-[11px] sm:text-xs truncate">Hiện tại không có cảnh báo</span>
+                    <span class="font-medium text-slate-700 text-[11px] sm:text-xs truncate">Hiện tại không có cảnh báo</span>
                 </div>
                 <div class="mt-1 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[9px] sm:text-[10px] text-slate-400 font-mono">
-                    <span>Mã lỗi: <strong id="error-code-val" class="text-slate-600">0x00</strong></span>
-                    <span id="error-status-label" class="text-emerald-600 font-semibold">Bình thường</span>
+                    <span>Mã lỗi: <strong class="text-slate-600">0x00</strong></span>
+                    <span class="text-emerald-600 font-semibold">Bình thường</span>
                 </div>
             </div>
         </div>
