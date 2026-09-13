@@ -217,12 +217,16 @@
                     </defs>
 
                     <!-- Base Path Guides -->
-                    <path id="guide-path-pv" d="M 140 35 L 365 115" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="3,3" fill="none" style="display:none;"/>
-                    <path id="guide-path-grid-import" d="M 710 35 L 485 115" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="3,3" fill="none" style="display:none;"/>
-                    <path id="guide-path-grid-export" d="M 485 115 L 710 35" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="3,3" fill="none" style="display:none;"/>
-                    <path id="guide-path-bat-discharge" d="M 140 225 L 365 155" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="3,3" fill="none" style="display:none;"/>
-                    <path id="guide-path-bat-charge" d="M 365 155 L 140 225" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="3,3" fill="none" style="display:none;"/>
-                    <path id="guide-path-load" d="M 485 155 L 710 225" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="3,3" fill="none" style="display:none;"/>
+<path d="M 140 45 L 328 45 Q 340 45, 340 57 L 340 105 Q 340 117, 352 117 L 375 117" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+                    
+                    <!-- Grid to Inverter (Nối từ nửa trên icon Lưới y=45) -->
+                    <path d="M 710 45 L 522 45 Q 510 45, 510 57 L 510 105 Q 510 117, 498 117 L 475 117" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+                    
+                    <!-- Battery to Inverter (Nối giữa icon Pin y=210) -->
+                    <path d="M 140 210 L 328 210 Q 340 210, 340 198 L 340 165 Q 340 153, 352 153 L 375 153" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+                    
+                    <!-- Inverter to Load (Nối giữa icon Tải y=210) -->
+                    <path d="M 475 153 L 498 153 Q 510 153, 510 165 L 510 198 Q 510 210, 522 210 L 710 210" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
 
                     <!-- Animated Chevron Flow Stream Groups -->
                     <g id="stream-pv"></g>
@@ -502,12 +506,13 @@
         let quickTimer = null;
         let periodicTimer = null;
 
-        const PATH_PV = 'M 140 35 L 365 115';
-        const PATH_GRID_IMPORT = 'M 710 35 L 485 115';
-        const PATH_GRID_EXPORT = 'M 485 115 L 710 35';
-        const PATH_BAT_DISCHARGE = 'M 140 225 L 365 155';
-        const PATH_BAT_CHARGE = 'M 365 155 L 140 225';
-        const PATH_LOAD = 'M 485 155 L 710 225';
+        const PATH_PV = 'M 140 45 L 328 45 Q 340 45, 340 57 L 340 105 Q 340 117, 352 117 L 375 117';
+        const PATH_BAT_DISCHARGE = 'M 140 210 L 328 210 Q 340 210, 340 198 L 340 165 Q 340 153, 352 153 L 375 153';
+        const PATH_BAT_CHARGE = 'M 375 153 L 352 153 Q 340 153, 340 165 L 340 198 Q 340 210, 328 210 L 140 210';
+        const PATH_GRID_IMPORT = 'M 710 45 L 522 45 Q 510 45, 510 57 L 510 105 Q 510 117, 498 117 L 475 117';
+        const PATH_GRID_EXPORT = 'M 475 117 L 498 117 Q 510 117, 510 105 L 510 57 Q 510 45, 522 45 L 710 0';
+        const PATH_LOAD = 'M 475 153 L 498 153 Q 510 153, 510 165 L 510 198 Q 510 210, 522 210 L 710 210';
+
 
         function showNotification(msg) {
             const modal = document.getElementById('notification-modal');
