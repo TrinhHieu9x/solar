@@ -895,7 +895,7 @@
 
     async function fetchChartHistoryData(deviceId, type, chartInstance) {
         try {
-            const response = await fetch(`${API_BASE_URL}/WManage/api/inverter/getInverterCharts`, {
+            const response = await fetch(`${API_BASE_URL}/WManage/api/inverterChart/monthColumn`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: deviceId, type: type })
