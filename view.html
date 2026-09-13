@@ -446,6 +446,7 @@
             },
             grid: { 
                 state: 0, 
+                card:0,
                 watts: 0.0, 
                 volts: 0.0, 
                 freq: "0 Hz", 
@@ -618,7 +619,7 @@
             const gridLabel2 = document.getElementById('kpi-grid-label2');
             const gridVal2 = document.getElementById('kpi-grid-val2');
 
-            if (systemData.gridcard.state === 1) {
+            if (systemData.grid.card === 1) {
                 gridHeader.className = "bg-sky-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center";
                 gridTitle.innerText = "Import";
                 gridIcon.innerHTML = '<i class="fa-solid fa-plug-circle-bolt"></i>';
@@ -628,7 +629,7 @@
                 gridVal1.innerText = systemData.grid.importTodayKwh.toFixed(2);
                 gridLabel2.innerText = "Tổng lấy";
                 gridVal2.innerText = systemData.grid.importTotalKwh.toFixed(1);
-            } else if (systemData.gridcard.state === 2) {
+            } else if (systemData.grid.card === 2) {
                 gridHeader.className = "bg-purple-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center";
                 gridTitle.innerText = "Export";
                 gridIcon.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i>';
