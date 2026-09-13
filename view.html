@@ -624,7 +624,6 @@
                 gridTitle.innerText = "Import";
                 gridIcon.innerHTML = '<i class="fa-solid fa-plug-circle-bolt"></i>';
                 gridIcon.className = "text-sky-500 text-base sm:text-xl shrink-0";
-                topoGridIcon.className = "fa-solid fa-tower-cell text-2xl sm:text-3xl text-sky-600 group-hover:scale-110 transition-transform";
                 gridLabel1.innerText = "Lấy hôm nay";
                 gridVal1.innerText = systemData.grid.importTodayKwh.toFixed(2);
                 gridLabel2.innerText = "Tổng lấy";
@@ -634,21 +633,10 @@
                 gridTitle.innerText = "Export";
                 gridIcon.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i>';
                 gridIcon.className = "text-purple-500 text-base sm:text-xl shrink-0";
-                topoGridIcon.className = "fa-solid fa-tower-broadcast text-2xl sm:text-3xl text-purple-600 group-hover:scale-110 transition-transform";
                 gridLabel1.innerText = "Đẩy hôm nay";
                 gridVal1.innerText = systemData.grid.exportTodayKwh.toFixed(2);
                 gridLabel2.innerText = "Tổng đẩy";
                 gridVal2.innerText = systemData.grid.exportTotalKwh.toFixed(1);
-            } else {
-                gridHeader.className = "bg-slate-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center";
-                gridTitle.innerText = "Lưới";
-                gridIcon.innerHTML = '<i class="fa-solid fa-plug-circle-xmark"></i>';
-                gridIcon.className = "text-slate-400 text-base sm:text-xl shrink-0";
-                topoGridIcon.className = "fa-solid fa-tower-cell text-2xl sm:text-3xl text-slate-400 group-hover:scale-110 transition-transform";
-                gridLabel1.innerText = "Hôm nay";
-                gridVal1.innerText = "0.00";
-                gridLabel2.innerText = "Tổng";
-                gridVal2.innerText = "0.0";
             }
 
             document.getElementById('kpi-load-today').innerText = systemData.load.todayKwh.toFixed(2);
