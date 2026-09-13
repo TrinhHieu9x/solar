@@ -912,39 +912,6 @@
             }
         }
 
-        async function fetchDayMultiLineChart(serialNum) {
-            try {
-                const todayStr = getTodayString();
-                const result = await postFormAPI('/WManage/api/analyze/chart/dayMultiLine', { 
-                    inverterSn: serialNum,
-                    serialNum: serialNum,
-                    date: todayStr 
-                });
-
-                if (result && result.success && Array.isArray(result.data)) {
-                    renderPowerLineChart(result.data);
-                }
-            } catch (err) {
-                console.error("Fetch MultiLine Chart Error:", err);
-            }
-        }
-
-        async function fetchMonthColumnChart(serialNum) {
-            try {
-                const todayStr = getTodayString();
-                const result = await postFormAPI('/WManage/api/inverterChart/monthColumn', { 
-                    inverterSn: serialNum,
-                    serialNum: serialNum,
-                    date: todayStr 
-                });
-
-                if (result && result.success && Array.isArray(result.data)) {
-                    renderEnergyBarChart(result.data);
-                }
-            } catch (err) {
-                console.error("Fetch Month Column Chart Error:", err);
-            }
-        }
 
         function updateRuntimeUI(data) {
             systemData.pv.totalWatts = Math.round((data.ppv || 0) * 1000);
@@ -1135,17 +1102,25 @@
     }
         
 
-        function renderEnergyBarChart(dataItems) {
+function renderEnergyBarChart(dataItems, mode = 'month') {
             if (!energyChartInstance) return;
 
             const labels = [];
             const pvYieldData = [];
             const consumptionData = [];
 
-            dataItems.forEach(item => {
-                labels.push(`Ngày ${item.day}`);
-                pvYieldData.push(item.ePv1Day || 0);
-                consumptionData.push(item.eConsumptionDay || 0);
+            dataItems.forEach((item, index) => {
+                if (mode === 'year') {
+                    // Nếu là chế độ Năm, item thường trả về theo tháng (VD: item.month hoặc index từ 0-11)
+                    labels.push(`Tháng ${item.month || index + 1}`);
+                } else {
+                    // Chế độ Tháng hiển thị theo ngày
+                    labels.push(`Ngày ${item.day || index + 1}`);
+                }
+                
+                // Tùy thuộc vào keys trả về của API năm hay tháng (ví dụ ePv1Day hoặc ePvMonth...)
+                pvYieldData.push(item.ePv1Day || item.ePvMonth || item.solarPv || 0);
+                consumptionData.push(item.eConsumptionDay || item.eConsumptionMonth || item.consumption || 0);
             });
 
             energyChartInstance.data.labels = labels;
