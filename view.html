@@ -562,101 +562,156 @@
         }
 
         function renderDashboard() {
-            const kpiPvHeader = document.getElementById('kpi-pv-header');
-            const kpiPvIcon = document.getElementById('kpi-pv-icon');
-            const topoPvIcon = document.getElementById('topo-pv-icon');
+    const kpiPvHeader = document.getElementById('kpi-pv-header');
+    const kpiPvIcon = document.getElementById('kpi-pv-icon');
+    const topoPvIcon = document.getElementById('topo-pv-icon');
 
-            if (systemData.pv.active && systemData.pv.totalWatts > 0) {
-                topoPvIcon.className = "fa-solid fa-solar-panel text-2xl sm:text-3xl text-amber-500 group-hover:scale-110 transition-transform";
-            } else {
-                topoPvIcon.className = "fa-solid fa-solar-panel text-2xl sm:text-3xl text-slate-400 group-hover:scale-110 transition-transform";
-            }
-
-            document.getElementById('kpi-pv-today').innerText = systemData.pv.isPeakView ? systemData.pv.maxPeakToday.toFixed(0) : systemData.pv.todayKwh.toFixed(2);
-            document.getElementById('kpi-pv-unit').innerText = systemData.pv.isPeakView ? 'W' : 'kWh';
-            document.getElementById('kpi-pv-label1').innerText = systemData.pv.isPeakView ? 'CS Đỉnh (Hôm nay)' : 'Hôm nay';
-            document.getElementById('kpi-pv-total').innerText = systemData.pv.totalKwh.toFixed(1);
-
-            const kpiBatTitle = document.getElementById('kpi-bat-title');
-            const kpiBatHeader = document.getElementById('kpi-bat-header');
-            const kpiBatIcon = document.getElementById('kpi-bat-icon');
-            const kpiBatHeaderIcon = document.getElementById('kpi-bat-header-icon');
-            const kpiBatLabel1 = document.getElementById('kpi-bat-label1');
-            const kpiBatVal1 = document.getElementById('kpi-bat-val1');
-            const kpiBatLabel2 = document.getElementById('kpi-bat-label2');
-            const kpiBatVal2 = document.getElementById('kpi-bat-val2');
-
-            if (systemData.battery.discharging) {
-                kpiBatHeader.className = "bg-emerald-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center";
-                kpiBatTitle.innerText = "Xả pin";
-                kpiBatHeaderIcon.className = "fa-solid fa-battery-half shrink-0 text-[10px]";
-                kpiBatIcon.className = "text-emerald-500 text-base sm:text-xl shrink-0";
-                kpiBatLabel1.innerText = "Xả hôm nay";
-                kpiBatVal1.innerText = systemData.battery.todayKwh.toFixed(2);
-                kpiBatLabel2.innerText = "Tổng xả";
-                kpiBatVal2.innerText = systemData.battery.totalKwh.toFixed(1);
-            } else {
-                kpiBatHeader.className = "bg-sky-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center";
-                kpiBatTitle.innerText = "Sạc pin";
-                kpiBatHeaderIcon.className = "fa-solid fa-battery-bolt shrink-0 text-[10px]";
-                kpiBatIcon.className = "text-sky-500 text-base sm:text-xl shrink-0";
-                kpiBatLabel1.innerText = "Sạc hôm nay";
-                kpiBatVal1.innerText = systemData.battery.chargeTodayKwh.toFixed(2);
-                kpiBatLabel2.innerText = "Tổng sạc";
-                kpiBatVal2.innerText = systemData.battery.chargeTotalKwh.toFixed(1);
-            }
-
-            const gridTitle = document.getElementById('kpi-grid-title');
-            const gridHeader = document.getElementById('kpi-grid-header');
-            const gridIcon = document.getElementById('kpi-grid-icon');
-            const topoGridIcon = document.getElementById('topo-grid-icon');
-            const gridLabel1 = document.getElementById('kpi-grid-label1');
-            const gridVal1 = document.getElementById('kpi-grid-val1');
-            const gridLabel2 = document.getElementById('kpi-grid-label2');
-            const gridVal2 = document.getElementById('kpi-grid-val2');
-
-            if (systemData.grid.card === 1) {
-                gridHeader.className = "bg-sky-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center";
-                gridTitle.innerText = "Import";
-                gridIcon.innerHTML = '<i class="fa-solid fa-plug-circle-bolt"></i>';
-                gridIcon.className = "text-sky-500 text-base sm:text-xl shrink-0";
-                gridLabel1.innerText = "Lấy hôm nay";
-                gridVal1.innerText = systemData.grid.importTodayKwh.toFixed(2);
-                gridLabel2.innerText = "Tổng lấy";
-                gridVal2.innerText = systemData.grid.importTotalKwh.toFixed(1);
-            } else if (systemData.grid.card === 2) {
-                gridHeader.className = "bg-purple-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center";
-                gridTitle.innerText = "Export";
-                gridIcon.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i>';
-                gridIcon.className = "text-purple-500 text-base sm:text-xl shrink-0";
-                gridLabel1.innerText = "Đẩy hôm nay";
-                gridVal1.innerText = systemData.grid.exportTodayKwh.toFixed(2);
-                gridLabel2.innerText = "Tổng đẩy";
-                gridVal2.innerText = systemData.grid.exportTotalKwh.toFixed(1);
-            }
-
-            document.getElementById('kpi-load-today').innerText = systemData.load.todayKwh.toFixed(2);
-            document.getElementById('kpi-load-total').innerText = systemData.load.totalKwh.toFixed(1);
-
-            document.getElementById('topo-pv-total-watts').innerText = systemData.pv.totalWatts.toFixed(1) + ' W';
-            document.getElementById('topo-pv1-watts').innerText = systemData.pv.pv1.watts.toFixed(0) + 'W';
-            document.getElementById('topo-pv1-volts').innerText = systemData.pv.pv1.volts.toFixed(1) + 'V';
-            document.getElementById('topo-pv2-watts').innerText = systemData.pv.pv2.watts.toFixed(0) + 'W';
-            document.getElementById('topo-pv2-volts').innerText = systemData.pv.pv2.volts.toFixed(0) + 'V';
-
-            document.getElementById('topo-bat-watts').innerText = systemData.battery.watts.toFixed(0) + ' W';
-            document.getElementById('topo-bat-soc').innerText = systemData.battery.soc + '%';
-            document.getElementById('topo-bat-soc-badge').innerText = systemData.battery.soc + '%';
-            document.getElementById('topo-bat-volts').innerText = systemData.battery.volts.toFixed(1) + ' Vdc';
-
-            document.getElementById('topo-grid-watts').innerText = systemData.grid.watts.toFixed(1) + ' W';
-            document.getElementById('topo-grid-volts').innerText = systemData.grid.volts.toFixed(1) + ' Vac';
-            document.getElementById('topo-grid-freq').innerText = systemData.grid.freq;
-
-            document.getElementById('topo-load-watts').innerText = systemData.load.watts.toFixed(0) + ' W';
-
-            updateStreams();
+    if (topoPvIcon) {
+        if (systemData.pv && systemData.pv.active && systemData.pv.totalWatts > 0) {
+            topoPvIcon.className = "fa-solid fa-solar-panel text-2xl sm:text-3xl text-amber-500 group-hover:scale-110 transition-transform";
+        } else {
+            topoPvIcon.className = "fa-solid fa-solar-panel text-2xl sm:text-3xl text-slate-400 group-hover:scale-110 transition-transform";
         }
+    }
+
+    // --- KPI PV ---
+    const elPvToday = document.getElementById('kpi-pv-today');
+    if (elPvToday) {
+        const pvTodayVal = (systemData.pv && systemData.pv.todayKwh) || 0;
+        const pvPeakVal = (systemData.pv && systemData.pv.maxPeakToday) || 0;
+        elPvToday.innerText = systemData.pv && systemData.pv.isPeakView ? pvPeakVal.toFixed(0) : pvTodayVal.toFixed(2);
+    }
+
+    const elPvUnit = document.getElementById('kpi-pv-unit');
+    if (elPvUnit) elPvUnit.innerText = (systemData.pv && systemData.pv.isPeakView) ? 'W' : 'kWh';
+
+    const elPvLabel1 = document.getElementById('kpi-pv-label1');
+    if (elPvLabel1) elPvLabel1.innerText = (systemData.pv && systemData.pv.isPeakView) ? 'CS Đỉnh (Hôm nay)' : 'Hôm nay';
+
+    const elPvTotal = document.getElementById('kpi-pv-total');
+    if (elPvTotal) elPvTotal.innerText = ((systemData.pv && systemData.pv.totalKwh) || 0).toFixed(1);
+
+    // --- KPI BATTERY ---
+    const kpiBatTitle = document.getElementById('kpi-bat-title');
+    const kpiBatHeader = document.getElementById('kpi-bat-header');
+    const kpiBatIcon = document.getElementById('kpi-bat-icon');
+    const kpiBatHeaderIcon = document.getElementById('kpi-bat-header-icon');
+    const kpiBatLabel1 = document.getElementById('kpi-bat-label1');
+    const kpiBatVal1 = document.getElementById('kpi-bat-val1');
+    const kpiBatLabel2 = document.getElementById('kpi-bat-label2');
+    const kpiBatVal2 = document.getElementById('kpi-bat-val2');
+
+    const batDischarging = systemData.battery && systemData.battery.discharging;
+    const batDischargeToday = (systemData.battery && systemData.battery.todayKwh) || 0;
+    const batDischargeTotal = (systemData.battery && systemData.battery.totalKwh) || 0;
+    const batChargeToday = (systemData.battery && systemData.battery.chargeTodayKwh) || 0;
+    const batChargeTotal = (systemData.battery && systemData.battery.chargeTotalKwh) || 0;
+
+    if (batDischarging) {
+        if (kpiBatHeader) kpiBatHeader.className = "bg-emerald-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center";
+        if (kpiBatTitle) kpiBatTitle.innerText = "Xả pin";
+        if (kpiBatHeaderIcon) kpiBatHeaderIcon.className = "fa-solid fa-battery-half shrink-0 text-[10px]";
+        if (kpiBatIcon) kpiBatIcon.className = "text-emerald-500 text-base sm:text-xl shrink-0";
+        if (kpiBatLabel1) kpiBatLabel1.innerText = "Xả hôm nay";
+        if (kpiBatVal1) kpiBatVal1.innerText = batDischargeToday.toFixed(2);
+        if (kpiBatLabel2) kpiBatLabel2.innerText = "Tổng xả";
+        if (kpiBatVal2) kpiBatVal2.innerText = batDischargeTotal.toFixed(1);
+    } else {
+        if (kpiBatHeader) kpiBatHeader.className = "bg-sky-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center";
+        if (kpiBatTitle) kpiBatTitle.innerText = "Sạc pin";
+        if (kpiBatHeaderIcon) kpiBatHeaderIcon.className = "fa-solid fa-battery-bolt shrink-0 text-[10px]";
+        if (kpiBatIcon) kpiBatIcon.className = "text-sky-500 text-base sm:text-xl shrink-0";
+        if (kpiBatLabel1) kpiBatLabel1.innerText = "Sạc hôm nay";
+        if (kpiBatVal1) kpiBatVal1.innerText = batChargeToday.toFixed(2);
+        if (kpiBatLabel2) kpiBatLabel2.innerText = "Tổng sạc";
+        if (kpiBatVal2) kpiBatVal2.innerText = batChargeTotal.toFixed(1);
+    }
+
+    // --- KPI GRID ---
+    const gridTitle = document.getElementById('kpi-grid-title');
+    const gridHeader = document.getElementById('kpi-grid-header');
+    const gridIcon = document.getElementById('kpi-grid-icon');
+    const gridLabel1 = document.getElementById('kpi-grid-label1');
+    const gridVal1 = document.getElementById('kpi-grid-val1');
+    const gridLabel2 = document.getElementById('kpi-grid-label2');
+    const gridVal2 = document.getElementById('kpi-grid-val2');
+
+    const gridCardMode = (systemData.grid && (systemData.grid.card || systemData.grid.state)) || 1;
+    const gridImportToday = (systemData.grid && systemData.grid.importTodayKwh) || 0;
+    const gridImportTotal = (systemData.grid && systemData.grid.importTotalKwh) || 0;
+    const gridExportToday = (systemData.grid && systemData.grid.exportTodayKwh) || 0;
+    const gridExportTotal = (systemData.grid && systemData.grid.exportTotalKwh) || 0;
+
+    if (gridCardMode === 2) {
+        if (gridHeader) gridHeader.className = "bg-purple-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center";
+        if (gridTitle) gridTitle.innerText = "Export";
+        if (gridIcon) {
+            gridIcon.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i>';
+            gridIcon.className = "text-purple-500 text-base sm:text-xl shrink-0";
+        }
+        if (gridLabel1) gridLabel1.innerText = "Đẩy hôm nay";
+        if (gridVal1) gridVal1.innerText = gridExportToday.toFixed(2);
+        if (gridLabel2) gridLabel2.innerText = "Tổng đẩy";
+        if (gridVal2) gridVal2.innerText = gridExportTotal.toFixed(1);
+    } else {
+        if (gridHeader) gridHeader.className = "bg-sky-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center";
+        if (gridTitle) gridTitle.innerText = "Import";
+        if (gridIcon) {
+            gridIcon.innerHTML = '<i class="fa-solid fa-plug-circle-bolt"></i>';
+            gridIcon.className = "text-sky-500 text-base sm:text-xl shrink-0";
+        }
+        if (gridLabel1) gridLabel1.innerText = "Lấy hôm nay";
+        if (gridVal1) gridVal1.innerText = gridImportToday.toFixed(2);
+        if (gridLabel2) gridLabel2.innerText = "Tổng lấy";
+        if (gridVal2) gridVal2.innerText = gridImportTotal.toFixed(1);
+    }
+
+    // --- KPI LOAD ---
+    const elLoadToday = document.getElementById('kpi-load-today');
+    if (elLoadToday) elLoadToday.innerText = ((systemData.load && systemData.load.todayKwh) || 0).toFixed(2);
+
+    const elLoadTotal = document.getElementById('kpi-load-total');
+    if (elLoadTotal) elLoadTotal.innerText = ((systemData.load && systemData.load.totalKwh) || 0).toFixed(1);
+
+    // --- TOPOLOGY REALTIME WATTS ---
+    const setElemText = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = val;
+    };
+
+    if (systemData.pv) {
+        setElemText('topo-pv-total-watts', (systemData.pv.totalWatts || 0).toFixed(1) + ' W');
+        if (systemData.pv.pv1) {
+            setElemText('topo-pv1-watts', (systemData.pv.pv1.watts || 0).toFixed(0) + 'W');
+            setElemText('topo-pv1-volts', (systemData.pv.pv1.volts || 0).toFixed(1) + 'V');
+        }
+        if (systemData.pv.pv2) {
+            setElemText('topo-pv2-watts', (systemData.pv.pv2.watts || 0).toFixed(0) + 'W');
+            setElemText('topo-pv2-volts', (systemData.pv.pv2.volts || 0).toFixed(0) + 'V');
+        }
+    }
+
+    if (systemData.battery) {
+        setElemText('topo-bat-watts', (systemData.battery.watts || 0).toFixed(0) + ' W');
+        setElemText('topo-bat-soc', (systemData.battery.soc || 0) + '%');
+        setElemText('topo-bat-soc-badge', (systemData.battery.soc || 0) + '%');
+        setElemText('topo-bat-volts', (systemData.battery.volts || systemData.battery.voltage || 0).toFixed(1) + ' Vdc');
+    }
+
+    if (systemData.grid) {
+        setElemText('topo-grid-watts', (systemData.grid.watts || 0).toFixed(1) + ' W');
+        setElemText('topo-grid-volts', (systemData.grid.volts || 0).toFixed(1) + ' Vac');
+        setElemText('topo-grid-freq', systemData.grid.freq || '50 Hz');
+    }
+
+    if (systemData.load) {
+        setElemText('topo-load-watts', (systemData.load.watts || 0).toFixed(0) + ' W');
+    }
+
+    if (typeof updateStreams === 'function') {
+        updateStreams();
+    }
+}
 
         function togglePVCardMode() {
             systemData.pv.isPeakView = !systemData.pv.isPeakView;
