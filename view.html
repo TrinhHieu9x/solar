@@ -100,7 +100,7 @@
             </div>
 
             <!-- KPI 2: Battery -->
-            <div id="kpi-bat-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-slate-300 transition-colors">
+            <div id="kpi-bat-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-slate-300 transition-colors" onclick="toggleBatteryMode()">
                 <div id="kpi-bat-header" class="bg-slate-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center">
                     <span id="kpi-bat-title" class="truncate">Pin</span>
                     <i id="kpi-bat-header-icon" class="fa-solid fa-battery-half shrink-0 text-[10px]"></i>
@@ -119,7 +119,7 @@
             </div>
 
             <!-- KPI 3: Grid -->
-            <div id="kpi-grid-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-slate-300 transition-colors">
+            <div id="kpi-grid-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-slate-300 transition-colors" onclick="cycleGridMode()">
                 <div id="kpi-grid-header" class="bg-slate-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center">
                     <span id="kpi-grid-title" class="truncate">Lưới</span>
                     <i class="fa-solid fa-tower-cell shrink-0 text-[10px]"></i>
