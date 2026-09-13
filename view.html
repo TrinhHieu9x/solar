@@ -390,25 +390,48 @@
                 </div>
             </div>
         </div>
-
-        <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-2xs border border-slate-200">
-            <div class="flex flex-wrap items-center justify-between mb-2 gap-2">
-                <h3 class="font-bold text-slate-800 text-xs sm:text-sm">Input & Output Power (Biểu đồ công suất ngày)</h3>
-                <div class="flex items-center gap-1.5 text-xs">
-                    <input id="chart-date-input" type="date" class="border border-slate-300 rounded px-2 py-0.5 font-mono text-slate-600 outline-none text-[11px]">
+        
+        <!-- Khung Biểu đồ Công Suất Ngày (Input & Output Power) được tinh chỉnh giao diện dễ nhìn -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+            <div class="flex flex-wrap items-center justify-between mb-3 gap-2">
+                <h2 class="text-base font-bold text-gray-800">Input & Output Power (Biểu đồ công suất ngày)</h2>
+                <!-- Bộ chọn ngày kiểu mới gọn gàng -->
+                <div class="flex items-center space-x-2 bg-gray-100 px-3 py-1.5 rounded-lg text-sm">
+                    <button onclick="changeDay(-1)" class="text-gray-500 hover:text-gray-800"><i class="fa-solid fa-chevron-left"></i></button>
+                    <span id="current-day-label" class="font-medium text-gray-700">Ngày 13 thg 9, 2026</span>
+                    <button onclick="changeDay(1)" class="text-gray-500 hover:text-gray-800"><i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
-            <div class="chart-container">
-                <canvas id="powerLineChart"></canvas>
+            <!-- Vùng hiển thị biểu đồ ngày (Chart.js / ApexCharts) -->
+            <div class="relative w-full h-64">
+                <canvas id="dailyPowerChart"></canvas>
             </div>
         </div>
-
-        <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-2xs border border-slate-200">
-            <div class="flex flex-wrap items-center justify-between mb-2 gap-2">
-                <h3 class="font-bold text-slate-800 text-xs sm:text-sm">Energy Overview (Năng lượng tháng)</h3>
+        
+        <!-- Khung Biểu đồ Năng Lượng (Energy Overview) có nút bấm chuyển Tháng / Năm kèm bộ chọn tương ứng -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+            <div class="flex flex-wrap items-center justify-between mb-3 gap-2">
+                <h2 class="text-base font-bold text-gray-800" id="energy-chart-title">Energy Overview (Năng lượng tháng)</h2>
+                
+                <div class="flex items-center space-x-3">
+                    <!-- Nút chọn Tháng / Năm -->
+                    <div class="inline-flex rounded-lg bg-gray-100 p-0.5 text-xs font-medium">
+                        <button id="btn-tab-month" onclick="switchEnergyMode('month')" class="px-3 py-1.5 rounded-md bg-white text-blue-600 shadow-sm transition">Tháng</button>
+                        <button id="btn-tab-year" onclick="switchEnergyMode('year')" class="px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 transition">Năm</button>
+                    </div>
+        
+                    <!-- Bộ lọc thời gian (Thay đổi linh hoạt tùy theo đang ở chế độ Tháng hay Năm) -->
+                    <div class="flex items-center space-x-1 bg-gray-100 px-2.5 py-1 rounded-lg text-xs">
+                        <button onclick="changeEnergyPeriod(-1)" class="text-gray-500 hover:text-gray-800 p-1"><i class="fa-solid fa-chevron-left"></i></button>
+                        <span id="energy-period-label" class="font-medium text-gray-700">2026-09</span>
+                        <button onclick="changeEnergyPeriod(1)" class="text-gray-500 hover:text-gray-800 p-1"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
             </div>
-            <div class="chart-container">
-                <canvas id="energyBarChart"></canvas>
+        
+            <!-- Vùng hiển thị biểu đồ Năng lượng (Tháng hoặc Năm chung một khung) -->
+            <div class="relative w-full h-64">
+                <canvas id="energyOverviewChart"></canvas>
             </div>
         </div>
 
@@ -1010,6 +1033,107 @@
             powerChartInstance.data.datasets[3].data = loadData;
             powerChartInstance.update('none');
         }
+
+// Biến trạng thái thời gian biểu đồ
+    let selectedDateStr = "2026-09-13";
+    let currentEnergyMode = 'month'; // 'month' hoặc 'year'
+    let selectedYear = 2026;
+    let selectedMonth = 9; // 1 - 12
+
+    // Cập nhật lại logic chuyển ngày cho biểu đồ công suất
+    function changeDayOffset(direction) {
+        let d = new Date(selectedDateStr);
+        d.setDate(d.getDate() + direction);
+        selectedDateStr = d.toISOString().split('T')[0];
+        document.getElementById('current-day-label').innerText = selectedDateStr;
+        // Gọi lại API lấy dữ liệu ngày mới với payload dateText
+        fetchDayMultiLineChartWithDate(API_CONFIG.SERIAL_NUM, selectedDateStr);
+    }
+
+    // Chuyển đổi qua lại giữa tab Tháng và Năm
+    function switchEnergyMode(mode) {
+        currentEnergyMode = mode;
+        const btnMonth = document.getElementById('btn-tab-month');
+        const btnYear = document.getElementById('btn-tab-year');
+        const titleEl = document.getElementById('energy-chart-title');
+        const periodLabel = document.getElementById('energy-period-label');
+
+        if (mode === 'month') {
+            btnMonth.className = "px-2.5 py-1 rounded-md bg-white text-blue-600 shadow-xs transition";
+            btnYear.className = "px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition";
+            titleEl.innerText = "Energy Overview (Năng lượng tháng)";
+            periodLabel.innerText = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
+            fetchMonthEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear, selectedMonth);
+        } else {
+            btnYear.className = "px-2.5 py-1 rounded-md bg-white text-blue-600 shadow-xs transition";
+            btnMonth.className = "px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition";
+            titleEl.innerText = "Energy Overview (Năng lượng năm)";
+            periodLabel.innerText = `${selectedYear}`;
+            fetchYearEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear);
+        }
+    }
+
+    // Tăng giảm kỳ hạn (Tháng hoặc Năm) khi bấm nút mũi tên
+    function changeEnergyPeriod(direction) {
+        const periodLabel = document.getElementById('energy-period-label');
+        if (currentEnergyMode === 'month') {
+            selectedMonth += direction;
+            if (selectedMonth > 12) { selectedMonth = 1; selectedYear++; }
+            else if (selectedMonth < 1) { selectedMonth = 12; selectedYear--; }
+            periodLabel.innerText = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
+            fetchMonthEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear, selectedMonth);
+        } else {
+            selectedYear += direction;
+            periodLabel.innerText = `${selectedYear}`;
+            fetchYearEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear);
+        }
+    }
+
+    // Các hàm gọi API với đúng chuẩn payload yêu cầu:
+    async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
+        try {
+            const result = await postFormAPI('/WManage/api/analyze/chart/dayMultiLine', { 
+                serialNum: serialNum,
+                dateText: dateText 
+            });
+            if (result && result.success && Array.isArray(result.data)) {
+                renderPowerLineChart(result.data);
+            }
+        } catch (err) {
+            console.error("Fetch Day Chart Error:", err);
+        }
+    }
+
+    async function fetchMonthEnergyChart(serialNum, year, month) {
+        try {
+            const result = await postFormAPI('/WManage/api/inverterChart/monthColumn', { 
+                serialNum: serialNum,
+                year: year,
+                month: month
+            });
+            if (result && result.success && Array.isArray(result.data)) {
+                renderEnergyBarChart(result.data, 'month');
+            }
+        } catch (err) {
+            console.error("Fetch Month Chart Error:", err);
+        }
+    }
+
+    async function fetchYearEnergyChart(serialNum, year) {
+        try {
+            // Thay đường dẫn API năm nếu hệ thống của bạn có endpoint riêng cho năm, ví dụ /WManage/api/inverterChart/yearColumn hoặc truyền chung
+            const result = await postFormAPI('/WManage/api/inverterChart/yearColumn', { 
+                serialNum: serialNum,
+                year: year
+            });
+            if (result && result.success && Array.isArray(result.data)) {
+                renderEnergyBarChart(result.data, 'year');
+            }
+        } catch (err) {
+            console.error("Fetch Year Chart Error:", err);
+        }
+    }
+        
 
         function renderEnergyBarChart(dataItems) {
             if (!energyChartInstance) return;
