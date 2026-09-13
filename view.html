@@ -1003,11 +1003,7 @@ function updateEnergyUI(data) {
     setElemText('val-total-charging', `${systemData.energy.totalCharging} kWh`);
     setElemText('val-today-discharging', `${systemData.energy.todayDischarging} kWh`);
     setElemText('val-total-discharging', `${systemData.energy.totalDischarging} kWh`);
-
-    // 4. Nếu bạn dùng hàm vẽ lại tổng thể dashboard
-    if (typeof renderDashboard === 'function') {
-        renderDashboard();
-    }
+    
 }
 
 // ==========================================
