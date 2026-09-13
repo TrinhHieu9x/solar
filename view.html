@@ -82,12 +82,12 @@
         <div class="grid grid-cols-4 gap-1 sm:gap-1.5">
             <!-- KPI 1: Solar Yield -->
             <div id="kpi-pv-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-amber-300 transition-colors" onclick="togglePVCardMode()" title="Nhấp chuyển đổi hiển thị công suất cực đại trong ngày">
-                <div id="kpi-pv-header" class="bg-slate-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center transition-colors">
+                <div id="kpi-pv-header" class="bg-amber-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center transition-colors">
                     <span id="kpi-pv-title" class="truncate">Năng suất MT</span>
                     <i class="fa-solid fa-solar-panel shrink-0 text-[10px]"></i>
                 </div>
                 <div class="p-1 sm:p-1.5 flex items-center justify-between gap-1">
-                    <div id="kpi-pv-icon" class="text-slate-400 text-base sm:text-xl shrink-0 transition-colors">
+                    <div id="kpi-pv-icon" class="text-amber-500 text-base sm:text-xl shrink-0 transition-colors">
                         <i class="fa-solid fa-sun"></i>
                     </div>
                     <div class="text-right w-full min-w-0">
@@ -98,7 +98,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <!-- KPI 2: Battery -->
             <div id="kpi-bat-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-slate-300 transition-colors" onclick="toggleBatteryMode()">
                 <div id="kpi-bat-header" class="bg-slate-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center">
@@ -915,7 +915,10 @@ function updateRuntimeUI(data) {
     systemData.pv.pv2.volts = data.vpv2 || 0;
     if ( data.vpv1 > 80 || data.vpv2 > 80){
         systemData.pv.active;
-    } else     !systemData.pv.active;
+    } else
+    {
+        !systemData.pv.active;
+    }
 
     // Pin lưu trữ (Battery)
     systemData.battery.soc = data.soc || 0;
