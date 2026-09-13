@@ -226,7 +226,7 @@
                 <!-- NODE 1: Pin Mặt Trời (PV) -->
                 <div class="absolute top-2 left-[6%] sm:left-[2%] flex items-center gap-2 z-10">
                     <div class="flex flex-col items-center text-center">
-                        <div id="card-pv" onclick="togglePVMode()" title="Nhấp bật/tắt PV" class="cursor-pointer group bg-white rounded-2xl shadow-sm border border-slate-200/80 p-2 sm:p-2.5 w-20 h-20 sm:w-24 sm:h-24 flex flex-col items-center justify-center transition-all hover:shadow-md hover:border-amber-300">
+                        <div id="card-pv" title="Nhấp bật/tắt PV" class="cursor-pointer group bg-white rounded-2xl shadow-sm border border-slate-200/80 p-2 sm:p-2.5 w-20 h-20 sm:w-24 sm:h-24 flex flex-col items-center justify-center transition-all hover:shadow-md hover:border-amber-300">
                             <i id="topo-pv-icon" class="fa-solid fa-solar-panel text-2xl sm:text-3xl text-slate-400 group-hover:scale-110 transition-transform"></i>
                             <span id="topo-pv-label-text" class="text-[10px] sm:text-xs font-semibold text-slate-600 mt-1 truncate">Pin mặt trời</span>
                         </div>
@@ -567,12 +567,8 @@
             const topoPvIcon = document.getElementById('topo-pv-icon');
 
             if (systemData.pv.active && systemData.pv.totalWatts > 0) {
-                kpiPvHeader.className = "bg-amber-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center transition-colors";
-                kpiPvIcon.className = "text-amber-500 text-base sm:text-xl shrink-0 transition-colors";
                 topoPvIcon.className = "fa-solid fa-solar-panel text-2xl sm:text-3xl text-amber-500 group-hover:scale-110 transition-transform";
             } else {
-                kpiPvHeader.className = "bg-slate-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center transition-colors";
-                kpiPvIcon.className = "text-slate-400 text-base sm:text-xl shrink-0 transition-colors";
                 topoPvIcon.className = "fa-solid fa-solar-panel text-2xl sm:text-3xl text-slate-400 group-hover:scale-110 transition-transform";
             }
 
@@ -664,11 +660,6 @@
 
         function togglePVCardMode() {
             systemData.pv.isPeakView = !systemData.pv.isPeakView;
-            renderDashboard();
-        }
-
-        function togglePVMode() {
-            systemData.pv.active = !systemData.pv.active;
             renderDashboard();
         }
 
@@ -922,6 +913,9 @@ function updateRuntimeUI(data) {
     systemData.pv.pv1.volts = data.vpv1 || 0;
     systemData.pv.pv2.watts = Math.round((data.ppv2 || 0) * 1000);
     systemData.pv.pv2.volts = data.vpv2 || 0;
+    if ( data.vpv1 > 80 || data.vpv2 > 80){
+        systemData.pv.active;
+    } else     !systemData.pv.active;
 
     // Pin lưu trữ (Battery)
     systemData.battery.soc = data.soc || 0;
