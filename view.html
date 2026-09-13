@@ -1010,51 +1010,31 @@ function updateRuntimeUI(data) {
 function updateEnergyUI(data) {
     if (!data) return;
 
-    // 1. Lưu dữ liệu đã làm tròn/chuẩn hóa từ API vào systemData
-    systemData.energy = {
-        // Solar Yield
-        todayYielding: parseFloat(data.todayYieldingText || data.todayYielding || 0).toFixed(2),
-        totalYielding: parseFloat(data.totalYieldingText || (data.totalYielding / 10) || 0).toFixed(2),
-        
-        // Consumption (Sự tiêu thụ)
-        todayUsage: parseFloat(data.todayUsageText || data.todayUsage || 0).toFixed(2),
-        totalUsage: parseFloat(data.totalUsageText || data.totalUsage || 0).toFixed(2),
+    // Đảm bảo các thuộc tính pv, battery, grid, load tồn tại
+    if (!systemData.pv) systemData.pv = {};
+    if (!systemData.battery) systemData.battery = {};
+    if (!systemData.grid) systemData.grid = {};
+    if (!systemData.load) systemData.load = {};
 
-        // Grid (Nhập/Xuất lưới)
-        todayImport: parseFloat(data.todayImportText || data.todayImport || 0).toFixed(2),
-        totalImport: parseFloat(data.totalImportText || data.totalImport || 0).toFixed(2),
-        todayExport: parseFloat(data.todayExportText || data.todayExport || 0).toFixed(2),
-        totalExport: parseFloat(data.totalExportText || data.totalExport || 0).toFixed(2),
+    // Gán dữ liệu từ API vào đúng tên thuộc tính mà renderDashboard() sử dụng
+    systemData.pv.todayKwh = parseFloat(data.todayYieldingText || data.todayYielding || 0);
+    systemData.pv.totalKwh = parseFloat(data.totalYieldingText || (data.totalYielding / 10) || 0);
 
-        // Battery (Sạc/Xả)
-        todayCharging: parseFloat(data.todayChargingText || data.todayCharging || 0).toFixed(2),
-        totalCharging: parseFloat(data.totalChargingText || data.totalCharging || 0).toFixed(2),
-        todayDischarging: parseFloat(data.todayDischargingText || data.todayDischarging || 0).toFixed(2),
-        totalDischarging: parseFloat(data.totalDischargingText || data.totalDischarging || 0).toFixed(2)
-    };
+    systemData.battery.todayKwh = parseFloat(data.todayDischargingText || data.todayDischarging || 0);
+    systemData.battery.totalKwh = parseFloat(data.totalDischargingText || data.totalDischarging || 0);
+    systemData.battery.chargeTodayKwh = parseFloat(data.todayChargingText || data.todayCharging || 0);
+    systemData.battery.chargeTotalKwh = parseFloat(data.totalChargingText || data.totalCharging || 0);
 
-    const setElemText = (id, text) => {
-        const el = document.getElementById(id);
-        if (el) el.innerText = text;
-    };
+    systemData.grid.importTodayKwh = parseFloat(data.todayImportText || data.todayImport || 0);
+    systemData.grid.importTotalKwh = parseFloat(data.totalImportText || data.totalImport || 0);
+    systemData.grid.exportTodayKwh = parseFloat(data.todayExportText || data.todayExport || 0);
+    systemData.grid.exportTotalKwh = parseFloat(data.totalExportText || data.totalExport || 0);
 
-    // 2. Cập nhật chính xác vào từng ID trên giao diện HTML của bạn
+    systemData.load.todayKwh = parseFloat(data.todayUsageText || data.todayUsage || 0);
+    systemData.load.totalKwh = parseFloat(data.totalUsageText || data.totalUsage || 0);
 
-    // KPI 1: Solar (Năng suất MT)
-    setElemText('kpi-pv-today', systemData.energy.todayYielding);
-    setElemText('kpi-pv-total', systemData.energy.totalYielding);
-
-    // KPI 2: Battery (Mặc định hiển thị Nạp/Sạc - val1 là Hôm nay, val2 là Tổng)
-    setElemText('kpi-bat-val1', systemData.energy.todayCharging);
-    setElemText('kpi-bat-val2', systemData.energy.totalCharging);
-
-    // KPI 3: Grid (Mặc định hiển thị Mua/Nhập điện lưới)
-    setElemText('kpi-grid-val1', systemData.energy.todayImport);
-    setElemText('kpi-grid-val2', systemData.energy.totalImport);
-
-    // KPI 4: Consumption (Sự tiêu thụ)
-    setElemText('kpi-load-today', systemData.energy.todayUsage);
-    setElemText('kpi-load-total', systemData.energy.totalUsage);
+    // Gọi lại renderDashboard() để cập nhật ngay lập tức lên UI
+    renderDashboard();
 }
 
 // ==========================================
