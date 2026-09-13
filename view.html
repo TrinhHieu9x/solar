@@ -562,13 +562,36 @@
             }
         }
 function renderDashboard() {
-            // Helper gắn nội dung văn bản
+            // Helper cập nhật text
             const setElemText = (id, val) => {
                 const el = document.getElementById(id);
                 if (el) el.innerText = val;
             };
 
-            // 1. TOPOLOGY PV (SOLAR)
+            // Helper cập nhật Class
+            const setElemClass = (id, className) => {
+                const el = document.getElementById(id);
+                if (el) el.className = className;
+            };
+
+            // ==========================================
+            // 1. PIN MẶT TRỜI (PV)
+            // ĐK Sáng màu: Có data PV và (Watts > 0 hoặc PV1/PV2 Volts > 0)
+            // ==========================================
+            const isPvOnline = systemData.pv && (
+                (systemData.pv.totalWatts && systemData.pv.totalWatts > 0) ||
+                (systemData.pv.pv1 && systemData.pv.pv1.volts > 0) ||
+                (systemData.pv.pv2 && systemData.pv.pv2.volts > 0)
+            );
+
+            setElemClass('topo-pv-icon', isPvOnline 
+                ? "fa-solid fa-solar-panel text-3xl text-amber-500 mb-1 group-hover:scale-110 transition-transform" 
+                : "fa-solid fa-solar-panel text-3xl text-slate-400 mb-1 group-hover:scale-110 transition-transform");
+            
+            setElemClass('topo-pv-total-watts', isPvOnline 
+                ? "text-lg font-bold text-slate-800" 
+                : "text-lg font-bold text-slate-400");
+
             if (systemData.pv) {
                 setElemText('topo-pv-total-watts', (systemData.pv.totalWatts || 0).toFixed(1) + ' W');
                 if (systemData.pv.pv1) {
@@ -581,28 +604,80 @@ function renderDashboard() {
                 }
             }
 
-            // 2. TOPOLOGY BATTERY
-            if (systemData.battery) {
-                setElemText('topo-bat-watts', (systemData.battery.watts || 0).toFixed(0) + ' W');
-                setElemText('topo-bat-soc', (systemData.battery.soc || 0) + '%');
-                setElemText('topo-bat-soc-badge', (systemData.battery.soc || 0) + '%');
-                setElemText('topo-bat-volts', (systemData.battery.volts || systemData.battery.voltage || 0).toFixed(1) + ' Vdc');
+            // ==========================================
+            // 2. HÒA LƯỚI (GRID)
+            // ĐK Sáng màu: Điện áp Vac > 90V (có điện lưới). Nếu Vac = 0 hoặc không có data -> MẤT LƯỚI (XÁM)
+            // ==========================================
+            const gridVolts = (systemData.grid && systemData.grid.volts) || 0;
+            const isGridOnline = systemData.grid && gridVolts > 90; // Trên 90V xem như có lưới
+
+            // Nếu online: Import -> Sky/Blue, Export -> Purple. Nếu offline -> Slate (Xám)
+            const gridState = systemData.grid ? systemData.grid.state : 0;
+            let gridIconColor = "text-slate-400";
+            if (isGridOnline) {
+                gridIconColor = (gridState === 2) ? "text-purple-500" : "text-sky-500";
             }
 
-            // 3. TOPOLOGY GRID
+            setElemClass('topo-grid-icon', `fa-solid fa-tower-broadcast text-3xl ${gridIconColor} mb-1 group-hover:scale-110 transition-transform`);
+            setElemClass('topo-grid-watts', isGridOnline 
+                ? "text-lg font-bold text-slate-800" 
+                : "text-lg font-bold text-slate-400");
+
             if (systemData.grid) {
                 setElemText('topo-grid-watts', (systemData.grid.watts || 0).toFixed(1) + ' W');
-                setElemText('topo-grid-volts', (systemData.grid.volts || 0).toFixed(1) + ' Vac');
-                setElemText('topo-grid-freq', systemData.grid.freq || '50 Hz');
+                setElemText('topo-grid-volts', gridVolts > 0 ? gridVolts.toFixed(1) + ' Vac' : '-- Vac');
+                setElemText('topo-grid-freq', systemData.grid.freq ? systemData.grid.freq + ' Hz' : '-- Hz');
+            } else {
+                setElemText('topo-grid-watts', '0.0 W');
+                setElemText('topo-grid-volts', '-- Vac');
+                setElemText('topo-grid-freq', '-- Hz');
             }
 
-            // 4. TOPOLOGY LOAD
+            // ==========================================
+            // 3. PIN LƯU TRỮ (BATTERY)
+            // ĐK Sáng màu: Vdc > 30V hoặc SOC > 0 (Có kết nối Pin)
+            // ==========================================
+            const batVolts = systemData.battery ? (systemData.battery.volts || systemData.battery.voltage || 0) : 0;
+            const batSoc = systemData.battery ? (systemData.battery.soc || 0) : 0;
+            const isBatOnline = systemData.battery && (batVolts > 30 || batSoc > 0);
+
+            setElemClass('topo-bat-icon', isBatOnline 
+                ? "fa-solid fa-battery-half text-3xl text-emerald-500 mb-1 group-hover:scale-110 transition-transform" 
+                : "fa-solid fa-battery-half text-3xl text-slate-400 mb-1 group-hover:scale-110 transition-transform");
+            
+            setElemClass('topo-bat-watts', isBatOnline 
+                ? "text-lg font-bold text-slate-800" 
+                : "text-lg font-bold text-slate-400");
+
+            if (systemData.battery) {
+                setElemText('topo-bat-watts', (systemData.battery.watts || 0).toFixed(0) + ' W');
+                setElemText('topo-bat-soc', batSoc + '%');
+                setElemText('topo-bat-soc-badge', batSoc + '%');
+                setElemText('topo-bat-volts', batVolts > 0 ? batVolts.toFixed(1) + ' Vdc' : '-- Vdc');
+            }
+
+            // ==========================================
+            // 4. TẢI (LOAD)
+            // ĐK Sáng màu: Có công suất tải (watts > 0)
+            // ==========================================
+            const loadWatts = systemData.load ? (systemData.load.watts || 0) : 0;
+            const isLoadOnline = systemData.load && loadWatts > 0;
+
+            setElemClass('topo-load-icon', isLoadOnline 
+                ? "fa-solid fa-house-signal text-3xl text-blue-600 mb-1 group-hover:scale-110 transition-transform" 
+                : "fa-solid fa-house-signal text-3xl text-slate-400 mb-1 group-hover:scale-110 transition-transform");
+            
+            setElemClass('topo-load-watts', isLoadOnline 
+                ? "text-lg font-bold text-slate-800" 
+                : "text-lg font-bold text-slate-400");
+
             if (systemData.load) {
-                setElemText('topo-load-watts', (systemData.load.watts || 0).toFixed(0) + ' W');
+                setElemText('topo-load-watts', loadWatts.toFixed(0) + ' W');
             }
 
-            // 5. CẬP NHẬT CÁC THẺ KPI TRÊN CÙNG
-            // --- KPI PV ---
+            // ==========================================
+            // CÁC THẺ KPI PHÍA TRÊN (GIỮ NGUYÊN)
+            // ==========================================
             const elPvToday = document.getElementById('kpi-pv-today');
             if (elPvToday) {
                 const pvTodayVal = (systemData.pv && systemData.pv.todayKwh) || 0;
@@ -616,7 +691,6 @@ function renderDashboard() {
             const elPvTotal = document.getElementById('kpi-pv-total');
             if (elPvTotal) elPvTotal.innerText = ((systemData.pv && systemData.pv.totalKwh) || 0).toFixed(1);
 
-            // --- KPI BATTERY ---
             const kpiBatTitle = document.getElementById('kpi-bat-title');
             const kpiBatHeader = document.getElementById('kpi-bat-header');
             const kpiBatIcon = document.getElementById('kpi-bat-icon');
@@ -652,7 +726,6 @@ function renderDashboard() {
                 if (kpiBatVal2) kpiBatVal2.innerText = batChargeTotal.toFixed(1);
             }
 
-            // --- KPI GRID ---
             const gridTitle = document.getElementById('kpi-grid-title');
             const gridHeader = document.getElementById('kpi-grid-header');
             const gridIcon = document.getElementById('kpi-grid-icon');
@@ -691,19 +764,16 @@ function renderDashboard() {
                 if (gridVal2) gridVal2.innerText = gridImportTotal.toFixed(1);
             }
 
-            // --- KPI LOAD ---
             const elLoadToday = document.getElementById('kpi-load-today');
             if (elLoadToday) elLoadToday.innerText = ((systemData.load && systemData.load.todayKwh) || 0).toFixed(2);
 
             const elLoadTotal = document.getElementById('kpi-load-total');
             if (elLoadTotal) elLoadTotal.innerText = ((systemData.load && systemData.load.totalKwh) || 0).toFixed(1);
 
-            // Cập nhật luồng chuyển động SVG
             if (typeof updateStreams === 'function') {
                 updateStreams();
             }
         }
-
 
 
         
