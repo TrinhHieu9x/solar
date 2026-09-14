@@ -660,7 +660,7 @@
                 setElemText('topo-bat-watts', (systemData.battery.watts || 0).toFixed(0) + ' W');
                 setElemText('topo-bat-soc', batSoc + '%');
                 setElemText('topo-bat-soc-badge', batSoc + '%');
-                setElemText('topo-bat-volts', (systemData.battery.volts || 0) + ' Vdc');
+                setElemText('topo-bat-volts', (systemData.battery.volts || 0).toFixed(1) + ' Vdc');
             }
 
             const epsWatts = systemData.eps ? (systemData.eps.watts || 0) : 0;
