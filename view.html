@@ -190,7 +190,7 @@
     </div>
 
     <!-- Canvas SVG Graphic Container -->
-    <div class="relative w-full max-w-[850px] mx-auto h-[280px] sm:h-[310px] flex items-center justify-center">
+    <div class="relative w-full max-w-[850px] mx-auto h-[270px] sm:h-[310px] flex items-center justify-center">
 
         <!-- SVG Animated Flow Streams -->
         <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 850 290">
@@ -217,16 +217,16 @@
 
             <!-- Base Path Guides -->
             <!-- PV to Inverter -->
-            <path d="M 140 45 L 328 45 Q 340 45, 340 57 L 340 105 Q 340 117, 352 117 L 375 117" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+            <path d="M 140 25 L 328 25 Q 340 25, 340 57 L 340 105 Q 340 107, 352 107 L 375 107" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
             
             <!-- Grid to Inverter -->
-            <path d="M 710 45 L 522 45 Q 510 45, 510 57 L 510 105 Q 510 117, 498 117 L 475 117" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+            <path d="M 710 25 L 522 25 Q 510 25, 510 57 L 510 105 Q 510 107, 498 107 L 475 107" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
             
             <!-- Battery to Inverter -->
-            <path d="M 140 210 L 328 210 Q 340 210, 340 198 L 340 165 Q 340 153, 352 153 L 375 153" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+            <path d="M 140 210 L 328 210 Q 340 210, 340 198 L 340 165 Q 340 143, 352 143 L 375 143" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
             
             <!-- Inverter to Load -->
-            <path d="M 475 153 L 498 153 Q 510 153, 510 165 L 510 198 Q 510 210, 522 210 L 710 210" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+            <path d="M 475 143 L 498 143 Q 510 143, 510 165 L 510 198 Q 510 210, 522 210 L 710 210" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
 
             <!-- Đường nét đứt nối từ đáy Inverter xuống EPS ở giữa -->
             <path d="M 425 150 L 425 220" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
@@ -517,12 +517,12 @@
         let quickTimer = null;
         let periodicTimer = null;
 
-        const PATH_PV = 'M 140 45 L 328 45 Q 340 45, 340 57 L 340 105 Q 340 117, 352 117 L 375 117';
-        const PATH_BAT_DISCHARGE = 'M 140 210 L 328 210 Q 340 210, 340 198 L 340 165 Q 340 153, 352 153 L 375 153';
-        const PATH_BAT_CHARGE = 'M 375 153 L 352 153 Q 340 153, 340 165 L 340 198 Q 340 210, 328 210 L 140 210';
-        const PATH_GRID_IMPORT = 'M 710 45 L 522 45 Q 510 45, 510 57 L 510 105 Q 510 117, 498 117 L 475 117';
-        const PATH_GRID_EXPORT = 'M 475 117 L 498 117 Q 510 117, 510 105 L 510 57 Q 510 45, 522 45 L 710 0';
-        const PATH_LOAD = 'M 475 153 L 498 153 Q 510 153, 510 165 L 510 198 Q 510 210, 522 210 L 710 210';
+        const PATH_PV = 'M 140 25 L 328 25 Q 340 25, 340 57 L 340 105 Q 340 107, 352 107 L 375 107';
+        const PATH_BAT_DISCHARGE = 'M 140 210 L 328 210 Q 340 210, 340 198 L 340 165 Q 340 143, 352 143 L 375 143';
+        const PATH_BAT_CHARGE = 'M 375 143 L 352 143 Q 340 143, 340 165 L 340 198 Q 340 210, 328 210 L 140 210';
+        const PATH_GRID_IMPORT = 'M 710 25 L 522 25 Q 510 25, 510 57 L 510 105 Q 510 107, 498 107 L 475 107';
+        const PATH_GRID_EXPORT = 'M 475 107 L 498 107 Q 510 107, 510 105 L 510 57 Q 510 25, 522 25 L 710 0';
+        const PATH_LOAD = 'M 475 143 L 498 143 Q 510 143, 510 165 L 510 198 Q 510 210, 522 210 L 710 210';
 
 
         function showNotification(msg) {
