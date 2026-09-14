@@ -89,76 +89,76 @@
         <div class="grid grid-cols-4 gap-1 sm:gap-1.5">
             <!-- KPI 1: Solar Yield -->
             <div id="kpi-pv-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-amber-300 transition-colors" onclick="togglePVCardMode()" title="Nhấp chuyển đổi hiển thị công suất cực đại trong ngày">
-                <div id="kpi-pv-header" class="bg-amber-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center transition-colors">
+                <div id="kpi-pv-header" class="bg-amber-500 text-white px-2 py-1 font-semibold text-xs sm:text-sm flex justify-between items-center transition-colors">
                     <span id="kpi-pv-title" class="truncate">Năng suất MT</span>
-                    <i class="fa-solid fa-solar-panel shrink-0 text-[10px]"></i>
+                    <i class="fa-solid fa-solar-panel shrink-0 text-xs"></i>
                 </div>
-                <div class="p-1 sm:p-1.5 flex items-center justify-between gap-1">
-                    <div id="kpi-pv-icon" class="text-amber-500 text-base sm:text-xl shrink-0 transition-colors">
+                <div class="p-1.5 sm:p-2 flex items-center justify-between gap-1">
+                    <div id="kpi-pv-icon" class="text-amber-500 text-lg sm:text-2xl shrink-0 transition-colors">
                         <i class="fa-solid fa-sun"></i>
                     </div>
                     <div class="text-right w-full min-w-0">
-                        <div class="text-xs sm:text-base font-bold font-mono text-slate-800 leading-none"><span id="kpi-pv-today">--</span> <span id="kpi-pv-unit" class="text-[8px] sm:text-[9px] font-normal text-slate-500">kWh</span></div>
-                        <div class="text-[8px] text-slate-400" id="kpi-pv-label1">Hôm nay</div>
-                        <div class="text-[10px] sm:text-xs font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-pv-total">--</span> <span class="text-[8px] font-normal text-slate-500">kWh</span></div>
-                        <div class="text-[8px] text-slate-400" id="kpi-pv-label2">Tổng cộng</div>
+                        <div class="text-sm sm:text-lg font-bold font-mono text-slate-800 leading-none"><span id="kpi-pv-today">--</span> <span id="kpi-pv-unit" class="text-[10px] sm:text-xs font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[9px] sm:text-[10px] text-slate-400" id="kpi-pv-label1">Hôm nay</div>
+                        <div class="text-xs sm:text-sm font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-pv-total">--</span> <span class="text-[10px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[9px] sm:text-[10px] text-slate-400" id="kpi-pv-label2">Tổng cộng</div>
                     </div>
                 </div>
             </div>
             
             <!-- KPI 2: Battery (Green for discharge, Teal for charge) -->
             <div id="kpi-bat-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-slate-300 transition-colors" onclick="toggleBatteryMode()">
-                <div id="kpi-bat-header" class="bg-emerald-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center transition-colors">
+                <div id="kpi-bat-header" class="bg-emerald-600 text-white px-2 py-1 font-semibold text-xs sm:text-sm flex justify-between items-center transition-colors">
                     <span id="kpi-bat-title" class="truncate">Xả pin</span>
-                    <i id="kpi-bat-header-icon" class="fa-solid fa-battery-half shrink-0 text-[10px]"></i>
+                    <i id="kpi-bat-header-icon" class="fa-solid fa-battery-half shrink-0 text-xs"></i>
                 </div>
-                <div class="p-1 sm:p-1.5 flex items-center justify-between gap-1">
-                    <div id="kpi-bat-icon" class="text-emerald-500 text-base sm:text-xl shrink-0 transition-colors">
+                <div class="p-1.5 sm:p-2 flex items-center justify-between gap-1">
+                    <div id="kpi-bat-icon" class="text-emerald-500 text-lg sm:text-2xl shrink-0 transition-colors">
                         <i class="fa-solid fa-car-battery"></i>
                     </div>
                     <div class="text-right w-full min-w-0">
-                        <div class="text-xs sm:text-base font-bold font-mono text-slate-800 leading-none"><span id="kpi-bat-val1">--</span> <span class="text-[8px] sm:text-[9px] font-normal text-slate-500">kWh</span></div>
-                        <div class="text-[8px] text-slate-400" id="kpi-bat-label1">Xả hôm nay</div>
-                        <div class="text-[10px] sm:text-xs font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-bat-val2">--</span> <span class="text-[8px] font-normal text-slate-500">kWh</span></div>
-                        <div class="text-[8px] text-slate-400" id="kpi-bat-label2">Tổng xả</div>
+                        <div class="text-sm sm:text-lg font-bold font-mono text-slate-800 leading-none"><span id="kpi-bat-val1">--</span> <span class="text-[10px] sm:text-xs font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[9px] sm:text-[10px] text-slate-400" id="kpi-bat-label1">Xả hôm nay</div>
+                        <div class="text-xs sm:text-sm font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-bat-val2">--</span> <span class="text-[10px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[9px] sm:text-[10px] text-slate-400" id="kpi-bat-label2">Tổng xả</div>
                     </div>
                 </div>
             </div>
 
             <!-- KPI 3: Grid (Sky blue for Import, Purple for Export) -->
             <div id="kpi-grid-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-sky-300 transition-colors" onclick="cycleGridMode()" title="Nhấp chuyển đổi xem Lấy/Đẩy lưới">
-                <div id="kpi-grid-header" class="bg-sky-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center transition-colors">
+                <div id="kpi-grid-header" class="bg-sky-600 text-white px-2 py-1 font-semibold text-xs sm:text-sm flex justify-between items-center transition-colors">
                     <span id="kpi-grid-title" class="truncate">Import</span>
-                    <i class="fa-solid fa-tower-cell shrink-0 text-[10px]"></i>
+                    <i class="fa-solid fa-tower-cell shrink-0 text-xs"></i>
                 </div>
-                <div class="p-1 sm:p-1.5 flex items-center justify-between gap-1">
-                    <div id="kpi-grid-icon" class="text-sky-500 text-base sm:text-xl shrink-0 transition-colors">
+                <div class="p-1.5 sm:p-2 flex items-center justify-between gap-1">
+                    <div id="kpi-grid-icon" class="text-sky-500 text-lg sm:text-2xl shrink-0 transition-colors">
                         <i class="fa-solid fa-plug-circle-bolt"></i>
                     </div>
                     <div class="text-right w-full min-w-0">
-                        <div class="text-xs sm:text-base font-bold font-mono text-slate-800 leading-none"><span id="kpi-grid-val1">--</span> <span class="text-[8px] sm:text-[9px] font-normal text-slate-500">kWh</span></div>
-                        <div class="text-[8px] text-slate-400" id="kpi-grid-label1">Lấy hôm nay</div>
-                        <div class="text-[10px] sm:text-xs font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-grid-val2">--</span> <span class="text-[8px] font-normal text-slate-500">kWh</span></div>
-                        <div class="text-[8px] text-slate-400" id="kpi-grid-label2">Tổng lấy</div>
+                        <div class="text-sm sm:text-lg font-bold font-mono text-slate-800 leading-none"><span id="kpi-grid-val1">--</span> <span class="text-[10px] sm:text-xs font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[9px] sm:text-[10px] text-slate-400" id="kpi-grid-label1">Lấy hôm nay</div>
+                        <div class="text-xs sm:text-sm font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-grid-val2">--</span> <span class="text-[10px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[9px] sm:text-[10px] text-slate-400" id="kpi-grid-label2">Tổng lấy</div>
                     </div>
                 </div>
             </div>
 
             <!-- KPI 4: Consumption -->
             <div class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden flex flex-col justify-between">
-                <div class="bg-blue-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center">
+                <div class="bg-blue-600 text-white px-2 py-1 font-semibold text-xs sm:text-sm flex justify-between items-center">
                     <span class="truncate">Sự tiêu thụ</span>
-                    <i class="fa-solid fa-house-chimney shrink-0 text-[10px]"></i>
+                    <i class="fa-solid fa-house-chimney shrink-0 text-xs"></i>
                 </div>
-                <div class="p-1 sm:p-1.5 flex items-center justify-between gap-1">
-                    <div class="text-blue-500 text-base sm:text-xl shrink-0">
+                <div class="p-1.5 sm:p-2 flex items-center justify-between gap-1">
+                    <div class="text-blue-500 text-lg sm:text-2xl shrink-0">
                         <i class="fa-solid fa-house-laptop"></i>
                     </div>
                     <div class="text-right w-full min-w-0">
-                        <div class="text-xs sm:text-base font-bold font-mono text-slate-800 leading-none"><span id="kpi-load-today">--</span> <span class="text-[8px] sm:text-[9px] font-normal text-slate-500">kWh</span></div>
-                        <div class="text-[8px] text-slate-400">Dùng hôm nay</div>
-                        <div class="text-[10px] sm:text-xs font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-load-total">--</span> <span class="text-[8px] font-normal text-slate-500">kWh</span></div>
-                        <div class="text-[8px] text-slate-400">Tổng dùng</div>
+                        <div class="text-sm sm:text-lg font-bold font-mono text-slate-800 leading-none"><span id="kpi-load-today">--</span> <span class="text-[10px] sm:text-xs font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[9px] sm:text-[10px] text-slate-400">Dùng hôm nay</div>
+                        <div class="text-xs sm:text-sm font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-load-total">--</span> <span class="text-[10px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[9px] sm:text-[10px] text-slate-400">Tổng dùng</div>
                     </div>
                 </div>
             </div>
