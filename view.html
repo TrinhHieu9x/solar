@@ -191,7 +191,7 @@
             </div>
 
             <!-- Canvas SVG Graphic Container -->
-            <div class="relative w-full max-w-[850px] mx-auto h-[260px] sm:h-[300px] flex items-center justify-center">
+            <div class="relative w-full max-w-[850px] mx-auto h-[270px] sm:h-[300px] flex items-center justify-center">
 
                 <!-- SVG Animated Flow Streams -->
                 <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 850 280">
@@ -289,12 +289,12 @@
                     </div>
                 </div>
 
-                <!-- NODE 4: Pin Lưu Trữ (Battery) -->
+                <!-- NODE 	4: Pin Lưu Trữ (Battery) -->
                 <div class="absolute bottom-2 left-[4%] sm:left-[6%] flex items-center gap-2 z-10">
                     <div class="flex flex-col items-center text-center">
                         <div id="card-bat" title="Nhấp chuyển Sạc/Xả pin" class="cursor-pointer node-card bg-white rounded-2xl shadow-sm border border-slate-200 p-2.5 w-20 h-20 sm:w-24 sm:h-24 flex flex-col items-center justify-center relative hover:shadow-md hover:border-emerald-400">
-                            <span id="topo-bat-soc-badge" class="absolute top-1.5 right-1.5 text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 rounded-md border border-slate-200 font-mono">--%</span>
-                            <i id="topo-bat-icon" class="fa-solid fa-battery-half text-2xl sm:text-3xl text-slate-400 transition-transform"></i>
+                            <!-- Đã bỏ badge SOC nhỏ ở góc, tăng size icon lên 1 chút -->
+                            <i id="topo-bat-icon" class="fa-solid fa-battery-half text-3xl sm:text-4xl text-slate-400 transition-transform"></i>
                             <span class="text-[10px] sm:text-xs font-semibold text-slate-600 mt-1 truncate">Pin lưu trữ</span>
                         </div>
                         <div class="mt-1 font-mono text-center">
@@ -305,6 +305,7 @@
                         </div>
                     </div>
                 </div>
+
 
                 <!-- NODE 5: Tải Dự Phòng (EPS / Backup) -->
                 <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center z-10">
@@ -650,16 +651,23 @@
                 setElemText('topo-grid-freq', systemData.grid.freq ? systemData.grid.freq : '50.00 Hz');
             }
 
+            // Phần xử lý icon pin động theo % SOC
             const batSoc = systemData.battery ? (systemData.battery.soc || 0) : 0;
             const isBatOnline = systemData.battery && batSoc > 0;
 
-            setElemClass('topo-bat-icon', isBatOnline ? "fa-solid fa-battery-half text-2xl sm:text-3xl text-emerald-500 transition-transform" : "fa-solid fa-battery-half text-2xl sm:text-3xl text-slate-400 transition-transform");
+            let batIconName = "fa-solid fa-battery-empty";
+            if (batSoc >= 85) batIconName = "fa-solid fa-battery-full";
+            else if (batSoc >= 60) batIconName = "fa-solid fa-battery-three-quarters";
+            else if (batSoc >= 35) batIconName = "fa-solid fa-battery-half";
+            else if (batSoc >= 10) batIconName = "fa-solid fa-battery-quarter";
+
+            let batColorClass = isBatOnline ? " text-emerald-500" : " text-slate-400";
+            setElemClass('topo-bat-icon', batIconName + " text-3xl sm:text-4xl" + batColorClass + " transition-transform");
             setElemClass('topo-bat-watts', isBatOnline ? "font-bold text-slate-800 text-xs sm:text-sm" : "font-bold text-slate-400 text-xs sm:text-sm");
 
             if (systemData.battery) {
                 setElemText('topo-bat-watts', (systemData.battery.watts || 0).toFixed(0) + ' W');
                 setElemText('topo-bat-soc', batSoc + '%');
-                setElemText('topo-bat-soc-badge', batSoc + '%');
                 setElemText('topo-bat-volts', (systemData.battery.volts || 0).toFixed(1) + ' Vdc');
             }
 
@@ -763,33 +771,33 @@
             showNotification('Đã gửi lệnh kích hoạt sạc nhanh tới biến tần!');
         }
 
-function initPowerLineChart() {
-    const ctx = document.getElementById('dailyPowerChart');
-    if (!ctx) return;
+        function initPowerLineChart() {
+            const ctx = document.getElementById('dailyPowerChart');
+            if (!ctx) return;
 
-    powerChartInstance = new Chart(ctx.getContext('2d'), {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [
-                { label: 'Solar PV (W)', data: [], borderColor: '#f59e0b', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
-                { label: 'Battery (W)', data: [], borderColor: '#10b981', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
-                { label: 'Grid (W)', data: [], borderColor: '#f97316', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
-                { label: 'Consumption (W)', data: [], borderColor: '#2563eb', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            scales: {
-                y: { title: { display: true, text: 'Công suất (W)', font: { size: 10 } }, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
-                x: { ticks: { font: { size: 10 }, maxTicksLimit: 8 } }
-            },
-            plugins: { legend: { labels: { font: { size: 11 }, boxWidth: 12 } } }
+            powerChartInstance = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'Solar PV (W)', data: [], borderColor: '#f59e0b', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
+                        { label: 'Battery (W)', data: [], borderColor: '#10b981', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
+                        { label: 'Grid (W)', data: [], borderColor: '#f97316', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
+                        { label: 'Consumption (W)', data: [], borderColor: '#2563eb', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        y: { title: { display: true, text: 'Công suất (W)', font: { size: 10 } }, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
+                        x: { ticks: { font: { size: 10 }, maxTicksLimit: 8 } }
+                    },
+                    plugins: { legend: { labels: { font: { size: 11 }, boxWidth: 12 } } }
+                }
+            });
         }
-    });
-}
 
         function initEnergyBarChart() {
             const ctx = document.getElementById('energyOverviewChart');
@@ -847,7 +855,6 @@ function initPowerLineChart() {
 
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             
-            // Kiểm tra an toàn xem response trả về có phải JSON hay HTML (tránh lỗi !DOCTYPE html)
             const contentType = res.headers.get("content-type");
             if (contentType && contentType.indexOf("application/json") !== -1) {
                 return await res.json();
@@ -1015,13 +1022,11 @@ function initPowerLineChart() {
             powerChartInstance.update('none');
         }
 
-        // Biến trạng thái thời gian biểu đồ
         let selectedDateStr = getTodayString();
         let currentEnergyMode = 'month'; 
         let selectedYear = new Date().getFullYear();
         let selectedMonth = new Date().getMonth() + 1;
 
-        // Hàm khớp với onclick="changeDay(-1)" trên HTML giao diện
         function changeDay(direction) {
             let d = new Date(selectedDateStr);
             d.setDate(d.getDate() + direction);
@@ -1159,7 +1164,6 @@ function initPowerLineChart() {
         }
 
         window.onload = function () {
-            // Khởi tạo label ngày hiện tại lên giao diện
             const dObj = new Date();
             document.getElementById('current-day-label').innerText = `Ngày ${dObj.getDate()} thg ${dObj.getMonth() + 1}, ${dObj.getFullYear()}`;
             document.getElementById('energy-period-label').innerText = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
@@ -1170,6 +1174,9 @@ function initPowerLineChart() {
             initDashboardAPI(API_CONFIG.SERIAL_NUM);
         };
     </script>
+
+</body>
+</html>
 
 </body>
 </html>
