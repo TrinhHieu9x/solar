@@ -833,18 +833,39 @@ function initPowerLineChart() {
                 legend: {
                     labels: { font: { size: 10 }, boxWidth: 10, usePointStyle: true, pointStyle: 'line' }
                 },
-                // ĐÃ CẤU HÌNH PLUGIN ZOOM CHO PHÉP TRƯỢT NGANG (PAN) VÀ CHỤM KÉO (PINCH)
-                zoom: {
-                    pan: {
-                        enabled: true,
-                        mode: 'x',
-                    },
-                    zoom: {
-                        wheel: { enabled: true },
-                        pinch: { enabled: true },
-                        mode: 'x',
-                    }
-                },
+
+zoom: {
+    pan: {
+        enabled: true,
+        mode: 'x',
+        // Thêm khoảng cách threshold (tính bằng pixel) để lọc thao tác chạm lướt nhỏ
+        // Giúp tránh việc rung tay hoặc lướt nhẹ nhầm sang kéo pan khi đã phóng to
+        threshold: 15, 
+        
+        onPanStart: function({chart}) {
+            const xScale = chart.scales.x;
+            
+            // Lấy tổng số lượng điểm dữ liệu đang có trên biểu đồ
+            const totalDataPoints = chart.data.labels.length;
+            
+            // Lấy số điểm đang thực sự hiển thị trên khung nhìn hiện tại (max - min)
+            const visibleRange = xScale.max - xScale.min;
+            
+            // Nếu số điểm hiển thị nhỏ hơn tổng số điểm (tức là đang phóng to lên rồi) -> Cho phép PAN (true)
+            // Nếu đang hiển thị toàn bộ dữ liệu -> KHÔNG CHO PAN (false), nhường chỗ cho Tooltip mượt mà
+            const isActuallyZoomed = visibleRange < (totalDataPoints - 1);
+            
+            return isActuallyZoomed;
+        }
+    },
+    zoom: {
+        wheel: { enabled: true },
+        pinch: { enabled: true, mode: 'x' },
+        mode: 'x',
+    }
+}
+
+,
                 tooltip: {
                     enabled: true,
                     mode: 'index',
