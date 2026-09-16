@@ -2,7 +2,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <title>Seneigy - Giám sát Năng lượng Mặt trời</title>
 
     <!-- Tailwind CSS CDN -->
@@ -11,8 +12,12 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- THÊM PLUGIN ZOOM VÀO ĐÂY -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+
 
     <style>
         body {
@@ -411,7 +416,6 @@
             <div class="flex flex-wrap items-center justify-between mb-3 gap-2">
                 <h2 class="text-base font-bold text-gray-800">Input & Output Power (Biểu đồ công suất ngày)</h2>
                 <!-- Bộ chọn ngày kiểu mới gọn gàng -->
-<!-- Bộ chọn ngày kiểu mới gọn gàng (ĐÃ ĐƯỢC BỔ SUNG ONCLICK ĐỂ MỞ MODAL) -->
 <div class="flex items-center space-x-2 bg-gray-100 px-3 py-1.5 rounded-lg text-sm">
     <button onclick="changeDay(-1)" class="text-gray-500 hover:text-gray-800"><i class="fa-solid fa-chevron-left"></i></button>
     
@@ -421,7 +425,7 @@
 </div>
 
             </div>
-            <!-- Vùng hiển thị biểu đồ ngày (Chart.js / ApexCharts) -->
+            <!-- Vùng hiển thị biểu đồ ngày -->
             <div class="relative w-full h-64">
                 <canvas id="dailyPowerChart"></canvas>
             </div>
@@ -439,11 +443,10 @@
                         <button id="btn-tab-year" onclick="switchEnergyMode('year')" class="px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 transition">Năm</button>
                     </div>
         
-                    <!-- Bộ lọc thời gian (Thay đổi linh hoạt tùy theo đang ở chế độ Tháng hay Năm) -->
+                    <!-- Bộ lọc thời gian -->
                     <div class="flex items-center space-x-1 bg-gray-100 px-2.5 py-1 rounded-lg text-xs">
                         <button onclick="changeEnergyPeriod(-1)" class="text-gray-500 hover:text-gray-800 p-1"><i class="fa-solid fa-chevron-left"></i></button>
                         
-                        <!-- ĐÃ SỬA: Thêm onclick và title/cursor để người dùng biết có thể bấm vào -->
                         <span id="energy-period-label" onclick="openQuickSelectModal()" class="font-medium text-gray-700 cursor-pointer hover:text-blue-600 transition" title="Bấm để chọn nhanh thời gian">2026-09</span>
                         
                         <button onclick="changeEnergyPeriod(1)" class="text-gray-500 hover:text-gray-800 p-1"><i class="fa-solid fa-chevron-right"></i></button>
@@ -451,7 +454,7 @@
                 </div>
             </div>
         
-            <!-- Vùng hiển thị biểu đồ Năng lượng (Tháng hoặc Năm chung một khung) -->
+            <!-- Vùng hiển thị biểu đồ Năng lượng -->
             <div class="relative w-full h-64">
                 <canvas id="energyOverviewChart"></canvas>
             </div>
@@ -781,8 +784,7 @@
         showNotification('Đã gửi lệnh kích hoạt sạc nhanh tới biến tần!');
     }
 
-let currentApiResponseData = []; // Biến toàn cục lưu trữ data gốc từ API để dùng cho tooltip
-
+let currentApiResponseData = []; 
 
 function initPowerLineChart() {
     const ctx = document.getElementById('dailyPowerChart');
@@ -799,7 +801,7 @@ function initPowerLineChart() {
                 { label: 'Lấy lưới', data: [], borderColor: '#9b59b6', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
                 { label: 'Dự phòng', data: [], borderColor: '#1abc9c', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
                 { label: 'Gen', data: [], borderColor: '#34495e', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
-                { label: 'SOC', data: [], borderColor: '#2ecc71', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y1' } // Đưa SOC sang trục Y phụ bên phải
+                { label: 'SOC', data: [], borderColor: '#2ecc71', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y1' }
             ]
         },
         options: {
@@ -807,43 +809,48 @@ function initPowerLineChart() {
             maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
             scales: {
-                // Trục Y chính bên trái dành cho công suất (W)
                 y: { 
-                    type: 'linear',
-                    display: true,
+                    type: 'linear', 
+                    display: true, 
                     position: 'left',
-                    title: { display: false }, 
+                    suggestedMin: -100, // TẠO BIÊN ĐỘ ÂM CHÚT ĐỂ KHUNG BIỂU ĐỒ THOÁNG KHÔNG BỊ BÍ ĐÁY 0
                     grid: { color: '#f1f5f9' }, 
                     ticks: { font: { size: 10 } } 
                 },
-                // Trục Y phụ bên phải dành riêng cho phần trăm pin (0 - 100%)
                 y1: {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
-                    min: 0,
-                    max: 100,
-                    grid: { drawOnChartArea: false }, // Không hiện đè đường lưới ngang để đỡ rối mắt
-                    ticks: { 
-                        font: { size: 10 },
-                        callback: function(value) { return value ; }
-                    }
+                    type: 'linear', 
+                    display: true, 
+                    position: 'right', 
+                    min: 0, 
+                    max: 110,
+                    grid: { drawOnChartArea: false },
+                    ticks: { font: { size: 10 }, callback: function(value) { return value; } }
                 },
                 x: { ticks: { font: { size: 10 }, maxTicksLimit: 8 } }
             },
             plugins: {
                 legend: {
-                    labels: {
-                        font: { size: 10 },
-                        boxWidth: 10,
-                        usePointStyle: true,
-                        pointStyle: 'line'
+                    labels: { font: { size: 10 }, boxWidth: 10, usePointStyle: true, pointStyle: 'line' }
+                },
+                // ĐÃ CẤU HÌNH PLUGIN ZOOM CHO PHÉP TRƯỢT NGANG (PAN) VÀ CHỤM KÉO (PINCH)
+                zoom: {
+                    pan: {
+                        enabled: true,
+                        mode: 'x',
+                    },
+                    zoom: {
+                        wheel: { enabled: true },
+                        pinch: { enabled: true },
+                        mode: 'x',
                     }
                 },
                 tooltip: {
+                    enabled: true,
                     mode: 'index',
                     intersect: false,
-                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    position: 'nearest',
+                    yAlign: 'bottom', // GHIM TOOLTIP LÊN PHÍA TRÊN ĐIỂM CHẠM, TRÁNH BỊ NGÓN TAY CHE
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
                     titleFont: { size: 12, weight: 'bold' },
                     bodyFont: { size: 11, family: 'monospace' },
                     padding: 10,
@@ -864,12 +871,9 @@ function initPowerLineChart() {
                             let labelName = context.dataset.label || '';
                             let rawValue = context.parsed.y !== null ? context.parsed.y : 0;
                             let formattedValue = Number(rawValue).toLocaleString('en-US');
-                            
-                            // Phân biệt đơn vị: Nếu là nhãn SOC thì hiển thị %, còn lại hiển thị W
                             let unit = (labelName === 'SOC') ? '%' : 'W';
                             let paddingLength = Math.max(0, 12 - labelName.length);
                             let spaces = ' '.repeat(paddingLength);
-                            
                             return `${labelName}:${spaces}${formattedValue} ${unit}`;
                         }
                     }
@@ -878,7 +882,6 @@ function initPowerLineChart() {
         }
     });
 }
-
 
     function initEnergyBarChart() {
         const ctx = document.getElementById('energyOverviewChart');
@@ -1170,7 +1173,6 @@ function initPowerLineChart() {
         renderDashboard();
     }
 
-    // --- HÀM RENDER BIỂU ĐỒ ĐƯỜNG (DUY NHẤT & CHUẨN) ---
     function renderPowerLineChart(dataItems) {
         if (!powerChartInstance) return;
         
@@ -1202,8 +1204,7 @@ function initPowerLineChart() {
                 importData.push(Number(item.powerFromGrid || item.gridImport || item.gridPower || item.pToUser || item.importPower || 0));
                 epsloadData.push(Number(item.epsload || 0));
                 genData.push(Number(item.genload || item.gen || item.genPower || 0));
-
-socData.push(Number(item.SOC || item.SOC2 || 0));
+                socData.push(Number(item.SOC || item.SOC2 || 0));
             });
         }
 
@@ -1269,26 +1270,49 @@ socData.push(Number(item.SOC || item.SOC2 || 0));
         }
     }
 
-    async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
-        try {
-            const result = await postFormAPI('/WManage/api/analyze/chart/dayMultiLine', { 
-                serialNum: serialNum,
-                dateText: dateText 
-            });
-            const chartArrayData = result.data || result.Data || (Array.isArray(result) ? result : []);
-            
-            // --- QUAN TRỌNG: GÁN DỮ LIỆU VÀO ĐÂY ĐỂ TOOLTIP LẤY ĐƯỢC NGÀY THÁNG ---
-            currentApiResponseData = chartArrayData;
+let currentDayAbortController = null;
 
-            if (result && (result.success !== false) && chartArrayData.length > 0) {
-                renderPowerLineChart(chartArrayData);
-            } else {
-                renderPowerLineChart([]); 
-            }
-        } catch (err) {
+async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
+    if (currentDayAbortController) {
+        currentDayAbortController.abort();
+    }
+
+    currentDayAbortController = new AbortController();
+    const signal = currentDayAbortController.signal;
+
+    try {
+        const url = `${API_CONFIG.BASE_URL}/WManage/api/analyze/chart/dayMultiLine`;
+        const formParams = new URLSearchParams();
+        formParams.append('serialNum', serialNum);
+        formParams.append('dateText', dateText);
+
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+            body: formParams.toString(),
+            signal: signal
+        });
+
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        
+        const result = await res.json();
+        const chartArrayData = result.data || result.Data || (Array.isArray(result) ? result : []);
+        
+        currentApiResponseData = chartArrayData;
+
+        if (result && (result.success !== false) && chartArrayData.length > 0) {
+            renderPowerLineChart(chartArrayData);
+        } else {
+            renderPowerLineChart([]); 
+        }
+    } catch (err) {
+        if (err.name === 'AbortError') {
+            console.log(`Đã hủy request cũ cho ngày: ${dateText}`);
+        } else {
             console.error("Fetch Day Chart Error:", err);
         }
     }
+}
 
     async function fetchMonthEnergyChart(serialNum, year, month) {
         try {
@@ -1346,13 +1370,11 @@ socData.push(Number(item.SOC || item.SOC2 || 0));
         }
 
         if (mode === 'day') {
-            // --- XỬ LÝ CHỌN NGÀY VỚI THANH ĐIỀU HƯỚNG THÁNG TRƯỚC / THÁNG SAU ---
             let parts = selectedDateStr.split('-');
             let modalYear = parseInt(parts[0]) || new Date().getFullYear();
             let modalMonth = parseInt(parts[1]) || (new Date().getMonth() + 1);
             let currentSelectedDay = parseInt(parts[2]) || new Date().getDate();
 
-            // Hàm con để render lại lưới ngày khi bấm đổi tháng trong modal
             function renderDayGrid(y, m) {
                 gridEl.innerHTML = '';
                 titleEl.innerHTML = `
@@ -1363,7 +1385,6 @@ socData.push(Number(item.SOC || item.SOC2 || 0));
                     </div>
                 `;
                 
-                // Đổi lưới thành 7 cột (thứ trong tuần)
                 gridEl.style.gridTemplateColumns = "repeat(7, 1fr)";
                 let daysInMonth = new Date(y, m, 0).getDate();
 
@@ -1372,7 +1393,6 @@ socData.push(Number(item.SOC || item.SOC2 || 0));
                     btn.innerText = d;
                     btn.style.cssText = "padding: 8px 2px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 600; font-size: 12px; color: #334155; cursor: pointer;";
                     
-                    // Highlight ngày đang chọn thực tế nếu trùng năm/tháng/ngày
                     if (y === modalYear && m === modalMonth && d === currentSelectedDay) {
                         btn.style.background = '#3b82f6';
                         btn.style.color = '#fff';
@@ -1389,7 +1409,6 @@ socData.push(Number(item.SOC || item.SOC2 || 0));
                 }
             }
 
-            // Gán hàm đổi tháng cho nút mũi tên trong modal
             window._changeModalMonth = function(direction) {
                 modalMonth += direction;
                 if (modalMonth > 12) { modalMonth = 1; modalYear++; }
@@ -1400,7 +1419,6 @@ socData.push(Number(item.SOC || item.SOC2 || 0));
             renderDayGrid(modalYear, modalMonth);
 
         } else if (mode === 'month') {
-            // --- XỬ LÝ CHỌN THÁNG (GIỮ NGUYÊN) ---
             gridEl.style.gridTemplateColumns = "repeat(3, 1fr)";
             let labelText = document.getElementById('energy-period-label').innerText.trim();
             let parts = labelText.split('-');
@@ -1430,7 +1448,6 @@ socData.push(Number(item.SOC || item.SOC2 || 0));
             }
 
         } else {
-            // --- XỬ LÝ CHỌN NĂM (GIỮ NGUYÊN) ---
             gridEl.style.gridTemplateColumns = "repeat(3, 1fr)";
             let labelText = document.getElementById('energy-period-label').innerText.trim();
             let currentY = parseInt(labelText) || new Date().getFullYear();
@@ -1481,15 +1498,12 @@ socData.push(Number(item.SOC || item.SOC2 || 0));
     <div style="background: #ffffff; padding: 20px; border-radius: 16px; width: 310px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; font-family: sans-serif;">
         <div id="modalTitle" style="font-weight: bold; font-size: 16px; margin-bottom: 15px; color: #1e293b;">Chọn thời gian</div>
         
-        <!-- Khu vực lưới 12 tháng hoặc các năm -->
         <div id="modalGridContent" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px;">
-            <!-- JS tự động điền nội dung vào đây -->
         </div>
 
         <button onclick="closeQuickSelectModal()" style="width: 100%; padding: 10px; background: #f1f5f9; border: none; border-radius: 8px; font-weight: bold; color: #475569; cursor: pointer;">Đóng</button>
     </div>
 </div>
-
 
 </body>
 </html>
