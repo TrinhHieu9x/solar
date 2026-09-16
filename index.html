@@ -715,8 +715,12 @@
             setElemClass('topo-eps-watts', "font-bold text-slate-400 text-xs font-mono");
         }
 
+        // --- Xử lý khối Tải (Load) dựa vào trạng thái có lưới hay không ---
         const loadWatts = systemData.load ? (systemData.load.watts || 0) : 0;
-        const isLoadOnline = systemData.load && loadWatts > 0;
+        
+        // Tải được tính là online khi có điện lưới (tận dụng lại biến isGridOnline đã định nghĩa ở trên)
+        // Hoặc kiểm tra trực tiếp điện áp lưới: const isLoadOnline = (systemData.grid && systemData.grid.volts > 90);
+        const isLoadOnline = isGridOnline; 
 
         setElemClass('topo-load-icon', isLoadOnline ? "fa-solid fa-house-chimney text-2xl sm:text-3xl text-blue-600 transition-transform" : "fa-solid fa-house-chimney text-2xl sm:text-3xl text-slate-400 transition-transform");
         setElemClass('topo-load-watts', isLoadOnline ? "font-bold text-slate-800 text-xs sm:text-sm" : "font-bold text-slate-400 text-xs sm:text-sm");
@@ -724,6 +728,7 @@
         if (systemData.load) {
             setElemText('topo-load-watts', loadWatts.toFixed(1) + ' W');
         }
+
 
         const elPvToday = document.getElementById('kpi-pv-today');
         if (elPvToday) {
