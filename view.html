@@ -793,13 +793,13 @@ function initPowerLineChart() {
         data: {
             labels: [],
             datasets: [
-                { label: 'Sản xuất', data: [], borderColor: '#f1c40f', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
-                { label: 'Tải tiêu thụ', data: [], borderColor: '#3498db', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
-                { label: 'Sạc pin', data: [], borderColor: '#2ecc71', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
-                { label: 'Xả pin', data: [], borderColor: '#e67e22', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
-                { label: 'Lấy lưới', data: [], borderColor: '#9b59b6', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
-                { label: 'Đẩy lưới', data: [], borderColor: '#1abc9c', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
-                { label: 'Gen', data: [], borderColor: '#34495e', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 }
+                { label: 'Sản xuất', data: [], borderColor: '#f1c40f', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
+                { label: 'Tiêu thụ', data: [], borderColor: '#3498db', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
+                { label: 'Xả pin', data: [], borderColor: '#e67e22', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
+                { label: 'Lấy lưới', data: [], borderColor: '#9b59b6', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
+                { label: 'Dự phòng', data: [], borderColor: '#1abc9c', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
+                { label: 'Gen', data: [], borderColor: '#34495e', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
+                { label: 'SOC', data: [], borderColor: '#2ecc71', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y1' } // Đưa SOC sang trục Y phụ bên phải
             ]
         },
         options: {
@@ -807,66 +807,74 @@ function initPowerLineChart() {
             maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
             scales: {
+                // Trục Y chính bên trái dành cho công suất (W)
                 y: { 
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
                     title: { display: false }, 
                     grid: { color: '#f1f5f9' }, 
                     ticks: { font: { size: 10 } } 
                 },
+                // Trục Y phụ bên phải dành riêng cho phần trăm pin (0 - 100%)
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    min: 0,
+                    max: 100,
+                    grid: { drawOnChartArea: false }, // Không hiện đè đường lưới ngang để đỡ rối mắt
+                    ticks: { 
+                        font: { size: 10 },
+                        callback: function(value) { return value ; }
+                    }
+                },
                 x: { ticks: { font: { size: 10 }, maxTicksLimit: 8 } }
             },
-plugins: {
-    legend: {
-        labels: {
-            font: { size: 10 },
-            boxWidth: 10,
-            usePointStyle: true,
-            pointStyle: 'line'
-        }
-    },
-    tooltip: {
-        mode: 'index',
-        intersect: false,
-        backgroundColor: 'rgba(15, 23, 42, 0.9)', // Nền tối giống biểu đồ tháng
-        titleFont: { size: 12, weight: 'bold' },
-        bodyFont: { size: 11, family: 'monospace' }, // Font chữ dạng code để căn lề đẹp
-        padding: 10,
-        usePointStyle: true, // Đổi ô vuông marker thành dạng tròn/line theo dataset
-        callbacks: {
-            title: function(tooltipItems) {
-                const index = tooltipItems[0].dataIndex;
-                const timeLabel = tooltipItems[0].label || ''; 
-
-                // Lấy ngày tháng chính xác từ mảng dữ liệu API của ngày đó
-                if (typeof currentApiResponseData !== 'undefined' && currentApiResponseData && currentApiResponseData[index]) {
-                    const item = currentApiResponseData[index];
-                    if (item.day && item.month && item.year) {
-                        return `⏱️ ${timeLabel} - ${item.day}/${item.month}/${item.year}`;
+            plugins: {
+                legend: {
+                    labels: {
+                        font: { size: 10 },
+                        boxWidth: 10,
+                        usePointStyle: true,
+                        pointStyle: 'line'
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    titleFont: { size: 12, weight: 'bold' },
+                    bodyFont: { size: 11, family: 'monospace' },
+                    padding: 10,
+                    usePointStyle: true,
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const index = tooltipItems[0].dataIndex;
+                            const timeLabel = tooltipItems[0].label || ''; 
+                            if (typeof currentApiResponseData !== 'undefined' && currentApiResponseData && currentApiResponseData[index]) {
+                                const item = currentApiResponseData[index];
+                                if (item.day && item.month && item.year) {
+                                    return `⏱️ ${timeLabel} - ${item.day}/${item.month}/${item.year}`;
+                                }
+                            }
+                            return `📅 Ngày ${selectedDateStr.split('-').reverse().join('/')} - ${timeLabel}`;
+                        },
+                        label: function(context) {
+                            let labelName = context.dataset.label || '';
+                            let rawValue = context.parsed.y !== null ? context.parsed.y : 0;
+                            let formattedValue = Number(rawValue).toLocaleString('en-US');
+                            
+                            // Phân biệt đơn vị: Nếu là nhãn SOC thì hiển thị %, còn lại hiển thị W
+                            let unit = (labelName === 'SOC') ? '%' : 'W';
+                            let paddingLength = Math.max(0, 12 - labelName.length);
+                            let spaces = ' '.repeat(paddingLength);
+                            
+                            return `${labelName}:${spaces}${formattedValue} ${unit}`;
+                        }
                     }
                 }
-                
-                // Fallback nếu không có item, lấy từ biến ngày đang chọn
-                return `📅 Ngày ${selectedDateStr.split('-').reverse().join('/')} - ${timeLabel}`;
-            },
-            label: function(context) {
-                let labelName = context.dataset.label || '';
-                
-                // Ép kiểu sang số và định dạng có dấu phẩy ngăn cách hàng nghìn (ví dụ: 1,020)
-                let rawValue = context.parsed.y !== null ? context.parsed.y : 0;
-                let formattedValue = Number(rawValue).toLocaleString('en-US');
-                let value = `${formattedValue} W`; // Giữ nguyên đơn vị W kèm dấu phẩy
-                
-                // Căn chỉnh khoảng trắng để các dòng số liệu thẳng hàng dọc nhau
-                let paddingLength = Math.max(0, 12 - labelName.length);
-                let spaces = ' '.repeat(paddingLength);
-                
-                return `${labelName}:${spaces}${value}`;
             }
-
-        }
-    }
-}
-
-
         }
     });
 }
@@ -938,7 +946,7 @@ plugins: {
                 labels: labels,
                 datasets: [
                     { label: 'Sản xuất', data: production, backgroundColor: '#f1c40f' },
-                    { label: 'Tải tiêu thụ', data: consumption, backgroundColor: '#3498db' },
+                    { label: 'Tiêu thụ', data: consumption, backgroundColor: '#3498db' },
                     { label: 'Sạc pin', data: powerToBattery, backgroundColor: '#2ecc71' },
                     { label: 'Xả pin', data: powerFromBattery, backgroundColor: '#e67e22' },
                     { label: 'Lấy lưới', data: powerFromGrid, backgroundColor: '#9b59b6' },
@@ -1169,11 +1177,11 @@ plugins: {
         const labels = [];
         const prodData = [];      
         const loadData = [];      
-        const chargeData = [];    
         const dischargeData = []; 
         const importData = [];    
-        const exportData = [];    
-        const genData = [];       
+        const epsloadData = [];    
+        const genData = [];   
+        const socData = [];    
 
         if (Array.isArray(dataItems) && dataItems.length > 0) {
             dataItems.forEach(item => {
@@ -1190,22 +1198,23 @@ plugins: {
 
                 prodData.push(Number(item.solarPv || item.Production || item.ppv || item.pPv || 0));
                 loadData.push(Number(item.Consumption || item.pLoad || item.loadPower || 0));
-                chargeData.push(Number(item.powerToBattery || item.batteryCharging || item.batCharge || item.chargePower || 0));
                 dischargeData.push(Number(item.powerFromBattery || item.batteryDischarging || item.batPower || item.dischargePower || 0));
                 importData.push(Number(item.powerFromGrid || item.gridImport || item.gridPower || item.pToUser || item.importPower || 0));
-                exportData.push(Number(item.powerToGrid || item.gridExport || item.pToGrid || item.exportPower || 0));
+                epsloadData.push(Number(item.epsload || 0));
                 genData.push(Number(item.genload || item.gen || item.genPower || 0));
+
+socData.push(Number(item.SOC || item.SOC2 || 0));
             });
         }
 
         powerChartInstance.data.labels = labels;
         powerChartInstance.data.datasets[0].data = prodData;
         powerChartInstance.data.datasets[1].data = loadData;
-        powerChartInstance.data.datasets[2].data = chargeData;
-        powerChartInstance.data.datasets[3].data = dischargeData;
-        powerChartInstance.data.datasets[4].data = importData;
-        powerChartInstance.data.datasets[5].data = exportData;
-        powerChartInstance.data.datasets[6].data = genData;
+        powerChartInstance.data.datasets[2].data = dischargeData;
+        powerChartInstance.data.datasets[3].data = importData;
+        powerChartInstance.data.datasets[4].data = epsloadData;
+        powerChartInstance.data.datasets[5].data = genData;
+        powerChartInstance.data.datasets[6].data = socData;
         
         powerChartInstance.update('none');
     }
