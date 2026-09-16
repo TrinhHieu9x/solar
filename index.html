@@ -325,14 +325,15 @@
             </div>
         </div>
 
-        <!-- NODE 5: Tải Dự Phòng (EPS / Backup) - Đặt chính giữa dưới Inverter -->
-        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center z-20">
-            <div class="w-10 h-10 rounded-full bg-teal-50 border border-teal-200 flex items-center justify-center shadow-sm">
-                <i class="fa-solid fa-plug-circle-bolt text-teal-600 text-xl"></i>
-            </div>
-            <span class="text-[9px] sm:text-[10px] font-medium text-slate-500 mt-0.5 whitespace-nowrap">Tải dự phòng (EPS)</span>
-            <span id="topo-eps-watts" class="font-bold text-slate-800 text-xs font-mono">-- W</span>
-        </div>
+<!-- NODE 5: Tải Dự Phòng (EPS / Backup) -->
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center z-20">
+    <div id="topo-eps-box" class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center shadow-sm transition-all">
+        <i id="topo-eps-icon" class="fa-solid fa-plug-circle-bolt text-slate-400 text-xl transition-all"></i>
+    </div>
+    <span class="text-[9px] sm:text-[10px] font-medium text-slate-400 mt-0.5 whitespace-nowrap">Tải dự phòng (EPS)</span>
+    <span id="topo-eps-watts" class="font-bold text-slate-400 text-xs font-mono">0 W</span>
+</div>
+
 
         <!-- NODE 6: Tải Tiêu Thụ (Load) -->
         <div class="absolute bottom-2 right-[4%] sm:right-[6%] flex items-center flex-row-reverse gap-2 z-10">
@@ -630,6 +631,7 @@
         }
     }
 
+
     function renderDashboard() {
         const setElemText = (id, val) => {
             const el = document.getElementById(id);
@@ -691,9 +693,27 @@
         }
 
         const epsWatts = systemData.eps ? (systemData.eps.watts || 0) : 0;
+        
+        // Lấy đúng biến trạng thái đang làm card hiển thị "Chờ (Standby)"
+        // (Thay systemData.mode bằng tên biến thực tế trong JSON của bạn nếu nó khác)
+        const modeVal = systemData.mode !== undefined ? systemData.mode : 113; 
+        
+        // Kiểm tra điều kiện có đang chạy không (khác mã 113 Standby)
+        const isEpsOnline = (modeVal !== 113) ;//&& (epsWatts > 0);
+
         setElemText('topo-eps-watts', epsWatts.toFixed(0) + ' W');
-        const elEpsW = document.getElementById('topo-eps-watts');
-        if (elEpsW) elEpsW.className = epsWatts > 0 ? "font-bold text-slate-800 text-xs leading-tight" : "font-bold text-slate-400 text-xs leading-tight";
+
+        if (isEpsOnline) {
+            // Khi hoạt động (Sáng màu Teal)
+            setElemClass('topo-eps-box', "w-10 h-10 rounded-full bg-teal-50 border border-teal-200 flex items-center justify-center shadow-sm transition-all");
+            setElemClass('topo-eps-icon', "fa-solid fa-plug-circle-bolt text-teal-600 text-xl transition-all");
+            setElemClass('topo-eps-watts', "font-bold text-slate-800 text-xs font-mono");
+        } else {
+            // Khi Standby / Chờ (Xám hoàn toàn giống khối PV)
+            setElemClass('topo-eps-box', "w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center shadow-sm transition-all opacity-70");
+            setElemClass('topo-eps-icon', "fa-solid fa-plug-circle-bolt text-slate-400 text-xl transition-all");
+            setElemClass('topo-eps-watts', "font-bold text-slate-400 text-xs font-mono");
+        }
 
         const loadWatts = systemData.load ? (systemData.load.watts || 0) : 0;
         const isLoadOnline = systemData.load && loadWatts > 0;
@@ -765,9 +785,30 @@
         document.getElementById('kpi-load-today').innerText = ((systemData.load && systemData.load.todayKwh) || 0).toFixed(2);
         document.getElementById('kpi-load-total').innerText = ((systemData.load && systemData.load.totalKwh) || 0).toFixed(1);
 
+        // --- Cập nhật giao diện Card Chế độ hoạt động (Mode) ---
+        const titleEl = document.getElementById('mode-primary-title');
+        const descEl = document.getElementById('mode-secondary-desc');
+        const dotEl = titleEl ? titleEl.previousElementSibling : null;
+
+        if (titleEl && descEl) {
+            if (modeVal === 113) {
+                titleEl.textContent = "Chờ (Standby)";
+                descEl.textContent = "Biến tần đang tắt / Chờ hoạt động";
+                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-amber-500";
+            } else if (modeVal === 123) {
+                titleEl.textContent = "Hòa lưới";
+                descEl.textContent = "Hoạt động bình thường (Self-consumption)";
+                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+            } else {
+                titleEl.textContent = `Mã: ${modeVal}`;
+                descEl.textContent = "Trạng thái khác";
+                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-slate-400";
+            }
+        }
+
         updateStreams();
     }
-    
+
     function togglePVCardMode() {
         systemData.pv.isPeakView = !systemData.pv.isPeakView;
         renderDashboard();
@@ -1173,6 +1214,9 @@ zoom: {
 
         systemData.eps.watts = data.epsPower || data.backupPower || 0;
         systemData.load.watts = data.consumptionPower || 0;
+
+
+        systemData.mode = data.Mode !== undefined ? data.Mode : data.mode;
 
         document.getElementById('last-updated-time').innerText = new Date().toLocaleTimeString('vi-VN');
         renderDashboard();
