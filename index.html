@@ -1157,8 +1157,8 @@ zoom: {
 
         const pGrid = data.pToGrid || 0;
         const pUser = data.pToUser || 0;
-        systemData.grid.volts = data.vacr || 227.6;
-        systemData.grid.freq = `${data.fac || 50.09} Hz`;
+        systemData.grid.volts = data.vacr || 0;
+        systemData.grid.freq = `${data.fac || 0} Hz`;
 
         if (pUser > 0) {
             systemData.grid.state = 1;
