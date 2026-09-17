@@ -391,12 +391,11 @@
 </div>
 
             </div>
-
             <!-- Card 2: Nhật ký / Cảnh báo (System Logs & Alarms) -->
-            <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-2xs border border-slate-200 flex flex-col justify-between">
+            <div id="alarm-card" class="bg-white rounded-xl p-2.5 sm:p-3 shadow-2xs border border-slate-200 flex flex-col justify-between transition-colors">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5">
                     <div class="flex items-center gap-1.5">
-                        <div class="w-6 h-6 rounded-md bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+                        <div id="alarm-icon-bg" class="w-6 h-6 rounded-md bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
                             <i class="fa-solid fa-clipboard-list text-xs"></i>
                         </div>
                         <div class="flex items-center gap-1">
@@ -408,16 +407,20 @@
                         <i class="fa-solid fa-chevron-right text-xs"></i>
                     </button>
                 </div>
+                
+                <!-- Khu vực hiển thị tên lỗi -->
                 <div id="log-status-container" class="py-1 flex items-center gap-1.5 text-xs text-slate-600">
-                    <i class="fa-solid fa-circle-check text-emerald-500 text-sm shrink-0"></i>
-                    <span class="font-medium text-slate-700 text-[11px] sm:text-xs truncate">Hiện tại không có cảnh báo</span>
+                    <i id="alarm-status-icon" class="fa-solid fa-circle-check text-emerald-500 text-sm shrink-0"></i>
+                    <span id="alarm-text" class="font-medium text-slate-700 text-[11px] sm:text-xs truncate">Hiện tại không có cảnh báo</span>
                 </div>
+
+                <!-- Khu vực hiển thị giá trị thô và trạng thái -->
                 <div class="mt-1 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[9px] sm:text-[10px] text-slate-400 font-mono">
-                    <span>Mã lỗi: <strong class="text-slate-600">0x00</strong></span>
-                    <span class="text-emerald-600 font-semibold">Bình thường</span>
+                    <span>Mã lỗi (Dec): <strong id="alarm-code" class="text-slate-600">0</strong></span>
+                    <span id="alarm-badge" class="text-emerald-600 font-semibold">Bình thường</span>
                 </div>
             </div>
-        </div>
+
         
         <!-- Khung Biểu đồ Công Suất Ngày (Input & Output Power) được tinh chỉnh giao diện dễ nhìn -->
         <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
@@ -1508,6 +1511,68 @@ async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
             }
         }
     }
+// Từ điển ánh xạ lỗi dựa chuẩn theo bảng Error Code Table của bạn
+const alarmDescriptions = {
+    0: "Battery absent",
+    1: "Battery over volt",
+    2: "Battery under volt",
+    3: "Battery discharger over curr",
+    4: "BMS - EMS communication loss",
+    5: "EPS over load",
+    6: "DC current abnormal",
+    7: "EPS short",
+    8: "Neutral fault",
+    9: "Zero fire wire reverse",
+    10: "EPS capacitance decrease",
+    11: "BMS - EMS communication error",
+    12: "EMS - MasterDSP communication loss",
+    13: "MasterDSP - DC/DC DSP communication loss",
+    14: "Reserved (Bit 14)",
+    15: "Reserved (Bit 15)"
+};
+
+function updateAlarmUI(alarmValue) {
+    const alarmCard = document.getElementById('alarm-card');
+    const alarmIconBg = document.getElementById('alarm-icon-bg');
+    const alarmStatusIcon = document.getElementById('alarm-status-icon');
+    const alarmText = document.getElementById('alarm-text');
+    const alarmCode = document.getElementById('alarm-code');
+    const alarmBadge = document.getElementById('alarm-badge');
+
+    alarmCode.textContent = alarmValue;
+
+    // Quét tìm tất cả các bit đang bật (bằng 1)
+    let activeAlarms = [];
+    for (let bit = 0; bit <= 15; bit++) {
+        // Kiểm tra xem bit thứ 'bit' có bật trong giá trị alarmValue không
+        if ((alarmValue & (1 << bit)) !== 0) {
+            activeAlarms.push(alarmDescriptions[bit] || `Unknown Error (Bit ${bit})`);
+        }
+    }
+
+    if (activeAlarms.length > 0) {
+        // Có lỗi: Đổi card sang màu đỏ/cảnh báo
+        alarmCard.classList.add('border-red-200', 'bg-red-50/25');
+        alarmIconBg.className = "w-6 h-6 rounded-md bg-red-100 text-red-600 flex items-center justify-center shrink-0";
+        alarmStatusIcon.className = "fa-solid fa-triangle-exclamation text-red-500 text-sm shrink-0";
+        
+        // Hiển thị tên lỗi đầu tiên (hoặc nối các lỗi lại nếu muốn)
+        alarmText.textContent = activeAlarms.join(", ");
+        alarmText.className = "font-medium text-red-700 text-[11px] sm:text-xs truncate";
+        alarmBadge.textContent = `Cảnh báo (${activeAlarms.length})`;
+        alarmBadge.className = "text-red-600 font-semibold";
+    } else {
+        // Trạng thái bình thường (Alarm = 0)
+        alarmCard.classList.remove('border-red-200', 'bg-red-50/25');
+        alarmIconBg.className = "w-6 h-6 rounded-md bg-sky-50 text-sky-600 flex items-center justify-center shrink-0";
+        alarmStatusIcon.className = "fa-solid fa-circle-check text-emerald-500 text-sm shrink-0";
+        alarmText.textContent = "Hiện tại không có cảnh báo";
+        alarmText.className = "font-medium text-slate-700 text-[11px] sm:text-xs truncate";
+        alarmBadge.textContent = "Bình thường";
+        alarmBadge.className = "text-emerald-600 font-semibold";
+    }
+}
+
 
     function openQuickSelectModal(mode = null) {
         const modal = document.getElementById('quickSelectModal');
