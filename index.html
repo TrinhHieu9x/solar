@@ -385,10 +385,11 @@
                         Chế độ tự tiêu thụ (Self-consumption mode)
                     </div>
                 </div>
-                <div class="mt-1 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[9px] sm:text-[10px] text-slate-400 font-mono">
-                    <span class="truncate">Ưu tiên: Tải > Pin > Lưới</span>
-                    <span class="text-emerald-600 font-semibold shrink-0">Tối ưu</span>
-                </div>
+<div class="mt-1 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[9px] sm:text-[10px] text-slate-400 font-mono">
+    <span id="mode-priority-text" class="truncate">Ưu tiên: Tải > Pin > Lưới</span>
+    <span id="mode-badge-text" class="text-emerald-600 font-semibold shrink-0">Tối ưu</span>
+</div>
+
             </div>
 
             <!-- Card 2: Nhật ký / Cảnh báo (System Logs & Alarms) -->
@@ -797,68 +798,91 @@ const isEpsOnline = (modeVal !== 113) && (modeVal !== 49) && (modeVal !== 51) &&
         const dotEl = titleEl ? titleEl.previousElementSibling : null;
 
         if (titleEl && descEl) {
-            if (modeVal === 0 || (modeVal >= 1 && modeVal <= 99 && modeVal !== 27 && modeVal !== 49 && modeVal !== 51 && modeVal !== 59)) {
-                titleEl.textContent = "Bình 1thường";
-                descEl.textContent = "Hệ thống hoạt động ổn định mọi thông số";
+            const modeCodeText = `Mã: ${modeVal}`;
+            
+            const priorityEl = document.getElementById("mode-priority-text"); 
+            const badgeEl = document.getElementById("mode-badge-text");       
+
+            let priorityText = "Ưu tiên: Tải > Pin > Lưới";
+            let badgeText = "Tối ưu";
+            let subDescText = modeCodeText; // Mặc định hiển thị mã mode ở dòng phụ
+
+            if (modeVal === 0 || (modeVal >= 1 && modeVal <= 99 && modeVal !== 27 && modeVal !== 43 && modeVal !== 49 && modeVal !== 51 && modeVal !== 59 && modeVal !== 65 && modeVal !== 299)) {
+                titleEl.textContent = "Bình thường";
+                subDescText = modeCodeText;
                 if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
-            } else if (modeVal === 27) {
-                titleEl.textContent = "Đang sạc pin";
-                descEl.textContent = "Năng lượng dư dồn vào nạp cho khối lưu trữ";
-                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-blue-500 animate-pulse";
-            } else if (modeVal === 59) {
-                titleEl.textContent = "Hòa lưới bình thường (Bật Backup)";
-                descEl.textContent = "Không sạc pin, PV cấp đủ tải hoặc lấy lưới bù tải";
-                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
-            } else if (modeVal === 51) {
-                titleEl.textContent = "Hòa lưới (Tắt Backup)";
-                descEl.textContent = "Đang chạy hòa lưới, cổng EPS đang tắt (59 - 8)";
+            } else if (modeVal === 27 || modeVal === 43 || modeVal === 59 || modeVal === 51 || modeVal === 107 || modeVal === 123) {
+                titleEl.textContent = "Chế độ tự hành";
+                priorityText = "Ưu tiên: Tải > Pin > Lưới";
+                badgeText = modeVal === 51 ? "No backup" : "Tối ưu";
+                
+                // Note không PV vào dòng mô tả phụ
+                if (modeVal === 107) subDescText = `Xả pin (Không PV) | ${modeCodeText}`;
+                else if (modeVal === 123) subDescText = `Lưới bù (Không PV) | ${modeCodeText}`;
+                else subDescText = modeCodeText;
+
+                if (dotEl) dotEl.className = modeVal === 51 ? "w-2 h-2 rounded-full bg-amber-400" : "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+            } else if (modeVal === 299 || modeVal === 379 || modeVal === 363) {
+                titleEl.textContent = "Chế độ ưu tiên hòa lưới";
+                priorityText = "Ưu tiên: Tải > Lưới > Pin";
+                badgeText = "Bán điện";
+                
+                // Note không PV vào dòng mô tả phụ
+                if (modeVal === 363) subDescText = `Xả pin đẩy lưới (Không PV) | ${modeCodeText}`;
+                else if (modeVal === 379) subDescText = `Không có PV | ${modeCodeText}`;
+                else subDescText = modeCodeText;
+
                 if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
             } else if (modeVal === 49) {
-                titleEl.textContent = "Standby (Có PV)";
-                descEl.textContent = "Biến tần tắt nguồn/chờ khởi động với nguồn PV";
-                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-amber-400";
+                titleEl.textContent = "Inverter Power Off";
+                subDescText = modeCodeText;
+                priorityText = "Hệ thống đang tắt";
+                badgeText = "Off";
+                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-slate-400";
             } else if (modeVal === 113) {
-                titleEl.textContent = "Chờ (Standby - Không PV)";
-                descEl.textContent = "Chờ do hết PV, pin đang xuống mức ngừng xả";
+                titleEl.textContent = "Chế độ chờ";
+                subDescText = `Không có PV, dừng xả | ${modeCodeText}`;
+                priorityText = "Không có PV, dừng xả pin";
+                badgeText = "Standby";
                 if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-amber-500";
-            } else if (modeVal === 123) {
-                titleEl.textContent = "Đang khởi động (Không PV)";
-                descEl.textContent = "Quy trình kích hoạt hệ thống khi không có PV";
+            } else if (modeVal === 65 || modeVal === 321) {
+                titleEl.textContent = "Đang khởi động";
+                subDescText = modeCodeText;
+                priorityText = "Đồng bộ hệ thống";
+                badgeText = "Starting";
                 if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-sky-500 animate-pulse";
-            } else if (modeVal === 321) {
-                titleEl.textContent = "Đang khởi động (Có PV)";
-                descEl.textContent = "Đang đồng bộ pha/tần số có nguồn PV kích hoạt";
-                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-sky-500 animate-pulse";
-            } else if (modeVal === 257) {
-                titleEl.textContent = "Mất kết nối pin";
-                descEl.textContent = "Lỗi giao tiếp hoặc ngắt mạch khối lưu trữ";
+            } else if (modeVal === 257 || modeVal === 267 || modeVal === 305) {
+                titleEl.textContent = modeVal === 257 ? "Mất kết nối pin" : (modeVal === 267 ? "Pin yếu / Dừng xả" : "Standby bảo vệ pin");
+                subDescText = modeCodeText;
+                priorityText = "Ưu tiên: Pin > Tải > Lưới";
+                badgeText = "Dự trữ";
                 if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-rose-500 animate-pulse";
-            } else if (modeVal === 267) {
-                titleEl.textContent = "Pin yếu / Dừng xả";
-                descEl.textContent = "Pin cạn, dừng xả pin, chuyển sang dựa vào nguồn khác";
-                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-rose-400 animate-pulse";
             } else if (modeVal === 283) {
                 titleEl.textContent = "Sạc cứu pin từ lưới";
-                descEl.textContent = "Đang cưỡng bức lấy điện lưới để phục hồi pin cạn";
+                subDescText = modeCodeText;
+                priorityText = "Lưới -> Sạc pin";
+                badgeText = "Dự trữ";
                 if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-purple-500 animate-pulse";
-            } else if (modeVal === 305) {
-                titleEl.textContent = "Standby bảo vệ pin / Shutdown";
-                descEl.textContent = "Trạng thái chờ khi pin yếu không cho phép xả hoặc tắt máy";
-                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-slate-500 animate-pulse";
-            } else if (modeVal === 307) {
-                titleEl.textContent = "Phục hồi (Tắt Backup)";
-                descEl.textContent = "Trạng thái phục hồi hệ thống nhưng ngắt cổng EPS (315 - 8)";
-                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
-            } else if (modeVal === 315) {
-                titleEl.textContent = "Đang đủ cấp tải (Phục hồi)";
-                descEl.textContent = "Hệ thống phục hồi và cấp điện ổn định bình thường";
+            } else if (modeVal === 307 || modeVal === 315) {
+                titleEl.textContent = modeVal === 307 ? "Phục hồi (Tắt Backup)" : "Đang đủ cấp tải";
+                subDescText = modeCodeText;
+                priorityText = "Hệ thống phục hồi ổn định";
+                badgeText = "Tối ưu";
                 if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
             } else {
-                titleEl.textContent = `Mã: ${modeVal}`;
-                descEl.textContent = "Trạng thái khác";
+                titleEl.textContent = "Trạng thái khác";
+                subDescText = modeCodeText;
+                priorityText = "Không xác định";
+                badgeText = "Khác";
                 if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-slate-400";
             }
+
+            // Gán dữ liệu lên giao diện
+            descEl.textContent = subDescText;
+            if (priorityEl) priorityEl.textContent = priorityText;
+            if (badgeEl) badgeEl.textContent = badgeText;
         }
+
 
 
 
