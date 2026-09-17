@@ -699,7 +699,7 @@
         const modeVal = systemData.mode !== undefined ? systemData.mode : 113; 
         
         // Kiểm tra điều kiện có đang chạy không (khác mã 113 Standby)
-        const isEpsOnline = (modeVal !== 113) ;//&& (epsWatts > 0);
+        const isEpsOnline = (modeVal !== 113)|| (modeVal !== 49)  ;//&& (epsWatts > 0);
 
         setElemText('topo-eps-watts', epsWatts.toFixed(0) + ' W');
 
