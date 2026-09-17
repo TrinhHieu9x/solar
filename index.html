@@ -698,8 +698,9 @@
         // (Thay systemData.mode bằng tên biến thực tế trong JSON của bạn nếu nó khác)
         const modeVal = systemData.mode !== undefined ? systemData.mode : 113; 
         
-        // Kiểm tra điều kiện có đang chạy không (khác mã 113 Standby)
-        const isEpsOnline = (modeVal !== 113)|| (modeVal !== 49)  ;//&& (epsWatts > 0);
+// EPS chỉ online khi modeVal KHÁC 113 VÀ KHÁC 49
+const isEpsOnline = (modeVal !== 113) && (modeVal !== 49) && (modeVal !== 51) && (modeVal !== 305)  && (modeVal !== 307);
+;
 
         setElemText('topo-eps-watts', epsWatts.toFixed(0) + ' W');
 
@@ -796,13 +797,61 @@
         const dotEl = titleEl ? titleEl.previousElementSibling : null;
 
         if (titleEl && descEl) {
-            if (modeVal === 113) {
-                titleEl.textContent = "Chờ (Standby)";
-                descEl.textContent = "Biến tần đang tắt / Chờ hoạt động";
-                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-amber-500";
+            if (modeVal === 0 || (modeVal >= 1 && modeVal <= 99 && modeVal !== 27 && modeVal !== 49 && modeVal !== 51 && modeVal !== 59)) {
+                titleEl.textContent = "Bình 1thường";
+                descEl.textContent = "Hệ thống hoạt động ổn định mọi thông số";
+                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+            } else if (modeVal === 27) {
+                titleEl.textContent = "Đang sạc pin";
+                descEl.textContent = "Năng lượng dư dồn vào nạp cho khối lưu trữ";
+                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-blue-500 animate-pulse";
             } else if (modeVal === 59) {
-                titleEl.textContent = "Hòa lưới";
-                descEl.textContent = "Hoạt động bình thường (Self-consumption)";
+                titleEl.textContent = "Hòa lưới bình thường (Bật Backup)";
+                descEl.textContent = "Không sạc pin, PV cấp đủ tải hoặc lấy lưới bù tải";
+                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+            } else if (modeVal === 51) {
+                titleEl.textContent = "Hòa lưới (Tắt Backup)";
+                descEl.textContent = "Đang chạy hòa lưới, cổng EPS đang tắt (59 - 8)";
+                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+            } else if (modeVal === 49) {
+                titleEl.textContent = "Standby (Có PV)";
+                descEl.textContent = "Biến tần tắt nguồn/chờ khởi động với nguồn PV";
+                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-amber-400";
+            } else if (modeVal === 113) {
+                titleEl.textContent = "Chờ (Standby - Không PV)";
+                descEl.textContent = "Chờ do hết PV, pin đang xuống mức ngừng xả";
+                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-amber-500";
+            } else if (modeVal === 123) {
+                titleEl.textContent = "Đang khởi động (Không PV)";
+                descEl.textContent = "Quy trình kích hoạt hệ thống khi không có PV";
+                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-sky-500 animate-pulse";
+            } else if (modeVal === 321) {
+                titleEl.textContent = "Đang khởi động (Có PV)";
+                descEl.textContent = "Đang đồng bộ pha/tần số có nguồn PV kích hoạt";
+                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-sky-500 animate-pulse";
+            } else if (modeVal === 257) {
+                titleEl.textContent = "Mất kết nối pin";
+                descEl.textContent = "Lỗi giao tiếp hoặc ngắt mạch khối lưu trữ";
+                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-rose-500 animate-pulse";
+            } else if (modeVal === 267) {
+                titleEl.textContent = "Pin yếu / Dừng xả";
+                descEl.textContent = "Pin cạn, dừng xả pin, chuyển sang dựa vào nguồn khác";
+                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-rose-400 animate-pulse";
+            } else if (modeVal === 283) {
+                titleEl.textContent = "Sạc cứu pin từ lưới";
+                descEl.textContent = "Đang cưỡng bức lấy điện lưới để phục hồi pin cạn";
+                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-purple-500 animate-pulse";
+            } else if (modeVal === 305) {
+                titleEl.textContent = "Standby bảo vệ pin / Shutdown";
+                descEl.textContent = "Trạng thái chờ khi pin yếu không cho phép xả hoặc tắt máy";
+                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-slate-500 animate-pulse";
+            } else if (modeVal === 307) {
+                titleEl.textContent = "Phục hồi (Tắt Backup)";
+                descEl.textContent = "Trạng thái phục hồi hệ thống nhưng ngắt cổng EPS (315 - 8)";
+                if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
+            } else if (modeVal === 315) {
+                titleEl.textContent = "Đang đủ cấp tải (Phục hồi)";
+                descEl.textContent = "Hệ thống phục hồi và cấp điện ổn định bình thường";
                 if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
             } else {
                 titleEl.textContent = `Mã: ${modeVal}`;
@@ -810,6 +859,8 @@
                 if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-slate-400";
             }
         }
+
+
 
         updateStreams();
     }
@@ -849,7 +900,7 @@ function initPowerLineChart() {
             datasets: [
                 { label: 'Sản xuất', data: [], borderColor: '#f1c40f', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
                 { label: 'Tiêu thụ', data: [], borderColor: '#3498db', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
-                { label: 'Xả pin', data: [], borderColor: '#e67e22', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
+                { label: 'Battery', data: [], borderColor: '#e67e22', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
                 { label: 'Lấy lưới', data: [], borderColor: '#9b59b6', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
                 { label: 'Dự phòng', data: [], borderColor: '#1abc9c', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
                 { label: 'Gen', data: [], borderColor: '#34495e', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
@@ -1255,7 +1306,7 @@ zoom: {
         const labels = [];
         const prodData = [];      
         const loadData = [];      
-        const dischargeData = []; 
+        const powerBattery = []; 
         const importData = [];    
         const epsloadData = [];    
         const genData = [];   
@@ -1276,7 +1327,7 @@ zoom: {
 
                 prodData.push(Number(item.solarPv || item.Production || item.ppv || item.pPv || 0));
                 loadData.push(Number(item.Consumption || item.pLoad || item.loadPower || 0));
-                dischargeData.push(Number(item.powerFromBattery || item.batteryDischarging || item.batPower || item.dischargePower || 0));
+                powerBattery.push(Number(item.powerBattery || item.batteryDischarging || item.batPower || item.dischargePower || 0));
                 importData.push(Number(item.powerFromGrid || item.gridImport || item.gridPower || item.pToUser || item.importPower || 0));
                 epsloadData.push(Number(item.epsload || 0));
                 genData.push(Number(item.genload || item.gen || item.genPower || 0));
@@ -1287,7 +1338,7 @@ zoom: {
         powerChartInstance.data.labels = labels;
         powerChartInstance.data.datasets[0].data = prodData;
         powerChartInstance.data.datasets[1].data = loadData;
-        powerChartInstance.data.datasets[2].data = dischargeData;
+        powerChartInstance.data.datasets[2].data = powerBattery;
         powerChartInstance.data.datasets[3].data = importData;
         powerChartInstance.data.datasets[4].data = epsloadData;
         powerChartInstance.data.datasets[5].data = genData;
