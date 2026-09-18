@@ -53,6 +53,16 @@
     </div>
 
     <script>
+    // 🛑 KIỂM TRA NGAY KHI VỪA MỞ TRANG LOGIN
+window.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('solar_token');
+    
+    // Nếu trong bộ nhớ ĐÃ CÓ token rồi mà lại bấm vào trang Login -> Đá thẳng về trang chủ luôn!
+    if (token) {
+        window.location.href = 'index.html';
+    }
+});
+
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
@@ -85,7 +95,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
             localStorage.setItem('solar_member_id', result.memberAutoID);
             
             // Thành công mới cho sang trang chủ
-            //window.location.href = 'index.html'; 
+            window.location.href = 'index.html'; 
         } else {
             // ❌ Nếu sai tài khoản hoặc server hãng báo lỗi thì dừng lại, không cho vào!
             errorMsg.textContent = result.serverData?.message || "Tài khoản hoặc mật khẩu không chính xác!";
