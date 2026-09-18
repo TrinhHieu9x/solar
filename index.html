@@ -55,7 +55,7 @@
             const savedData = localStorage.getItem('solar_token') || sessionStorage.getItem('solar_token');
             
             if (!savedData) {
-                window.location.href = 'login.html'; // Hoặc đường dẫn file login của bạn
+                window.location.href = 'Login.html'; // Hoặc đường dẫn file login của bạn
             }
         })();
 
@@ -64,7 +64,7 @@
                 // Xóa đúng tên khóa khi đăng xuất
                 localStorage.removeItem('solar_token');
                 sessionStorage.removeItem('solar_token');
-                window.location.href = 'login.html'; 
+                window.location.href = 'Login.html'; 
             }
         }
 
@@ -552,16 +552,6 @@
             userDropdown.classList.add('hidden');
         }
     });
-
-    // Hàm đăng xuất
-    function handleLogout() {
-        if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
-            localStorage.removeItem('solar_token');
-            localStorage.removeItem('solar_member_id');
-            sessionStorage.clear();
-            window.location.href = 'Login.html'; // Chuyển về trang login của bạn
-        }
-    }
 
 
     let systemData = {
