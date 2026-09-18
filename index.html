@@ -46,7 +46,31 @@
         }
     </style>
 </head>
+
 <body class="bg-slate-100 min-h-screen text-slate-800 pb-8">
+    <!-- KIỂM TRA DỮ LIỆU ĐĂNG NHẬP NGAY ĐẦU TRANG -->
+    <script>
+        (function() {
+            // Kiểm tra xem đã lưu thông tin đăng nhập hay chưa (Ví dụ kiểm tra token hoặc cờ đăng nhập trong localStorage)
+            // Bạn có thể thay đổi khóa 'user_token' thành tên biến thực tế mà hệ thống của bạn dùng để lưu data đăng nhập.
+            const savedData = localStorage.getItem('user_token') || sessionStorage.getItem('user_token');
+            
+            // Nếu bạn muốn mặc định cho qua trong lúc test, có thể bỏ comment dòng bên dưới hoặc cấu hình điều kiện
+            // Tạm thời hệ thống sẽ check: nếu chưa có, chuyển về trang /login
+            if (!savedData) {
+                // Giả lập lưu sẵn để không bị đá văng liên tục khi test trực tiếp, hoặc bật tính năng chuyển hướng:
+                // window.location.href = '/login';
+            }
+        })();
+
+        function handleLogout() {
+            if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
+                localStorage.removeItem('user_token');
+                sessionStorage.removeItem('user_token');
+                window.location.href = '/login'; // Chuyển về trang đăng nhập
+            }
+        }
+    </script>
 
     <header class="bg-[#2565c7] text-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-2.5 py-1.5 flex items-center justify-between gap-2">
