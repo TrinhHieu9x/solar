@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Seneigy - Giám sát Năng lượng Mặt trời</title>
+    <title>Senergy - Giám sát Năng lượng Mặt trời</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -50,7 +50,7 @@
             <div class="flex items-center space-x-2">
                 <div class="flex items-center font-bold text-base sm:text-lg tracking-wide">
                     <i class="fa-solid fa-sun text-amber-400 text-lg mr-1.5"></i>
-                    <span>seneigy</span>
+                    <span>senergy</span>
                 </div>
             </div>
 
@@ -968,24 +968,12 @@ zoom: {
     pan: {
         enabled: true,
         mode: 'x',
-        // Thêm khoảng cách threshold (tính bằng pixel) để lọc thao tác chạm lướt nhỏ
-        // Giúp tránh việc rung tay hoặc lướt nhẹ nhầm sang kéo pan khi đã phóng to
-        threshold: 5, 
-        
+        threshold: 5,
         onPanStart: function({chart}) {
             const xScale = chart.scales.x;
-            
-            // Lấy tổng số lượng điểm dữ liệu đang có trên biểu đồ
             const totalDataPoints = chart.data.labels.length;
-            
-            // Lấy số điểm đang thực sự hiển thị trên khung nhìn hiện tại (max - min)
             const visibleRange = xScale.max - xScale.min;
-            
-            // Nếu số điểm hiển thị nhỏ hơn tổng số điểm (tức là đang phóng to lên rồi) -> Cho phép PAN (true)
-            // Nếu đang hiển thị toàn bộ dữ liệu -> KHÔNG CHO PAN (false), nhường chỗ cho Tooltip mượt mà
-            const isActuallyZoomed = visibleRange < (totalDataPoints - 1);
-            
-            return isActuallyZoomed;
+            return visibleRange < (totalDataPoints - 1);
         }
     },
     zoom: {
@@ -994,6 +982,7 @@ zoom: {
         mode: 'x',
     }
 }
+
 
 ,
                 tooltip: {
@@ -1709,6 +1698,16 @@ function updateAlarmUI(alarmValue) {
         initEnergyBarChart();
         initDashboardAPI(API_CONFIG.SERIAL_NUM);
     };
+document.addEventListener("visibilitychange", function() {
+    if (document.visibilityState === "visible") {
+        console.log("Người dùng đã quay lại trang, gọi dữ liệu ngay lập tức...");
+        fetchRuntimeQuick(API_CONFIG.SERIAL_NUM); 
+        fetchEnergyInfo(API_CONFIG.SERIAL_NUM);
+        renderDashboard();
+    }
+});
+
+
 </script>
 <!-- Modal chọn nhanh Tháng/Năm -->
 <div id="quickSelectModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
