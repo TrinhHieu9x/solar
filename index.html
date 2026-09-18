@@ -51,23 +51,20 @@
     <!-- KIỂM TRA DỮ LIỆU ĐĂNG NHẬP NGAY ĐẦU TRANG -->
     <script>
         (function() {
-            // Kiểm tra xem đã lưu thông tin đăng nhập hay chưa (Ví dụ kiểm tra token hoặc cờ đăng nhập trong localStorage)
-            // Bạn có thể thay đổi khóa 'user_token' thành tên biến thực tế mà hệ thống của bạn dùng để lưu data đăng nhập.
-            const savedData = localStorage.getItem('user_token') || sessionStorage.getItem('user_token');
+            // Sửa lại thành 'solar_token' cho khớp với trang Login
+            const savedData = localStorage.getItem('solar_token') || sessionStorage.getItem('solar_token');
             
-            // Nếu bạn muốn mặc định cho qua trong lúc test, có thể bỏ comment dòng bên dưới hoặc cấu hình điều kiện
-            // Tạm thời hệ thống sẽ check: nếu chưa có, chuyển về trang /login
             if (!savedData) {
-                // Giả lập lưu sẵn để không bị đá văng liên tục khi test trực tiếp, hoặc bật tính năng chuyển hướng:
-                window.location.href = '/Login';
+                window.location.href = 'login.html'; // Hoặc đường dẫn file login của bạn
             }
         })();
 
         function handleLogout() {
             if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
-                localStorage.removeItem('user_token');
-                sessionStorage.removeItem('user_token');
-                window.location.href = '/login'; // Chuyển về trang đăng nhập
+                // Xóa đúng tên khóa khi đăng xuất
+                localStorage.removeItem('solar_token');
+                sessionStorage.removeItem('solar_token');
+                window.location.href = 'login.html'; 
             }
         }
     </script>
