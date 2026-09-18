@@ -85,7 +85,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
             localStorage.setItem('solar_member_id', result.memberAutoID);
             
             // Thành công mới cho sang trang chủ
-            window.location.href = 'index.html'; 
+            //window.location.href = 'index.html'; 
         } else {
             // ❌ Nếu sai tài khoản hoặc server hãng báo lỗi thì dừng lại, không cho vào!
             errorMsg.textContent = result.serverData?.message || "Tài khoản hoặc mật khẩu không chính xác!";
