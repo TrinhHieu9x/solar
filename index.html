@@ -55,7 +55,7 @@
             const savedData = localStorage.getItem('solar_token') || sessionStorage.getItem('solar_token');
             
             if (!savedData) {
-                window.location.href = 'Login.html'; // Hoặc đường dẫn file login của bạn
+                window.location.href = 'login.html'; // Hoặc đường dẫn file login của bạn
             }
         })();
 
@@ -64,7 +64,7 @@
                 // Xóa đúng tên khóa khi đăng xuất
                 localStorage.removeItem('solar_token');
                 sessionStorage.removeItem('solar_token');
-                window.location.href = 'Login.html'; 
+                window.location.href = 'login.html'; 
             }
         }
 
