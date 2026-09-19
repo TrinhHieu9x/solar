@@ -2,65 +2,98 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23004b87'/%3E%3Cpath d='M32 38c0-6 5-10 13-10h14c6 0 10 3 10 8s-4 8-10 9L43 48c-8 3-13 7-13 15s6 12 15 12h15c8 0 14-4 14-10' fill='none' stroke='%23ffffff' stroke-width='10' stroke-linecap='round'/%3E%3Cpath d='M25 65h55' fill='none' stroke='%23ffffff' stroke-width='8' stroke-opacity='0.4'/%3E%3C/svg%3E">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23004b87'/%3E%3Cpath d='M32 38c0-6 5-10 13-10h14c6 0 10 3 10 8s-4 8-10 9L43 48c-8 3-13 7-13 15s6 12 15 12h15c8 0 14-4 14-10' fill='none' stroke='%23ffffff' stroke-width='10' stroke-linecap='round'/%3E%3Cpath d='M25 65h55' fill='none' stroke='%23ffffff' stroke-width='8' stroke-opacity='0.4'/%3E%3C/svg%3E">
     <title>Đăng nhập - Senergy Monitoring</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Hiệu ứng nền lưới công nghệ kết hợp ánh sáng mặt trời */
+        body {
+            background-color: #090d16;
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(37, 99, 235, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
+                linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+        }
+    </style>
 </head>
-<body class="bg-[#0f172a] text-slate-100 flex items-center justify-center min-h-screen font-sans">
+<body class="text-slate-100 flex items-center justify-center min-h-screen font-sans px-4">
 
-    <div class="w-full max-w-md p-8 bg-[#1e293b] rounded-2xl shadow-2xl border border-slate-700/60 mx-4">
+    <div class="w-full max-w-md p-8 bg-[#1e293b]/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-700/80 relative overflow-hidden">
+        
+        <!-- Dải sáng trang trí đặc trưng năng lượng mặt trời ở viền trên -->
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-amber-400 to-blue-600"></div>
+
         <!-- Logo & Header -->
-        <div class="flex items-center justify-center space-x-3 mb-8">
-            <div class="p-3 bg-blue-600/20 rounded-xl border border-blue-500/30 text-blue-400">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
+        <div class="flex flex-col items-center justify-center mb-8 text-center">
+            <div class="relative mb-3">
+                <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-amber-500 rounded-2xl blur opacity-30 animate-pulse"></div>
+                <div class="relative p-3.5 bg-[#0f172a] rounded-2xl border border-slate-700 text-amber-400 shadow-inner">
+                    <!-- Icon mặt trời kết hợp tia năng lượng -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-9 h-9" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
             </div>
-            <div>
-                <h1 class="text-2xl font-bold tracking-wider text-blue-400">senergy</h1>
-                <p class="text-xs text-slate-400">Hệ thống giám sát biến tần</p>
+            
+            <h1 class="text-2xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-sky-200">SENERGY</h1>
+            <div class="flex items-center justify-center space-x-1.5 mt-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <p class="text-xs font-medium text-slate-400 tracking-wide">Hệ thống giám sát biến tần thông minh</p>
             </div>
         </div>
 
         <!-- Form Đăng Nhập -->
-        <form id="loginForm" class="space-y-5">
+        <form id="loginForm" class="space-y-4">
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Tên đăng nhập (MemberID)</label>
-                <input type="text" id="memberId" placeholder="Nhập tên đăng nhập của bạn" required
-                    class="w-full px-4 py-3 bg-[#0f172a] border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-100 text-sm transition">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Tên đăng nhập (MemberID)</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                    </span>
+                    <input type="text" id="memberId" placeholder="Nhập tên đăng nhập của bạn" required
+                        class="w-full pl-10 pr-4 py-3 bg-[#0f172a]/80 border border-slate-700/80 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-slate-100 text-sm transition">
+                </div>
             </div>
 
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Mật khẩu</label>
-                <input type="password" id="password" placeholder="••••••••" required
-                    class="w-full px-4 py-3 bg-[#0f172a] border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-slate-100 text-sm transition">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Mật khẩu</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                    </span>
+                    <input type="password" id="password" placeholder="••••••••" required
+                        class="w-full pl-10 pr-4 py-3 bg-[#0f172a]/80 border border-slate-700/80 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-slate-100 text-sm transition">
+                </div>
             </div>
 
             <div class="flex items-center justify-between text-sm py-1">
-                <label class="flex items-center text-slate-300 cursor-pointer">
+                <label class="flex items-center text-slate-300 cursor-pointer select-none">
                     <input type="checkbox" id="remember" class="w-4 h-4 rounded bg-[#0f172a] border-slate-700 text-blue-600 focus:ring-blue-500">
-                    <span class="ml-2 text-xs">Nhớ tài khoản</span>
+                    <span class="ml-2 text-xs text-slate-300">Nhớ tài khoản</span>
                 </label>
             </div>
 
             <button type="submit" id="submitBtn"
-                class="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition duration-200 shadow-lg shadow-blue-600/30 text-sm tracking-wide">
+                class="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-bold rounded-xl transition duration-200 shadow-lg shadow-blue-600/30 text-sm tracking-wide active:scale-[0.99]">
                 Truy Cập Hệ Thống
             </button>
             
-            <p id="errorMsg" class="text-red-400 text-xs text-center hidden pt-2"></p>
+            <p id="errorMsg" class="text-red-400 text-xs text-center hidden pt-2 font-medium bg-red-950/30 p-2 rounded-lg border border-red-950"></p>
         </form>
+
+        <!-- Footer nhỏ dưới card -->
+        <div class="mt-6 text-center">
+            <p class="text-[11px] text-slate-500">Solar Inverter Portal &copy; 2026</p>
+        </div>
     </div>
 
     <script>
     // 🛑 KIỂM TRA NGAY KHI VỪA MỞ TRANG LOGIN
     window.addEventListener('DOMContentLoaded', () => {
-        // Kiểm tra xem đã có token ở localStorage HOẶC sessionStorage chưa
         const token = localStorage.getItem('solar_token') || sessionStorage.getItem('solar_token');
-        
-        // Nếu đã có token rồi mà mở lại trang Login -> Đá thẳng về trang chủ luôn!
         if (token) {
             window.location.href = 'index.html';
         }
@@ -71,8 +104,7 @@
         const btn = document.getElementById('submitBtn');
         const errorMsg = document.getElementById('errorMsg');
         
-        // Khóa nút và hiện trạng thái đang xử lý
-        btn.textContent = "Đang xác thực...";
+        btn.textContent = "Đang xác thực hệ thống...";
         btn.disabled = true;
         errorMsg.classList.add('hidden');
 
@@ -91,37 +123,30 @@
             
             const result = await response.json();
 
-            // 🛑 BẮT BUỘC CHECK KỸ: Phải có success = true VÀ có token trả về thật
             if (result.success && result.tokenFetched) {
                 const isRemember = document.getElementById('remember').checked;
                 
-                // Xóa sạch bộ nhớ cũ trước khi lưu mới để tránh xung đột
                 localStorage.clear();
                 sessionStorage.clear();
 
                 if (isRemember) {
-                    // NẾU CÓ TÍCH NHỚ: Lưu vào localStorage (Lưu lâu dài)
                     localStorage.setItem('solar_token', result.tokenFetched);
                     localStorage.setItem('solar_member_id', result.memberAutoID);
                     localStorage.setItem('solar_remember', 'true');
                 } else {
-                    // NẾU KHÔNG TÍCH NHỚ: Lưu vào sessionStorage (Tắt tab là mất)
                     sessionStorage.setItem('solar_token', result.tokenFetched);
                     sessionStorage.setItem('solar_member_id', result.memberAutoID);
                     localStorage.setItem('solar_remember', 'false');
                 }
                 
-                // Thành công mới cho sang trang chủ
                 window.location.href = 'index.html'; 
             } else {
-                // ❌ Nếu sai tài khoản hoặc server hãng báo lỗi
                 errorMsg.textContent = result.serverData?.message || "Tài khoản hoặc mật khẩu không chính xác!";
                 errorMsg.classList.remove('hidden');
                 btn.textContent = "Truy Cập Hệ Thống";
                 btn.disabled = false; 
             }
         } catch (err) {
-            // ❌ Lỗi kết nối mạng hoặc lỗi Worker
             errorMsg.textContent = "Không thể kết nối đến máy chủ xác thực!";
             errorMsg.classList.remove('hidden');
             btn.textContent = "Truy Cập Hệ Thống";
