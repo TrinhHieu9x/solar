@@ -1498,14 +1498,13 @@ async function fetchVendorAPI() {
   const apiRes = await fetch("https://www.cloudinverter.net/dist/server/api/CodeIgniter/index.php/Senergytec/web/v2/Inverterapi/InverterDetailInfoNewone", {
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Authorization": token, 
+      "Content-Type": "application/json", // Đổi sang application/json
+      "Authorization": token,             // Token lấy động từ dữ liệu đã lưu
       "User-Agent": "SolarTouch/1 CFNetwork/3826.500.111.2.2 Darwin/24.4.0",
       "Accept": "*/*",
       "Accept-Language": "vi-VN,vi;q=0.9"
     },
     body: JSON.stringify(payload) // Chuyển object thành chuỗi JSON
-  });
   
   return apiRes.json();
 }
