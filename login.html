@@ -131,11 +131,11 @@
 
                 if (isRemember) {
                     localStorage.setItem('solar_token', result.tokenFetched);
-                    localStorage.setItem('solar_member_id', result.memberAutoID);
+                    localStorage.setItem('solar_member_id', result.MemberAutoID);
                     localStorage.setItem('solar_remember', 'true');
                 } else {
                     sessionStorage.setItem('solar_token', result.tokenFetched);
-                    sessionStorage.setItem('solar_member_id', result.memberAutoID);
+                    sessionStorage.setItem('solar_member_id', result.MemberAutoID);
                     localStorage.setItem('solar_remember', 'false');
                 }
                 
