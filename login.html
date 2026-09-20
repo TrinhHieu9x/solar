@@ -123,7 +123,7 @@
             
             const result = await response.json();
 
-            if (result.success && result.solar_token) {
+            if (result.success && result.token) {
                 const isRemember = document.getElementById('remember').checked;
                 
                 // Xóa dữ liệu cũ tránh xung đột
