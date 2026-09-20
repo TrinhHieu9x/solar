@@ -1482,34 +1482,37 @@ zoom: {
 let currentDayAbortController = null;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 async function fetchVendorAPI() {
+  // 1. Lấy dữ liệu đã lưu trên trình duyệt
   const goodsID = localStorage.getItem('solar_GoodsID') || '2530-95670646PH';
   const memberAutoID = localStorage.getItem('solar_MemberAutoID') || '466440';
   const sign = localStorage.getItem('solar_sign') || '';
   const token = localStorage.getItem('solar_token') || '';
 
-  const payload = {
-    sign: sign,
-    GoodsID: goodsID,
-    MemberAutoID: memberAutoID
-  };
-
-  const apiRes = await fetch("https://www.cloudinverter.net/dist/server/api/CodeIgniter/index.php/Senergytec/web/v2/Inverterapi/InverterDetailInfoNewone", {
+  // 2. Gọi đến API nội bộ của Cloudflare Pages (/api/inverter)
+  const res = await fetch("/api/inverter", {
     method: "POST",
-    mode: "cors", // Bật chế độ CORS rõ ràng
     headers: {
       "Content-Type": "application/json",
-      "Authorization": token,
-      "Accept": "application/json, text/plain, */*",
-      "Accept-Language": "vi-VN,vi;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5",
-      "Origin": "https://www.cloudinverter.net", // Đánh lừa origin giống hệt hãng
-      "Referer": "https://www.cloudinverter.net/dist/" // Đánh lừa referer
+      "Authorization": token // Token tự động gửi lên server trung gian
     },
-    body: JSON.stringify(payload)
+    // Đóng gói payload gửi đi
+    body: JSON.stringify({ 
+      sign: sign, 
+      GoodsID: goodsID, 
+      MemberAutoID: memberAutoID 
+    })
   });
-  
-  return apiRes.json();
+
+  if (!res.ok) {
+    throw new Error(`Lỗi gọi API: ${res.status}`);
+  }
+
+  const data = await res.json();
+  return data; // Nhận kết quả trả về ngon lành không bị chặn CORS nữa!
 }
 
+// Cách dùng:
+// fetchVendorAPI().then(data => console.log(data));
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
