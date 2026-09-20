@@ -1482,13 +1482,11 @@ zoom: {
 let currentDayAbortController = null;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 async function fetchVendorAPI() {
-  // Lấy các giá trị từ localStorage (hoặc nguồn bạn đang lưu)
   const goodsID = localStorage.getItem('solar_GoodsID') || '2530-95670646PH';
   const memberAutoID = localStorage.getItem('solar_MemberAutoID') || '466440';
-  const sign = localStorage.getItem('solar_sign') || '82THyH4GHDP2eBdHqsWYharC+m/737RMPJPjEXV55yx4quHXkjdQLXZ/m5dYXfCLVIB4himFI75UPeqj+kB2sU0vpWmQb+AjF6t3SvEU770=';
+  const sign = localStorage.getItem('solar_sign') || '';
   const token = localStorage.getItem('solar_token') || '';
 
-  // Tạo payload dạng object JavaScript
   const payload = {
     sign: sign,
     GoodsID: goodsID,
@@ -1496,20 +1494,21 @@ async function fetchVendorAPI() {
   };
 
   const apiRes = await fetch("https://www.cloudinverter.net/dist/server/api/CodeIgniter/index.php/Senergytec/web/v2/Inverterapi/InverterDetailInfoNewone", {
-method: "POST",
+    method: "POST",
+    mode: "cors", // Bật chế độ CORS rõ ràng
     headers: {
-      "Content-Type": "application/json", // Đổi sang application/json
-      "Authorization": token,             // Token lấy động từ dữ liệu đã lưu
-      "User-Agent": "SolarTouch/1 CFNetwork/3826.500.111.2.2 Darwin/24.4.0",
-      "Accept": "*/*",
-      "Accept-Language": "vi-VN,vi;q=0.9"
+      "Content-Type": "application/json",
+      "Authorization": token,
+      "Accept": "application/json, text/plain, */*",
+      "Accept-Language": "vi-VN,vi;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5",
+      "Origin": "https://www.cloudinverter.net", // Đánh lừa origin giống hệt hãng
+      "Referer": "https://www.cloudinverter.net/dist/" // Đánh lừa referer
     },
-    body: JSON.stringify(payload) // Chuyển object thành chuỗi JSON
+    body: JSON.stringify(payload)
   });
   
   return apiRes.json();
 }
-
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
