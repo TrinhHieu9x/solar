@@ -1495,11 +1495,11 @@ async function fetchVendorAPI() {
     MemberAutoID: memberAutoID
   };
 
-  const apiRes = await fetch("http://www.cloudinverter.net/dist/server/api/CodeIgniter/index.php/Senergytec/app/v5/Inverterappapi/hybridDetailInfoNewone", {
+  const apiRes = await fetch("https://www.cloudinverter.net/dist/server/api/CodeIgniter/index.php/Senergytec/web/v2/Inverterapi/InverterDetailInfoNewone", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json", // Đổi sang application/json
-      "Authorization": token,             // Token lấy động từ dữ liệu đã lưu
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": token, 
       "User-Agent": "SolarTouch/1 CFNetwork/3826.500.111.2.2 Darwin/24.4.0",
       "Accept": "*/*",
       "Accept-Language": "vi-VN,vi;q=0.9"
