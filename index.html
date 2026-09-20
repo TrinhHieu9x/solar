@@ -1496,7 +1496,7 @@ async function fetchVendorAPI() {
   };
 
   const apiRes = await fetch("https://www.cloudinverter.net/dist/server/api/CodeIgniter/index.php/Senergytec/web/v2/Inverterapi/InverterDetailInfoNewone", {
-    method: "POST",
+method: "POST",
     headers: {
       "Content-Type": "application/json", // Đổi sang application/json
       "Authorization": token,             // Token lấy động từ dữ liệu đã lưu
@@ -1505,6 +1505,7 @@ async function fetchVendorAPI() {
       "Accept-Language": "vi-VN,vi;q=0.9"
     },
     body: JSON.stringify(payload) // Chuyển object thành chuỗi JSON
+  });
   
   return apiRes.json();
 }
