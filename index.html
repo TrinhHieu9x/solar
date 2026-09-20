@@ -1274,9 +1274,9 @@ zoom: {
             setConnectionStatus(false, "Lỗi nạp dữ liệu");
         }
 
-        quickTimer = setInterval(() => { fetchRuntimeQuick(serialNum); }, API_CONFIG.INTERVAL_QUICK_10S);
+        quickTimer = setInterval(() => { fetchRuntimeQuick(serialNum);fetchVendorAPI(); }, API_CONFIG.INTERVAL_QUICK_10S);
         periodicTimer = setInterval(() => {
-            fetchVendorAPI();
+            
             fetchEnergyInfo(serialNum);
             fetchDayMultiLineChartWithDate(serialNum, selectedDateStr);
         }, API_CONFIG.INTERVAL_PERIODIC_1M);
