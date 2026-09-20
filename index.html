@@ -1308,20 +1308,7 @@ zoom: {
             isFetchingRuntime = false;
         }
     }
-
-    async function fetchEnergyInfo(serialNum) {
-        try {
-            const data = await postFormAPI('/WManage/api/inverter/getInverterEnergyInfo', { 
-                inverterSn: serialNum,
-                serialNum: serialNum,
-                id: serialNum 
-            });
-            if (data) updateEnergyUI(data);
-        } catch (err) {
-            console.error("Fetch Energy Info Error:", err);
-        }
-    }
-
+    
     function updateRuntimeUI(data) {
         systemData.pv.totalWatts = Math.round((data.ppv || 0) * 1000);
         systemData.pv.pv1.watts = Math.round((data.ppv1 || 0) * 1000);
@@ -1361,24 +1348,28 @@ zoom: {
         renderDashboard();
     }
 
-    function updateEnergyUI(data) {
+function updateEnergyUI(data) {
         if (!data) return;
 
-        systemData.pv.todayKwh = parseFloat(data.todayYieldingText || data.todayYielding || 0);
-        systemData.pv.totalKwh = parseFloat(data.totalYieldingText || (data.totalYielding / 10) || 0);
+        // PV
+        systemData.pv.todayKwh = parseFloat(data.EToday || 0);
+        systemData.pv.totalKwh = parseFloat(data.ETotal || 0);
 
-        systemData.battery.todayKwh = parseFloat(data.todayDischargingText || data.todayDischarging || 0);
-        systemData.battery.totalKwh = parseFloat(data.totalDischargingText || data.totalDischarging || 0);
-        systemData.battery.chargeTodayKwh = parseFloat(data.todayChargingText || data.todayCharging || 0);
-        systemData.battery.chargeTotalKwh = parseFloat(data.totalChargingText || data.totalCharging || 0);
+        // Battery
+        systemData.battery.todayKwh = parseFloat(data.batDischrg || 0);
+        systemData.battery.totalKwh = parseFloat(data.Etotal_batDischrg || 0);
+        systemData.battery.chargeTodayKwh = parseFloat(data.batChrg || 0);
+        systemData.battery.chargeTotalKwh = parseFloat(data.Etotal_batChrg || 0);
 
-        systemData.grid.importTodayKwh = parseFloat(data.todayImportText || data.todayImport || 0);
-        systemData.grid.importTotalKwh = parseFloat(data.totalImportText || data.totalImport || 0);
-        systemData.grid.exportTodayKwh = parseFloat(data.todayExportText || data.todayExport || 0);
-        systemData.grid.exportTotalKwh = parseFloat(data.totalExportText || data.totalExport || 0);
+        // Grid (Lưu ý: API mới dùng ETDay/ETTotal cho Import và EFDay/EFTotal cho Export)
+        systemData.grid.importTodayKwh = parseFloat(data.ETDay || 0);
+        systemData.grid.importTotalKwh = parseFloat(data.ETTotal || 0);
+        systemData.grid.exportTodayKwh = parseFloat(data.EFDay || 0);
+        systemData.grid.exportTotalKwh = parseFloat(data.EFTotal || 0);
 
-        systemData.load.todayKwh = parseFloat(data.todayUsageText || data.todayUsage || 0);
-        systemData.load.totalKwh = parseFloat(data.totalUsageText || data.totalUsage || 0);
+        // Load
+        systemData.load.todayKwh = parseFloat(data.ELDay || 0);
+        systemData.load.totalKwh = parseFloat(data.ELTotal || 0);
 
         renderDashboard();
     }
@@ -1482,21 +1473,19 @@ zoom: {
 
 let currentDayAbortController = null;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 1. Hàm gọi API mới của hãng qua Cloudflare Pages
 async function fetchVendorAPI() {
-  // 1. Lấy dữ liệu đã lưu trên trình duyệt
   const goodsID = localStorage.getItem('solar_GoodsID') || '2530-95670646PH';
   const memberAutoID = localStorage.getItem('solar_MemberAutoID') || '466440';
   const sign = localStorage.getItem('solar_sign') || '';
   const token = localStorage.getItem('solar_token') || '';
 
-  // 2. Gọi đến API nội bộ của Cloudflare Pages (/api/inverter)
   const res = await fetch("/api/inverter", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": token // Token tự động gửi lên server trung gian
+      "Authorization": token 
     },
-    // Đóng gói payload gửi đi
     body: JSON.stringify({ 
       sign: sign, 
       GoodsID: goodsID, 
@@ -1509,11 +1498,26 @@ async function fetchVendorAPI() {
   }
 
   const data = await res.json();
-  return data; // Nhận kết quả trả về ngon lành không bị chặn CORS nữa!
+  return data; // Đây là data mới
 }
 
-// Cách dùng:
-// fetchVendorAPI().then(data => console.log(data));
+// 2. Hàm gọi API cũ (nếu bạn vẫn muốn giữ lại dùng song song)
+async function fetchEnergyInfo(serialNum) {
+    try {
+        const datacu = await postFormAPI('/WManage/api/inverter/getInverterEnergyInfo', { 
+            inverterSn: serialNum,
+            serialNum: serialNum,
+            id: serialNum 
+        });
+        
+        // SỬA LẠI: Phải kiểm tra và dùng biến `datacu` thay vì `data`
+        if (datacu) {
+            updateEnergyUI(datacu);
+        }
+    } catch (err) {
+        console.error("Fetch Energy Info Error:", err);
+    }
+}
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
