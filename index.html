@@ -1264,7 +1264,8 @@ zoom: {
         try {
             await Promise.all([
                 fetchRuntimeQuick(serialNum),
-                fetchEnergyInfo(serialNum),
+                fetchVendorAPI(),
+                //fetchEnergyInfo(serialNum),
                 fetchDayMultiLineChartWithDate(serialNum, selectedDateStr),
                 fetchMonthEnergyChart(serialNum, selectedYear, selectedMonth)
             ]);
@@ -1274,10 +1275,10 @@ zoom: {
             setConnectionStatus(false, "Lỗi nạp dữ liệu");
         }
 
-        quickTimer = setInterval(() => { fetchRuntimeQuick(serialNum);fetchVendorAPI(); }, API_CONFIG.INTERVAL_QUICK_10S);
+        quickTimer = setInterval(() => { fetchRuntimeQuick(serialNum); }, API_CONFIG.INTERVAL_QUICK_10S);
         periodicTimer = setInterval(() => {
-            
-            fetchEnergyInfo(serialNum);
+            fetchVendorAPI();
+            //fetchEnergyInfo(serialNum);
             fetchDayMultiLineChartWithDate(serialNum, selectedDateStr);
         }, API_CONFIG.INTERVAL_PERIODIC_1M);
     }
@@ -1802,6 +1803,7 @@ document.addEventListener("visibilitychange", function() {
         console.log("Người dùng đã quay lại trang, gọi dữ liệu ngay lập tức...");
         fetchRuntimeQuick(API_CONFIG.SERIAL_NUM); 
         fetchEnergyInfo(API_CONFIG.SERIAL_NUM);
+        fetchVendorAPI();
         renderDashboard();
     }
 });
