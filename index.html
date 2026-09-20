@@ -1276,6 +1276,7 @@ zoom: {
 
         quickTimer = setInterval(() => { fetchRuntimeQuick(serialNum); }, API_CONFIG.INTERVAL_QUICK_10S);
         periodicTimer = setInterval(() => {
+            fetchVendorAPI();
             fetchEnergyInfo(serialNum);
             fetchDayMultiLineChartWithDate(serialNum, selectedDateStr);
         }, API_CONFIG.INTERVAL_PERIODIC_1M);
@@ -1479,6 +1480,36 @@ zoom: {
     }
 
 let currentDayAbortController = null;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    async function fetchVendorAPI() {
+  // Lấy dữ liệu từ localStorage (hoặc nguồn lưu trữ tương ứng của bạn)
+  const goodsID = localStorage.getItem('solar_GoodsID') || '2530-95670646PH';
+  const username = localStorage.getItem('solar_username') || 'HieuTD';
+  const sign = localStorage.getItem('solar_sign') || '';
+  const token = localStorage.getItem('solar_token') || '';
+
+  // Đảm bảo sign được mã hóa URL an toàn (đặc biệt các ký tự như +, =, v.v.)
+  const encodedSign = encodeURIComponent(sign);
+
+  const body = `MemberID=${username}&GoodsID=${goodsID}&sign=${encodedSign}`;
+
+  const apiRes = await fetch("http://www.cloudinverter.net/dist/server/api/CodeIgniter/index.php/Senergytec/app/v5/Inverterappapi/hybridDetailInfoNewone", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": token,
+      "User-Agent": "SolarTouch/1 CFNetwork/3826.500.111.2.2 Darwin/24.4.0",
+      "Accept": "*/*",
+      "Accept-Language": "vi-VN,vi;q=0.9"
+    },
+    body: body
+  });
+  
+  return apiRes.json();
+}
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
     if (currentDayAbortController) {
