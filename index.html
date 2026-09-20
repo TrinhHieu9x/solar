@@ -1481,28 +1481,30 @@ zoom: {
 
 let currentDayAbortController = null;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    async function fetchVendorAPI() {
-  // Lấy dữ liệu từ localStorage (hoặc nguồn lưu trữ tương ứng của bạn)
+async function fetchVendorAPI() {
+  // Lấy các giá trị từ localStorage (hoặc nguồn bạn đang lưu)
   const goodsID = localStorage.getItem('solar_GoodsID') || '2530-95670646PH';
-  const username = localStorage.getItem('solar_username') || 'HieuTD';
-  const sign = localStorage.getItem('solar_sign') || '';
+  const memberAutoID = localStorage.getItem('solar_MemberAutoID') || '466440';
+  const sign = localStorage.getItem('solar_sign') || '82THyH4GHDP2eBdHqsWYharC+m/737RMPJPjEXV55yx4quHXkjdQLXZ/m5dYXfCLVIB4himFI75UPeqj+kB2sU0vpWmQb+AjF6t3SvEU770=';
   const token = localStorage.getItem('solar_token') || '';
 
-  // Đảm bảo sign được mã hóa URL an toàn (đặc biệt các ký tự như +, =, v.v.)
-  const encodedSign = encodeURIComponent(sign);
-
-  const body = `MemberID=${username}&GoodsID=${goodsID}&sign=${encodedSign}`;
+  // Tạo payload dạng object JavaScript
+  const payload = {
+    sign: sign,
+    GoodsID: goodsID,
+    MemberAutoID: memberAutoID
+  };
 
   const apiRes = await fetch("http://www.cloudinverter.net/dist/server/api/CodeIgniter/index.php/Senergytec/app/v5/Inverterappapi/hybridDetailInfoNewone", {
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Authorization": token,
+      "Content-Type": "application/json", // Đổi sang application/json
+      "Authorization": token,             // Token lấy động từ dữ liệu đã lưu
       "User-Agent": "SolarTouch/1 CFNetwork/3826.500.111.2.2 Darwin/24.4.0",
       "Accept": "*/*",
       "Accept-Language": "vi-VN,vi;q=0.9"
     },
-    body: body
+    body: JSON.stringify(payload) // Chuyển object thành chuỗi JSON
   });
   
   return apiRes.json();
