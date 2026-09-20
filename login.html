@@ -91,7 +91,7 @@
     </div>
 
     <script>
-    // 🛑 KIỂM TRA NGAY KHI VỪA MỞ TRANG LOGIN
+    // 🛑 KIỂM TRA NGAY KHI VỪA MỞ TRANG LOGIN (Nếu đã có token thì vào thẳng index.html)
     window.addEventListener('DOMContentLoaded', () => {
         const token = localStorage.getItem('solar_token') || sessionStorage.getItem('solar_token');
         if (token) {
@@ -126,19 +126,35 @@
             if (result.success && result.tokenFetched) {
                 const isRemember = document.getElementById('remember').checked;
                 
+                // Xóa dữ liệu cũ tránh xung đột
                 localStorage.clear();
                 sessionStorage.clear();
 
-                if (isRemember) {
-                    localStorage.setItem('solar_token', result.tokenFetched);
-                    localStorage.setItem('solar_member_id', result.MemberAutoID);
-                    localStorage.setItem('solar_remember', 'true');
-                } else {
-                    sessionStorage.setItem('solar_token', result.tokenFetched);
-                    sessionStorage.setItem('solar_member_id', result.MemberAutoID);
-                    localStorage.setItem('solar_remember', 'false');
+                // Chọn kho lưu trữ: localStorage nếu "Nhớ tài khoản", sessionStorage nếu không
+                const storage = isRemember ? localStorage : sessionStorage;
+
+                // 1. Lưu từng biến riêng lẻ dựa trên data API của bạn:
+                // - success
+                // - username
+                // - tokenFetched (token chính)
+                // - MemberAutoID
+                // - GroupAutoID
+                // - AutoID
+                // - GoodsID
+                // - sign
+                for (const key in result) {
+                    if (Object.prototype.hasOwnProperty.call(result, key)) {
+                        const val = result[key];
+                        // Lưu dạng chuỗi (nếu là object/array thì stringify, còn giá trị thường giữ nguyên)
+                        storage.setItem(`solar_${key}`, typeof val === 'object' ? JSON.stringify(val) : val);
+                    }
                 }
+
+                // 2. Lưu thêm trạng thái nhớ tài khoản và lưu nguyên cục JSON để tiện gọi ở trang sau
+                storage.setItem('solar_remember', isRemember ? 'true' : 'false');
+                storage.setItem('solar_api_response', JSON.stringify(result));
                 
+                // Chuyển hướng sang trang chính
                 window.location.href = ''; 
             } else {
                 errorMsg.textContent = result.serverData?.message || "Tài khoản hoặc mật khẩu không chính xác!";
