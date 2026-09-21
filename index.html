@@ -1802,25 +1802,46 @@ function updateAlarmUI(alarmValue) {
         document.getElementById('quickSelectModal').style.display = 'none';
     }
 
-    window.onload = function () {
+    window.onload = async function () {
         const dObj = new Date();
         document.getElementById('current-day-label').innerText = `Ngày ${dObj.getDate()} thg ${dObj.getMonth() + 1}, ${dObj.getFullYear()}`;
         document.getElementById('energy-period-label').innerText = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
         
-        renderDashboard();
-        initPowerLineChart();
-        initEnergyBarChart();
-        initDashboardAPI(API_CONFIG.SERIAL_NUM);
+        // Vẽ giao diện tĩnh trước cho người dùng thấy ngay lập tức, không đợi API
+        try { renderDashboard(); } catch(e) {}
+        try { initPowerLineChart(); } catch(e) {}
+        try { initEnergyBarChart(); } catch(e) {}
+    
+        // Gọi API khởi tạo bằng Promise.allSettled để có lỗi cũng không bị treo
+        try {
+            await Promise.allSettled([
+                fetchVendorAPI(),
+                initDashboardAPI(API_CONFIG.SERIAL_NUM)
+            ]);
+        } catch (err) {
+            console.warn("Lỗi khi tải dữ liệu ban đầu:", err);
+        }
     };
-document.addEventListener("visibilitychange", function() {
-    if (document.visibilityState === "visible") {
-        console.log("Người dùng đã quay lại trang, gọi dữ liệu ngay lập tức...");
-        fetchRuntimeQuick(API_CONFIG.SERIAL_NUM); 
-        //fetchEnergyInfo(API_CONFIG.SERIAL_NUM);
-        fetchVendorAPI();
-        renderDashboard();
-    }
-});
+
+    document.addEventListener("visibilitychange", async function() {
+        if (document.visibilityState === "visible") {
+            console.log("Người dùng đã quay lại trang, gọi dữ liệu làm mới...");
+            
+            // Dùng Promise.allSettled để gọi song song các hàm cập nhật mà không sợ 1 cái chết làm sập toàn bộ
+            await Promise.allSettled([
+                fetchRuntimeQuick(API_CONFIG.SERIAL_NUM).catch(err => console.warn("Lỗi runtime quick:", err)),
+                fetchVendorAPI().catch(err => console.warn("Lỗi vendor API:", err))
+            ]);
+    
+            // Sau khi cập nhật xong thì vẽ lại giao diện an toàn
+            try {
+                renderDashboard();
+            } catch (e) {
+                console.warn("Lỗi render dashboard:", e);
+            }
+        }
+    });
+
 
 
 </script>
