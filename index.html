@@ -1474,8 +1474,18 @@ function updateEnergyUI(data) {
 
 let currentDayAbortController = null;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 1. Hàm gọi API mới của hãng qua Cloudflare Pages
+// Biến toàn cục lưu trữ controller của request đang chạy
+let currentFetchController = null;
+
 async function fetchVendorAPI() {
+  // Nếu có request nào đang chạy dở dang trước đó, hủy nó ngay lập tức
+  if (currentFetchController) {
+    currentFetchController.abort();
+  }
+
+  // Tạo AbortController mới cho lần gọi này
+  currentFetchController = new AbortController();
+
   // Hàm kiểm tra đọc từ cả localStorage lẫn sessionStorage
   const getStorage = (key, fallback) => {
     return localStorage.getItem(key) || sessionStorage.getItem(key) || fallback;
@@ -1486,28 +1496,43 @@ async function fetchVendorAPI() {
   const sign = getStorage('solar_sign', '');
   const token = getStorage('solar_token', '');
 
-  const res = await fetch("/api/inverter", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": token 
-    },
-    body: JSON.stringify({ 
-      sign: sign, 
-      GoodsID: goodsID, 
-      MemberAutoID: memberAutoID 
-    })
-  });
+  try {
+    const res = await fetch("/api/inverter", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": token 
+      },
+      body: JSON.stringify({ 
+        sign: sign, 
+        GoodsID: goodsID, 
+        MemberAutoID: memberAutoID 
+      }),
+      signal: currentFetchController.signal // Gắn signal vào fetch để có thể hủy
+    });
 
-  if (!res.ok) {
-    throw new Error(`Lỗi gọi API: ${res.status}`);
-  }
+    if (!res.ok) {
+      throw new Error(`Lỗi gọi API: ${res.status}`);
+    }
 
-  const data = await res.json();
-  if (data) {
-      updateEnergyUI(data);
+    const data = await res.json();
+    if (data) {
+        updateEnergyUI(data);
+    }
+    return data; // Đây là data mới
+  } catch (error) {
+    // Bỏ qua lỗi do người dùng chủ động hủy request (AbortError)
+    if (error.name === 'AbortError') {
+      console.log('Request trước đã bị hủy.');
+      return;
+    }
+    throw error; // Ném các lỗi khác ra ngoài nếu có
+  } finally {
+    // Xóa controller nếu đây là request cuối cùng đang chạy
+    if (currentFetchController?.signal.aborted === false) {
+      currentFetchController = null;
+    }
   }
-  return data; // Đây là data mới
 }
 
 
@@ -1804,60 +1829,6 @@ function updateAlarmUI(alarmValue) {
     
 let currentFetchController = null; // Biến lưu giữ bộ điều khiển hủy request
 
-async function fetchVendorAPIWithCancel() {
-    // 1. Nếu có một request cũ đang chạy mà chưa xong, hủy nó ngay lập tức!
-    if (currentFetchController) {
-        currentFetchController.abort();
-        console.log("Đã hủy request cũ đang bị treo để nhường chỗ cho request mới.");
-    }
-
-    // 2. Tạo controller mới cho lần gọi này
-    currentFetchController = new AbortController();
-    
-    // Đặt timeout 8 giây tự động hủy nếu mạng quá chậm
-    const timeoutId = setTimeout(() => currentFetchController.abort(), 8000);
-
-    try {
-        const getStorage = (key, fallback) => localStorage.getItem(key) || sessionStorage.getItem(key) || fallback;
-        const goodsID = getStorage('solar_GoodsID', '2530-95670646PH');
-        const memberAutoID = getStorage('solar_MemberAutoID', '466440');
-        const sign = getStorage('solar_sign', '');
-        const token = getStorage('solar_token', '');
-
-        const res = await fetch("/api/inverter", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": token 
-            },
-            body: JSON.stringify({ sign, GoodsID, MemberAutoID }),
-            signal: currentFetchController.signal // Gắn signal vào để có thể hủy bất cứ lúc nào
-        });
-
-        clearTimeout(timeoutId);
-        
-        if (!res.ok) throw new Error(`Lỗi HTTP: ${res.status}`);
-        
-        const data = await res.json();
-        if (data) {
-            updateEnergyUI(data);
-        }
-        return data;
-
-    } catch (err) {
-        if (err.name === 'AbortError') {
-            console.log("Request đã bị hủy do có request mới hoặc quá thời gian timeout.");
-        } else {
-            console.warn("Lỗi khi fetch dữ liệu:", err.message);
-        }
-        return null;
-    } finally {
-        // Xóa controller nếu đây là request cuối cùng hoàn thành
-        if (currentFetchController && currentFetchController.signal.aborted === false) {
-            currentFetchController = null;
-        }
-    }
-}
 
     window.onload = async function () {
         const dObj = new Date();
