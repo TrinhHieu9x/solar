@@ -1363,10 +1363,10 @@ function updateEnergyUI(data) {
         systemData.battery.chargeTotalKwh = parseFloat(data.Etotal_batChrg || 0);
 
         // Grid (Lưu ý: API mới dùng ETDay/ETTotal cho Import và EFDay/EFTotal cho Export)
-        systemData.grid.importTodayKwh = parseFloat(data.ETDay || 0);
-        systemData.grid.importTotalKwh = parseFloat(data.ETTotal || 0);
-        systemData.grid.exportTodayKwh = parseFloat(data.EFDay || 0);
-        systemData.grid.exportTotalKwh = parseFloat(data.EFTotal || 0);
+        systemData.grid.importTodayKwh = parseFloat(data.EFDay || 0);
+        systemData.grid.importTotalKwh = parseFloat(data.EFTotal || 0);
+        systemData.grid.exportTodayKwh = parseFloat(data.ETDay || 0);
+        systemData.grid.exportTotalKwh = parseFloat(data.ETTotal || 0);
 
         // Load
         systemData.load.todayKwh = parseFloat(data.ELDay || 0);
