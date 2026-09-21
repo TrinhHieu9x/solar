@@ -1476,10 +1476,15 @@ let currentDayAbortController = null;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 1. Hàm gọi API mới của hãng qua Cloudflare Pages
 async function fetchVendorAPI() {
-  const goodsID = localStorage.getItem('solar_GoodsID') || '2530-95670646PH';
-  const memberAutoID = localStorage.getItem('solar_MemberAutoID') || '466440';
-  const sign = localStorage.getItem('solar_sign') || '';
-  const token = localStorage.getItem('solar_token') || '';
+  // Hàm kiểm tra đọc từ cả localStorage lẫn sessionStorage
+  const getStorage = (key, fallback) => {
+    return localStorage.getItem(key) || sessionStorage.getItem(key) || fallback;
+  };
+
+  const goodsID = getStorage('solar_GoodsID');
+  const memberAutoID = getStorage('solar_MemberAutoID');
+  const sign = getStorage('solar_sign', '');
+  const token = getStorage('solar_token', '');
 
   const res = await fetch("/api/inverter", {
     method: "POST",
@@ -1499,11 +1504,12 @@ async function fetchVendorAPI() {
   }
 
   const data = await res.json();
-        if (data) {
-            updateEnergyUI(data);
-        }
+  if (data) {
+      updateEnergyUI(data);
+  }
   return data; // Đây là data mới
 }
+
 
 // 2. Hàm gọi API cũ (nếu bạn vẫn muốn giữ lại dùng song song)
 async function fetchEnergyInfo(serialNum) {
