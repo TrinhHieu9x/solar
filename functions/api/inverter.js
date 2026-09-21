@@ -1,9 +1,17 @@
 export async function onRequestPost(context) {
   try {
-    // Nhận dữ liệu từ trang web của bạn gửi lên
-    const body = await context.request.json();
+    // 1. Kiểm tra an toàn khi đọc JSON từ client gửi lên
+    let body;
+    try {
+      body = await context.request.json();
+    } catch (e) {
+      return new Response(JSON.stringify({ success: false, message: "Payload gửi lên không phải JSON hợp lệ!" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
     
-    // Cloudflare Pages server gọi hộ sang server hãng (né sạch CORS và OPTIONS)
+    // 2. Gọi sang server hãng
     const apiRes = await fetch("https://www.cloudinverter.net/dist/server/api/CodeIgniter/index.php/Senergytec/web/v2/Inverterapi/InverterDetailInfoNewone", {
       method: "POST",
       headers: {
@@ -17,9 +25,19 @@ export async function onRequestPost(context) {
       body: JSON.stringify(body)
     });
 
-    const data = await apiRes.json();
+    const textRes = await apiRes.text();
+    let data;
+    try {
+      data = JSON.parse(textRes);
+    } catch (e) {
+      // Nếu hãng trả về HTML hoặc lỗi không phải JSON
+      return new Response(JSON.stringify({ success: false, message: "Hãng trả về dữ liệu lỗi: " + textRes }), {
+        status: 502,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
     
-    // Trả kết quả về cho trang web của bạn kèm theo header ép buộc không cache
+    // 3. Trả kết quả thành công về cho trang web
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: { 
@@ -29,7 +47,16 @@ export async function onRequestPost(context) {
         "Expires": "0"
       }
     });
+
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    // 🛑 TRẢ VỀ CHI TIẾT LỖI RA RESPONSE ĐỂ DỄ ĐỌC TRÊN TRÌNH DUYỆT
+    return new Response(JSON.stringify({ 
+      success: false, 
+      error: err.message, 
+      stack: err.stack 
+    }), { 
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 }
