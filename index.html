@@ -1353,7 +1353,7 @@ function updateEnergyUI(data) {
 
         // PV
         systemData.pv.todayKwh = parseFloat(data.EToday || 0);
-        systemData.pv.maxPeakToday = parseFloat(data.Peackpower || 11);
+        systemData.pv.maxPeakToday = parseFloat(data.Peackpower || 0);
         systemData.pv.totalKwh = parseFloat(data.ETotal || 0);
 
         // Battery
