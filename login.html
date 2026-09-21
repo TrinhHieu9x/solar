@@ -154,7 +154,7 @@
                 storage.setItem('solar_remember', isRemember ? 'true' : 'false');
                 
                 // Chuyển hướng sang trang chính
-                //window.location.href = ''; 
+                window.location.href = ''; 
             } else {
                 errorMsg.textContent = result.serverData?.message || "Tài khoản hoặc mật khẩu không chính xác!";
                 errorMsg.classList.remove('hidden');
