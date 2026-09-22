@@ -1553,7 +1553,7 @@ async function fetchVendorAPI() {
 }
 
 
-    async function fetchRuntimeAPI() {
+async function fetchRuntimeAPI() {
   const getStorage = (key, fallback) => {
     return localStorage.getItem(key) || sessionStorage.getItem(key) || fallback;
   };
@@ -1891,6 +1891,7 @@ function updateAlarmUI(alarmValue) {
         try {
             await Promise.allSettled([
                 fetchVendorAPI(),
+                fetchRuntimeAPI(),
                 initDashboardAPI(API_CONFIG.SERIAL_NUM)
             ]);
         } catch (err) {
