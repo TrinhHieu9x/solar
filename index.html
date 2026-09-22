@@ -527,15 +527,23 @@
 
 <script>
 
-    // Load MemberID từ localStorage lên menu (nếu bạn đã lưu lúc đăng nhập)
+     // Load MemberID và tên trạm lên menu & select box
     document.addEventListener("DOMContentLoaded", () => {
-        const memberId = localStorage.getItem('solar_username') || sessionStorage.getItem('solar_username') ||'Admin';
-        const stationOptionName = memberId;
+        const memberId = localStorage.getItem('solar_username') || sessionStorage.getItem('solar_username') || 'Admin';
+        
+        // 1. Cập nhật tên vào ô chọn trạm
+        const stationOptionElement = document.getElementById('stationOptionName');
+        if (stationOptionElement) {
+            stationOptionElement.textContent = memberId;
+        }
+    
+        // 2. Cập nhật ID vào dropdown menu user
         const memberIdElement = document.getElementById('dropdownMemberId');
-        if(memberIdElement) {
+        if (memberIdElement) {
             memberIdElement.textContent = "ID: " + memberId;
         }
     });
+    
     
     // Xử lý bật/tắt menu xổ xuống khi click vào nút user
     const userMenuBtn = document.getElementById('userMenuBtn');
