@@ -1572,8 +1572,8 @@ async function fetchRuntimeAPI() {
   return data;
 }
 
-// 3. Hàm cập nhật giao diện
 function updateRuntimeUI(data) {
+    // 1. Cập nhật các thông số vào object global systemData để renderDashboard sử dụng
     systemData.pv.totalWatts = Math.round((data.ppv || data.ppv1 || 0) * 1000);
     systemData.pv.pv1.watts = Math.round((data.ppv1 || 0) * 1000);
     systemData.pv.pv1.volts = data.vpv1 || 0;
@@ -1605,9 +1605,17 @@ function updateRuntimeUI(data) {
     systemData.eps.watts = data.epsPower || data.backupPower || 0;
     systemData.load.watts = data.consumptionPower || 0;
 
-    systemData.mode = data.Mode !== undefined ? data.Mode : data.mode;
+    // Gán mode và alarm chuẩn từ Hex data mới
+    systemData.mode = data.Mode !== undefined ? data.Mode : (data.mode || 113);
 
-    document.getElementById('last-updated-time').innerText = new Date().toLocaleTimeString('vi-VN');
+    // 2. Cập nhật Card Nhật ký / Cảnh báo (Alarm) từ dữ liệu cắt Hex (data.Alarm)
+    updateAlarmUI(data.Alarm || 0);
+
+    // 3. Cập nhật thời gian làm mới
+    const timeEl = document.getElementById('last-updated-time');
+    if (timeEl) timeEl.innerText = new Date().toLocaleTimeString('vi-VN');
+
+    // 4. Gọi hàm renderDashboard() của bạn để vẽ lại toàn bộ giao diện topo & card Mode
     renderDashboard();
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1698,7 +1706,8 @@ async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
             }
         }
     }
-// Từ điển ánh xạ lỗi dựa chuẩn theo bảng Error Code Table của bạn
+
+// Từ điển ánh xạ lỗi dựa chuẩn theo bảng Error Code Table
 const alarmDescriptions = {
     0: "Battery absent",
     1: "Battery over volt",
@@ -1726,12 +1735,13 @@ function updateAlarmUI(alarmValue) {
     const alarmCode = document.getElementById('alarm-code');
     const alarmBadge = document.getElementById('alarm-badge');
 
+    if (!alarmCard) return; // Tránh lỗi nếu chưa load DOM card
+
     alarmCode.textContent = alarmValue;
 
     // Quét tìm tất cả các bit đang bật (bằng 1)
     let activeAlarms = [];
     for (let bit = 0; bit <= 15; bit++) {
-        // Kiểm tra xem bit thứ 'bit' có bật trong giá trị alarmValue không
         if ((alarmValue & (1 << bit)) !== 0) {
             activeAlarms.push(alarmDescriptions[bit] || `Unknown Error (Bit ${bit})`);
         }
@@ -1743,7 +1753,6 @@ function updateAlarmUI(alarmValue) {
         alarmIconBg.className = "w-6 h-6 rounded-md bg-red-100 text-red-600 flex items-center justify-center shrink-0";
         alarmStatusIcon.className = "fa-solid fa-triangle-exclamation text-red-500 text-sm shrink-0";
         
-        // Hiển thị tên lỗi đầu tiên (hoặc nối các lỗi lại nếu muốn)
         alarmText.textContent = activeAlarms.join(", ");
         alarmText.className = "font-medium text-red-700 text-[11px] sm:text-xs truncate";
         alarmBadge.textContent = `Cảnh báo (${activeAlarms.length})`;
@@ -1759,8 +1768,6 @@ function updateAlarmUI(alarmValue) {
         alarmBadge.className = "text-emerald-600 font-semibold";
     }
 }
-
-
     function openQuickSelectModal(mode = null) {
         const modal = document.getElementById('quickSelectModal');
         const titleEl = document.getElementById('modalTitle');
