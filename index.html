@@ -529,7 +529,7 @@
 
     // Load MemberID từ localStorage lên menu (nếu bạn đã lưu lúc đăng nhập)
     document.addEventListener("DOMContentLoaded", () => {
-        const memberId = localStorage.getItem('solar_username') || 'Admin';
+        const memberId = localStorage.getItem('solar_username') || sessionStorage.getItem('solar_username') ||'Admin';
         const memberIdElement = document.getElementById('dropdownMemberId');
         if(memberIdElement) {
             memberIdElement.textContent = "ID: " + memberId;
