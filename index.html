@@ -1486,7 +1486,7 @@ async function fetchVendorAPI() {
   }
   return data;
 }
-// 1. Hàm giải mã Hex
+// 1. Hàm giải mã Hex (Đã map thẳng tên biến khớp với UI)
 function parseHexData(hexString) {
   if (!hexString || hexString.length < 250) return {};
 
@@ -1499,25 +1499,32 @@ function parseHexData(hexString) {
     return v * scale;
   };
 
+  const gridPowerRaw = readPos(80, 0.1);
+
   return {
-    status:      readPos(4, 1),
-    Alarm: readPos(20, 1),
-    Mode: readPos(24, 1),
-    vpv1:      readPos(28, 0.0001),
-    ppv1:      readPos(36, 0.0001),
-    vacr:      readPos(40)/10,
-    gridPower: readPos(80, 0.1), // Công suất lưới (+ đẩy, - kéo hoặc ngược lại tùy hệ thống)
-    soc:       readPos(100, 1),
-    vBat:      readPos(104, 0.1),
-    iBat:      readPos(112, 0.1),
-    pBat:      readPos(120, 0.1), // Công suất pin
-    loadPower: readPos(188, 0.1), // Công suất tải
-    pbackup:   readPos(248, 0.1), // Công suất backup
-    fac:       readPos(396)/100,
+    status:             readPos(4, 1),
+    Alarm:              readPos(20, 1),
+    Mode:               readPos(24, 1),
+    vpv1:               readPos(28, 0.0001),
+    ppv1:               readPos(36, 0.0001),
+    vacr:               readPos(40) / 10,
+    soc:                readPos(100, 1),
+    vBat:               readPos(104, 0.1),
+    iBat:               readPos(112, 0.1),
+    fac:                readPos(396) / 100,
+    
+    // Đã đổi tên trực tiếp khớp UI
+    batPower:           readPos(120, 0.1),
+    consumptionPower:   readPos(188, 0.1),
+    backupPower:        readPos(248, 0.1),
+
+    // Xử lý luôn logic lưới tại chỗ
+    pToGrid:            gridPowerRaw > 0 ? gridPowerRaw : 0,
+    pToUser:            gridPowerRaw < 0 ? Math.abs(gridPowerRaw) : 0,
   };
 }
 
-// 2. Hàm gọi API và giải mã
+// 2. Hàm gọi API và giải mã gọn gàng
 async function fetchRuntimeAPI() {
   const getStorage = (key, fallback) => {
     return localStorage.getItem(key) || sessionStorage.getItem(key) || fallback;
@@ -1550,20 +1557,9 @@ async function fetchRuntimeAPI() {
           if (data.inverter && data.inverter.RealTimeData) {
               const rawObj = JSON.parse(data.inverter.RealTimeData);
               const hexString = rawObj.InvRealTimeData?.INVInfo?.[1600] || "";
-              const metrics = parseHexData(hexString);
               
-              // 💡 Trộn thẳng các thông số đã cắt vào object data để UI dễ đọc
-              Object.assign(data, metrics);
-
-              // Map phụ trợ cho khớp với tên biến trong updateRuntimeUI của bạn
-              data.batPower = metrics.pBat || 0;
-              data.consumptionPower = metrics.loadPower || 0;
-              data.backupPower = metrics.pbackup || 0;
-              
-              // Xử lý lưới (nếu gridPower > 0 là đẩy lên grid, < 0 là kéo từ grid)
-              const gPower = metrics.gridPower || 0;
-              data.pToGrid = gPower > 0 ? gPower : 0;
-              data.pToUser = gPower < 0 ? Math.abs(gPower) : 0;
+              // 💡 Trộn thẳng kết quả vào data, dùng luôn không cần map lại
+              Object.assign(data, parseHexData(hexString));
           }
       } catch (e) {
           console.error("Lỗi parse Hex RealTimeData:", e);
@@ -1613,51 +1609,6 @@ function updateRuntimeUI(data) {
 
     document.getElementById('last-updated-time').innerText = new Date().toLocaleTimeString('vi-VN');
     renderDashboard();
-}
-
-    
-        let isFetchingRuntime = false;
-
-    async function fetchRuntimeQuick(serialNum) {
-        if (isFetchingRuntime) return;
-        isFetchingRuntime = true;
-
-        try {
-            const data = await postFormAPI('/WManage/api/inverter/getInverterRuntime', { 
-                inverterSn: serialNum,
-                serialNum: serialNum,
-                id: serialNum 
-            });
-            
-            if (data && (data.success || data.hasRuntimeData || data.ppv !== undefined)) {
-                updateRuntimeUI(data);
-                setConnectionStatus(true, "Connected");
-            } else {
-                setConnectionStatus(false, "Mất kết nối Inverter");
-            }
-        } catch (err) {
-            setConnectionStatus(false, "Mất kết nối API");
-        } finally {
-            isFetchingRuntime = false;
-        }
-    }
-    
-// 2. Hàm gọi API cũ (nếu bạn vẫn muốn giữ lại dùng song song)
-async function fetchEnergyInfo(serialNum) {
-    try {
-        const datacu = await postFormAPI('/WManage/api/inverter/getInverterEnergyInfo', { 
-            inverterSn: serialNum,
-            serialNum: serialNum,
-            id: serialNum 
-        });
-        
-        // SỬA LẠI: Phải kiểm tra và dùng biến `datacu` thay vì `data`
-        if (datacu) {
-            updateEnergyUI(datacu);
-        }
-    } catch (err) {
-        console.error("Fetch Energy Info Error:", err);
-    }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
