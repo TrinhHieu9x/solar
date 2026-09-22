@@ -1554,9 +1554,12 @@ async function fetchRuntimeAPI() {
     })
   });
 
-  if (data) {
-      updateRuntimeUI(data);
-  }
+    if (data && data.status) {
+        updateRuntimeUI(data);
+        setConnectionStatus(true, "Connected");
+    } else {
+        setConnectionStatus(false, "Mất kết nối Inverter");
+    }
   return data;
 }
 
