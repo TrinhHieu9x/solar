@@ -1567,13 +1567,13 @@ async function fetchRuntimeAPI() {
   const data = await fetchWithCancel('fetchRuntime', '/api/getInverterRuntime', {
     method: "POST",
     headers: {
+      "Authorization": token ,
       "Content-Type": "application/json",
-      "Authorization": token 
     },
     body: JSON.stringify({ 
         AutoId: AutoId,
         memberAutoID: memberAutoID,
-        ModbusArr: modbusList,
+        ModbusArr: JSON.stringify(modbusList),
         sign: sign
     })
   });
