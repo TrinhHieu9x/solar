@@ -2,11 +2,9 @@ export async function onRequestPost(context) {
   try {
     const body = await context.request.json();
     
-    // 1. Lấy Authorization VÀ Cookie từ request do trang web của bạn gửi lên
     const authHeader = context.request.headers.get("Authorization") || "";
     const cookieHeader = context.request.headers.get("Cookie") || "timezone=Asia%2FBangkok";
     
-    // Cloudflare Pages server gọi hộ sang server hãng
     const apiRes = await fetch("https://www.cloudinverter.net/dist/server/api/test/CodeIgniter/index.php/version3/v2/Inverterapi", {
       method: "POST",
       headers: {
