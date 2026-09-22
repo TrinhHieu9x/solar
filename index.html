@@ -1613,25 +1613,24 @@ function parseHexData(hexString, modelType = "eco") {
   // Lấy cấu hình theo model, mặc định fallback về 'eco' nếu không khớp
   const cfg = mapConfig[modelType.toLowerCase()] || mapConfig.eco;
 
-  const gridPowerRaw = readPos(cfg.gridPower, cfg.scalePower);
-
-  return {
-    status:             readPos(cfg.status, 1),
-    Alarm:              readPos(cfg.alarm, 1),
-    Mode:               readPos(cfg.mode, 1),
-    vpv1:               readPos(cfg.vpv1, cfg.scaleVpv),
-    ppv1:               readPos(cfg.ppv1, cfg.scalePpv),
-    vacr:               readPos(cfg.vacr) * cfg.scaleVac,
-    soc:                readPos(cfg.soc, 1),
-    vBat:               readPos(cfg.vBat, cfg.scaleBat),
-    iBat:               readPos(cfg.iBat, cfg.scaleBat),
-    fac:                readPos(cfg.fac) * cfg.scaleFac,
+    const gridPowerRaw = readPos(cfg.gridPower, cfg.scalePower);
     
-    batPower:           readPos(cfg.batPower, cfg.scalePower),
-    consumptionPower:   readPos(cfg.consumptionPower, cfg.scalePower),
-    backupPower:        readPos(cfg.backupPower, cfg.scalePower),
-
-    // Xử lý logic lưới chung
+      return {
+        status:             readPos(cfg.status, 1, 0),
+        Alarm:              readPos(cfg.alarm, 1, 0),
+        Mode:               readPos(cfg.mode, 1, 0),
+        vpv1:               readPos(cfg.vpv1, cfg.scaleVpv, 2),
+        ppv1:               readPos(cfg.ppv1, cfg.scalePpv, 2),
+        vacr:               parseFloat((readPos(cfg.vacr, 1, 0) * cfg.scaleVac).toFixed(1)), // Bọc làm tròn ngoài cùng
+        soc:                readPos(cfg.soc, 1, 0),
+        vBat:               readPos(cfg.vBat, cfg.scaleBat, 1),
+        iBat:               readPos(cfg.iBat, cfg.scaleBat, 1),
+        fac:                parseFloat((readPos(cfg.fac, 1, 0) * cfg.scaleFac).toFixed(2)), // Bọc làm tròn ngoài cùng
+        
+        batPower:           readPos(cfg.batPower, cfg.scalePower, 1),
+        consumptionPower:   readPos(cfg.consumptionPower, cfg.scalePower, 1),
+        backupPower:        readPos(cfg.backupPower, cfg.scalePower, 1),
+    
     pToGrid:             0,
     pToUser:            gridPowerRaw || 0,
   };
