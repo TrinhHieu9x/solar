@@ -1355,7 +1355,7 @@ zoom: {
         // Cập nhật mã máy (serial) lên badge (Giả định trường trong API của bạn là data.SN hoặc data.serial, bạn đổi tên key cho khớp với API trả về nhé)
         const serialBadge = document.getElementById('system-serial-badge');
         if (serialBadge && (data.SN || data.serial)) {
-            serialBadge.textContent = data.SN || data.serial;
+            serialBadge.textContent = data.GoodsID || data.GoodsName;
         }
         // PV
         systemData.pv.todayKwh = parseFloat(data.EToday || 0);
