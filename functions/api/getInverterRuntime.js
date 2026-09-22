@@ -1,30 +1,23 @@
 export async function onRequestPost(context) {
   try {
-    // 1. Nhận JSON từ client gửi lên
+    // 1. Nhận nguyên cục JSON từ client gửi lên
     const body = await context.request.json();
     
-    // 2. Đóng gói lại thành chuẩn FormData / URLSearchParams giống hệt worker cũ
-    const formData = new URLSearchParams();
-    formData.append("AutoId", body.AutoId || "");
-    formData.append("memberAutoID", body.memberAutoID || "");
-    formData.append("ModbusArr", body.ModbusArr || "[]");
-    formData.append("sign", body.sign || "");
-
     const authHeader = context.request.headers.get("Authorization") || "";
     const cookieHeader = context.request.headers.get("Cookie") || "timezone=Asia%2FBangkok";
     
-    // 3. Gọi sang server hãng
-    const apiRes = await fetch("https://www.cloudinverter.net/dist/server/api/test/CodeIgniter/index.php/version3/v2/Inverterapi", {
+    // 2. Chuyển tiếp thẳng sang server hãng với định dạng application/json
+    const apiRes = await fetch("https://www.cloudinverter.net/dist/server/api/test/CodeIgniter/index.php/version3/v2/Inverterapi/getInvRealtimeData_v1", {
       method: "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded", // Ép về chuẩn form PHP thích
+        "Content-Type": "application/json",
         "Authorization": authHeader,
         "Cookie": cookieHeader,
         "Origin": "https://www.cloudinverter.net",
         "Referer": "https://www.cloudinverter.net/dist/",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
       },
-      body: formData.toString()
+      body: JSON.stringify(body) // Gửi đi đúng y nguyên cục JSON bạn vừa paste
     });
 
     const data = await apiRes.json();
