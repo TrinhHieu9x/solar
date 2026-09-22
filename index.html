@@ -1271,7 +1271,7 @@ zoom: {
 
         try {
             await Promise.all([
-                fetchRuntimeQuick(serialNum),
+                //fetchRuntimeQuick(serialNum),
                 fetchVendorAPI(),
                 fetchDayMultiLineChartWithDate(serialNum, selectedDateStr),
                 fetchMonthEnergyChart(serialNum, selectedYear, selectedMonth)
@@ -1282,39 +1282,14 @@ zoom: {
             setConnectionStatus(false, "Lỗi nạp dữ liệu");
         }
 
-        quickTimer = setInterval(() => { fetchRuntimeQuick(serialNum); }, API_CONFIG.INTERVAL_QUICK_10S);
+        quickTimer = setInterval(() => { fetchRuntimeAPI(); }, API_CONFIG.INTERVAL_QUICK_10S);
         periodicTimer = setInterval(() => {
             fetchVendorAPI();
             fetchDayMultiLineChartWithDate(serialNum, selectedDateStr);
         }, API_CONFIG.INTERVAL_PERIODIC_1M);
     }
 
-    let isFetchingRuntime = false;
 
-    async function fetchRuntimeQuick(serialNum) {
-        if (isFetchingRuntime) return;
-        isFetchingRuntime = true;
-
-        try {
-            const data = await postFormAPI('/WManage/api/inverter/getInverterRuntime', { 
-                inverterSn: serialNum,
-                serialNum: serialNum,
-                id: serialNum 
-            });
-            
-            if (data && (data.success || data.hasRuntimeData || data.ppv !== undefined)) {
-                updateRuntimeUI(data);
-                setConnectionStatus(true, "Connected");
-            } else {
-                setConnectionStatus(false, "Mất kết nối Inverter");
-            }
-        } catch (err) {
-            setConnectionStatus(false, "Mất kết nối API");
-        } finally {
-            isFetchingRuntime = false;
-        }
-    }
-    
     function updateRuntimeUI(data) {
         systemData.pv.totalWatts = Math.round((data.ppv || 0) * 1000);
         systemData.pv.pv1.watts = Math.round((data.ppv1 || 0) * 1000);
@@ -1574,16 +1549,44 @@ async function fetchRuntimeAPI() {
     body: JSON.stringify({ 
         AutoId: AutoId,
         memberAutoID: memberAutoID,
-        ModbusArr: modbusList,
+        ModbusArr: JSON.stringify(modbusList),
         sign: sign
     })
   });
 
   if (data) {
-      updateEnergyUI(data);
+      updateRuntimeUI(data);
   }
   return data;
 }
+
+
+        let isFetchingRuntime = false;
+
+    async function fetchRuntimeQuick(serialNum) {
+        if (isFetchingRuntime) return;
+        isFetchingRuntime = true;
+
+        try {
+            const data = await postFormAPI('/WManage/api/inverter/getInverterRuntime', { 
+                inverterSn: serialNum,
+                serialNum: serialNum,
+                id: serialNum 
+            });
+            
+            if (data && (data.success || data.hasRuntimeData || data.ppv !== undefined)) {
+                updateRuntimeUI(data);
+                setConnectionStatus(true, "Connected");
+            } else {
+                setConnectionStatus(false, "Mất kết nối Inverter");
+            }
+        } catch (err) {
+            setConnectionStatus(false, "Mất kết nối API");
+        } finally {
+            isFetchingRuntime = false;
+        }
+    }
+    
 // 2. Hàm gọi API cũ (nếu bạn vẫn muốn giữ lại dùng song song)
 async function fetchEnergyInfo(serialNum) {
     try {
@@ -1905,7 +1908,7 @@ function updateAlarmUI(alarmValue) {
             
             // Dùng Promise.allSettled để gọi song song các hàm cập nhật mà không sợ 1 cái chết làm sập toàn bộ
             await Promise.allSettled([
-                fetchRuntimeQuick(API_CONFIG.SERIAL_NUM).catch(err => console.warn("Lỗi runtime quick:", err)),
+                //fetchRuntimeQuick(API_CONFIG.SERIAL_NUM).catch(err => console.warn("Lỗi runtime quick:", err)),
                 fetchVendorAPI().catch(err => console.warn("Lỗi vendor API:", err))
             ]);
     
