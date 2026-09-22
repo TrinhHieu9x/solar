@@ -608,7 +608,7 @@
         INTERVAL_QUICK_10S: 10000,
         INTERVAL_PERIODIC_1M: 60000
     };
-    let solar_model = localStorage.getItem('modelName') || sessionStorage.getItem('modelName') || 'SE 6K ECO';
+    let inverterModel = localStorage.getItem('solar_model') || sessionStorage.getItem('solar_model') || 'eco';
     let quickTimer = null;
     let periodicTimer = null;
 
@@ -1668,8 +1668,8 @@ async function fetchRuntimeAPI() {
               const rawObj = JSON.parse(data.inverter.RealTimeData);
               const hexString = rawObj.InvRealTimeData?.INVInfo?.[1600] || "";
               
-              // 💡 Trộn thẳng kết quả vào data, dùng luôn không cần map lại
-              Object.assign(data, parseHexData(hexString, solar_model));
+              // Sửa đoạn này trong fetchRuntimeAPI:
+                Object.assign(data, parseHexData(hexString, inverterModel));
           }
       } catch (e) {
           console.error("Lỗi parse Hex RealTimeData:", e);
