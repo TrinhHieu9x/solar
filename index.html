@@ -1560,6 +1560,7 @@ async function fetchRuntimeAPI() {
 
   const AutoId = getStorage('solar_AutoID');
   const memberAutoID = getStorage('solar_MemberAutoID');
+  const modbusList = ["1A18","1A44","1A45","1A46","1A4E","214C","2143"];
   const sign = getStorage('solar_livesign', '');
   const token = getStorage('solar_token', '');
 
@@ -1570,9 +1571,10 @@ async function fetchRuntimeAPI() {
       "Authorization": token 
     },
     body: JSON.stringify({ 
-      sign: sign, 
-      AutoId: AutoId, 
-      MemberAutoID: memberAutoID 
+        AutoId: AutoId,
+        MemberAutoID: memberAutoID,
+        modbusList: modbusList,
+        sign: sign
     })
   });
 
