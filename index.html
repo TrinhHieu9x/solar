@@ -1563,8 +1563,7 @@ async function fetchRuntimeAPI() {
   const sign = getStorage('solar_livesign', '');
   const token = getStorage('solar_token', '');
 
-  // Gọi qua hàm chung, đặt tên định danh cho API này là 'fetchInverter'
-  const data = await fetchWithCancel('fetchInverter', '/api/getInverterRuntime', {
+  const data = await fetchWithCancel('fetchRuntime', '/api/getInverterRuntime', {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -1582,8 +1581,6 @@ async function fetchRuntimeAPI() {
   }
   return data;
 }
-
-
 // 2. Hàm gọi API cũ (nếu bạn vẫn muốn giữ lại dùng song song)
 async function fetchEnergyInfo(serialNum) {
     try {
