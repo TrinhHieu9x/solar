@@ -1509,13 +1509,16 @@ async function fetchVendorAPI() {
 function parseHexData(hexString) {
   if (!hexString || hexString.length < 250) return {};
 
-  const readPos = (pos, scale = 1) => {
+const readPos = (pos, scale = 1, decimals = 2) => {
     let hexPart = hexString.substring(pos, pos + 4);
     if (!hexPart) return 0;
     
     let v = parseInt(hexPart, 16);
     if (v > 0x7FFF) v -= 0x10000; 
-    return v * scale;
+    
+    // Nhân với scale rồi làm tròn để triệt tiêu sai số nhị phân của JS
+    let result = v * scale;
+    return parseFloat(result.toFixed(decimals));
   };
 
   const gridPowerRaw = readPos(80, 0.1);
