@@ -1574,7 +1574,7 @@ async function fetchRuntimeAPI() {
     body: JSON.stringify({ 
         AutoId: AutoId,
         memberAutoID: memberAutoID,
-        ModbusArr: JSON.stringify(modbusList),
+        ModbusArr: modbusList,
         sign: sign
     })
   });
