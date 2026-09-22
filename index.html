@@ -1273,7 +1273,6 @@ zoom: {
             await Promise.all([
                 fetchRuntimeQuick(serialNum),
                 fetchVendorAPI(),
-                //fetchEnergyInfo(serialNum),
                 fetchDayMultiLineChartWithDate(serialNum, selectedDateStr),
                 fetchMonthEnergyChart(serialNum, selectedYear, selectedMonth)
             ]);
@@ -1286,7 +1285,6 @@ zoom: {
         quickTimer = setInterval(() => { fetchRuntimeQuick(serialNum); }, API_CONFIG.INTERVAL_QUICK_10S);
         periodicTimer = setInterval(() => {
             fetchVendorAPI();
-            //fetchEnergyInfo(serialNum);
             fetchDayMultiLineChartWithDate(serialNum, selectedDateStr);
         }, API_CONFIG.INTERVAL_PERIODIC_1M);
     }
@@ -1486,7 +1484,6 @@ zoom: {
         }
     }
 
-let currentDayAbortController = null;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Biến toàn cục lưu trữ controller của request đang chạy
 // Đối tượng lưu trữ các AbortController theo tên API hoặc key định danh
@@ -1556,69 +1553,37 @@ async function fetchVendorAPI() {
 }
 
 
-
-
-/*
-let currentFetchController = null;
-
-async function fetchVendorAPI() {
-  // Nếu có request nào đang chạy dở dang trước đó, hủy nó ngay lập tức
-  if (currentFetchController) {
-    currentFetchController.abort();
-  }
-
-  // Tạo AbortController mới cho lần gọi này
-  currentFetchController = new AbortController();
-
-  // Hàm kiểm tra đọc từ cả localStorage lẫn sessionStorage
+    async function fetchRuntimeAPI() {
   const getStorage = (key, fallback) => {
     return localStorage.getItem(key) || sessionStorage.getItem(key) || fallback;
   };
 
-  const goodsID = getStorage('solar_GoodsID');
+  const AutoId = getStorage('solar_AutoID');
   const memberAutoID = getStorage('solar_MemberAutoID');
-  const sign = getStorage('solar_sign', '');
+  const sign = getStorage('solar_AutoID', '');
   const token = getStorage('solar_token', '');
 
-  try {
-    const res = await fetch("/api/inverter", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": token 
-      },
-      body: JSON.stringify({ 
-        sign: sign, 
-        GoodsID: goodsID, 
-        MemberAutoID: memberAutoID 
-      }),
-      signal: currentFetchController.signal // Gắn signal vào fetch để có thể hủy
-    });
+  // Gọi qua hàm chung, đặt tên định danh cho API này là 'fetchInverter'
+  const data = await fetchWithCancel('fetchInverter', '/api/getInverterRuntime', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": token 
+    },
+    body: JSON.stringify({ 
+      sign: sign, 
+      AutoId: AutoId, 
+      MemberAutoID: memberAutoID 
+    })
+  });
 
-    if (!res.ok) {
-      throw new Error(`Lỗi gọi API: ${res.status}`);
-    }
-
-    const data = await res.json();
-    if (data) {
-        updateEnergyUI(data);
-    }
-    return data; // Đây là data mới
-  } catch (error) {
-    // Bỏ qua lỗi do người dùng chủ động hủy request (AbortError)
-    if (error.name === 'AbortError') {
-      console.log('Request trước đã bị hủy.');
-      return;
-    }
-    throw error; // Ném các lỗi khác ra ngoài nếu có
-  } finally {
-    // Xóa controller nếu đây là request cuối cùng đang chạy
-    if (currentFetchController?.signal.aborted === false) {
-      currentFetchController = null;
-    }
+  if (data) {
+      updateEnergyUI(data);
   }
+  return data;
 }
-*/
+
+
 // 2. Hàm gọi API cũ (nếu bạn vẫn muốn giữ lại dùng song song)
 async function fetchEnergyInfo(serialNum) {
     try {
@@ -1636,8 +1601,9 @@ async function fetchEnergyInfo(serialNum) {
         console.error("Fetch Energy Info Error:", err);
     }
 }
-    ///////////////////////////////////////////////////////////////////////////////////////////////////
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+let currentDayAbortController = null;
 async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
     if (currentDayAbortController) {
         currentDayAbortController.abort();
