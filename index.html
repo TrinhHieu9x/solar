@@ -604,11 +604,10 @@
 
     const API_CONFIG = {
         BASE_URL: 'https://view.solarvn.workers.dev',
-        SERIAL_NUM: '2530-95670646PH',
+        SERIAL_NUM: localStorage.getItem('solar_serial') || sessionStorage.getItem('solar_serial') || '2530-95670646PH',
         INTERVAL_QUICK_10S: 10000,
         INTERVAL_PERIODIC_1M: 60000
     };
-
     let quickTimer = null;
     let periodicTimer = null;
 
@@ -1621,6 +1620,12 @@ function updateRuntimeUI(data) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
 let currentDayAbortController = null;
+
+// Hàm hỗ trợ lấy token chung từ storage
+function getAuthToken() {
+    return localStorage.getItem('solar_token') || sessionStorage.getItem('solar_token') || '';
+}
+
 async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
     if (currentDayAbortController) {
         currentDayAbortController.abort();
@@ -1634,10 +1639,17 @@ async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
         const formParams = new URLSearchParams();
         formParams.append('serialNum', serialNum);
         formParams.append('dateText', dateText);
+        
+        // Nếu Worker yêu cầu nhận token trực tiếp từ body form-urlencoded, bạn có thể bật dòng dưới:
+        // formParams.append('token', getAuthToken());
 
         const res = await fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+            headers: { 
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                // Gửi kèm token qua Header Authorization để Worker xác thực
+                'Authorization': getAuthToken() 
+            },
             body: formParams.toString(),
             signal: signal
         });
@@ -1663,28 +1675,34 @@ async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
     }
 }
 
-    async function fetchMonthEnergyChart(serialNum, year, month) {
-        try {
-            const result = await postFormAPI('/WManage/api/inverterChart/monthColumn', { 
-                serialNum: serialNum, year: year, month: month
-            });
-            if (result) renderEnergyBarChart(result, 'month');
-        } catch (err) {
-            console.error("Fetch Month Chart Error:", err);
-        }
+async function fetchMonthEnergyChart(serialNum, year, month) {
+    try {
+        // Giả sử hàm postFormAPI của bạn hỗ trợ truyền header hoặc tự động bốc token. 
+        // Nếu postFormAPI dùng chung fetch, bạn có thể truyền kèm token vào object bên dưới:
+        const result = await postFormAPI('/WManage/api/inverterChart/monthColumn', { 
+            serialNum: serialNum, 
+            year: year, 
+            month: month,
+            token: getAuthToken() // Gửi kèm token vào body nếu Worker đọc từ body
+        });
+        if (result) renderEnergyBarChart(result, 'month');
+    } catch (err) {
+        console.error("Fetch Month Chart Error:", err);
     }
+}
 
-    async function fetchYearEnergyChart(serialNum, year) {
-        try {
-            const result = await postFormAPI('/WManage/api/inverterChart/yearColumn', { 
-                serialNum: serialNum, year: year
-            });
-            if (result) renderEnergyBarChart(result, 'year');
-        } catch (err) {
-            console.error("Fetch Year Chart Error:", err);
-        }
+async function fetchYearEnergyChart(serialNum, year) {
+    try {
+        const result = await postFormAPI('/WManage/api/inverterChart/yearColumn', { 
+            serialNum: serialNum, 
+            year: year,
+            token: getAuthToken() // Gửi kèm token vào body nếu Worker đọc từ body
+        });
+        if (result) renderEnergyBarChart(result, 'year');
+    } catch (err) {
+        console.error("Fetch Year Chart Error:", err);
     }
-
+}
     function setConnectionStatus(isConnected, message = "") {
         const dot = document.getElementById('connection-dot');
         const text = document.getElementById('connection-text');
