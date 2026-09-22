@@ -608,6 +608,7 @@
         INTERVAL_QUICK_10S: 10000,
         INTERVAL_PERIODIC_1M: 60000
     };
+    let solar_model = localStorage.getItem('modelName') || sessionStorage.getItem('modelName') || 'SE 6K ECO';
     let quickTimer = null;
     let periodicTimer = null;
 
@@ -1289,14 +1290,32 @@ zoom: {
     }
 
 
-    function updateEnergyUI(data) {
-            if (!data) return;
-            
-        // Cập nhật mã máy (serial) lên badge (Giả định trường trong API của bạn là data.SN hoặc data.serial, bạn đổi tên key cho khớp với API trả về nhé)
+function updateEnergyUI(data) {
+        if (!data) return;
+        
+        // Cập nhật mã máy (serial) lên badge
         const serialBadge = document.getElementById('system-serial-badge');
-        if (serialBadge && (data.GoodsID || datôdsoodsName)) {
+        if (serialBadge && (data.GoodsID || data.GoodsName)) {
             serialBadge.textContent = data.GoodsID || data.GoodsName;
         }
+
+        // --- TỰ ĐỘNG NHẬN DIỆN MODEL DỰA VÀO DỮ LIỆU HÃNG TRẢ VỀ ---
+        const rawModelName = (data.modelName || data.GoodsName || "").toUpperCase();
+        let detectedModel = "eco"; // Mặc định là eco
+
+        if (rawModelName.includes("GREEN")) {
+            detectedModel = "green";
+        } else if (rawModelName.includes("ECO")) {
+            detectedModel = "eco";
+        }
+
+        // Lưu vào biến toàn cục và localStorage nếu có thay đổi
+        if (inverterModel !== detectedModel) {
+            inverterModel = detectedModel;
+            localStorage.setItem('solar_model', detectedModel);
+        }
+        // -----------------------------------------------------------
+
         // PV
         systemData.pv.todayKwh = parseFloat(data.EToday || 0);
         systemData.pv.maxPeakToday = parseFloat(data.Peackpower || 0);
@@ -1485,6 +1504,7 @@ async function fetchVendorAPI() {
   }
   return data;
 }
+    /*
 // 1. Hàm giải mã Hex (Đã map thẳng tên biến khớp với UI)
 function parseHexData(hexString) {
   if (!hexString || hexString.length < 250) return {};
@@ -1522,7 +1542,98 @@ function parseHexData(hexString) {
     pToUser:            gridPowerRaw < 0 ? Math.abs(gridPowerRaw) : 0,
   };
 }
+*/
 
+// 1. Hàm giải mã Hex hỗ trợ nhiều model (Eco, Green,...)
+function parseHexData(hexString, modelType = "eco") {
+  if (!hexString || hexString.length < 250) return {};
+
+  const readPos = (pos, scale = 1) => {
+    let hexPart = hexString.substring(pos, pos + 4);
+    if (!hexPart) return 0;
+    
+    let v = parseInt(hexPart, 16);
+    if (v > 0x7FFF) v -= 0x10000; 
+    return v * scale;
+  };
+
+  // Định nghĩa vị trí (address/offset) theo từng dòng máy nếu chúng khác nhau
+  // Bạn có thể tinh chỉnh lại các con số vị trí này cho dòng Green nếu chúng lệch vị trí với Eco
+  const mapConfig = {
+    eco: {
+      status: 4,
+      alarm: 20,
+      mode: 24,
+      vpv1: 28,
+      ppv1: 36,
+      vacr: 40,
+      soc: 100,
+      vBat: 104,
+      iBat: 112,
+      batPower: 120,
+      gridPower: 80,
+      consumptionPower: 188,
+      backupPower: 248,
+      fac: 396,
+      scaleFac: 0.01,
+      scaleVac: 0.1,
+      scaleVpv: 0.0001,
+      scalePpv: 0.0001,
+      scaleBat: 0.1,
+      scalePower: 0.1
+    },
+    green: {
+      // Ví dụ dòng Green đổi vị trí một số thanh ghi (Registers), bạn sửa lại vị trí tương ứng ở đây:
+      status: 4,
+      alarm: 20,
+      mode: 24,
+      vpv1: 30, // Ví dụ dòng Green lệch vị trí một chút
+      ppv1: 38,
+      vacr: 42,
+      soc: 102,
+      vBat: 106,
+      iBat: 114,
+      batPower: 122,
+      gridPower: 82,
+      consumptionPower: 190,
+      backupPower: 250,
+      fac: 398,
+      scaleFac: 0.01,
+      scaleVac: 0.1,
+      scaleVpv: 0.0001,
+      scalePpv: 0.0001,
+      scaleBat: 0.1,
+      scalePower: 0.1
+    }
+  };
+
+  // Lấy cấu hình theo model, mặc định fallback về 'eco' nếu không khớp
+  const cfg = mapConfig[modelType.toLowerCase()] || mapConfig.eco;
+
+  const gridPowerRaw = readPos(cfg.gridPower, cfg.scalePower);
+
+  return {
+    status:             readPos(cfg.status, 1),
+    Alarm:              readPos(cfg.alarm, 1),
+    Mode:               readPos(cfg.mode, 1),
+    vpv1:               readPos(cfg.vpv1, cfg.scaleVpv),
+    ppv1:               readPos(cfg.ppv1, cfg.scalePpv),
+    vacr:               readPos(cfg.vacr) * cfg.scaleVac,
+    soc:                readPos(cfg.soc, 1),
+    vBat:               readPos(cfg.vBat, cfg.scaleBat),
+    iBat:               readPos(cfg.iBat, cfg.scaleBat),
+    fac:                readPos(cfg.fac) * cfg.scaleFac,
+    
+    batPower:           readPos(cfg.batPower, cfg.scalePower),
+    consumptionPower:   readPos(cfg.consumptionPower, cfg.scalePower),
+    backupPower:        readPos(cfg.backupPower, cfg.scalePower),
+
+    // Xử lý logic lưới chung
+    pToGrid:            gridPowerRaw > 0 ? gridPowerRaw : 0,
+    pToUser:            gridPowerRaw < 0 ? Math.abs(gridPowerRaw) : 0,
+  };
+}
+    
 // 2. Hàm gọi API và giải mã gọn gàng
 async function fetchRuntimeAPI() {
   const getStorage = (key, fallback) => {
@@ -1558,7 +1669,7 @@ async function fetchRuntimeAPI() {
               const hexString = rawObj.InvRealTimeData?.INVInfo?.[1600] || "";
               
               // 💡 Trộn thẳng kết quả vào data, dùng luôn không cần map lại
-              Object.assign(data, parseHexData(hexString));
+              Object.assign(data, parseHexData(hexString, solar_model));
           }
       } catch (e) {
           console.error("Lỗi parse Hex RealTimeData:", e);
