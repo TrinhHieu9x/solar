@@ -1639,17 +1639,10 @@ async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
         const formParams = new URLSearchParams();
         formParams.append('serialNum', serialNum);
         formParams.append('dateText', dateText);
-        
-        // Nếu Worker yêu cầu nhận token trực tiếp từ body form-urlencoded, bạn có thể bật dòng dưới:
-        // formParams.append('token', getAuthToken());
 
         const res = await fetch(url, {
             method: 'POST',
-            headers: { 
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                // Gửi kèm token qua Header Authorization để Worker xác thực
-                'Authorization': getAuthToken() 
-            },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
             body: formParams.toString(),
             signal: signal
         });
@@ -1675,34 +1668,29 @@ async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
     }
 }
 
-async function fetchMonthEnergyChart(serialNum, year, month) {
-    try {
-        // Giả sử hàm postFormAPI của bạn hỗ trợ truyền header hoặc tự động bốc token. 
-        // Nếu postFormAPI dùng chung fetch, bạn có thể truyền kèm token vào object bên dưới:
-        const result = await postFormAPI('/WManage/api/inverterChart/monthColumn', { 
-            serialNum: serialNum, 
-            year: year, 
-            month: month,
-            token: getAuthToken() // Gửi kèm token vào body nếu Worker đọc từ body
-        });
-        if (result) renderEnergyBarChart(result, 'month');
-    } catch (err) {
-        console.error("Fetch Month Chart Error:", err);
+    async function fetchMonthEnergyChart(serialNum, year, month) {
+        try {
+            const result = await postFormAPI('/WManage/api/inverterChart/monthColumn', { 
+                serialNum: serialNum, year: year, month: month
+            });
+            if (result) renderEnergyBarChart(result, 'month');
+        } catch (err) {
+            console.error("Fetch Month Chart Error:", err);
+        }
     }
-}
 
-async function fetchYearEnergyChart(serialNum, year) {
-    try {
-        const result = await postFormAPI('/WManage/api/inverterChart/yearColumn', { 
-            serialNum: serialNum, 
-            year: year,
-            token: getAuthToken() // Gửi kèm token vào body nếu Worker đọc từ body
-        });
-        if (result) renderEnergyBarChart(result, 'year');
-    } catch (err) {
-        console.error("Fetch Year Chart Error:", err);
+    async function fetchYearEnergyChart(serialNum, year) {
+        try {
+            const result = await postFormAPI('/WManage/api/inverterChart/yearColumn', { 
+                serialNum: serialNum, year: year
+            });
+            if (result) renderEnergyBarChart(result, 'year');
+        } catch (err) {
+            console.error("Fetch Year Chart Error:", err);
+        }
     }
-}
+
+
     function setConnectionStatus(isConnected, message = "") {
         const dot = document.getElementById('connection-dot');
         const text = document.getElementById('connection-text');
