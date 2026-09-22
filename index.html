@@ -1290,46 +1290,6 @@ zoom: {
     }
 
 
-    function updateRuntimeUI(data) {
-        systemData.pv.totalWatts = Math.round((data.ppv || 0) * 1000);
-        systemData.pv.pv1.watts = Math.round((data.ppv1 || 0) * 1000);
-        systemData.pv.pv1.volts = data.vpv1 || 0;
-        systemData.pv.pv2.watts = Math.round((data.ppv2 || 0) * 1000);
-        systemData.pv.pv2.volts = data.vpv2 || 0;
-        systemData.pv.active = (data.vpv1 > 50 || data.vpv2 > 50 || systemData.pv.totalWatts > 0);
-
-        systemData.battery.soc = data.soc || 0;
-        systemData.battery.watts = Math.abs(data.batPower || 0);
-        systemData.battery.discharging = (data.batPower || 0) >= 0;
-        systemData.battery.volts = data.vBat || 0;
-
-        const pGrid = data.pToGrid || 0;
-        const pUser = data.pToUser || 0;
-        systemData.grid.volts = data.vacr || 0;
-        systemData.grid.freq = `${data.fac || 0} Hz`;
-
-        if (pUser > 0) {
-            systemData.grid.state = 1;
-            systemData.grid.watts = pUser;
-        } else if (pGrid > 0) {
-            systemData.grid.state = 2;
-            systemData.grid.watts = pGrid;
-        } else {
-            systemData.grid.state = 0;
-            systemData.grid.watts = 0;
-        }
-
-        systemData.eps.watts = data.epsPower || data.backupPower || 0;
-        systemData.load.watts = data.consumptionPower || 0;
-
-
-        systemData.mode = data.Mode !== undefined ? data.Mode : data.mode;
-
-        document.getElementById('last-updated-time').innerText = new Date().toLocaleTimeString('vi-VN');
-        renderDashboard();
-    }
-
-
     function updateEnergyUI(data) {
             if (!data) return;
             
@@ -1526,7 +1486,7 @@ async function fetchVendorAPI() {
   }
   return data;
 }
-
+// 1. Hàm giải mã Hex
 function parseHexData(hexString) {
   if (!hexString || hexString.length < 250) return {};
 
@@ -1546,16 +1506,18 @@ function parseHexData(hexString) {
     vpv1:      readPos(28, 0.0001),
     ppv1:      readPos(36, 0.0001),
     vacr:      readPos(40)/10,
-    gridPower: readPos(80, 0.1),
+    gridPower: readPos(80, 0.1), // Công suất lưới (+ đẩy, - kéo hoặc ngược lại tùy hệ thống)
     soc:       readPos(100, 1),
     vBat:      readPos(104, 0.1),
     iBat:      readPos(112, 0.1),
-    pBat:      readPos(120, 0.1),
-    loadPower: readPos(188, 0.1),
-    pbackup:   readPos(248, 0.1),
+    pBat:      readPos(120, 0.1), // Công suất pin
+    loadPower: readPos(188, 0.1), // Công suất tải
+    pbackup:   readPos(248, 0.1), // Công suất backup
     fac:       readPos(396)/100,
   };
 }
+
+// 2. Hàm gọi API và giải mã
 async function fetchRuntimeAPI() {
   const getStorage = (key, fallback) => {
     return localStorage.getItem(key) || sessionStorage.getItem(key) || fallback;
@@ -1589,7 +1551,19 @@ async function fetchRuntimeAPI() {
               const rawObj = JSON.parse(data.inverter.RealTimeData);
               const hexString = rawObj.InvRealTimeData?.INVInfo?.[1600] || "";
               const metrics = parseHexData(hexString);
-              data.parsedMetrics = metrics;
+              
+              // 💡 Trộn thẳng các thông số đã cắt vào object data để UI dễ đọc
+              Object.assign(data, metrics);
+
+              // Map phụ trợ cho khớp với tên biến trong updateRuntimeUI của bạn
+              data.batPower = metrics.pBat || 0;
+              data.consumptionPower = metrics.loadPower || 0;
+              data.backupPower = metrics.pbackup || 0;
+              
+              // Xử lý lưới (nếu gridPower > 0 là đẩy lên grid, < 0 là kéo từ grid)
+              const gPower = metrics.gridPower || 0;
+              data.pToGrid = gPower > 0 ? gPower : 0;
+              data.pToUser = gPower < 0 ? Math.abs(gPower) : 0;
           }
       } catch (e) {
           console.error("Lỗi parse Hex RealTimeData:", e);
@@ -1602,7 +1576,46 @@ async function fetchRuntimeAPI() {
   return data;
 }
 
+// 3. Hàm cập nhật giao diện
+function updateRuntimeUI(data) {
+    systemData.pv.totalWatts = Math.round((data.ppv || data.ppv1 || 0) * 1000);
+    systemData.pv.pv1.watts = Math.round((data.ppv1 || 0) * 1000);
+    systemData.pv.pv1.volts = data.vpv1 || 0;
+    systemData.pv.pv2.watts = Math.round((data.ppv2 || 0) * 1000);
+    systemData.pv.pv2.volts = data.vpv2 || 0;
+    systemData.pv.active = (data.vpv1 > 50 || data.vpv2 > 50 || systemData.pv.totalWatts > 0);
 
+    systemData.battery.soc = data.soc || 0;
+    systemData.battery.watts = Math.abs(data.batPower || 0);
+    systemData.battery.discharging = (data.batPower || 0) >= 0;
+    systemData.battery.volts = data.vBat || 0;
+
+    const pGrid = data.pToGrid || 0;
+    const pUser = data.pToUser || 0;
+    systemData.grid.volts = data.vacr || 0;
+    systemData.grid.freq = `${data.fac || 0} Hz`;
+
+    if (pUser > 0) {
+        systemData.grid.state = 1;
+        systemData.grid.watts = pUser;
+    } else if (pGrid > 0) {
+        systemData.grid.state = 2;
+        systemData.grid.watts = pGrid;
+    } else {
+        systemData.grid.state = 0;
+        systemData.grid.watts = 0;
+    }
+
+    systemData.eps.watts = data.epsPower || data.backupPower || 0;
+    systemData.load.watts = data.consumptionPower || 0;
+
+    systemData.mode = data.Mode !== undefined ? data.Mode : data.mode;
+
+    document.getElementById('last-updated-time').innerText = new Date().toLocaleTimeString('vi-VN');
+    renderDashboard();
+}
+
+    
         let isFetchingRuntime = false;
 
     async function fetchRuntimeQuick(serialNum) {
