@@ -1639,6 +1639,7 @@ async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
         const formParams = new URLSearchParams();
         formParams.append('serialNum', serialNum);
         formParams.append('dateText', dateText);
+        formParams.append('token', getAuthToken());
 
         const res = await fetch(url, {
             method: 'POST',
@@ -1671,7 +1672,7 @@ async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
     async function fetchMonthEnergyChart(serialNum, year, month) {
         try {
             const result = await postFormAPI('/WManage/api/inverterChart/monthColumn', { 
-                serialNum: serialNum, year: year, month: month
+                serialNum: serialNum, year: year, month: month, token: getAuthToken()
             });
             if (result) renderEnergyBarChart(result, 'month');
         } catch (err) {
@@ -1682,7 +1683,7 @@ async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
     async function fetchYearEnergyChart(serialNum, year) {
         try {
             const result = await postFormAPI('/WManage/api/inverterChart/yearColumn', { 
-                serialNum: serialNum, year: year
+                serialNum: serialNum, year: year, token: getAuthToken()
             });
             if (result) renderEnergyBarChart(result, 'year');
         } catch (err) {
