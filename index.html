@@ -1560,7 +1560,7 @@ async function fetchRuntimeAPI() {
 
   const AutoId = getStorage('solar_AutoID');
   const memberAutoID = getStorage('solar_MemberAutoID');
-  const sign = getStorage('solar_AutoID', '');
+  const sign = getStorage('solar_livesign', '');
   const token = getStorage('solar_token', '');
 
   // Gọi qua hàm chung, đặt tên định danh cho API này là 'fetchInverter'
