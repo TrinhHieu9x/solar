@@ -2,27 +2,22 @@ export async function onRequestPost(context) {
   try {
     const body = await context.request.json();
     
-    // Tạo FormData để ép kiểu dữ liệu gửi sang hãng y hệt như cách 2 của bạn
-    const formData = new URLSearchParams();
-    formData.append("AutoId", body.AutoId || "");
-    formData.append("memberAutoID", body.MemberAutoID || "");
-    formData.append("ModbusArr", JSON.stringify(body.modbusList || body.ModbusArr || []));
-    formData.append("sign", body.sign || "");
-
+    // 1. Lấy Authorization VÀ Cookie từ request do trang web của bạn gửi lên
     const authHeader = context.request.headers.get("Authorization") || "";
     const cookieHeader = context.request.headers.get("Cookie") || "timezone=Asia%2FBangkok";
     
+    // Cloudflare Pages server gọi hộ sang server hãng
     const apiRes = await fetch("https://www.cloudinverter.net/dist/server/api/test/CodeIgniter/index.php/version3/v2/Inverterapi", {
       method: "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded", // Chuẩn form dữ liệu PHP cực kỳ thích
+        "Content-Type": "application/json",
         "Authorization": authHeader,
         "Cookie": cookieHeader,
         "Origin": "https://www.cloudinverter.net",
         "Referer": "https://www.cloudinverter.net/dist/",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
       },
-      body: formData.toString()
+      body: JSON.stringify(body)
     });
 
     const data = await apiRes.json();
