@@ -117,16 +117,25 @@ body.dark-mode .border-b,
 body.dark-mode .border-t {
     border-color: rgba(255, 255, 255, 0.08) !important;
 }
-/* Khi ở chế độ tối (Dark Mode), khung PV tự chuyển sang xanh tối và chữ sáng */
+/* Khi bật chế độ tối, khung PV chuyển sang nền xanh tối, viền tối và chữ sáng/xanh ngọc */
 body.dark-mode #pv-info-box {
-    background-color: #0f172a !important; /* Màu xanh tối (slate-900) */
-    border-color: #1e293b !important;
-    color: #e2e8f0 !important;
+    background-color: #0f172a !important; /* Xanh tối (slate-900) */
+    border-color: #1e293b !important;     /* Viền tối mờ */
+    color: #94a3b8 !important;            /* Màu chữ nhãn mờ đi cho dễ nhìn */
 }
 
-body.dark-mode #pv-info-box span {
-    color: #38bdf8 !important; /* Màu chữ số liệu nổi bật khi ở chế độ tối */
+/* Đổi màu chữ số liệu công suất (--W) thành xanh ngọc nổi bật */
+body.dark-mode #topo-pv1-watts,
+body.dark-mode #topo-pv2-watts {
+    color: #34d399 !important;            /* Xanh ngọc (emerald-400) */
 }
+
+/* Đổi màu chữ điện áp (--V) thành màu sáng trắng */
+body.dark-mode #topo-pv1-volts,
+body.dark-mode #topo-pv2-volts {
+    color: #e2e8f0 !important;            /* Trắng sáng nhẹ */
+}
+
 
     </style>
 </head>
