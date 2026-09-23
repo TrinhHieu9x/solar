@@ -1717,9 +1717,10 @@ const readInverterPower32 = (pos, scale = 1) => {
     pToGrid:            gridPowerRaw < 0 ? Math.abs(gridPowerRaw) : 0,
   };
 }
-// Biến đếm lỗi liên tiếp (đặt ở ngoài hàm để giữ trạng thái giữa các lần gọi)
 let consecutiveErrors = 0;
-
+let lastInverterTimestamp = "";
+let lastInverterChangeTime = Date.now();
+    
 // 2. Hàm gọi API và giải mã gọn gàng
 async function fetchRuntimeAPI() {
   const getStorage = (key, fallback) => {
@@ -1753,41 +1754,55 @@ async function fetchRuntimeAPI() {
     console.error("Lỗi network khi gọi fetchRuntime:", err);
     data = null;
   }
-
-  // Kiểm tra kết quả trả về
-  if (data && data.status) {
-      // Đọc thành công -> Reset bộ đếm lỗi về 0 ngay lập tức
-      consecutiveErrors = 0;
-      setConnectionStatus(true, "Connected");
-      
-      try {
-          if (data.inverter && data.inverter.RealTimeData) {
-              const rawObj = JSON.parse(data.inverter.RealTimeData);
-              const hexString = rawObj.InvRealTimeData?.INVInfo?.[1600] || "";
-              
-              Object.assign(data, parseHexData(hexString, model));
-          }
-      } catch (e) {
-          console.error("Lỗi parse Hex RealTimeData:", e);
-      }
-      updateRuntimeUI(data);
-  } else {
-      // Đọc thất bại -> Tăng biến đếm lỗi lên 1
+// --- KIỂM TRA TẦNG 1: KẾT NỐI API ---
+  if (!data || !data.status) {
       consecutiveErrors++;
-      console.warn(`Đọc dữ liệu thất bại lần thứ: ${consecutiveErrors}`);
+      console.warn(`Gọi API thất bại lần thứ: ${consecutiveErrors}`);
 
-      // Chỉ khi lỗi liên tiếp từ lần thứ 2 trở đi mới chính thức báo mất kết nối
+      // Chạy lỗi liên tiếp 2 lần mới chính thức báo mất kết nối API
       if (consecutiveErrors >= 2) {
-          setConnectionStatus(false, "Mất kết nối Inverter");
+          setConnectionStatus(false, "Mất kết nối API"); // Dot / text trên báo lỗi API
+      }
+      return data;
+  }
+
+  // --- KHI API THÀNH CÔNG (Server sống) ---
+  consecutiveErrors = 0;
+  setConnectionStatus(true, "Connected"); // API bình thường
+
+  try {
+      if (data.inverter && data.inverter.RealTimeData) {
+          const rawObj = JSON.parse(data.inverter.RealTimeData);
+          const hexString = rawObj.InvRealTimeData?.INVInfo?.[1600] || "";
+          Object.assign(data, parseHexData(hexString, model));
+      }
+  } catch (e) {
+      console.error("Lỗi parse Hex RealTimeData:", e);
+  }
+
+  // --- KIỂM TRA TẦNG 2: GIÁM SÁT THỜI GIAN INVERTER (ĐÓNG BĂNG DỮ LIỆU) ---
+  const currentInvTime = data.inverter?.SystemTime || "";
+  const now = Date.now();
+
+  if (currentInvTime) {
+      if (currentInvTime !== lastInverterTimestamp) {
+          // Thời gian có thay đổi -> Inverter hoạt động tốt, cập nhật mốc mới
+          lastInverterTimestamp = currentInvTime;
+          lastInverterChangeTime = now;
+          setInverterConnectionStatus(true, "Connected"); // Footer báo kết nối Inverter OK
       } else {
-          // Lần lỗi đầu tiên có thể giữ nguyên trạng thái Connected hoặc thông báo nhẹ trên console/UI tạm thời nếu muốn
-          console.log("Bỏ qua lỗi lần 1, chờ lần check tiếp theo...");
+          // Thời gian giữ nguyên (bị đứng hình), kiểm tra xem đã quá 45 giây chưa
+          const elapsedSeconds = (now - lastInverterChangeTime) / 1000;
+          if (elapsedSeconds > 45) {
+              // Quá 45 giây dữ liệu không nhúc nhích -> Báo mất kết nối Inverter ở footer
+              setInverterConnectionStatus(false, "Mất kết nối Inverter");
+          }
       }
   }
-  
+
+  updateRuntimeUI(data);
   return data;
 }
-
 function updateRuntimeUI(data) {
     // 1. Cập nhật các thông số vào object global systemData để renderDashboard sử dụng
     systemData.pv.totalWatts = Math.round((data.ppv || data.ppv1 || 0) * 1000);
@@ -1821,18 +1836,15 @@ function updateRuntimeUI(data) {
     systemData.eps.watts = data.epsPower || data.backupPower || 0;
     systemData.load.watts = data.consumptionPower || 0;
 
-    // Gán mode và alarm chuẩn từ Hex data mới
     systemData.mode = data.Mode !== undefined ? data.Mode : (data.mode || 113);
 
-    // 2. Cập nhật Card Nhật ký / Cảnh báo (Alarm) từ dữ liệu cắt Hex (data.Alarm)
     updateAlarmUI(data.Alarm || 0);
 
-    // 3. Cập nhật thời gian làm mới (lùi lại 1 giờ)
+
     const timeEl = document.getElementById('last-updated-time');
     if (timeEl && data.inverter && data.inverter.SystemTime) {
         let dateObj = new Date(data.inverter.SystemTime);
-        
-        // Trừ đi 1 giờ (3,600,000 ms)
+     
         dateObj.setTime(dateObj.getTime() - (60 * 60 * 1000));
         
         // Lấy chuỗi ngày tháng gốc (vd: "2026-09-23") và nối với giờ đã trừ 1 tiếng
@@ -1841,8 +1853,6 @@ function updateRuntimeUI(data) {
         
         timeEl.innerText = `${datePart} ${timePart}`;
     }
-
-    // 4. Gọi hàm renderDashboard() của bạn để vẽ lại toàn bộ giao diện topo & card Mode
     renderDashboard();
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1920,28 +1930,31 @@ async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
     }
 
 
-    function setConnectionStatus(isConnected, message = "") {
+function setConnectionStatus(isApiOk, isInverterOk = true, apiMessage = "", inverterMessage = "") {
         const dot = document.getElementById('connection-dot');
         const text = document.getElementById('connection-text');
         const footerStatus = document.getElementById('connection-status-footer');
 
-        if (isConnected) {
+        // 1. Xử lý phần hiển thị API (dot & text ở trên)
+        if (isApiOk) {
             if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
-            if (text) text.innerText = message || "Connected";
-            if (footerStatus) {
-                footerStatus.innerText = "Status: Connected";
-                footerStatus.className = "text-emerald-600 font-semibold text-[9px]";
-            }
+            if (text) text.innerText = apiMessage || "Connected";
         } else {
             if (dot) dot.className = "w-2 h-2 rounded-full bg-rose-500";
-            if (text) text.innerText = message || "Offline";
-            if (footerStatus) {
-                footerStatus.innerText = "Status: Offline";
+            if (text) text.innerText = apiMessage || "Mất kết nối API";
+        }
+
+        // 2. Xử lý phần hiển thị Inverter (footerStatus ở dưới)
+        if (footerStatus) {
+            if (isInverterOk) {
+                footerStatus.innerText = "Status: Connected";
+                footerStatus.className = "text-emerald-600 font-semibold text-[9px]";
+            } else {
+                footerStatus.innerText = `Status: ${inverterMessage || "Mất kết nối Inverter"}`;
                 footerStatus.className = "text-rose-600 font-semibold text-[9px]";
             }
         }
     }
-
 // Từ điển ánh xạ lỗi dựa chuẩn theo bảng Error Code Table
 const alarmDescriptions = {
     0: "Battery absent",
