@@ -1105,14 +1105,19 @@ function initPowerLineChart() {
             responsive: true,
             maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
-                        scales: {
+            scales: {
                 y: { 
                     type: 'linear', 
                     display: true, 
                     position: 'left',
                     suggestedMin: -100, 
-                    grid: { color: 'rgba(255, 255, 255, 0.03)' }, // <-- Chỉnh lưới ngang mờ hẳn đi tại đây
-                    ticks: { font: { size: 10 }, color: '#94a3b8' } // <-- Chữ số trục Y màu xám sáng, rõ nét
+                    grid: { 
+                        color: document.body.classList.contains('dark-mode') ? 'rgba(255, 255, 255, 0.03)' : '#f1f5f9' 
+                    }, 
+                    ticks: { 
+                        font: { size: 10 }, 
+                        color: document.body.classList.contains('dark-mode') ? '#94a3b8' : '#64748b' 
+                    } 
                 },
                 y1: {
                     type: 'linear', 
@@ -1121,11 +1126,21 @@ function initPowerLineChart() {
                     min: 0, 
                     max: 110,
                     grid: { drawOnChartArea: false },
-                    ticks: { font: { size: 10 }, color: '#94a3b8', callback: function(value) { return value; } } // <-- Chữ số trục Y1
+                    ticks: { 
+                        font: { size: 10 }, 
+                        color: document.body.classList.contains('dark-mode') ? '#94a3b8' : '#64748b', 
+                        callback: function(value) { return value; } 
+                    }
                 },
                 x: { 
-                    grid: { color: 'rgba(255, 255, 255, 0.03)' }, // <-- Thêm lưới dọc mờ cho đồng bộ
-                    ticks: { font: { size: 10 }, maxTicksLimit: 8, color: '#94a3b8' } // <-- Chữ số trục X màu xám sáng
+                    grid: { 
+                        color: document.body.classList.contains('dark-mode') ? 'rgba(255, 255, 255, 0.03)' : 'transparent' 
+                    }, 
+                    ticks: { 
+                        font: { size: 10 }, 
+                        maxTicksLimit: 8, 
+                        color: document.body.classList.contains('dark-mode') ? '#94a3b8' : '#64748b' 
+                    } 
                 }
             },
             plugins: {
