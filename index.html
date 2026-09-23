@@ -608,7 +608,6 @@
         INTERVAL_QUICK_10S: 10000,
         INTERVAL_PERIODIC_1M: 60000
     };
-    let inverterModel = localStorage.getItem('solar_model') || sessionStorage.getItem('solar_model') || 'eco';
     let quickTimer = null;
     let periodicTimer = null;
 
@@ -1298,23 +1297,6 @@ function updateEnergyUI(data) {
         if (serialBadge && (data.GoodsID || data.GoodsName)) {
             serialBadge.textContent = data.GoodsID || data.GoodsName;
         }
-
-        // --- TỰ ĐỘNG NHẬN DIỆN MODEL DỰA VÀO DỮ LIỆU HÃNG TRẢ VỀ ---
-        const rawModelName = (data.modelName || data.GoodsName || "").toUpperCase();
-        let detectedModel = "eco"; // Mặc định là eco
-
-        if (rawModelName.includes("GREEN")) {
-            detectedModel = "green";
-        } else if (rawModelName.includes("ECO")) {
-            detectedModel = "eco";
-        }
-
-        // Lưu vào biến toàn cục và localStorage nếu có thay đổi
-        if (inverterModel !== detectedModel) {
-            inverterModel = detectedModel;
-            localStorage.setItem('solar_model', detectedModel);
-        }
-        // -----------------------------------------------------------
 
         // PV
         systemData.pv.pv1.volts = parseFloat(data.data.Vdc?.[0] || 0);
