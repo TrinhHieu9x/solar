@@ -1378,7 +1378,55 @@ zoom: {
         
         powerChartInstance.update('none');
     }
-    
+    let selectedDateStr = getTodayString();
+    let currentEnergyMode = 'month'; 
+    let selectedYear = new Date().getFullYear();
+    let selectedMonth = new Date().getMonth() + 1;
+
+    function changeDay(direction) {
+        let d = new Date(selectedDateStr);
+        d.setDate(d.getDate() + direction);
+        selectedDateStr = d.toISOString().split('T')[0];
+        document.getElementById('current-day-label').innerText = `Ngày ${selectedDateStr.split('-')[2]} thg ${parseInt(selectedDateStr.split('-')[1])}, ${selectedDateStr.split('-')[0]}`;
+        fetchDayMultiLineChartWithDate(API_CONFIG.SERIAL_NUM, selectedDateStr);
+    }
+
+    function switchEnergyMode(mode) {
+        currentEnergyMode = mode;
+        const btnMonth = document.getElementById('btn-tab-month');
+        const btnYear = document.getElementById('btn-tab-year');
+        const titleEl = document.getElementById('energy-chart-title');
+        const periodLabel = document.getElementById('energy-period-label');
+
+        if (mode === 'month') {
+            btnMonth.className = "px-3 py-1.5 rounded-md bg-white text-blue-600 shadow-sm transition";
+            btnYear.className = "px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 transition";
+            titleEl.innerText = "Energy Overview (Năng lượng tháng)";
+            periodLabel.innerText = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
+            fetchMonthEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear, selectedMonth);
+        } else {
+            btnYear.className = "px-3 py-1.5 rounded-md bg-white text-blue-600 shadow-sm transition";
+            btnMonth.className = "px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 transition";
+            titleEl.innerText = "Energy Overview (Năng lượng năm)";
+            periodLabel.innerText = `${selectedYear}`;
+            fetchYearEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear);
+        }
+    }
+
+    function changeEnergyPeriod(direction) {
+        const periodLabel = document.getElementById('energy-period-label');
+        if (currentEnergyMode === 'month') {
+            selectedMonth += direction;
+            if (selectedMonth > 12) { selectedMonth = 1; selectedYear++; }
+            else if (selectedMonth < 1) { selectedMonth = 12; selectedYear--; }
+            periodLabel.innerText = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
+            fetchMonthEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear, selectedMonth);
+        } else {
+            selectedYear += direction;
+            periodLabel.innerText = `${selectedYear}`;
+            fetchYearEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear);
+        }
+    }
     
     function getTodayString() {
         const d = new Date();
@@ -1486,55 +1534,7 @@ function updateEnergyUI(data) {
     
 
 
-    let selectedDateStr = getTodayString();
-    let currentEnergyMode = 'month'; 
-    let selectedYear = new Date().getFullYear();
-    let selectedMonth = new Date().getMonth() + 1;
 
-    function changeDay(direction) {
-        let d = new Date(selectedDateStr);
-        d.setDate(d.getDate() + direction);
-        selectedDateStr = d.toISOString().split('T')[0];
-        document.getElementById('current-day-label').innerText = `Ngày ${selectedDateStr.split('-')[2]} thg ${parseInt(selectedDateStr.split('-')[1])}, ${selectedDateStr.split('-')[0]}`;
-        fetchDayMultiLineChartWithDate(API_CONFIG.SERIAL_NUM, selectedDateStr);
-    }
-
-    function switchEnergyMode(mode) {
-        currentEnergyMode = mode;
-        const btnMonth = document.getElementById('btn-tab-month');
-        const btnYear = document.getElementById('btn-tab-year');
-        const titleEl = document.getElementById('energy-chart-title');
-        const periodLabel = document.getElementById('energy-period-label');
-
-        if (mode === 'month') {
-            btnMonth.className = "px-3 py-1.5 rounded-md bg-white text-blue-600 shadow-sm transition";
-            btnYear.className = "px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 transition";
-            titleEl.innerText = "Energy Overview (Năng lượng tháng)";
-            periodLabel.innerText = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
-            fetchMonthEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear, selectedMonth);
-        } else {
-            btnYear.className = "px-3 py-1.5 rounded-md bg-white text-blue-600 shadow-sm transition";
-            btnMonth.className = "px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 transition";
-            titleEl.innerText = "Energy Overview (Năng lượng năm)";
-            periodLabel.innerText = `${selectedYear}`;
-            fetchYearEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear);
-        }
-    }
-
-    function changeEnergyPeriod(direction) {
-        const periodLabel = document.getElementById('energy-period-label');
-        if (currentEnergyMode === 'month') {
-            selectedMonth += direction;
-            if (selectedMonth > 12) { selectedMonth = 1; selectedYear++; }
-            else if (selectedMonth < 1) { selectedMonth = 12; selectedYear--; }
-            periodLabel.innerText = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
-            fetchMonthEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear, selectedMonth);
-        } else {
-            selectedYear += direction;
-            periodLabel.innerText = `${selectedYear}`;
-            fetchYearEnergyChart(API_CONFIG.SERIAL_NUM, selectedYear);
-        }
-    }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Biến toàn cục lưu trữ controller của request đang chạy
