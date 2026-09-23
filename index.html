@@ -1289,7 +1289,26 @@ zoom: {
         }, API_CONFIG.INTERVAL_PERIODIC_1M);
     }
 
+// 4. Các helper functions hỗ trợ bóc số liệu an toàn
+    const toNumber = (v) => {
+      if (v === undefined || v === null || v === "" || v === "-") return NaN;
+      if (Array.isArray(v)) v = v[0];
+      if (typeof v === "object") return NaN;
+      const s = String(v).trim().replace(",", ".");
+      const m = s.match(/-?\d+(\.\d+)?/);
+      if (!m) return NaN;
+      return parseFloat(m[0]);
+    };
 
+    const arrayNumber = (arr, index, fallback = 0) => {
+      if (!Array.isArray(arr)) {
+        const n = toNumber(arr);
+        return Number.isNaN(n) ? fallback : n;
+      }
+      const v = arr[index];
+      const n = toNumber(v);
+      return Number.isNaN(n) ? fallback : n;
+    };
 function updateEnergyUI(data) {
         if (!data) return;
         
@@ -1317,11 +1336,11 @@ function updateEnergyUI(data) {
         // -----------------------------------------------------------
 
         // PV
-        systemData.pv.pv1.volts = parseFloat(data.Vdc?.[0] || 0);
-        systemData.pv.pv1.watts = parseFloat(data.Pdc?.[0] || 0) * 1000; // Đổi kW sang W (vì JSON trả về dạng 0.71 kW)
+        systemData.pv.pv1.volts = arrayNumber(data.Vdc, 0, 0);
+        systemData.pv.pv1.watts = arrayNumber(data.Pdc, 0, 0) * 1000; // Đổi kW sang W
         
-        systemData.pv.pv2.volts = parseFloat(data.Vdc?.[1] || 0);
-        systemData.pv.pv2.watts = parseFloat(data.Pdc?.[1] || 0) * 1000; // Đổi kW sang W
+        systemData.pv.pv2.volts = arrayNumber(data.Vdc, 1, 0);
+        systemData.pv.pv2.watts = arrayNumber(data.Pdc, 1, 0) * 1000; // Đổi kW sang W
     
         systemData.pv.todayKwh = parseFloat(data.EToday || 0);
         systemData.pv.maxPeakToday = parseFloat(data.Peackpower || 0);
