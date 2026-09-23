@@ -1740,6 +1740,7 @@ async function fetchRuntimeAPI() {
   const modbusList = ["1A18","1A44","1A45","1A46","1A4E","214C","2143"];
   const sign = getStorage('solar_livesign', '');
   const token = getStorage('solar_token', '');
+  const model = getStorage('solar_model', '');
 
   const data = await fetchWithCancel('fetchRuntime', '/api/getInverterRuntime', {
     method: "POST",
@@ -1764,7 +1765,7 @@ async function fetchRuntimeAPI() {
               const hexString = rawObj.InvRealTimeData?.INVInfo?.[1600] || "";
               
               // Sửa đoạn này trong fetchRuntimeAPI:
-                Object.assign(data, parseHexData(hexString, inverterModel));
+                Object.assign(data, parseHexData(hexString, model));
           }
       } catch (e) {
           console.error("Lỗi parse Hex RealTimeData:", e);
