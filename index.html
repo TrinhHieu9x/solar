@@ -117,6 +117,16 @@ body.dark-mode .border-b,
 body.dark-mode .border-t {
     border-color: rgba(255, 255, 255, 0.08) !important;
 }
+/* Khi ở chế độ tối (Dark Mode), khung PV tự chuyển sang xanh tối và chữ sáng */
+body.dark-mode #pv-info-box {
+    background-color: #0f172a !important; /* Màu xanh tối (slate-900) */
+    border-color: #1e293b !important;
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode #pv-info-box span {
+    color: #38bdf8 !important; /* Màu chữ số liệu nổi bật khi ở chế độ tối */
+}
 
     </style>
 </head>
