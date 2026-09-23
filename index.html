@@ -1551,7 +1551,35 @@ const readPos = (pos, scale = 1, decimals = 2) => {
   };
 }
 */
+async function fetchFlowAPI() {
+  const getStorage = (key, fallback) => {
+    return localStorage.getItem(key) || sessionStorage.getItem(key) || fallback;
+  };
 
+  const goodsID = getStorage('solar_GoodsID');
+  const memberAutoID = getStorage('solar_MemberAutoID');
+  const sign = getStorage('solar_sign', '');
+  const token = getStorage('solar_token', '');
+
+  // Gọi qua hàm chung, đặt tên định danh cho API này là 'fetchInverter'
+  const data = await fetchWithCancel('fetchFlow', '/api/getHybridFlowgraph', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": token 
+    },
+    body: JSON.stringify({ 
+      sign: sign, 
+      GoodsID: goodsID, 
+      MemberAutoID: memberAutoID 
+    })
+  });
+
+  if (data) {
+      updateEnergyUI(data);
+  }
+  return data;
+}
 // 1. Hàm giải mã Hex hỗ trợ nhiều model (Eco, Green,...)
 function parseHexData(hexString, modelType = "eco") {
   if (!hexString || hexString.length < 250) return {};
