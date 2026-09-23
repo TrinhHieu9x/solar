@@ -130,33 +130,47 @@ body.dark-mode #userDropdown .bg-slate-50 {
         function updateChartsTheme() {
             const isDark = document.body.classList.contains('dark-mode');
             
-            // Màu sắc theo chế độ (đã chỉnh lại gridColor ở chế độ tối rõ hơn một chút hoặc giữ nguyên tùy ý bạn)
+            // Màu sắc đường kẻ ngang và chữ theo chế độ
             const gridColor = isDark ? 'rgba(255, 255, 255, 0.06)' : '#f1f5f9';
             const textColor = isDark ? '#94a3b8' : '#64748b';
 
-            // Cập nhật cho biểu đồ đường (Power Line Chart)
+            // 1. Cập nhật cho biểu đồ đường (Power Line Chart)
             if (typeof powerChartInstance !== 'undefined' && powerChartInstance) {
-                powerChartInstance.options.scales.x.grid.color = gridColor;
-                powerChartInstance.options.scales.x.ticks.color = textColor;
-                powerChartInstance.options.scales.y.grid.color = gridColor;
-                powerChartInstance.options.scales.y.ticks.color = textColor;
-                if (powerChartInstance.options.scales.y1) {
-                    powerChartInstance.options.scales.y1.ticks.color = textColor;
-                }
+                if (powerChartInstance.options.scales.x?.grid) powerChartInstance.options.scales.x.grid.color = gridColor;
+                if (powerChartInstance.options.scales.x?.ticks) powerChartInstance.options.scales.x.ticks.color = textColor;
+                
+                if (powerChartInstance.options.scales.y?.grid) powerChartInstance.options.scales.y.grid.color = gridColor;
+                if (powerChartInstance.options.scales.y?.ticks) powerChartInstance.options.scales.y.ticks.color = textColor;
+                
+                if (powerChartInstance.options.scales.y1?.grid) powerChartInstance.options.scales.y1.grid.color = gridColor;
+                if (powerChartInstance.options.scales.y1?.ticks) powerChartInstance.options.scales.y1.ticks.color = textColor;
+                
                 powerChartInstance.update();
             }
 
-            // Cập nhật cho biểu đồ cột (Energy Bar Chart) - ĐÃ BỔ SUNG GRID CHO TRỤC Y
+            // 2. Cập nhật cho biểu đồ cột (Energy Bar Chart) - Đảm bảo gán đúng và đủ cho cả X và Y
             if (typeof energyChartInstance !== 'undefined' && energyChartInstance) {
-                energyChartInstance.options.scales.x.ticks.color = textColor;
-                if (energyChartInstance.options.scales.x.grid) {
+                if (energyChartInstance.options.scales.x?.grid) {
                     energyChartInstance.options.scales.x.grid.color = gridColor;
                 }
-                energyChartInstance.options.scales.y.grid.color = gridColor; // Thêm dòng này để đổi màu đường kẻ ngang biểu đồ cột
-                energyChartInstance.options.scales.y.ticks.color = textColor;
+                if (energyChartInstance.options.scales.x?.ticks) {
+                    energyChartInstance.options.scales.x.ticks.color = textColor;
+                }
+                
+                // Cực kỳ quan trọng: Ép gán màu grid cho trục Y của biểu đồ cột
+                if (!energyChartInstance.options.scales.y.grid) {
+                    energyChartInstance.options.scales.y.grid = {};
+                }
+                energyChartInstance.options.scales.y.grid.color = gridColor;
+                
+                if (energyChartInstance.options.scales.y?.ticks) {
+                    energyChartInstance.options.scales.y.ticks.color = textColor;
+                }
+                
                 energyChartInstance.update();
             }
         }
+
 
         function toggleDarkMode() {
             const isDark = document.body.classList.toggle('dark-mode');
