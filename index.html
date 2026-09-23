@@ -1585,7 +1585,7 @@ async function fetchFlowAPI() {
 function parseHexData(hexString, modelType = "eco") {
   if (!hexString || hexString.length < 250) return {};
 
-  // Hàm đọc cho các giá trị có thể ÂM (Công suất lưới, công suất pin,...)
+  // Hàm đọc 16-bit cho các giá trị thông thường có thể ÂM/DƯƠNG
   const readPos = (pos, scale = 1) => {
     let hexPart = hexString.substring(pos, pos + 4);
     if (!hexPart) return 0;
@@ -1595,12 +1595,58 @@ function parseHexData(hexString, modelType = "eco") {
     return v * scale;
   };
 
-  // Hàm đọc cho các giá trị LUÔN DƯƠNG (PV, Điện áp, SOC,...) - Không check bù 2
+  // Hàm đọc cho các giá trị LUÔN DƯƠNG (PV, Điện áp, SOC,...)
   const readUnsignedPos = (pos, scale = 1) => {
     let hexPart = hexString.substring(pos, pos + 4);
     if (!hexPart) return 0;
     
     let v = parseInt(hexPart, 16);
+    return v * scale;
+  };
+    // Hàm đọc công suất 32-bit chuyên biệt cho Sạc/Xả theo cơ chế đặc thù của thiết bị
+  const readInverterPower32 = (pos, scale = 1) => {
+    let hexPart = hexString.substring(pos, pos + 8);
+    if (!hexPart || hexPart.length < 8) return 0;
+
+    // Tách thành 2 thanh ghi (mỗi thanh ghi 4 ký tự hex / 16-bit)
+    let highReg = parseInt(hexPart.substring(0, 4), 16);
+    let lowReg  = parseInt(hexPart.substring(4, 8), 16);
+
+    let rawVal = 0;
+
+    if (highReg === 0x0000) {
+      // Chiều Xả: Giữ nguyên giá trị thô của thanh ghi thấp
+      rawVal = lowReg;
+    } else if (highReg === 0xFFFF) {
+      // Chiều Sạc: Kiểm tra mốc 32767
+      if (lowReg > 32767) {
+        rawVal = lowReg - 65536; // Bù 2 (số âm lớn)
+      } else {
+        rawVal = 65535 - lowReg; // Đảo bit (bù 1) ra số dương chuẩn (ví dụ 40149)
+      }
+    } else {
+      // Dự phòng trường hợp khác (ghép 32-bit thông thường)
+      rawVal = (highReg << 16) + lowReg;
+      if (rawVal > 0x7FFFFFFF) rawVal -= 0x100000000;
+    }
+
+    return rawVal * scale;
+  };
+
+  // Hàm đọc 32-bit (gộp 2 thanh ghi) chuyên dụng cho công suất lớn (>3.2kW)
+  // Theo quy luật: Dùng 4 byte (8 ký tự hex), nhận diện sạc/xả hoặc xử lý bù 2 chống tràn
+  const read32Power = (pos, scale = 1) => {
+    let hexPart = hexString.substring(pos, pos + 8);
+    if (!hexPart || hexPart.length < 8) return 0;
+    
+    // Đọc nguyên cục 32-bit
+    let v = parseInt(hexPart, 16);
+    if (isNaN(v)) return 0;
+
+    // Xử lý bù 2 cho 32-bit nếu vượt ngưỡng dương lớn
+    if (v > 0x7FFFFFFF) {
+      v -= 0x100000000;
+    }
     return v * scale;
   };
 
@@ -1613,11 +1659,11 @@ function parseHexData(hexString, modelType = "eco") {
       vpv1: 28,
       ppv1: 36,
       vacr: 40,
-      gridPower: 80,
+      gridPower: 76,
       soc: 100,
       vBat: 104,
       iBat: 112,
-      batPower: 120,
+      batPower: 116,
       consumptionPower: 188,
       veps: 208,
       backupPower: 248,
@@ -1628,7 +1674,7 @@ function parseHexData(hexString, modelType = "eco") {
       scaleVpv: 0.0001,
       scalePpv: 0.0001,
       scaleBat: 0.1,
-      scalePower: 0.1
+      scalePower: 1 // Giữ nguyên 1 để không bị làm tròn mất số nhỏ (1-3W)
     },
     green: {
       status: 28,
@@ -1637,11 +1683,11 @@ function parseHexData(hexString, modelType = "eco") {
       vpv1: 64,
       ppv1: 72,
       vacr: 88,
-      gridPower: 132,
+      gridPower: 128,
       soc: 152,
       vBat: 156,
       iBat: 164,
-      batPower: 172,
+      batPower: 168,
       consumptionPower: 348,
       backupPower: 300,
       veps: 208,
@@ -1652,37 +1698,37 @@ function parseHexData(hexString, modelType = "eco") {
       scaleVpv: 0.0001,
       scalePpv: 0.0001,
       scaleBat: 0.1,
-      scalePower: 0.1
+      scalePower: 1
     }
   };
 
   const cfg = mapConfig[modelType.toLowerCase()] || mapConfig.eco;
 
-  const gridPowerRaw = readPos(cfg.gridPower, cfg.scalePower);
+  // Dùng hàm chuyên biệt cho cả lưới điện vì nó chung cơ chế sạc/xả (mua/bán điện)
+  const gridPowerRaw = readInverterPower32(cfg.gridPower, cfg.scalePower);
   
   return {
-    status:           readUnsignedPos(cfg.status, 1),
-    Alarm:            readUnsignedPos(cfg.alarm, 1),
-    Mode:             readUnsignedPos(cfg.mode, 1),
+    status:             readUnsignedPos(cfg.status, 1),
+    Alarm:              readUnsignedPos(cfg.alarm, 1),
+    Mode:               readUnsignedPos(cfg.mode, 1),
     
-    // Các thông số PV và Pin dùng readUnsignedPos để không bị lỗi số âm
-    vpv1:             readUnsignedPos(cfg.vpv1, cfg.scaleVpv),
-    ppv1:             readUnsignedPos(cfg.ppv1, cfg.scalePpv),
-    vacr:             parseFloat((readUnsignedPos(cfg.vacr, 1) * cfg.scaleVac).toFixed(1)),
-    veps:             parseFloat((readUnsignedPos(cfg.veps, 1) * cfg.scaleVac).toFixed(1)),
-    soc:              readUnsignedPos(cfg.soc, 1),
-    vBat:             readUnsignedPos(cfg.vBat, cfg.scaleBat),
-    iBat:             readUnsignedPos(cfg.iBat, cfg.scaleBat),
-    maxPeakToday:     readUnsignedPos(cfg.maxPeakToday, cfg.scalePpv),
-    fac:              parseFloat((readUnsignedPos(cfg.fac, 1) * cfg.scaleFac).toFixed(2)),
+    vpv1:               readUnsignedPos(cfg.vpv1, cfg.scaleVpv),
+    ppv1:               readUnsignedPos(cfg.ppv1, cfg.scalePpv),
+    vacr:               parseFloat((readUnsignedPos(cfg.vacr, 1) * cfg.scaleVac).toFixed(1)),
+    veps:               parseFloat((readUnsignedPos(cfg.veps, 1) * cfg.scaleVac).toFixed(1)),
+    soc:                readUnsignedPos(cfg.soc, 1),
+    vBat:               readUnsignedPos(cfg.vBat, cfg.scaleBat),
+    iBat:               readUnsignedPos(cfg.iBat, cfg.scaleBat),
+    maxPeakToday:       readUnsignedPos(cfg.maxPeakToday, cfg.scalePpv),
+    fac:                parseFloat((readUnsignedPos(cfg.fac, 1) * cfg.scaleFac).toFixed(2)),
     
-    // Các thông số công suất có thể âm/dương giữ nguyên readPos
-    batPower:         readPos(cfg.batPower, cfg.scalePower),
-    consumptionPower: readUnsignedPos(cfg.consumptionPower, cfg.scalePower),
-    backupPower:      readUnsignedPos(cfg.backupPower, cfg.scalePower),
+    // Các thông số công suất lớn chuyển sang read32Power
+    batPower: readInverterPower32(cfg.batPower, cfg.scalePower),
+    consumptionPower:   readUnsignedPos(cfg.consumptionPower, cfg.scalePower),
+    backupPower:        readUnsignedPos(cfg.backupPower, cfg.scalePower),
     
-    pToGrid:          0,
-    pToUser:          gridPowerRaw || 0,
+    pToGrid:            0,
+    pToUser:            gridPowerRaw || 0,
   };
 }
 // 2. Hàm gọi API và giải mã gọn gàng
