@@ -1827,9 +1827,19 @@ function updateRuntimeUI(data) {
     // 2. Cập nhật Card Nhật ký / Cảnh báo (Alarm) từ dữ liệu cắt Hex (data.Alarm)
     updateAlarmUI(data.Alarm || 0);
 
-    // 3. Cập nhật thời gian làm mới
+    // 3. Cập nhật thời gian làm mới (lùi lại 1 giờ)
     const timeEl = document.getElementById('last-updated-time');
-    if (timeEl) timeEl.innerText = data.inverter.SystemTime;
+    if (timeEl && data.inverter && data.inverter.SystemTime) {
+        // Chuyển chuỗi thời gian thành đối tượng Date
+        let dateObj = new Date(data.inverter.SystemTime);
+        
+        // Trừ đi 1 giờ (1 giờ = 3600 * 1000 mili-giây)
+        dateObj.setTime(dateObj.getTime() - (60 * 60 * 1000));
+        
+        // Định dạng lại thành chuỗi hiển thị (ví dụ: YYYY-MM-DD HH:mm:ss hoặc giờ địa phương tùy bạn)
+        // Dùng toLocaleString() hoặc tự cắt chuỗi tùy thuộc vào format gốc của thiết bị
+        timeEl.innerText = dateObj.toLocaleString(); 
+    }
 
     // 4. Gọi hàm renderDashboard() của bạn để vẽ lại toàn bộ giao diện topo & card Mode
     renderDashboard();
