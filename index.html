@@ -1585,6 +1585,7 @@ async function fetchFlowAPI() {
 function parseHexData(hexString, modelType = "eco") {
   if (!hexString || hexString.length < 250) return {};
 
+  // Hàm đọc cho các giá trị có thể ÂM (Công suất lưới, công suất pin,...)
   const readPos = (pos, scale = 1) => {
     let hexPart = hexString.substring(pos, pos + 4);
     if (!hexPart) return 0;
@@ -1594,8 +1595,16 @@ function parseHexData(hexString, modelType = "eco") {
     return v * scale;
   };
 
-  // Định nghĩa vị trí (address/offset) theo từng dòng máy nếu chúng khác nhau
-  // Bạn có thể tinh chỉnh lại các con số vị trí này cho dòng Green nếu chúng lệch vị trí với Eco
+  // Hàm đọc cho các giá trị LUÔN DƯƠNG (PV, Điện áp, SOC,...) - Không check bù 2
+  const readUnsignedPos = (pos, scale = 1) => {
+    let hexPart = hexString.substring(pos, pos + 4);
+    if (!hexPart) return 0;
+    
+    let v = parseInt(hexPart, 16);
+    return v * scale;
+  };
+
+  // Định nghĩa vị trí (address/offset) theo từng dòng máy
   const mapConfig = {
     eco: {
       status: 4,
@@ -1612,7 +1621,7 @@ function parseHexData(hexString, modelType = "eco") {
       consumptionPower: 188,
       veps: 208,
       backupPower: 248,
-     maxPeakToday: 392,
+      maxPeakToday: 392,
       fac: 396,
       scaleFac: 0.01,
       scaleVac: 0.1,
@@ -1622,7 +1631,6 @@ function parseHexData(hexString, modelType = "eco") {
       scalePower: 0.1
     },
     green: {
-      // Ví dụ dòng Green đổi vị trí một số thanh ghi (Registers), bạn sửa lại vị trí tương ứng ở đây:
       status: 28,
       alarm: 45,
       mode: 6,
@@ -1636,8 +1644,8 @@ function parseHexData(hexString, modelType = "eco") {
       batPower: 172,
       consumptionPower: 348,
       backupPower: 300,
-        veps: 208,
-        maxPeakToday: 392,
+      veps: 208,
+      maxPeakToday: 392,
       fac: 188,
       scaleFac: 0.01,
       scaleVac: 0.1,
@@ -1648,34 +1656,35 @@ function parseHexData(hexString, modelType = "eco") {
     }
   };
 
-  // Lấy cấu hình theo model, mặc định fallback về 'eco' nếu không khớp
   const cfg = mapConfig[modelType.toLowerCase()] || mapConfig.eco;
 
-    const gridPowerRaw = readPos(cfg.gridPower, cfg.scalePower);
+  const gridPowerRaw = readPos(cfg.gridPower, cfg.scalePower);
+  
+  return {
+    status:           readUnsignedPos(cfg.status, 1),
+    Alarm:            readUnsignedPos(cfg.alarm, 1),
+    Mode:             readUnsignedPos(cfg.mode, 1),
     
-      return {
-        status:             readPos(cfg.status, 1, 0),
-        Alarm:              readPos(cfg.alarm, 1, 0),
-        Mode:               readPos(cfg.mode, 1, 0),
-        vpv1:               readPos(cfg.vpv1, cfg.scaleVpv, 2),
-        ppv1:               readPos(cfg.ppv1, cfg.scalePpv, 2),
-        vacr:               parseFloat((readPos(cfg.vacr, 1, 0) * cfg.scaleVac).toFixed(1)), // Bọc làm tròn ngoài cùng
-        veps:               parseFloat((readPos(cfg.veps, 1, 0) * cfg.scaleVac).toFixed(1)),
-        soc:                readPos(cfg.soc, 1, 0),
-        vBat:               readPos(cfg.vBat, cfg.scaleBat, 1),
-        iBat:               readPos(cfg.iBat, cfg.scaleBat, 1),
-        maxPeakToday:       readPos(cfg.maxPeakToday, cfg.scalePpv, 1),
-        fac:                parseFloat((readPos(cfg.fac, 1, 0) * cfg.scaleFac).toFixed(2)), // Bọc làm tròn ngoài cùng
-        
-        batPower:           readPos(cfg.batPower, cfg.scalePower, 1),
-        consumptionPower:   readPos(cfg.consumptionPower, cfg.scalePower, 1),
-        backupPower:        readPos(cfg.backupPower, cfg.scalePower, 1),
+    // Các thông số PV và Pin dùng readUnsignedPos để không bị lỗi số âm
+    vpv1:             readUnsignedPos(cfg.vpv1, cfg.scaleVpv),
+    ppv1:             readUnsignedPos(cfg.ppv1, cfg.scalePpv),
+    vacr:             parseFloat((readUnsignedPos(cfg.vacr, 1) * cfg.scaleVac).toFixed(1)),
+    veps:             parseFloat((readUnsignedPos(cfg.veps, 1) * cfg.scaleVac).toFixed(1)),
+    soc:              readUnsignedPos(cfg.soc, 1),
+    vBat:             readUnsignedPos(cfg.vBat, cfg.scaleBat),
+    iBat:             readUnsignedPos(cfg.iBat, cfg.scaleBat),
+    maxPeakToday:     readUnsignedPos(cfg.maxPeakToday, cfg.scalePpv),
+    fac:              parseFloat((readUnsignedPos(cfg.fac, 1) * cfg.scaleFac).toFixed(2)),
     
-    pToGrid:             0,
-    pToUser:            gridPowerRaw || 0,
+    // Các thông số công suất có thể âm/dương giữ nguyên readPos
+    batPower:         readPos(cfg.batPower, cfg.scalePower),
+    consumptionPower: readPos(cfg.consumptionPower, cfg.scalePower),
+    backupPower:      readPos(cfg.backupPower, cfg.scalePower),
+    
+    pToGrid:          0,
+    pToUser:          gridPowerRaw || 0,
   };
 }
-    
 // 2. Hàm gọi API và giải mã gọn gàng
 async function fetchRuntimeAPI() {
   const getStorage = (key, fallback) => {
