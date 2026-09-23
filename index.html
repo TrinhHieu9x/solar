@@ -1670,9 +1670,9 @@ const readInverterPower32 = (pos, scale = 1) => {
       batPower: 168,
       consumptionPower: 348,
       backupPower: 300,
-      veps: 208,
-      maxPeakToday: 392,
-      fac: 188,
+      veps: 304,
+      maxPeakToday: 348,
+      fac: 100,
       scaleFac: 0.01,
       scaleVac: 0.1,
       scaleVpv: 0.0001,
@@ -1717,6 +1717,9 @@ const readInverterPower32 = (pos, scale = 1) => {
     pToGrid:            gridPowerRaw < 0 ? Math.abs(gridPowerRaw) : 0,
   };
 }
+// Biến đếm lỗi liên tiếp (đặt ở ngoài hàm để giữ trạng thái giữa các lần gọi)
+let consecutiveErrors = 0;
+
 // 2. Hàm gọi API và giải mã gọn gàng
 async function fetchRuntimeAPI() {
   const getStorage = (key, fallback) => {
@@ -1730,37 +1733,56 @@ async function fetchRuntimeAPI() {
   const token = getStorage('solar_token', '');
   const model = getStorage('solar_model', '');
 
-  const data = await fetchWithCancel('fetchRuntime', '/api/getInverterRuntime', {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json",
-        "Authorization": token,
-        "Accept": "application/json"
-    },
-    body: JSON.stringify({ 
-        AutoId: AutoId,
-        memberAutoID: memberAutoID,
-        ModbusArr: JSON.stringify(modbusList),
-        sign: sign
-    })
-  });
+  let data = null;
+  try {
+    data = await fetchWithCancel('fetchRuntime', '/api/getInverterRuntime', {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+          "Authorization": token,
+          "Accept": "application/json"
+      },
+      body: JSON.stringify({ 
+          AutoId: AutoId,
+          memberAutoID: memberAutoID,
+          ModbusArr: JSON.stringify(modbusList),
+          sign: sign
+      })
+    });
+  } catch (err) {
+    console.error("Lỗi network khi gọi fetchRuntime:", err);
+    data = null;
+  }
 
+  // Kiểm tra kết quả trả về
   if (data && data.status) {
+      // Đọc thành công -> Reset bộ đếm lỗi về 0 ngay lập tức
+      consecutiveErrors = 0;
       setConnectionStatus(true, "Connected");
+      
       try {
           if (data.inverter && data.inverter.RealTimeData) {
               const rawObj = JSON.parse(data.inverter.RealTimeData);
               const hexString = rawObj.InvRealTimeData?.INVInfo?.[1600] || "";
               
-              // Sửa đoạn này trong fetchRuntimeAPI:
-                Object.assign(data, parseHexData(hexString, model));
+              Object.assign(data, parseHexData(hexString, model));
           }
       } catch (e) {
           console.error("Lỗi parse Hex RealTimeData:", e);
       }
       updateRuntimeUI(data);
   } else {
-      setConnectionStatus(false, "Mất kết nối Inverter");
+      // Đọc thất bại -> Tăng biến đếm lỗi lên 1
+      consecutiveErrors++;
+      console.warn(`Đọc dữ liệu thất bại lần thứ: ${consecutiveErrors}`);
+
+      // Chỉ khi lỗi liên tiếp từ lần thứ 2 trở đi mới chính thức báo mất kết nối
+      if (consecutiveErrors >= 2) {
+          setConnectionStatus(false, "Mất kết nối Inverter");
+      } else {
+          // Lần lỗi đầu tiên có thể giữ nguyên trạng thái Connected hoặc thông báo nhẹ trên console/UI tạm thời nếu muốn
+          console.log("Bỏ qua lỗi lần 1, chờ lần check tiếp theo...");
+      }
   }
   
   return data;
