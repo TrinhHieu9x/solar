@@ -1656,6 +1656,31 @@ const readInverterPower32 = (pos, scale = 1) => {
       scaleBat: 0.1,
       scalePower: 0.1
     },
+    const mapConfig = {
+    cergy: {
+      status: 4,
+      alarm: 20,
+      mode: 24,
+      vpv1: 28,
+      ppv1: 36,
+      vacr: 40,
+      gridPower: 76,
+      soc: 100,
+      vBat: 104,
+      iBat: 112,
+      batPower: 116,
+      consumptionPower: 188,
+      veps: 208,
+      backupPower: 248,
+      maxPeakToday: 392,
+      fac: 396,
+      scaleFac: 0.01,
+      scaleVac: 0.1,
+      scaleVpv: 0.0001,
+      scalePpv: 0.0001,
+      scaleBat: 0.1,
+      scalePower: 0.1
+    },
     green: {
       status: 28,
       alarm: 45,
@@ -1688,6 +1713,8 @@ const readInverterPower32 = (pos, scale = 1) => {
     cfg = mapConfig.green;
   } else if (mType.includes("eco")) {
     cfg = mapConfig.eco;
+  }else if (mType.includes("cergy")) {
+    cfg = mapConfig.cergy;
   }
 
   // Dùng hàm chuyên biệt cho cả lưới điện vì nó chung cơ chế sạc/xả (mua/bán điện)
