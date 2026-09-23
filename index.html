@@ -1336,11 +1336,11 @@ function updateEnergyUI(data) {
         // -----------------------------------------------------------
 
         // PV
-        systemData.pv.pv1.volts = arrayNumber(data.Vdc, 0, 0);
-        systemData.pv.pv1.watts = arrayNumber(data.Pdc, 0, 0) * 1000; // Đổi kW sang W
+        systemData.pv.pv1.volts = arrayNumber(data.data.Vdc, 0, 0);
+        systemData.pv.pv1.watts = arrayNumber(data.data.Pdc, 0, 0) * 1000; // Đổi kW sang W
         
-        systemData.pv.pv2.volts = arrayNumber(data.Vdc, 1, 0);
-        systemData.pv.pv2.watts = arrayNumber(data.Pdc, 1, 0) * 1000; // Đổi kW sang W
+        systemData.pv.pv2.volts = arrayNumber(data.data.Vdc, 1, 0);
+        systemData.pv.pv2.watts = arrayNumber(data.data.Pdc, 1, 0) * 1000; // Đổi kW sang W
     
         systemData.pv.todayKwh = parseFloat(data.EToday || 0);
         systemData.pv.maxPeakToday = parseFloat(data.Peackpower || 0);
