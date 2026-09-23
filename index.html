@@ -1699,8 +1699,14 @@ const readInverterPower32 = (pos, scale = 1) => {
       scalePower: 0.1
     }
   };
-
-  const cfg = mapConfig[modelType.toLowerCase()] || mapConfig.eco;
+  const mType = (modelType || "").toLowerCase();
+  let cfg = mapConfig.eco; // Mặc định
+  
+  if (mType.includes("green")) {
+    cfg = mapConfig.green;
+  } else if (mType.includes("eco")) {
+    cfg = mapConfig.eco;
+  }
 
   // Dùng hàm chuyên biệt cho cả lưới điện vì nó chung cơ chế sạc/xả (mua/bán điện)
   const gridPowerRaw = readInverterPower32(cfg.gridPower, cfg.scalePower);
