@@ -1266,7 +1266,7 @@ zoom: {
         if (quickTimer) clearInterval(quickTimer);
         if (periodicTimer) clearInterval(periodicTimer);
 
-        setConnectionStatus(true, "Đang đồng bộ...");
+        setConnectionStatus(true,true, "Đang đồng bộ...");
 
         try {
             await Promise.all([
@@ -1754,21 +1754,22 @@ async function fetchRuntimeAPI() {
     console.error("Lỗi network khi gọi fetchRuntime:", err);
     data = null;
   }
-// --- KIỂM TRA TẦNG 1: KẾT NỐI API ---
+
+  // --- KIỂM TRA TẦNG 1: KẾT NỐI API ---
   if (!data || !data.status) {
       consecutiveErrors++;
       console.warn(`Gọi API thất bại lần thứ: ${consecutiveErrors}`);
 
-      // Chạy lỗi liên tiếp 2 lần mới chính thức báo mất kết nối API
+      // Chạy lỗi liên tiếp 2 lần mới chính thức báo mất kết nối API ở phần trên
       if (consecutiveErrors >= 2) {
-          setConnectionStatus(false, "Mất kết nối API"); // Dot / text trên báo lỗi API
+          setConnectionStatus(false, "Mất kết nối API", "api"); 
       }
       return data;
   }
 
   // --- KHI API THÀNH CÔNG (Server sống) ---
   consecutiveErrors = 0;
-  setConnectionStatus(true, "Connected"); // API bình thường
+  setConnectionStatus(true, "Connected", "api"); // API bình thường
 
   try {
       if (data.inverter && data.inverter.RealTimeData) {
@@ -1786,16 +1787,15 @@ async function fetchRuntimeAPI() {
 
   if (currentInvTime) {
       if (currentInvTime !== lastInverterTimestamp) {
-          // Thời gian có thay đổi -> Inverter hoạt động tốt, cập nhật mốc mới
+          // Thời gian có thay đổi -> Inverter hoạt động tốt
           lastInverterTimestamp = currentInvTime;
           lastInverterChangeTime = now;
-          setInverterConnectionStatus(true, "Connected"); // Footer báo kết nối Inverter OK
+          setConnectionStatus(true, "Connected", "inverter"); // Footer báo Inverter OK
       } else {
-          // Thời gian giữ nguyên (bị đứng hình), kiểm tra xem đã quá 45 giây chưa
+          // Thời gian đứng hình quá 45 giây -> Báo mất kết nối Inverter ở footer
           const elapsedSeconds = (now - lastInverterChangeTime) / 1000;
           if (elapsedSeconds > 45) {
-              // Quá 45 giây dữ liệu không nhúc nhích -> Báo mất kết nối Inverter ở footer
-              setInverterConnectionStatus(false, "Mất kết nối Inverter");
+              setConnectionStatus(false, "Mất kết nối Inverter", "inverter");
           }
       }
   }
@@ -1929,29 +1929,30 @@ async function fetchDayMultiLineChartWithDate(serialNum, dateText) {
         }
     }
 
-
-function setConnectionStatus(isApiOk, isInverterOk = true, apiMessage = "", inverterMessage = "") {
+function setConnectionStatus(isConnected, message = "", target = "api") {
         const dot = document.getElementById('connection-dot');
         const text = document.getElementById('connection-text');
         const footerStatus = document.getElementById('connection-status-footer');
 
-        // 1. Xử lý phần hiển thị API (dot & text ở trên)
-        if (isApiOk) {
-            if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
-            if (text) text.innerText = apiMessage || "Connected";
-        } else {
-            if (dot) dot.className = "w-2 h-2 rounded-full bg-rose-500";
-            if (text) text.innerText = apiMessage || "Mất kết nối API";
-        }
-
-        // 2. Xử lý phần hiển thị Inverter (footerStatus ở dưới)
-        if (footerStatus) {
-            if (isInverterOk) {
-                footerStatus.innerText = "Status: Connected";
-                footerStatus.className = "text-emerald-600 font-semibold text-[9px]";
+        if (target === "api") {
+            // Cập nhật trạng thái API (Phần trên)
+            if (isConnected) {
+                if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+                if (text) text.innerText = message || "Connected";
             } else {
-                footerStatus.innerText = `Status: ${inverterMessage || "Mất kết nối Inverter"}`;
-                footerStatus.className = "text-rose-600 font-semibold text-[9px]";
+                if (dot) dot.className = "w-2 h-2 rounded-full bg-rose-500";
+                if (text) text.innerText = message || "Mất kết nối API";
+            }
+        } else if (target === "inverter") {
+            // Cập nhật trạng thái Inverter (Phần footer)
+            if (footerStatus) {
+                if (isConnected) {
+                    footerStatus.innerText = "Status: Connected";
+                    footerStatus.className = "text-emerald-600 font-semibold text-[9px]";
+                } else {
+                    footerStatus.innerText = `Status: ${message || "Mất kết nối Inverter"}`;
+                    footerStatus.className = "text-rose-600 font-semibold text-[9px]";
+                }
             }
         }
     }
