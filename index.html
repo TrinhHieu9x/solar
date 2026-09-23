@@ -1317,6 +1317,12 @@ function updateEnergyUI(data) {
         // -----------------------------------------------------------
 
         // PV
+        systemData.pv1.volts = parseFloat(data.Vdc?.[0] || 0);
+        systemData.pv1.watts = parseFloat(data.Pdc?.[0] || 0);
+        
+        systemData.pv2.volts = parseFloat(data.Vdc?.[1] || 0);
+        systemData.pv2.watts = parseFloat(data.Pdc?.[1] || 0);
+    
         systemData.pv.todayKwh = parseFloat(data.EToday || 0);
         systemData.pv.maxPeakToday = parseFloat(data.Peackpower || 0);
         systemData.pv.totalKwh = parseFloat(data.ETotal || 0);
