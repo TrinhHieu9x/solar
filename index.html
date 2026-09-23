@@ -1725,8 +1725,8 @@ const readInverterPower32 = (pos, scale = 1) => {
     consumptionPower:   readUnsignedPos(cfg.consumptionPower, cfg.scalePower),
     backupPower:        readUnsignedPos(cfg.backupPower, cfg.scalePower),
     
-    pToGrid:            0,
-    pToUser:            gridPowerRaw || 0,
+    pToGrid:            gridPowerRaw > 0 ? gridPowerRaw : 0,
+    pToUser:            gridPowerRaw < 0 ? Math.abs(gridPowerRaw) : 0,
   };
 }
 // 2. Hàm gọi API và giải mã gọn gàng
