@@ -115,17 +115,43 @@ body.dark-mode canvas {
 <body class="bg-slate-100 min-h-screen text-slate-800 pb-8">
     <!-- KIỂM TRA DỮ LIỆU ĐĂNG NHẬP NGAY ĐẦU TRANG -->
 <script>
-    // Hàm chuyển đổi chế độ sáng / tối
     function toggleDarkMode() {
         const isDark = document.body.classList.toggle('dark-mode');
         updateDarkModeUI(isDark);
         
-        if (isDark) {
-            localStorage.setItem('theme', 'dark');
-        } else {
-            localStorage.setItem('theme', 'light');
-        }
+        // Lưu trạng thái
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    
+        // KÍCH HOẠT CẬP NHẬT MÀU BIỂU ĐỒ NGAY LẬP TỨC
+        updateChartsTheme();
     }
+
+function updateChartsTheme() {
+    const isDark = document.body.classList.contains('dark-mode');
+    
+    // Định nghĩa màu sắc theo chế độ sáng/tối
+    const gridColor = isDark ? 'rgba(255, 255, 255, 0.03)' : '#f1f5f9';
+    const textColor = isDark ? '#94a3b8' : '#64748b';
+
+    // 1. Cập nhật cho biểu đồ đường (Power Line Chart)
+    if (typeof powerChartInstance !== 'undefined' && powerChartInstance) {
+        powerChartInstance.options.scales.x.grid.color = isDark ? 'rgba(255, 255, 255, 0.03)' : 'transparent';
+        powerChartInstance.options.scales.x.ticks.color = textColor;
+        powerChartInstance.options.scales.y.grid.color = gridColor;
+        powerChartInstance.options.scales.y.ticks.color = textColor;
+        powerChartInstance.options.scales.y1.ticks.color = textColor;
+        powerChartInstance.update('none');
+    }
+
+    // 2. Cập nhật cho biểu đồ cột (Energy Bar Chart)
+    if (typeof energyChartInstance !== 'undefined' && energyChartInstance) {
+        energyChartInstance.options.scales.x.grid.color = isDark ? 'rgba(255, 255, 255, 0.03)' : 'transparent';
+        energyChartInstance.options.scales.x.ticks.color = textColor;
+        energyChartInstance.options.scales.y.grid.color = gridColor;
+        energyChartInstance.options.scales.y.ticks.color = textColor;
+        energyChartInstance.update('none');
+    }
+}
 
     // Cập nhật icon và chữ hiển thị trong menu
     function updateDarkModeUI(isDark) {
@@ -1110,39 +1136,10 @@ function initPowerLineChart() {
                     type: 'linear', 
                     display: true, 
                     position: 'left',
-                    suggestedMin: -100, 
-                    grid: { 
-                        color: document.body.classList.contains('dark-mode') ? 'rgba(255, 255, 255, 0.03)' : '#f1f5f9' 
-                    }, 
-                    ticks: { 
-                        font: { size: 10 }, 
-                        color: document.body.classList.contains('dark-mode') ? '#94a3b8' : '#64748b' 
-                    } 
+                    suggestedMin: -100, // TẠO BIÊN ĐỘ ÂM CHÚT ĐỂ KHUNG BIỂU ĐỒ THOÁNG KHÔNG BỊ BÍ ĐÁY 0
+                    grid: { color: '#f1f5f9' }, 
+                    ticks: { font: { size: 10 } } 
                 },
-                y1: {
-                    type: 'linear', 
-                    display: true, 
-                    position: 'right', 
-                    min: 0, 
-                    max: 110,
-                    grid: { drawOnChartArea: false },
-                    ticks: { 
-                        font: { size: 10 }, 
-                        color: document.body.classList.contains('dark-mode') ? '#94a3b8' : '#64748b', 
-                        callback: function(value) { return value; } 
-                    }
-                },
-                x: { 
-                    grid: { 
-                        color: document.body.classList.contains('dark-mode') ? 'rgba(255, 255, 255, 0.03)' : 'transparent' 
-                    }, 
-                    ticks: { 
-                        font: { size: 10 }, 
-                        maxTicksLimit: 8, 
-                        color: document.body.classList.contains('dark-mode') ? '#94a3b8' : '#64748b' 
-                    } 
-                }
-            },
             plugins: {
                 legend: {
                     labels: { font: { size: 10 }, boxWidth: 10, usePointStyle: true, pointStyle: 'line' }
@@ -1335,7 +1332,54 @@ zoom: {
             });
         });
     }
+    function renderPowerLineChart(dataItems) {
+        if (!powerChartInstance) return;
+        
+        const labels = [];
+        const prodData = [];      
+        const loadData = [];      
+        const powerBattery = []; 
+        const importData = [];    
+        const epsloadData = [];    
+        const genData = [];   
+        const socData = [];    
 
+        if (Array.isArray(dataItems) && dataItems.length > 0) {
+            dataItems.forEach(item => {
+                let timeStr = "";
+                if (item.time) {
+                    timeStr = String(item.time).substring(11, 16);
+                } else if (item.hour !== undefined && item.minute !== undefined) {
+                    timeStr = `${String(item.hour).padStart(2, '0')}:${String(item.minute).padStart(2, '0')}`;
+                } else {
+                    timeStr = item.formattedTime || item.date || "";
+                }
+
+                labels.push(timeStr);
+
+                prodData.push(Number(item.solarPv || item.Production || item.ppv || item.pPv || 0));
+                loadData.push(Number(item.Consumption || item.pLoad || item.loadPower || 0));
+                powerBattery.push(Number(item.powerBattery || item.batteryDischarging || item.batPower || item.dischargePower || 0));
+                importData.push(Number(item.powerFromGrid || item.gridImport || item.gridPower || item.pToUser || item.importPower || 0));
+                epsloadData.push(Number(item.epsload || 0));
+                genData.push(Number(item.genload || item.gen || item.genPower || 0));
+                socData.push(Number(item.SOC || item.SOC2 || 0));
+            });
+        }
+
+        powerChartInstance.data.labels = labels;
+        powerChartInstance.data.datasets[0].data = prodData;
+        powerChartInstance.data.datasets[1].data = loadData;
+        powerChartInstance.data.datasets[2].data = powerBattery;
+        powerChartInstance.data.datasets[3].data = importData;
+        powerChartInstance.data.datasets[4].data = epsloadData;
+        powerChartInstance.data.datasets[5].data = genData;
+        powerChartInstance.data.datasets[6].data = socData;
+        
+        powerChartInstance.update('none');
+    }
+    
+    
     function getTodayString() {
         const d = new Date();
         const year = d.getFullYear();
@@ -1440,52 +1484,7 @@ function updateEnergyUI(data) {
         renderDashboard();
     }
     
-    function renderPowerLineChart(dataItems) {
-        if (!powerChartInstance) return;
-        
-        const labels = [];
-        const prodData = [];      
-        const loadData = [];      
-        const powerBattery = []; 
-        const importData = [];    
-        const epsloadData = [];    
-        const genData = [];   
-        const socData = [];    
 
-        if (Array.isArray(dataItems) && dataItems.length > 0) {
-            dataItems.forEach(item => {
-                let timeStr = "";
-                if (item.time) {
-                    timeStr = String(item.time).substring(11, 16);
-                } else if (item.hour !== undefined && item.minute !== undefined) {
-                    timeStr = `${String(item.hour).padStart(2, '0')}:${String(item.minute).padStart(2, '0')}`;
-                } else {
-                    timeStr = item.formattedTime || item.date || "";
-                }
-
-                labels.push(timeStr);
-
-                prodData.push(Number(item.solarPv || item.Production || item.ppv || item.pPv || 0));
-                loadData.push(Number(item.Consumption || item.pLoad || item.loadPower || 0));
-                powerBattery.push(Number(item.powerBattery || item.batteryDischarging || item.batPower || item.dischargePower || 0));
-                importData.push(Number(item.powerFromGrid || item.gridImport || item.gridPower || item.pToUser || item.importPower || 0));
-                epsloadData.push(Number(item.epsload || 0));
-                genData.push(Number(item.genload || item.gen || item.genPower || 0));
-                socData.push(Number(item.SOC || item.SOC2 || 0));
-            });
-        }
-
-        powerChartInstance.data.labels = labels;
-        powerChartInstance.data.datasets[0].data = prodData;
-        powerChartInstance.data.datasets[1].data = loadData;
-        powerChartInstance.data.datasets[2].data = powerBattery;
-        powerChartInstance.data.datasets[3].data = importData;
-        powerChartInstance.data.datasets[4].data = epsloadData;
-        powerChartInstance.data.datasets[5].data = genData;
-        powerChartInstance.data.datasets[6].data = socData;
-        
-        powerChartInstance.update('none');
-    }
 
     let selectedDateStr = getTodayString();
     let currentEnergyMode = 'month'; 
