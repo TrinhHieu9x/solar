@@ -1289,26 +1289,7 @@ zoom: {
         }, API_CONFIG.INTERVAL_PERIODIC_1M);
     }
 
-// 4. Các helper functions hỗ trợ bóc số liệu an toàn
-    const toNumber = (v) => {
-      if (v === undefined || v === null || v === "" || v === "-") return NaN;
-      if (Array.isArray(v)) v = v[0];
-      if (typeof v === "object") return NaN;
-      const s = String(v).trim().replace(",", ".");
-      const m = s.match(/-?\d+(\.\d+)?/);
-      if (!m) return NaN;
-      return parseFloat(m[0]);
-    };
 
-    const arrayNumber = (arr, index, fallback = 0) => {
-      if (!Array.isArray(arr)) {
-        const n = toNumber(arr);
-        return Number.isNaN(n) ? fallback : n;
-      }
-      const v = arr[index];
-      const n = toNumber(v);
-      return Number.isNaN(n) ? fallback : n;
-    };
 function updateEnergyUI(data) {
         if (!data) return;
         
