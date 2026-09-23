@@ -1,7 +1,6 @@
 <div class="overview-container">
     <!-- Header thông tin chung -->
     <div class="device-header">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <div class="device-title">
             <span id="header-sn">--</span> <span class="status-dot"></span>
         </div>
@@ -18,7 +17,7 @@
         <!-- 1. Các Inverter -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span><i class="icon">🔌</i> Các Inverter</span>
+                <span>🔌 CÁC INVERTER</span>
                 <span class="arrow">▼</span>
             </div>
             <div class="accordion-content">
@@ -30,46 +29,65 @@
                     <div class="info-row"><span>Chế độ đang chạy</span> <b id="inv-mode">--</b></div>
                     <div class="info-row"><span>Nhiệt độ Inverter</span> <b id="inv-temp">--</b></div>
                     <div class="info-row"><span>Chế độ hoạt động</span> <b id="inv-op-mode">Chế độ tự tiêu thụ</b></div>
-                    <div class="info-row"><span>Phiên bản phần mềm bộ quản lý tín hiệu số</span> <b id="fw-version">--</b></div>
-                    <div class="info-row"><span>Phiên bản Slave DSP</span> <b id="cnt-version">--</b></div>
-                    <div class="info-row"><span>Phiên bản mạch điều khiển</span> <b id="csb-version">--</b></div>
-                    <div class="info-row"><span>Phiên bản module Wifi</span> <b id="wifi-version">--</b></div>
+                    <div class="info-row"><span>Phiên bản DSP</span> <b id="cnt-version">--</b></div>
+                    <div class="info-row"><span>Phiên bản điều khiển</span> <b id="csb-version">--</b></div>
+                    <div class="info-row"><span>Phiên bản Wifi</span> <b id="wifi-version">--</b></div>
                 </div>
             </div>
         </div>
 
-        <!-- 2. Điện mặt trời (Quang điện) -->
+        <!-- 2. Điện mặt trời (Quang điện - 2 String) -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span><i class="icon">☀️</i> Điện mặt trời (Quang điện)</span>
+                <span>☀️ ĐIỆN MẶT TRỜI (QUANG ĐIỆN)</span>
                 <span class="arrow">▼</span>
             </div>
             <div class="accordion-content">
                 <div class="info-grid">
                     <div class="info-row"><span>Tổng công suất DC</span> <b id="pv-total-dc">--</b></div>
+                    <!-- String 1 -->
+                    <div class="sub-group-title">--- STRING 1 ---</div>
                     <div class="info-row"><span>Điện áp PV1 (Vdc)</span> <b id="pv-vdc-0">--</b></div>
                     <div class="info-row"><span>Dòng điện PV1 (Idc)</span> <b id="pv-idc-0">--</b></div>
                     <div class="info-row"><span>Công suất PV1 (Pdc)</span> <b id="pv-pdc-0">--</b></div>
+                    <!-- String 2 -->
+                    <div class="sub-group-title">--- STRING 2 ---</div>
+                    <div class="info-row"><span>Điện áp PV2 (Vdc)</span> <b id="pv-vdc-1">--</b></div>
+                    <div class="info-row"><span>Dòng điện PV2 (Idc)</span> <b id="pv-idc-1">--</b></div>
+                    <div class="info-row"><span>Công suất PV2 (Pdc)</span> <b id="pv-pdc-1">--</b></div>
+                    
+                    <div class="sub-group-title">--- SẢN LƯỢNG ---</div>
                     <div class="info-row"><span>Sản lượng hôm nay (ETDay)</span> <b id="pv-et-day">--</b></div>
                     <div class="info-row"><span>Tổng sản lượng (ETTotal)</span> <b id="pv-et-total">--</b></div>
                 </div>
             </div>
         </div>
 
-        <!-- 3. Pin lưu trữ -->
+        <!-- 3. Pin lưu trữ (2 Pack) -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span><i class="icon">🔋</i> Pin lưu trữ</span>
+                <span>🔋 PIN LƯU TRỮ</span>
                 <span class="arrow">▼</span>
             </div>
             <div class="accordion-content">
                 <div class="info-grid">
-                    <div class="info-row"><span>Thương hiệu pin</span> <b id="bat-brand">--</b></div>
+                    <!-- Pack 1 -->
+                    <div class="sub-group-title">--- PACK PIN 1 ---</div>
+                    <div class="info-row"><span>Thương hiệu</span> <b id="bat-brand">--</b></div>
                     <div class="info-row"><span>Dung lượng (SOC)</span> <b id="bat-soc">--</b></div>
                     <div class="info-row"><span>SOH</span> <b id="bat-soh">--</b></div>
-                    <div class="info-row"><span>Điện áp pin (Volt)</span> <b id="bat-volt">--</b></div>
-                    <div class="info-row"><span>Dòng điện pin (Cur)</span> <b id="bat-cur">--</b></div>
+                    <div class="info-row"><span>Điện áp (Volt)</span> <b id="bat-volt">--</b></div>
+                    <div class="info-row"><span>Dòng điện (Cur)</span> <b id="bat-cur">--</b></div>
                     <div class="info-row"><span>Nhiệt độ BMS</span> <b id="bat-temp">--</b></div>
+
+                    <!-- Pack 2 -->
+                    <div class="sub-group-title">--- PACK PIN 2 ---</div>
+                    <div class="info-row"><span>Thương hiệu 2</span> <b id="bat-brand2">--</b></div>
+                    <div class="info-row"><span>Dung lượng (SOC 2)</span> <b id="bat-soc2">--</b></div>
+                    <div class="info-row"><span>SOH 2</span> <b id="bat-soh2">--</b></div>
+                    <div class="info-row"><span>Điện áp 2 (Volt)</span> <b id="bat-volt2">--</b></div>
+                    <div class="info-row"><span>Dòng điện 2 (Cur)</span> <b id="bat-cur2">--</b></div>
+                    <div class="info-row"><span>Nhiệt độ BMS 2</span> <b id="bat-temp2">--</b></div>
                 </div>
             </div>
         </div>
@@ -77,7 +95,7 @@
         <!-- 4. Lưới điện -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span><i class="icon">⚡</i> Lưới điện</span>
+                <span>⚡ LƯỚI ĐIỆN</span>
                 <span class="arrow">▼</span>
             </div>
             <div class="accordion-content">
@@ -93,7 +111,7 @@
         <!-- 5. Tải trên lưới (với CT) -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span><i class="icon">🏠</i> Tải trên lưới (với CT)</span>
+                <span>🏠 TẢI TRÊN LƯỚI (VỚI CT)</span>
                 <span class="arrow">▼</span>
             </div>
             <div class="accordion-content">
@@ -106,10 +124,10 @@
             </div>
         </div>
 
-        <!-- 6. Tải dự phòng -->
+        <!-- 6. Tải dự phòng (EPS) -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span><i class="icon">💡</i> Tải dự phòng</span>
+                <span>💡 TẢI DỰ PHÒNG (EPS)</span>
                 <span class="arrow">▼</span>
             </div>
             <div class="accordion-content">
@@ -118,6 +136,8 @@
                     <div class="info-row"><span>Dòng điện EPS (Iac)</span> <b id="eps-iac">--</b></div>
                     <div class="info-row"><span>Tần số EPS (Fac)</span> <b id="eps-fac">--</b></div>
                     <div class="info-row"><span>Công suất EPS (Currpac)</span> <b id="eps-pac">--</b></div>
+                    <div class="info-row"><span>Sản lượng EPS ngày (EPSDay)</span> <b id="eps-day">--</b></div>
+                    <div class="info-row"><span>Tổng sản lượng EPS (EPSTotal)</span> <b id="eps-total">--</b></div>
                 </div>
             </div>
         </div>
@@ -131,6 +151,7 @@
         background-color: #f4f6f9;
         padding: 10px;
         color: #333;
+        box-sizing: border-box;
     }
     .device-header {
         background: #fff;
@@ -140,7 +161,7 @@
         box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .device-title {
-        font-size: 16px;
+        font-size: 17px; /* Tăng 1 size */
         font-weight: bold;
         display: flex;
         align-items: center;
@@ -155,14 +176,14 @@
         display: inline-block;
     }
     .device-sub {
-        font-size: 13px;
+        font-size: 14px; /* Tăng 1 size */
         color: #666;
         display: flex;
         justify-content: space-between;
         margin-bottom: 5px;
     }
     .device-time {
-        font-size: 12px;
+        font-size: 13px; /* Tăng 1 size */
         color: #888;
     }
     .accordion-item {
@@ -177,8 +198,8 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-weight: 500;
-        font-size: 14px;
+        font-weight: bold;
+        font-size: 15px; /* Tăng 1 size tiêu đề */
         cursor: pointer;
         user-select: none;
     }
@@ -187,7 +208,7 @@
     }
     .arrow {
         transition: transform 0.3s ease;
-        font-size: 12px;
+        font-size: 13px;
         color: #888;
     }
     .accordion-item.active .arrow {
@@ -201,35 +222,41 @@
         padding: 0 16px;
     }
     .accordion-item.active .accordion-content {
-        max-height: 500px;
+        max-height: 1200px;
         padding: 0 16px 14px 16px;
     }
     .info-grid {
         border-top: 1px solid #eee;
         padding-top: 10px;
     }
+    .sub-group-title {
+        font-size: 13px; /* Tăng 1 size */
+        font-weight: bold;
+        color: #007bff;
+        margin: 10px 0 4px 0;
+        border-bottom: 1px dashed #eee;
+        padding-bottom: 2px;
+    }
     .info-row {
         display: flex;
         justify-content: space-between;
-        padding: 6px 0;
-        font-size: 13px;
+        padding: 7px 0;
+        font-size: 14px; /* Tăng 1 size toàn bộ chữ thông tin (từ 13px lên 14px) */
     }
     .info-row span {
-        color: #666;
+        color: #555;
     }
     .info-row b {
-        color: #222;
+        color: #111;
     }
 </style>
 
 <script>
-    // Hàm mở/đóng Accordion
     function toggleAccordion(header) {
         const item = header.parentElement;
         item.classList.toggle('active');
     }
 
-    // Hàm nhận dữ liệu JSON và điền vào giao diện
     function renderOverview(data) {
         if (!data) return;
 
@@ -238,7 +265,6 @@
         document.getElementById('info-sn').innerText = data.GoodsID || '--';
         document.getElementById('info-wifi').innerText = data.WifiStrength || '--';
         
-        // Lấy thời gian hiện tại làm mốc cập nhật (hoặc từ API nếu có)
         const now = new Date();
         document.getElementById('update-time').innerText = now.getFullYear() + '-' + 
             String(now.getMonth() + 1).padStart(2, '0') + '-' + 
@@ -254,26 +280,46 @@
         document.getElementById('inv-self-suff').innerText = (data.Dailyself_sufficiencyrate || '0') + ' %';
         document.getElementById('inv-mode').innerText = data.Operatingstatus == "0" ? "Hòa lưới" : "Khác";
         document.getElementById('inv-temp').innerText = (data.Tntc || '0') + ' °C';
-        document.getElementById('fw-version').innerText = data.FirmwareVersion || '--';
         document.getElementById('cnt-version').innerText = data.CntVersion2 || '--';
         document.getElementById('csb-version').innerText = data.CSBVersion || '--';
         document.getElementById('wifi-version').innerText = data.ESP32Version ? data.ESP32Version.Version : '--';
 
-        // 2. Điện mặt trời
+        // 2. Điện mặt trời (PV - 2 String)
         document.getElementById('pv-total-dc').innerText = (data.TotalDCpower || 0) + ' W';
-        document.getElementById('pv-vdc-0').innerText = (data.data && data.data.Vdc) ? data.data.Vdc[0] + ' V' : '--';
-        document.getElementById('pv-idc-0').innerText = (data.data && data.data.Idc) ? data.data.Idc[0] + ' A' : '--';
-        document.getElementById('pv-pdc-0').innerText = (data.data && data.data.Pdc) ? data.data.Pdc[0] + ' W' : '--';
+        
+        const vdcArr = data.data && data.data.Vdc ? data.data.Vdc : [0, 0];
+        const idcArr = data.data && data.data.Idc ? data.data.Idc : [0, 0];
+        const pdcArr = data.data && data.data.Pdc ? data.data.Pdc : [0, 0];
+
+        // String 1
+        document.getElementById('pv-vdc-0').innerText = (vdcArr[0] !== undefined ? vdcArr[0] : '--') + ' V';
+        document.getElementById('pv-idc-0').innerText = (idcArr[0] !== undefined ? idcArr[0] : '--') + ' A';
+        document.getElementById('pv-pdc-0').innerText = (pdcArr[0] !== undefined ? pdcArr[0] : '--') + ' W';
+        
+        // String 2
+        document.getElementById('pv-vdc-1').innerText = (vdcArr[1] !== undefined ? vdcArr[1] : '--') + ' V';
+        document.getElementById('pv-idc-1').innerText = (idcArr[1] !== undefined ? idcArr[1] : '--') + ' A';
+        document.getElementById('pv-pdc-1').innerText = (pdcArr[1] !== undefined ? pdcArr[1] : '--') + ' W';
+
         document.getElementById('pv-et-day').innerText = (data.ETDay || '0') + ' kWh';
         document.getElementById('pv-et-total').innerText = (data.ETTotal || '0') + ' kWh';
 
-        // 3. Pin lưu trữ
+        // 3. Pin lưu trữ (2 Pack)
+        // Pack 1
         document.getElementById('bat-brand').innerText = data.brand || '--';
         document.getElementById('bat-soc').innerText = (data.SOC || '0') + ' %';
         document.getElementById('bat-soh').innerText = (data.SOH || '0') + ' %';
         document.getElementById('bat-volt').innerText = (data.volt || '0') + ' V';
         document.getElementById('bat-cur').innerText = (data.cur || '0') + ' A';
         document.getElementById('bat-temp').innerText = (data.BMS_temp || '--') + ' °C';
+
+        // Pack 2
+        document.getElementById('bat-brand2').innerText = data.brand2 || 'Trống';
+        document.getElementById('bat-soc2').innerText = (data.SOC2 !== "" ? data.SOC2 + ' %' : '--');
+        document.getElementById('bat-soh2').innerText = (data.SOH2 !== "" ? data.SOH2 + ' %' : '--');
+        document.getElementById('bat-volt2').innerText = (data.volt2 !== "" ? data.volt2 + ' V' : '--');
+        document.getElementById('bat-cur2').innerText = (data.cur2 !== "" ? data.cur2 + ' A' : '--');
+        document.getElementById('bat-temp2').innerText = (data.BMS_temp2 !== "" ? data.BMS_temp2 + ' °C' : '--');
 
         // 4. Lưới điện
         document.getElementById('grid-vac').innerText = (data.gridVac && data.gridVac[0]) ? data.gridVac[0] + ' V' : '--';
@@ -287,14 +333,12 @@
         document.getElementById('load-pac').innerText = (data.loadCurrpac && data.loadCurrpac[0]) ? data.loadCurrpac[0] + ' W' : '--';
         document.getElementById('load-elday').innerText = (data.ELDay || '0') + ' kWh';
 
-        // 6. Tải dự phòng
+        // 6. Tải dự phòng (EPS)
         document.getElementById('eps-vac').innerText = (data.epsVac && data.epsVac[0]) ? data.epsVac[0] + ' V' : '--';
         document.getElementById('eps-iac').innerText = (data.epsIac && data.epsIac[0]) ? data.epsIac[0] + ' A' : '--';
         document.getElementById('eps-fac').innerText = (data.epsFac || '0') + ' Hz';
         document.getElementById('eps-pac').innerText = (data.epsCurrpac && data.epsCurrpac[0]) ? data.epsCurrpac[0] + ' W' : '--';
+        document.getElementById('eps-day').innerText = (data.EPSDay || '0') + ' kWh';
+        document.getElementById('eps-total').innerText = (data.EPSTotal || '0') + ' kWh';
     }
-
-    // Gán dữ liệu mẫu bạn vừa cung cấp để chạy thử ngay lập tức
-    const sampleData = /* Dán đoạn JSON của bạn vào đây hoặc truyền từ hàm fetch chính */ {};
-    // renderOverview(sampleData);
 </script>
