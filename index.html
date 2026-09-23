@@ -101,6 +101,17 @@ body.dark-mode #userDropdown {
 body.dark-mode #userDropdown .bg-slate-50 {
     background-color: #252f3f !important;
 }
+/* Tùy chỉnh riêng cho Biểu đồ (Chart.js) ở Chế độ tối */
+body.dark-mode canvas {
+    /* Làm mờ nhẹ độ chói của các đường màu trên biểu đồ */
+    filter: brightness(0.85) saturate(0.85);
+}
+
+/* Làm dịu các đường lưới và trục tọa độ của canvas */
+body.dark-mode .chart-container,
+body.dark-mode canvas {
+    opacity: 0.9; /* Giảm độ gắt tổng thể của biểu đồ */
+}
 
     </style>
 </head>
