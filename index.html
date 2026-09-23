@@ -1693,10 +1693,10 @@ async function fetchRuntimeAPI() {
 function updateRuntimeUI(data) {
     // 1. Cập nhật các thông số vào object global systemData để renderDashboard sử dụng
     systemData.pv.totalWatts = Math.round((data.ppv || data.ppv1 || 0) * 1000);
-    systemData.pv.pv1.watts = Math.round((systemData.pv.pv1.wats || 0) * 1000);
-    systemData.pv.pv1.volts = systemData.pv.pv1.volts || 0;
-    systemData.pv.pv2.watts = Math.round((systemData.pv.pv2.watts || 0) * 1000);
-    systemData.pv.pv2.volts = systemData.pv.pv2.volts || 0;
+   // systemData.pv.pv1.watts = Math.round((systemData.pv.pv1.wats || 0) * 1000);
+    //systemData.pv.pv1.volts = systemData.pv.pv1.volts || 0;
+    //systemData.pv.pv2.watts = Math.round((systemData.pv.pv2.watts || 0) * 1000);
+    //systemData.pv.pv2.volts = systemData.pv.pv2.volts || 0;
     systemData.pv.active = (data.vpv1 > 50 || data.vpv2 > 50 || systemData.pv.totalWatts > 0);
 
     systemData.battery.soc = data.soc || 0;
