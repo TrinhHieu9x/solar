@@ -101,17 +101,13 @@ body.dark-mode #userDropdown {
 body.dark-mode #userDropdown .bg-slate-50 {
     background-color: #252f3f !important;
 }
-/* Tùy chỉnh riêng cho Biểu đồ (Chart.js) ở Chế độ tối */
+
+/* Làm mờ các đường lưới ngang/dọc và chữ số trong biểu đồ Chart.js ở chế độ tối */
 body.dark-mode canvas {
-    /* Làm mờ nhẹ độ chói của các đường màu trên biểu đồ */
-    filter: brightness(0.85) saturate(0.85);
+    /* Giảm độ sáng của các thành phần phụ trong canvas nhưng giữ màu sắc */
+    filter: contrast(1.1) opacity(0.85);
 }
 
-/* Làm dịu các đường lưới và trục tọa độ của canvas */
-body.dark-mode .chart-container,
-body.dark-mode canvas {
-    opacity: 0.9; /* Giảm độ gắt tổng thể của biểu đồ */
-}
 
     </style>
 </head>
@@ -1109,14 +1105,14 @@ function initPowerLineChart() {
             responsive: true,
             maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
-            scales: {
+                        scales: {
                 y: { 
                     type: 'linear', 
                     display: true, 
                     position: 'left',
-                    suggestedMin: -100, // TẠO BIÊN ĐỘ ÂM CHÚT ĐỂ KHUNG BIỂU ĐỒ THOÁNG KHÔNG BỊ BÍ ĐÁY 0
-                    grid: { color: '#f1f5f9' }, 
-                    ticks: { font: { size: 10 } } 
+                    suggestedMin: -100, 
+                    grid: { color: 'rgba(255, 255, 255, 0.03)' }, // <-- Chỉnh lưới ngang mờ hẳn đi tại đây
+                    ticks: { font: { size: 10 }, color: '#94a3b8' } // <-- Chữ số trục Y màu xám sáng, rõ nét
                 },
                 y1: {
                     type: 'linear', 
@@ -1125,9 +1121,12 @@ function initPowerLineChart() {
                     min: 0, 
                     max: 110,
                     grid: { drawOnChartArea: false },
-                    ticks: { font: { size: 10 }, callback: function(value) { return value; } }
+                    ticks: { font: { size: 10 }, color: '#94a3b8', callback: function(value) { return value; } } // <-- Chữ số trục Y1
                 },
-                x: { ticks: { font: { size: 10 }, maxTicksLimit: 8 } }
+                x: { 
+                    grid: { color: 'rgba(255, 255, 255, 0.03)' }, // <-- Thêm lưới dọc mờ cho đồng bộ
+                    ticks: { font: { size: 10 }, maxTicksLimit: 8, color: '#94a3b8' } // <-- Chữ số trục X màu xám sáng
+                }
             },
             plugins: {
                 legend: {
