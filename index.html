@@ -1830,15 +1830,16 @@ function updateRuntimeUI(data) {
     // 3. Cập nhật thời gian làm mới (lùi lại 1 giờ)
     const timeEl = document.getElementById('last-updated-time');
     if (timeEl && data.inverter && data.inverter.SystemTime) {
-        // Chuyển chuỗi thời gian thành đối tượng Date
         let dateObj = new Date(data.inverter.SystemTime);
         
-        // Trừ đi 1 giờ (1 giờ = 3600 * 1000 mili-giây)
+        // Trừ đi 1 giờ (3,600,000 ms)
         dateObj.setTime(dateObj.getTime() - (60 * 60 * 1000));
         
-        // Định dạng lại thành chuỗi hiển thị (ví dụ: YYYY-MM-DD HH:mm:ss hoặc giờ địa phương tùy bạn)
-        // Dùng toLocaleString() hoặc tự cắt chuỗi tùy thuộc vào format gốc của thiết bị
-        timeEl.innerText = dateObj.toLocaleString(); 
+        // Lấy chuỗi ngày tháng gốc (vd: "2026-09-23") và nối với giờ đã trừ 1 tiếng
+        let datePart = data.inverter.SystemTime.split(' ')[0]; // Tách lấy phần "2026-09-23"
+        let timePart = dateObj.toTimeString().split(' ')[0];    // Lấy phần "HH:mm:ss" đã lùi giờ
+        
+        timeEl.innerText = `${datePart} ${timePart}`;
     }
 
     // 4. Gọi hàm renderDashboard() của bạn để vẽ lại toàn bộ giao diện topo & card Mode
