@@ -102,6 +102,18 @@ body.dark-mode #userDropdown {
 body.dark-mode #userDropdown .bg-slate-50 {
     background-color: #252f3f !important;
 }
+/* Mặc định ở chế độ sáng (Light mode) */
+.card, .section, .divider-class {
+    border-color: #e2e8f0; /* Hoặc màu đường kẻ sáng hiện tại của bạn */
+}
+
+/* Khi ở chế độ tối (Dark mode) */
+body.dark-mode .card, 
+body.dark-mode .section, 
+body.dark-mode hr, 
+body.dark-mode .divider-class {
+    border-color: rgba(255, 255, 255, 0.08); /* Chỉnh màu này thành tối mờ cho dịu mắt */
+}
 
     </style>
 </head>
