@@ -1678,8 +1678,8 @@ function parseHexData(hexString, modelType = "eco") {
     
     // Các thông số công suất có thể âm/dương giữ nguyên readPos
     batPower:         readPos(cfg.batPower, cfg.scalePower),
-    consumptionPower: readPos(cfg.consumptionPower, cfg.scalePower),
-    backupPower:      readPos(cfg.backupPower, cfg.scalePower),
+    consumptionPower: readUnsignedPos(cfg.consumptionPower, cfg.scalePower),
+    backupPower:      readUnsignedPos(cfg.backupPower, cfg.scalePower),
     
     pToGrid:          0,
     pToUser:          gridPowerRaw || 0,
