@@ -1282,7 +1282,7 @@ zoom: {
         });
     }
 
-    function renderEnergyBarChart(apiResponse, type = 'month') {
+       function renderEnergyBarChart(apiResponse, type = 'month') {
         const chartId = 'energyOverviewChart';
         const ctxElement = document.getElementById(chartId);
         if (!ctxElement) return;
@@ -1309,6 +1309,12 @@ zoom: {
             energyChartInstance.destroy();
         }
 
+        // --- BỔ SUNG: Kiểm tra chế độ tối/sáng ngay khi vẽ lại biểu đồ ---
+        const isDark = document.body.classList.contains('dark-mode');
+        const gridColor = isDark ? 'rgba(255, 255, 255, 0.06)' : '#f1f5f9';
+        const textColor = isDark ? '#94a3b8' : '#64748b';
+        // -----------------------------------------------------------------
+
         energyChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -1329,10 +1335,14 @@ zoom: {
                 scales: {
                     x: { 
                         stacked: false, 
-                        ticks: { font: { size: 10 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 31 },
+                        ticks: { font: { size: 10 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 31, color: textColor },
                         grid: { display: false }
                     },
-                    y: { stacked: false, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } }
+                    y: { 
+                        stacked: false, 
+                        grid: { color: gridColor }, // <-- Đã dùng biến động (tối hoặc sáng theo theme)
+                        ticks: { font: { size: 10 }, color: textColor } 
+                    }
                 },
                 plugins: {
                     legend: { labels: { font: { size: 10 }, boxWidth: 10 } },
@@ -1364,6 +1374,7 @@ zoom: {
             }
         });
     }
+
 
     if (!window._chartGlobalTouchDismiss) {
         window._chartGlobalTouchDismiss = true;
