@@ -1604,28 +1604,26 @@ function parseHexData(hexString, modelType = "eco") {
     return v * scale;
   };
     // Hàm đọc công suất 32-bit chuyên biệt cho Sạc/Xả theo cơ chế đặc thù của thiết bị
-  const readInverterPower32 = (pos, scale = 1) => {
+const readInverterPower32 = (pos, scale = 1) => {
     let hexPart = hexString.substring(pos, pos + 8);
     if (!hexPart || hexPart.length < 8) return 0;
 
-    // Tách thành 2 thanh ghi (mỗi thanh ghi 4 ký tự hex / 16-bit)
     let highReg = parseInt(hexPart.substring(0, 4), 16);
     let lowReg  = parseInt(hexPart.substring(4, 8), 16);
 
     let rawVal = 0;
 
     if (highReg === 0x0000) {
-      // Chiều Xả: Giữ nguyên giá trị thô của thanh ghi thấp
+      // Chiều Xả: Dương
       rawVal = lowReg;
     } else if (highReg === 0xFFFF) {
-      // Chiều Sạc: Kiểm tra mốc 32767
+      // Chiều Sạc: Bắt buộc mang dấu âm cho toàn bộ cụm này
       if (lowReg > 32767) {
-        rawVal = lowReg - 65536; // Bù 2 (số âm lớn)
+        rawVal = lowReg - 65536; // Vốn dĩ đã là âm (vd: -20250)
       } else {
-        rawVal = 65535 - lowReg; // Đảo bit (bù 1) ra số dương chuẩn (ví dụ 40149)
+        rawVal = -(65535 - lowReg); // Đảo bit xong phải đảo thành số âm (-40149)
       }
     } else {
-      // Dự phòng trường hợp khác (ghép 32-bit thông thường)
       rawVal = (highReg << 16) + lowReg;
       if (rawVal > 0x7FFFFFFF) rawVal -= 0x100000000;
     }
@@ -1674,7 +1672,7 @@ function parseHexData(hexString, modelType = "eco") {
       scaleVpv: 0.0001,
       scalePpv: 0.0001,
       scaleBat: 0.1,
-      scalePower: 1 // Giữ nguyên 1 để không bị làm tròn mất số nhỏ (1-3W)
+      scalePower: 0.1
     },
     green: {
       status: 28,
@@ -1698,7 +1696,7 @@ function parseHexData(hexString, modelType = "eco") {
       scaleVpv: 0.0001,
       scalePpv: 0.0001,
       scaleBat: 0.1,
-      scalePower: 1
+      scalePower: 0.1
     }
   };
 
