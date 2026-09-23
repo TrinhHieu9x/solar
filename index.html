@@ -1332,6 +1332,45 @@ zoom: {
             });
         });
     }
+
+    function getTodayString() {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    async function postFormAPI(path, paramsObj) {
+        const url = `${API_CONFIG.BASE_URL}${path}`;
+        const formParams = new URLSearchParams();
+
+        for (const key in paramsObj) {
+            if (paramsObj.hasOwnProperty(key)) {
+                formParams.append(key, paramsObj[key]);
+            }
+        }
+
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+            body: formParams.toString()
+        });
+
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+            return await res.json();
+        } else {
+            const text = await res.text();
+            try {
+                return JSON.parse(text);
+            } catch(e) {
+                return { success: false, data: [] };
+            }
+        }
+    }
     function renderPowerLineChart(dataItems) {
         if (!powerChartInstance) return;
         
@@ -1428,45 +1467,6 @@ zoom: {
         }
     }
     
-    function getTodayString() {
-        const d = new Date();
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
-
-    async function postFormAPI(path, paramsObj) {
-        const url = `${API_CONFIG.BASE_URL}${path}`;
-        const formParams = new URLSearchParams();
-
-        for (const key in paramsObj) {
-            if (paramsObj.hasOwnProperty(key)) {
-                formParams.append(key, paramsObj[key]);
-            }
-        }
-
-        const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-            body: formParams.toString()
-        });
-
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        
-        const contentType = res.headers.get("content-type");
-        if (contentType && contentType.indexOf("application/json") !== -1) {
-            return await res.json();
-        } else {
-            const text = await res.text();
-            try {
-                return JSON.parse(text);
-            } catch(e) {
-                return { success: false, data: [] };
-            }
-        }
-    }
-
     async function initDashboardAPI(serialNum = API_CONFIG.SERIAL_NUM) {
         if (quickTimer) clearInterval(quickTimer);
         if (periodicTimer) clearInterval(periodicTimer);
