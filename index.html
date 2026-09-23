@@ -2060,6 +2060,7 @@ function updateAlarmUI(alarmValue) {
         try {
             await Promise.allSettled([
                 fetchVendorAPI(),
+                fetchFlowAPI(),
                 fetchRuntimeAPI(),
                 initDashboardAPI(API_CONFIG.SERIAL_NUM)
             ]);
