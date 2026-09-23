@@ -1829,7 +1829,7 @@ function updateRuntimeUI(data) {
 
     // 3. Cập nhật thời gian làm mới
     const timeEl = document.getElementById('last-updated-time');
-    if (timeEl) timeEl.innerText = new Date().toLocaleTimeString('vi-VN');
+    if (timeEl) timeEl.innerText = data.SystemTime;
 
     // 4. Gọi hàm renderDashboard() của bạn để vẽ lại toàn bộ giao diện topo & card Mode
     renderDashboard();
