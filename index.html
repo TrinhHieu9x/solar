@@ -2022,7 +2022,7 @@ async function fetchRuntimeAPI() {
           // Thời gian đứng hình quá 45 giây -> Báo mất kết nối Inverter ở footer
           const elapsedSeconds = (now - lastInverterChangeTime) / 1000;
           if (elapsedSeconds > 60) {
-              setConnectionStatus(false, "Disconect", "inverter");
+              setConnectionStatus(false, "Disconnected", "inverter");
           }
       }
   }
@@ -2177,7 +2177,7 @@ function setConnectionStatus(isConnected, message = "", target = "api") {
                     footerStatus.innerText = "Status: Connected";
                     footerStatus.className = "text-emerald-600 font-semibold text-[9px]";
                 } else {
-                    footerStatus.innerText = `Status: ${message || "Disconect"}`;
+                    footerStatus.innerText = `Status: ${message || "Disconnected"}`;
                     footerStatus.className = "text-rose-600 font-semibold text-[9px]";
                 }
             }
