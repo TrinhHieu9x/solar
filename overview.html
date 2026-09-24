@@ -443,7 +443,7 @@
             // 2. Điện mặt trời (PV)
             // Tổng công suất DC (nếu API trả về kW thì nhân 1000 để ra W, ở đây giả sử API trả về kW giống Pdc)
             document.getElementById('pv-total-dc').innerText = (data.TotalDCpower !== undefined && data.TotalDCpower !== null && data.TotalDCpower !== '--') 
-                ? (Number(data.TotalDCpower) * 1000).toFixed(1) + ' W' 
+                ? (Number(data.TotalDCpower) ).toFixed(1) + ' W' 
                 : '--';
 
             const pvData = data.data || {};
