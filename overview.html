@@ -18,7 +18,7 @@
         <!-- 1. Các Inverter -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span>🔌 CÁC INVERTER</span>
+                <span><span class="accordion-icon">🔌</span> CÁC INVERTER</span>
                 <span class="arrow">▼</span>
             </div>
             <div class="accordion-content">
@@ -40,7 +40,7 @@
         <!-- 2. Điện mặt trời (Quang điện - 2 String) -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span>☀️ ĐIỆN MẶT TRỜI (QUANG ĐIỆN)</span>
+                <span><span class="accordion-icon">☀️</span> ĐIỆN MẶT TRỜI (QUANG ĐIỆN)</span>
                 <span class="arrow">▼</span>
             </div>
             <div class="accordion-content">
@@ -67,7 +67,7 @@
         <!-- 3. Pin lưu trữ (2 Pack) -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span>🔋 PIN LƯU TRỮ</span>
+                <span><span class="accordion-icon">🔋</span> PIN LƯU TRỮ</span>
                 <span class="arrow">▼</span>
             </div>
             <div class="accordion-content">
@@ -96,7 +96,7 @@
         <!-- 4. Lưới điện -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span>⚡ LƯỚI ĐIỆN</span>
+                <span><span class="accordion-icon">⚡</span> LƯỚI ĐIỆN</span>
                 <span class="arrow">▼</span>
             </div>
             <div class="accordion-content">
@@ -112,7 +112,7 @@
         <!-- 5. Tải trên lưới (với CT) -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span>🏠 TẢI TRÊN LƯỚI (VỚI CT)</span>
+                <span><span class="accordion-icon">🏠</span> TẢI TRÊN LƯỚI (VỚI CT)</span>
                 <span class="arrow">▼</span>
             </div>
             <div class="accordion-content">
@@ -128,7 +128,7 @@
         <!-- 6. Tải dự phòng (EPS) -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span>💡 TẢI DỰ PHÒNG (EPS)</span>
+                <span><span class="accordion-icon">💡</span> TẢI DỰ PHÒNG (EPS)</span>
                 <span class="arrow">▼</span>
             </div>
             <div class="accordion-content">
@@ -153,6 +153,7 @@
         padding: 10px;
         color: #333;
         box-sizing: border-box;
+        transition: background-color 0.3s ease, color 0.3s ease;
     }
     .device-header {
         background: #fff;
@@ -160,9 +161,11 @@
         border-radius: 8px;
         margin-bottom: 12px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border: 1px solid transparent;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
     }
     .device-title {
-        font-size: 17px; /* Tăng 1 size */
+        font-size: 17px;
         font-weight: bold;
         display: flex;
         align-items: center;
@@ -177,15 +180,17 @@
         display: inline-block;
     }
     .device-sub {
-        font-size: 14px; /* Tăng 1 size */
+        font-size: 14px;
         color: #666;
         display: flex;
         justify-content: space-between;
         margin-bottom: 5px;
+        transition: color 0.3s ease;
     }
     .device-time {
-        font-size: 13px; /* Tăng 1 size */
+        font-size: 13px;
         color: #888;
+        transition: color 0.3s ease;
     }
     .accordion-item {
         background: #fff;
@@ -193,6 +198,8 @@
         border-radius: 8px;
         overflow: hidden;
         box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border: 1px solid transparent;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
     }
     .accordion-header {
         padding: 14px 16px;
@@ -200,15 +207,22 @@
         justify-content: space-between;
         align-items: center;
         font-weight: bold;
-        font-size: 15px; /* Tăng 1 size tiêu đề */
+        font-size: 15px;
         cursor: pointer;
         user-select: none;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    /* Phóng to icon tiêu đề */
+    .accordion-icon {
+        font-size: 18px;
+        margin-right: 4px;
+        vertical-align: middle;
     }
     .accordion-header:hover {
         background-color: #fafafa;
     }
     .arrow {
-        transition: transform 0.3s ease;
+        transition: transform 0.3s ease, color 0.3s ease;
         font-size: 13px;
         color: #888;
     }
@@ -218,7 +232,7 @@
     .accordion-content {
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s ease;
+        transition: max-height 0.3s ease, background-color 0.3s ease;
         background: #fff;
         padding: 0 16px;
     }
@@ -229,26 +243,75 @@
     .info-grid {
         border-top: 1px solid #eee;
         padding-top: 10px;
+        transition: border-color 0.3s ease;
     }
     .sub-group-title {
-        font-size: 13px; /* Tăng 1 size */
+        font-size: 13px;
         font-weight: bold;
         color: #007bff;
         margin: 10px 0 4px 0;
         border-bottom: 1px dashed #eee;
         padding-bottom: 2px;
+        transition: color 0.3s ease, border-color 0.3s ease;
     }
     .info-row {
         display: flex;
         justify-content: space-between;
         padding: 7px 0;
-        font-size: 14px; /* Tăng 1 size toàn bộ chữ thông tin (từ 13px lên 14px) */
+        font-size: 14px;
     }
     .info-row span {
         color: #555;
+        transition: color 0.3s ease;
     }
     .info-row b {
         color: #111;
+        transition: color 0.3s ease;
+    }
+
+    /* --- CHẾ ĐỘ TỐI (DARK MODE) ĐỒNG BỘ THEO BODY --- */
+    body.dark-mode .overview-container {
+        background-color: #0b1120 !important;
+        color: #e2e8f0 !important;
+    }
+    body.dark-mode .device-header {
+        background: #0f172a !important;
+        border-color: #1e293b !important;
+    }
+    body.dark-mode .device-sub {
+        color: #94a3b8 !important;
+    }
+    body.dark-mode .device-time {
+        color: #64748b !important;
+    }
+    body.dark-mode .accordion-item {
+        background: #0f172a !important;
+        border-color: #1e293b !important;
+    }
+    body.dark-mode .accordion-header {
+        color: #f8fafc !important;
+    }
+    body.dark-mode .accordion-header:hover {
+        background-color: #1e293b !important;
+    }
+    body.dark-mode .arrow {
+        color: #94a3b8 !important;
+    }
+    body.dark-mode .accordion-content {
+        background: #0f172a !important;
+    }
+    body.dark-mode .info-grid {
+        border-top-color: #1e293b !important;
+    }
+    body.dark-mode .sub-group-title {
+        color: #38bdf8 !important;
+        border-bottom-color: #1e293b !important;
+    }
+    body.dark-mode .info-row span {
+        color: #94a3b8 !important;
+    }
+    body.dark-mode .info-row b {
+        color: #f8fafc !important;
     }
 </style>
 
