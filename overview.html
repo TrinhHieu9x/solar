@@ -1,58 +1,244 @@
-<div class="overview-container">
-    <!-- Header thông tin chung -->
-    <div class="device-header">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Thêm dòng này vào <head> của file chính -->
-            <title>Inverter Monitor</title>
-        </head>
-        <div class="device-title">
-            <span id="header-sn">--</span> <span class="status-dot"></span>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inverter Monitor</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #f4f6f8;
+            color: #333;
+        }
+        
+        /* Top header bar mới */
+        .top-bar {
+            background: #fff;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .top-bar-left, .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .icon-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #0f172a;
+            transition: background 0.2s, transform 0.2s;
+            text-decoration: none;
+        }
+        .icon-btn:hover {
+            background: #e2e8f0;
+        }
+        .icon-btn:active {
+            transform: scale(0.95);
+        }
+        .icon-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+        .top-title {
+            font-size: 15px;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        /* Device info subheader */
+        .device-info-card {
+            background: #fff;
+            margin: 10px 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .device-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .device-sub {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        /* Accordion List */
+        .accordion-container {
+            margin: 0 12px 20px 12px;
+        }
+        .accordion-item {
+            background: #fff;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+        .accordion-header {
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1e293b;
+            cursor: pointer;
+            user-select: none;
+        }
+        .accordion-header span {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .accordion-header .arrow {
+            transition: transform 0.3s ease;
+            color: #94a3b8;
+            font-size: 12px;
+        }
+        .accordion-item.active .accordion-header .arrow {
+            transform: rotate(90deg);
+        }
+        
+        /* Accordion Content */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: #fafafa;
+            border-top: 0px solid #e2e8f0;
+            padding: 0;
+        }
+        .accordion-item.active .accordion-content {
+            border-top: 1px solid #e2e8f0;
+        }
+        .accordion-inner {
+            padding: 12px 16px;
+        }
+
+        /* Info rows inside accordion */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+            border-bottom: 1px dashed #edf2f7;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-row span {
+            color: #64748b;
+        }
+        .info-row b {
+            color: #0f172a;
+            font-weight: 500;
+        }
+        .sub-group-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #0284c7;
+            margin: 10px 0 4px 0;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <a href="/" class="icon-btn" title="Trang chủ">
+                <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </a>
+            <div class="top-title">
+                <span id="header-sn">--</span>
+                <span class="status-dot"></span>
+            </div>
         </div>
-        <div class="device-sub">
-            <span>SN: <span id="info-sn">--</span></span>
-            <span class="wifi-icon">📶 <span id="info-wifi">--</span>%</span>
+        <div class="top-bar-right">
+            <button class="icon-btn" id="refresh-btn" onclick="triggerRefresh()" title="Làm mới dữ liệu">
+                <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+            </button>
         </div>
-        <div class="device-time">Cập nhật lần cuối: <span id="update-time">--</span></div>
     </div>
 
-    <!-- Danh sách các mục (Accordion) -->
-    <div class="accordion-list">
-        
+    <!-- Device Subheader -->
+    <div class="device-info-card">
+        <div class="device-header">
+            <span>🔌 SN: <span id="info-sn">--</span></span>
+            <span id="info-wifi" style="font-size: 14px; color: #2563eb;">📶 --</span>
+        </div>
+        <div class="device-sub" id="update-time-wrap">Cập nhật lần cuối: <span id="update-time">--</span></div>
+    </div>
+
+    <!-- Accordion List -->
+    <div class="accordion-container">
+
         <!-- 1. Các Inverter -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span><span class="accordion-icon">🔌</span> CÁC INVERTER</span>
-                <span class="arrow">▼</span>
+                <span>📥 Các Inverter</span>
+                <span class="arrow">▶</span>
             </div>
             <div class="accordion-content">
-                <div class="info-grid">
+                <div class="accordion-inner">
                     <div class="info-row"><span>SN</span> <b id="inv-sn">--</b></div>
                     <div class="info-row"><span>Tên Inverter</span> <b id="inv-name">--</b></div>
                     <div class="info-row"><span>Tự tiêu thụ</span> <b id="inv-self-use">--</b></div>
                     <div class="info-row"><span>Tự cung tự cấp</span> <b id="inv-self-suff">--</b></div>
                     <div class="info-row"><span>Chế độ đang chạy</span> <b id="inv-mode">--</b></div>
                     <div class="info-row"><span>Nhiệt độ Inverter</span> <b id="inv-temp">--</b></div>
-                    <div class="info-row"><span>Chế độ hoạt động</span> <b id="inv-op-mode">Chế độ tự tiêu thụ</b></div>
-                    <div class="info-row"><span>Phiên bản DSP</span> <b id="cnt-version">--</b></div>
-                    <div class="info-row"><span>Phiên bản điều khiển</span> <b id="csb-version">--</b></div>
-                    <div class="info-row"><span>Phiên bản Wifi</span> <b id="wifi-version">--</b></div>
+                    <div class="info-row"><span>Chế độ hoạt động</span> <b>Chế độ tự tiêu thụ</b></div>
+                    <div class="info-row"><span>Phiên bản phần mềm bộ quản lý tín hiệu số</span> <b id="cnt-version">--</b></div>
+                    <div class="info-row"><span>Phiên bản Slave DSP</span> <b id="csb-version">--</b></div>
+                    <div class="info-row"><span>Phiên bản mạch điều khiển</span> <b id="cnt-version-2">--</b></div>
+                    <div class="info-row"><span>Phiên bản module Wifi</span> <b id="wifi-version">--</b></div>
                 </div>
             </div>
         </div>
 
-        <!-- 2. Điện mặt trời (PV) -->
+        <!-- 2. Điện mặt trời (Quang điện) -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span><span class="accordion-icon">☀️</span> ĐIỆN MẶT TRỜI (QUANG ĐIỆN)</span>
-                <span class="arrow">▼</span>
+                <span>⚡ Điện mặt trời (Quang điện)</span>
+                <span class="arrow">▶</span>
             </div>
             <div class="accordion-content">
-                <div class="info-grid">
+                <div class="accordion-inner">
                     <div class="info-row"><span>Tổng công suất DC</span> <b id="pv-total-dc">--</b></div>
                     <div id="pv-dynamic-strings"></div>
-                    <div class="sub-group-title">--- SẢN LƯỢNG ---</div>
-                    <div class="info-row"><span>Sản lượng hôm nay (ETDay)</span> <b id="pv-et-day">--</b></div>
+                    <div class="info-row" style="margin-top: 8px;"><span>Sản lượng trong ngày (ETDay)</span> <b id="pv-et-day">--</b></div>
                     <div class="info-row"><span>Tổng sản lượng (ETTotal)</span> <b id="pv-et-total">--</b></div>
                 </div>
             </div>
@@ -61,357 +247,244 @@
         <!-- 3. Pin lưu trữ -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span><span class="accordion-icon">🔋</span> PIN LƯU TRỮ</span>
-                <span class="arrow">▼</span>
+                <span>🔋 Pin lưu trữ</span>
+                <span class="arrow">▶</span>
             </div>
             <div class="accordion-content">
-                <div class="info-grid" id="battery-dynamic-packs"></div>
+                <div class="accordion-inner" id="battery-dynamic-packs"></div>
             </div>
         </div>
 
-        <!-- 4. Lưới điện -->
+        <!-- 4. BMS -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span><span class="accordion-icon">⚡</span> LƯỚI ĐIỆN</span>
-                <span class="arrow">▼</span>
+                <span>🎛️ BMS</span>
+                <span class="arrow">▶</span>
             </div>
             <div class="accordion-content">
-                <div class="info-grid" id="grid-dynamic-container"></div>
+                <div class="accordion-inner">
+                    <div class="info-row"><span>Trạng thái BMS (BMS_Status)</span> <b id="bms-status">--</b></div>
+                    <div class="info-row"><span>Phiên bản BMS</span> <b id="bms-ver">--</b></div>
+                    <div class="info-row"><span>Giới hạn điện áp sạc</span> <b id="bms-vol-chg">--</b></div>
+                    <div class="info-row"><span>Giới hạn điện áp xả</span> <b id="bms-vol-dis">--</b></div>
+                    <div class="info-row"><span>Giới hạn dòng sạc</span> <b id="bms-cur-chg">--</b></div>
+                    <div class="info-row"><span>Giới hạn dòng xả</span> <b id="bms-cur-dis">--</b></div>
+                </div>
             </div>
         </div>
 
-        <!-- 5. Tải trên lưới (với CT) -->
+        <!-- 5. Lưới điện -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span><span class="accordion-icon">🏠</span> TẢI TRÊN LƯỚI (VỚI CT)</span>
-                <span class="arrow">▼</span>
+                <span>🌐 Lưới điện</span>
+                <span class="arrow">▶</span>
             </div>
             <div class="accordion-content">
-                <div class="info-grid" id="load-dynamic-container"></div>
+                <div class="accordion-inner" id="grid-dynamic-container"></div>
             </div>
         </div>
 
-        <!-- 6. Tải dự phòng (EPS) -->
+        <!-- 6. Tải trên lưới (với CT) -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span><span class="accordion-icon">💡</span> TẢI DỰ PHÒNG (EPS)</span>
-                <span class="arrow">▼</span>
+                <span>🏠 Tải trên lưới (với CT)</span>
+                <span class="arrow">▶</span>
             </div>
             <div class="accordion-content">
-                <div class="info-grid" id="eps-dynamic-container"></div>
+                <div class="accordion-inner" id="load-dynamic-container"></div>
+            </div>
+        </div>
+
+        <!-- 7. Tải dự phòng (EPS) -->
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>💡 Tải dự phòng</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-inner" id="eps-dynamic-container"></div>
             </div>
         </div>
 
     </div>
-</div>
 
-<style>
-    .overview-container {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        background-color: #f4f6f9;
-        padding: 10px;
-        color: #333;
-        box-sizing: border-box;
-        transition: background-color 0.3s ease, color 0.3s ease;
-    }
-    .device-header {
-        background: #fff;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 12px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        border: 1px solid #e2e8f0;
-        transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-    }
-    .device-title {
-        font-size: 17px;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 5px;
-    }
-    .status-dot {
-        width: 8px;
-        height: 8px;
-        background-color: #28a745;
-        border-radius: 50%;
-        display: inline-block;
-    }
-    .device-sub {
-        font-size: 14px;
-        color: #666;
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 5px;
-        transition: color 0.3s ease;
-    }
-    .device-time {
-        font-size: 13px;
-        color: #888;
-        transition: color 0.3s ease;
-    }
-    .accordion-item {
-        background: #fff;
-        margin-bottom: 8px;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        border: 1px solid #e2e8f0;
-        transition: background-color 0.3s ease, border-color 0.3s ease;
-    }
-    .accordion-header {
-        padding: 14px 16px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-weight: bold;
-        font-size: 15px;
-        cursor: pointer;
-        user-select: none;
-        transition: background-color 0.3s ease, color 0.3s ease;
-    }
-    .accordion-icon {
-        font-size: 18px;
-        margin-right: 4px;
-        vertical-align: middle;
-    }
-    .accordion-header:hover {
-        background-color: #fafafa;
-    }
-    .arrow {
-        transition: transform 0.3s ease, color 0.3s ease;
-        font-size: 13px;
-        color: #888;
-    }
-    .accordion-item.active .arrow {
-        transform: rotate(180deg);
-    }
-    .accordion-content {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease, background-color 0.3s ease;
-        background: #fff;
-        padding: 0 16px;
-    }
-    .accordion-item.active .accordion-content {
-        max-height: 2500px;
-        padding: 0 16px 14px 16px;
-    }
-    .info-grid {
-        border-top: 1px solid #eee;
-        padding-top: 10px;
-        transition: border-color 0.3s ease;
-    }
-    .sub-group-title {
-        font-size: 13px;
-        font-weight: bold;
-        color: #007bff;
-        margin: 10px 0 4px 0;
-        border-bottom: 1px dashed #eee;
-        padding-bottom: 2px;
-        transition: color 0.3s ease, border-color 0.3s ease;
-    }
-    .info-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 7px 0;
-        font-size: 14px;
-    }
-    .info-row span {
-        color: #555;
-        transition: color 0.3s ease;
-    }
-    .info-row b {
-        color: #111;
-        transition: color 0.3s ease;
-    }
+    <!-- Script gọi API và xử lý dữ liệu động -->
+    <script>
+        // Hàm toggle được tối ưu hóa chạy mượt mà mọi lúc
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            const content = item.querySelector('.accordion-content');
+            
+            if (item.classList.contains('active')) {
+                // Đang mở -> Thu lại
+                content.style.maxHeight = '0px';
+                item.classList.remove('active');
+            } else {
+                // Đang đóng -> Mở ra (Lấy đúng chiều cao thực tế bao gồm cả inner padding)
+                item.classList.add('active');
+                content.style.maxHeight = content.scrollHeight + 'px';
+            }
+        }
 
-    /* --- CHẾ ĐỘ TỐI (DARK MODE) ĐỒNG BỘ THEO BODY --- */
-    body.dark-mode .overview-container {
-        background-color: #0b1120 !important;
-        color: #e2e8f0 !important;
-    }
-    body.dark-mode .device-header {
-        background: #0f172a !important;
-        border-color: #1e293b !important;
-    }
-    body.dark-mode .device-sub {
-        color: #94a3b8 !important;
-    }
-    body.dark-mode .device-time {
-        color: #64748b !important;
-    }
-    body.dark-mode .accordion-item {
-        background: #0f172a !important;
-        border-color: #1e293b !important;
-    }
-    body.dark-mode .accordion-header {
-        color: #f8fafc !important;
-    }
-    body.dark-mode .accordion-header:hover {
-        background-color: #1e293b !important;
-    }
-    body.dark-mode .arrow {
-        color: #94a3b8 !important;
-    }
-    body.dark-mode .accordion-content {
-        background: #0f172a !important;
-    }
-    body.dark-mode .info-grid {
-        border-top-color: #1e293b !important;
-    }
-    body.dark-mode .sub-group-title {
-        color: #38bdf8 !important;
-        border-bottom-color: #1e293b !important;
-    }
-    body.dark-mode .info-row span {
-        color: #94a3b8 !important;
-    }
-    body.dark-mode .info-row b {
-        color: #f8fafc !important;
-    }
-</style>
+        async function fetchInverterData() {
+            try {
+                const response = await fetch('https://api.hanginverter.com/v1/monitor', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
 
-<script>
-    function toggleAccordion(header) {
-        const item = header.parentElement;
-        item.classList.toggle('active');
-    }
+                if (!response.ok) {
+                    throw new Error('Lỗi khi gọi API: ' + response.statusText);
+                }
 
-    function renderOverview(data) {
-        if (!data) return;
+                const result = await response.json();
+                const data = result.data || result; 
+                renderData(data);
+            } catch (error) {
+                console.error('Không thể lấy dữ liệu từ API, hiển thị giao diện mặc định:', error);
+                renderData({});
+            }
+        }
 
-        // Header thông tin chung
-        document.getElementById('header-sn').innerText = data.GoodsID || '--';
-        document.getElementById('info-sn').innerText = data.GoodsID || '--';
-        document.getElementById('info-wifi').innerText = data.WifiStrength || '--';
-        
-        const now = new Date();
-        document.getElementById('update-time').innerText = now.getFullYear() + '-' + 
-            String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-            String(now.getDate()).padStart(2, '0') + ' ' + 
-            String(now.getHours()).padStart(2, '0') + ':' + 
-            String(now.getMinutes()).padStart(2, '0') + ':' + 
-            String(now.getSeconds()).padStart(2, '0');
+        function triggerRefresh() {
+            const btnSvg = document.querySelector('#refresh-btn svg');
+            btnSvg.style.transition = 'transform 0.6s ease';
+            btnSvg.style.transform = 'rotate(360deg)';
+            setTimeout(() => {
+                btnSvg.style.transform = 'rotate(0deg)';
+            }, 600);
+            
+            fetchInverterData();
+        }
 
-        // 1. Inverter
-        document.getElementById('inv-sn').innerText = data.GoodsID || '--';
-        document.getElementById('inv-name').innerText = data.modelName || '--';
-        document.getElementById('inv-self-use').innerText = (data.Dailyself_userate || '0') + ' %';
-        document.getElementById('inv-self-suff').innerText = (data.Dailyself_sufficiencyrate || '0') + ' %';
-        document.getElementById('inv-mode').innerText = data.Operatingstatus == "0" ? "Hòa lưới" : "Khác";
-        document.getElementById('inv-temp').innerText = (data.Tntc || '0') + ' °C';
-        document.getElementById('cnt-version').innerText = data.CntVersion2 || '--';
-        document.getElementById('csb-version').innerText = data.CSBVersion || '--';
-        document.getElementById('wifi-version').innerText = data.ESP32Version ? data.ESP32Version.Version : '--';
+        function renderData(data) {
+            data = data || {};
 
-        // 2. Điện mặt trời (PV) - Tự động quét mọi cấu trúc mảng PV trả về
-        document.getElementById('pv-total-dc').innerText = (data.TotalDCpower || 0) + ' W';
-        
-        const pvSource = data.data || data;
-        const vdcArr = Array.isArray(pvSource.Vdc) ? pvSource.Vdc : [];
-        const idcArr = Array.isArray(pvSource.Idc) ? pvSource.Idc : [];
-        const pdcArr = Array.isArray(pvSource.Pdc) ? pvSource.Pdc : [];
-        const maxPvLength = Math.max(vdcArr.length, idcArr.length, pdcArr.length);
+            document.getElementById('header-sn').innerText = data.GoodsID || '--';
+            document.getElementById('info-sn').innerText = data.GoodsID || '--';
+            document.getElementById('info-wifi').innerText = '📶 ' + (data.WifiStrength !== undefined ? data.WifiStrength + '%' : '--');
+            
+            const now = new Date();
+            document.getElementById('update-time').innerText = now.getFullYear() + '-' + 
+                String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                String(now.getDate()).padStart(2, '0') + ' ' + 
+                String(now.getHours()).padStart(2, '0') + ':' + 
+                String(now.getMinutes()).padStart(2, '0') + ':' + 
+                String(now.getSeconds()).padStart(2, '0');
 
-        let pvHtml = '';
-        if (maxPvLength > 0) {
+            // 1. Inverter
+            document.getElementById('inv-sn').innerText = data.GoodsID || '--';
+            document.getElementById('inv-name').innerText = data.modelName || '--';
+            document.getElementById('inv-self-use').innerText = data.Dailyself_userate !== undefined ? data.Dailyself_userate + ' %' : '--';
+            document.getElementById('inv-self-suff').innerText = data.Dailyself_sufficiencyrate !== undefined ? data.Dailyself_sufficiencyrate + ' %' : '--';
+            document.getElementById('inv-mode').innerText = data.Operatingstatus !== undefined ? (data.Operatingstatus == "0" ? "Hòa lưới" : "Khác") : '--';
+            document.getElementById('inv-temp').innerText = data.Tntc !== undefined ? data.Tntc + ' °C' : '--';
+            document.getElementById('cnt-version').innerText = data.CntVersion2 || '--';
+            document.getElementById('csb-version').innerText = data.CSBVersion || '--';
+            document.getElementById('cnt-version-2').innerText = data.CntVersion2 || '--';
+            document.getElementById('wifi-version').innerText = data.ESP32Version ? data.ESP32Version.Version : '--';
+
+            // 2. Điện mặt trời (PV)
+            document.getElementById('pv-total-dc').innerText = data.TotalDCpower !== undefined ? data.TotalDCpower + ' W' : '--';
+            const pvData = data.data || {};
+            const vdcArr = Array.isArray(pvData.Vdc) && pvData.Vdc.length > 0 ? pvData.Vdc : ['--'];
+            const idcArr = Array.isArray(pvData.Idc) && pvData.Idc.length > 0 ? pvData.Idc : ['--'];
+            const pdcArr = Array.isArray(pvData.Pdc) && pvData.Pdc.length > 0 ? pvData.Pdc : ['--'];
+            const maxPvLength = Math.max(vdcArr.length, idcArr.length, pdcArr.length);
+
+            let pvHtml = '';
             for (let i = 0; i < maxPvLength; i++) {
                 pvHtml += `
                     <div class="sub-group-title">--- STRING ${i + 1} ---</div>
-                    <div class="info-row"><span>Điện áp PV${i + 1} (Vdc)</span> <b>${vdcArr[i] !== undefined ? vdcArr[i] + ' V' : '--'}</b></div>
-                    <div class="info-row"><span>Dòng điện PV${i + 1} (Idc)</span> <b>${idcArr[i] !== undefined ? idcArr[i] + ' A' : '--'}</b></div>
-                    <div class="info-row"><span>Công suất PV${i + 1} (Pdc)</span> <b>${pdcArr[i] !== undefined ? pdcArr[i] + ' W' : '--'}</b></div>
+                    <div class="info-row"><span>Điện áp PV${i + 1} (Vdc)</span> <b>${vdcArr[i] !== undefined && vdcArr[i] !== null ? vdcArr[i] + (vdcArr[i] !== '--' ? ' V' : '') : '--'}</b></div>
+                    <div class="info-row"><span>Dòng điện PV${i + 1} (Idc)</span> <b>${idcArr[i] !== undefined && idcArr[i] !== null ? idcArr[i] + (idcArr[i] !== '--' ? ' A' : '') : '--'}</b></div>
+                    <div class="info-row"><span>Công suất PV${i + 1} (Pdc)</span> <b>${pdcArr[i] !== undefined && pdcArr[i] !== null ? pdcArr[i] + (pdcArr[i] !== '--' ? ' kW' : '') : '--'}</b></div>
                 `;
             }
-        } else {
-            pvHtml = `<div class="info-row"><span>Không có dữ liệu String PV</span> <b>--</b></div>`;
-        }
-        document.getElementById('pv-dynamic-strings').innerHTML = pvHtml;
+            document.getElementById('pv-dynamic-strings').innerHTML = pvHtml;
+            document.getElementById('pv-et-day').innerText = (data.ETDay || '--') + (data.ETDay ? ' kWh' : '');
+            document.getElementById('pv-et-total').innerText = (data.ETTotal || '--') + (data.ETTotal ? ' kWh' : '');
 
-        document.getElementById('pv-et-day').innerText = (data.ETDay || '0') + ' kWh';
-        document.getElementById('pv-et-total').innerText = (data.ETTotal || '0') + ' kWh';
-
-        // 3. Pin lưu trữ (Hỗ trợ cả mảng batteries hoặc dữ liệu rời brand/brand2)
-        let batHtml = '';
-        if (data.batteries && Array.isArray(data.batteries)) {
-            data.batteries.forEach((bat, idx) => {
-                batHtml += `
-                    <div class="sub-group-title">--- PACK PIN ${idx + 1} ---</div>
-                    <div class="info-row"><span>Thương hiệu</span> <b>${bat.brand || '--'}</b></div>
-                    <div class="info-row"><span>Dung lượng (SOC)</span> <b>${bat.SOC !== undefined ? bat.SOC + ' %' : '--'}</b></div>
-                    <div class="info-row"><span>SOH</span> <b>${bat.SOH !== undefined ? bat.SOH + ' %' : '--'}</b></div>
-                    <div class="info-row"><span>Điện áp (Volt)</span> <b>${bat.volt !== undefined ? bat.volt + ' V' : '--'}</b></div>
-                    <div class="info-row"><span>Dòng điện (Cur)</span> <b>${bat.cur !== undefined ? bat.cur + ' A' : '--'}</b></div>
-                    <div class="info-row"><span>Nhiệt độ BMS</span> <b>${bat.BMS_temp !== undefined ? bat.BMS_temp + ' °C' : '--'}</b></div>
-                `;
-            });
-        } else {
-            batHtml += `
+            // 3. Pin lưu trữ
+            let batHtml = `
                 <div class="sub-group-title">--- PACK PIN 1 ---</div>
                 <div class="info-row"><span>Thương hiệu</span> <b>${data.brand || '--'}</b></div>
-                <div class="info-row"><span>Dung lượng (SOC)</span> <b>${data.SOC !== undefined ? data.SOC + ' %' : '--'}</b></div>
-                <div class="info-row"><span>SOH</span> <b>${data.SOH !== undefined ? data.SOH + ' %' : '--'}</b></div>
-                <div class="info-row"><span>Điện áp (Volt)</span> <b>${data.volt !== undefined ? data.volt + ' V' : '--'}</b></div>
-                <div class="info-row"><span>Dòng điện (Cur)</span> <b>${data.cur !== undefined ? data.cur + ' A' : '--'}</b></div>
-                <div class="info-row"><span>Nhiệt độ BMS</span> <b>${data.BMS_temp !== undefined ? data.BMS_temp + ' °C' : '--'}</b></div>
+                <div class="info-row"><span>Dung lượng (SOC)</span> <b>${data.SOC !== undefined && data.SOC !== '' ? data.SOC + ' %' : '--'}</b></div>
+                <div class="info-row"><span>SOH</span> <b>${data.SOH !== undefined && data.SOH !== '' ? data.SOH + ' %' : '--'}</b></div>
+                <div class="info-row"><span>Điện áp (Volt)</span> <b>${data.volt !== undefined && data.volt !== '' ? data.volt + ' V' : '--'}</b></div>
+                <div class="info-row"><span>Dòng điện (Cur)</span> <b>${data.cur !== undefined && data.cur !== '' ? data.cur + ' A' : '--'}</b></div>
+                <div class="info-row"><span>Nhiệt độ BMS</span> <b>${data.BMS_temp !== undefined && data.BMS_temp !== '' ? data.BMS_temp + ' °C' : '--'}</b></div>
+                <div class="info-row"><span>Công suất sạc/xả</span> <b>${data.toPbat > 0 ? '-' + data.toPbat + ' W (Sạc)' : (data.fromPbat > 0 ? '+' + data.fromPbat + ' W (Xả)' : '--')}</b></div>
             `;
-            
-            if (data.brand2 || (data.SOC2 !== "" && data.SOC2 !== undefined)) {
+            if (data.brand2 && data.brand2 !== "") {
                 batHtml += `
                     <div class="sub-group-title">--- PACK PIN 2 ---</div>
-                    <div class="info-row"><span>Thương hiệu 2</span> <b>${data.brand2 || 'Trống'}</b></div>
+                    <div class="info-row"><span>Thương hiệu 2</span> <b>${data.brand2}</b></div>
                     <div class="info-row"><span>Dung lượng (SOC 2)</span> <b>${data.SOC2 !== undefined ? data.SOC2 + ' %' : '--'}</b></div>
                     <div class="info-row"><span>SOH 2</span> <b>${data.SOH2 !== undefined ? data.SOH2 + ' %' : '--'}</b></div>
-                    <div class="info-row"><span>Điện áp 2 (Volt)</span> <b>${data.volt2 !== undefined ? data.volt2 + ' V' : '--'}</b></div>
-                    <div class="info-row"><span>Dòng điện 2 (Cur)</span> <b>${data.cur2 !== undefined ? data.cur2 + ' A' : '--'}</b></div>
-                    <div class="info-row"><span>Nhiệt độ BMS 2</span> <b>${data.BMS_temp2 !== undefined ? data.BMS_temp2 + ' °C' : '--'}</b></div>
                 `;
             }
-        }
-        document.getElementById('battery-dynamic-packs').innerHTML = batHtml;
+            document.getElementById('battery-dynamic-packs').innerHTML = batHtml;
 
-        // 4, 5, 6. Hàm render Lưới, Tải, EPS đa pha
-        function renderMultiPhase(containerId, label, vacArr, iacArr, facVal, pacArr, extraRowsHtml = '') {
-            let html = '';
-            const len = Math.max(
-                Array.isArray(vacArr) ? vacArr.length : 0, 
-                Array.isArray(iacArr) ? iacArr.length : 0, 
-                Array.isArray(pacArr) ? pacArr.length : 0
-            );
+            // 4. BMS
+            document.getElementById('bms-status').innerText = data.BMS_Status || '--';
+            document.getElementById('bms-ver').innerText = data.BMS_version || '--';
+            document.getElementById('bms-vol-chg').innerText = data.bmsChargeVolLimit ? data.bmsChargeVolLimit + ' V' : '--';
+            document.getElementById('bms-vol-dis').innerText = data.bmsDischargeVolLimit ? data.bmsDischargeVolLimit + ' V' : '--';
+            document.getElementById('bms-cur-chg').innerText = data.bmsChargeCurLimit ? data.bmsChargeCurLimit + ' A' : '--';
+            document.getElementById('bms-cur-dis').innerText = data.bmsDishargeCurLimit ? data.bmsDishargeCurLimit + ' A' : '--';
 
-            if (len > 1) {
+            function renderMultiPhase(containerId, label, vacArr, iacArr, facVal, pacArr, extraRowsHtml = '') {
+                let html = '';
+                const cleanVac = Array.isArray(vacArr) && vacArr.length > 0 ? vacArr : ['--'];
+                const cleanIac = Array.isArray(iacArr) && iacArr.length > 0 ? iacArr : ['--'];
+                const cleanPac = Array.isArray(pacArr) && pacArr.length > 0 ? pacArr : ['--'];
+                
+                const len = Math.max(cleanVac.length, cleanIac.length, cleanPac.length);
+
                 for (let i = 0; i < len; i++) {
+                    if (len > 1) {
+                        html += `<div class="sub-group-title">--- PHA ${i + 1} ---</div>`;
+                    }
                     html += `
-                        <div class="sub-group-title">--- PHA ${i + 1} ---</div>
-                        <div class="info-row"><span>Điện áp ${label} (Vac)</span> <b>${vacArr && vacArr[i] !== undefined ? vacArr[i] + ' V' : '--'}</b></div>
-                        <div class="info-row"><span>Dòng điện ${label} (Iac)</span> <b>${iacArr && iacArr[i] !== undefined ? iacArr[i] + ' A' : '--'}</b></div>
-                        <div class="info-row"><span>Công suất ${label} (Currpac)</span> <b>${pacArr && pacArr[i] !== undefined ? pacArr[i] + ' W' : '--'}</b></div>
+                        <div class="info-row"><span>Điện áp ${label} (Vac)</span> <b>${cleanVac[i] !== undefined && cleanVac[i] !== null ? cleanVac[i] + (cleanVac[i] !== '--' ? ' V' : '') : '--'}</b></div>
+                        <div class="info-row"><span>Dòng điện ${label} (Iac)</span> <b>${cleanIac[i] !== undefined && cleanIac[i] !== null ? cleanIac[i] + (cleanIac[i] !== '--' ? ' A' : '') : '--'}</b></div>
+                        <div class="info-row"><span>Tần số ${label} (Fac)</span> <b>${facVal || '--'} ${facVal ? 'Hz' : ''}</b></div>
+                        <div class="info-row"><span>Công suất ${label}</span> <b>${cleanPac[i] !== undefined && cleanPac[i] !== null ? cleanPac[i] + (cleanPac[i] !== '--' ? ' W' : '') : '--'}</b></div>
                     `;
                 }
-                if (facVal) {
-                    html += `<div class="info-row"><span>Tần số ${label} (Fac)</span> <b>${facVal} Hz</b></div>`;
-                }
-            } else {
-                html += `
-                    <div class="info-row"><span>Điện áp ${label} (Vac)</span> <b>${vacArr && vacArr[0] !== undefined ? vacArr[0] + ' V' : '--'}</b></div>
-                    <div class="info-row"><span>Dòng điện ${label} (Iac)</span> <b>${iacArr && iacArr[0] !== undefined ? iacArr[0] + ' A' : '--'}</b></div>
-                    ${facVal ? `<div class="info-row"><span>Tần số ${label} (Fac)</span> <b>${facVal} Hz</b></div>` : ''}
-                    <div class="info-row"><span>Công suất ${label} (Currpac)</span> <b>${pacArr && pacArr[0] !== undefined ? pacArr[0] + ' W' : '--'}</b></div>
-                `;
+                html += extraRowsHtml;
+                document.getElementById(containerId).innerHTML = html;
             }
-            html += extraRowsHtml;
-            document.getElementById(containerId).innerHTML = html;
+
+            // 5. Lưới điện
+            renderMultiPhase('grid-dynamic-container', 'lưới', data.gridVac, data.gridIac, data.gridFac, data.gridCurrpac,
+                `<div class="info-row" style="margin-top:6px;"><span>Sản lượng hòa lưới ngày</span> <b>${data.ETDay || '--'} ${data.ETDay ? 'kWh' : ''}</b></div>`
+            );
+
+            // 6. Tải trên lưới (với CT)
+            renderMultiPhase('load-dynamic-container', 'tải', data.loadVac, data.loadIac, data.loadFac, data.loadCurrpac, 
+                `<div class="info-row" style="margin-top:6px;"><span>Sản lượng tiêu thụ ngày (ELDay)</span> <b>${data.ELDay || '--'} ${data.ELDay ? 'kWh' : ''}</b></div>
+                 <div class="info-row"><span>Tổng sản lượng tiêu thụ (ELTotal)</span> <b>${data.ELTotal || '--'} ${data.ELTotal ? 'kWh' : ''}</b></div>`
+            );
+
+            // 7. Tải dự phòng (EPS)
+            renderMultiPhase('eps-dynamic-container', 'EPS', data.epsVac, data.epsIac, data.epsFac, data.epsCurrpac, 
+                `<div class="info-row" style="margin-top:6px;"><span>Sản lượng EPS ngày (EPSDay)</span> <b>${data.EPSDay || '--'} ${data.EPSDay ? 'kWh' : ''}</b></div>
+                 <div class="info-row"><span>Tổng sản lượng EPS (EPSTotal)</span> <b>${data.EPSTotal || '--'} ${data.EPSTotal ? 'kWh' : ''}</b></div>`
+            );
+
+            // Nếu thẻ nào đang mở sẵn mà vừa nhận dữ liệu mới từ API xong, cập nhật lại max-height cho chuẩn
+            document.querySelectorAll('.accordion-item.active .accordion-content').forEach(content => {
+                content.style.maxHeight = content.scrollHeight + 'px';
+            });
         }
 
-        renderMultiPhase('grid-dynamic-container', 'lưới', data.gridVac, data.gridIac, data.gridFac, data.gridCurrpac);
-        renderMultiPhase('load-dynamic-container', 'tải', data.loadVac, data.loadIac, null, data.loadCurrpac, 
-            `<div class="info-row"><span>Sản lượng tiêu thụ ngày (ELDay)</span> <b>${data.ELDay || '0'} kWh</b></div>`
-        );
-        renderMultiPhase('eps-dynamic-container', 'EPS', data.epsVac, data.epsIac, data.epsFac, data.epsCurrpac, 
-            `<div class="info-row"><span>Sản lượng EPS ngày (EPSDay)</span> <b>${data.EPSDay || '0'} kWh</b></div>
-             <div class="info-row"><span>Tổng sản lượng EPS (EPSTotal)</span> <b>${data.EPSTotal || '0'} kWh</b></div>`
-        );
-    }
-</script>
+        window.onload = function() {
+            fetchInverterData();
+        };
+    </script>
+</body>
+</html>
