@@ -441,7 +441,11 @@
             document.getElementById('wifi-version').innerText = data.ESP32Version ? data.ESP32Version.Version : '--';
 
             // 2. Điện mặt trời (PV)
-            document.getElementById('pv-total-dc').innerText = data.TotalDCpower !== undefined ? data.TotalDCpower + ' W' : '--';
+            // Tổng công suất DC (nếu API trả về kW thì nhân 1000 để ra W, ở đây giả sử API trả về kW giống Pdc)
+            document.getElementById('pv-total-dc').innerText = (data.TotalDCpower !== undefined && data.TotalDCpower !== null && data.TotalDCpower !== '--') 
+                ? (Number(data.TotalDCpower) * 1000).toFixed(1) + ' W' 
+                : '--';
+
             const pvData = data.data || {};
             const vdcArr = Array.isArray(pvData.Vdc) && pvData.Vdc.length > 0 ? pvData.Vdc : ['--'];
             const idcArr = Array.isArray(pvData.Idc) && pvData.Idc.length > 0 ? pvData.Idc : ['--'];
@@ -450,11 +454,18 @@
 
             let pvHtml = '';
             for (let i = 0; i < maxPvLength; i++) {
+                // Xử lý chuyển đổi kW -> W an toàn cho từng string Pdc
+                let rawPdc = pdcArr[i];
+                let formattedPdc = '--';
+                if (rawPdc !== undefined && rawPdc !== null && rawPdc !== '--') {
+                    formattedPdc = (Number(rawPdc) * 1000).toFixed(1) + ' W';
+                }
+
                 pvHtml += `
                     <div class="sub-group-title">--- STRING ${i + 1} ---</div>
                     <div class="info-row"><span>Điện áp PV${i + 1} (Vdc)</span> <b>${vdcArr[i] !== undefined && vdcArr[i] !== null ? vdcArr[i] + (vdcArr[i] !== '--' ? ' V' : '') : '--'}</b></div>
                     <div class="info-row"><span>Dòng điện PV${i + 1} (Idc)</span> <b>${idcArr[i] !== undefined && idcArr[i] !== null ? idcArr[i] + (idcArr[i] !== '--' ? ' A' : '') : '--'}</b></div>
-                    <div class="info-row"><span>Công suất PV${i + 1} (Pdc)</span> <b>${pdcArr[i] !== undefined && pdcArr[i] !== null ? pdcArr[i] + (pdcArr[i]*1000 !== '--' ? ' W' : '') : '--'}</b></div>
+                    <div class="info-row"><span>Công suất PV${i + 1} (Pdc)</span> <b>${formattedPdc}</b></div>
                 `;
             }
             document.getElementById('pv-dynamic-strings').innerHTML = pvHtml;
