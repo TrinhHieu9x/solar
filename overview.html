@@ -454,7 +454,7 @@
                     <div class="sub-group-title">--- STRING ${i + 1} ---</div>
                     <div class="info-row"><span>Điện áp PV${i + 1} (Vdc)</span> <b>${vdcArr[i] !== undefined && vdcArr[i] !== null ? vdcArr[i] + (vdcArr[i] !== '--' ? ' V' : '') : '--'}</b></div>
                     <div class="info-row"><span>Dòng điện PV${i + 1} (Idc)</span> <b>${idcArr[i] !== undefined && idcArr[i] !== null ? idcArr[i] + (idcArr[i] !== '--' ? ' A' : '') : '--'}</b></div>
-                    <div class="info-row"><span>Công suất PV${i + 1} (Pdc)</span> <b>${pdcArr[i] !== undefined && pdcArr[i] !== null ? pdcArr[i] + (pdcArr[i] !== '--' ? ' kW' : '') : '--'}</b></div>
+                    <div class="info-row"><span>Công suất PV${i + 1} (Pdc)</span> <b>${pdcArr[i] !== undefined && pdcArr[i] !== null ? pdcArr[i] + (pdcArr[i]*1000 !== '--' ? ' W' : '') : '--'}</b></div>
                 `;
             }
             document.getElementById('pv-dynamic-strings').innerHTML = pvHtml;
