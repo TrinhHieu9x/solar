@@ -476,12 +476,13 @@
             let batHtml = `
                 <div class="sub-group-title">--- PACK PIN 1 ---</div>
                 <div class="info-row"><span>Thương hiệu</span> <b>${data.brand || '--'}</b></div>
-                <div class="info-row"><span>Dung lượng (SOC)</span> <b>${data.SOC !== undefined && data.SOC !== '' ? data.SOC + ' %' : '--'}</b></div>
-                <div class="info-row"><span>SOH</span> <b>${data.SOH !== undefined && data.SOH !== '' ? data.SOH + ' %' : '--'}</b></div>
                 <div class="info-row"><span>Điện áp (Volt)</span> <b>${data.volt !== undefined && data.volt !== '' ? data.volt + ' V' : '--'}</b></div>
                 <div class="info-row"><span>Dòng điện (Cur)</span> <b>${data.cur !== undefined && data.cur !== '' ? data.cur + ' A' : '--'}</b></div>
-                <div class="info-row"><span>Nhiệt độ BMS</span> <b>${data.BMS_temp !== undefined && data.BMS_temp !== '' ? data.BMS_temp + ' °C' : '--'}</b></div>
                 <div class="info-row"><span>Công suất sạc/xả</span> <b>${data.toPbat > 0 ? '-' + data.toPbat + ' W (Sạc)' : (data.fromPbat > 0 ? '+' + data.fromPbat + ' W (Xả)' : '--')}</b></div>
+                <div class="info-row"><span>Dung lượng (SOC)</span> <b>${data.SOC !== undefined && data.SOC !== '' ? data.SOC + ' %' : '--'}</b></div>
+                <div class="info-row"><span>SOH</span> <b>${data.SOH !== undefined && data.SOH !== '' ? data.SOH + ' %' : '--'}</b></div>
+                <div class="info-row"><span>Nhiệt độ BMS</span> <b>${data.BMS_temp !== undefined && data.BMS_temp !== '' ? data.BMS_temp + ' °C' : '--'}</b></div>
+                <div class="info-row"><span>Dung lượng Pin lưu trữ</span> <b>${data.capacity !== undefined && data.capacity !== '' ? data.capacity + ' Ah' : '--'}</b></div>
             `;
             if (data.brand2 && data.brand2 !== "") {
                 batHtml += `
