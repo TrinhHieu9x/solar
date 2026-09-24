@@ -469,8 +469,8 @@
                 `;
             }
             document.getElementById('pv-dynamic-strings').innerHTML = pvHtml;
-            document.getElementById('pv-et-day').innerText = (data.ETDay || '--') + (data.ETDay ? ' kWh' : '');
-            document.getElementById('pv-et-total').innerText = (data.ETTotal || '--') + (data.ETTotal ? ' kWh' : '');
+            document.getElementById('pv-et-day').innerText = (data.EToDay || '--') + (data.EToDay ? ' kWh' : '');
+            document.getElementById('pv-et-total').innerText = (data.ETotal || '--') + (data.ETotal ? ' kWh' : '');
 
             // 3. Pin lưu trữ
             let batHtml = `
