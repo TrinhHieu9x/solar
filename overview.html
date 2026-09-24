@@ -472,9 +472,9 @@
 
                 pvHtml += `
                     <div class="sub-group-title">--- STRING ${i + 1} ---</div>
-                    <div class="info-row"><span>Điện áp PV${i + 1} (Vdc)</span> <b>${vdcArr[i] !== undefined && vdcArr[i] !== null ? vdcArr[i] + (vdcArr[i] !== '--' ? ' V' : '') : '--'}</b></div>
-                    <div class="info-row"><span>Dòng điện PV${i + 1} (Idc)</span> <b>${idcArr[i] !== undefined && idcArr[i] !== null ? idcArr[i] + (idcArr[i] !== '--' ? ' A' : '') : '--'}</b></div>
-                    <div class="info-row"><span>Công suất PV${i + 1} (Pdc)</span> <b>${formattedPdc}</b></div>
+                    <div class="info-row"><span>Điện áp PV${i + 1} </span> <b>${vdcArr[i] !== undefined && vdcArr[i] !== null ? vdcArr[i] + (vdcArr[i] !== '--' ? ' V' : '') : '--'}</b></div>
+                    <div class="info-row"><span>Dòng điện PV${i + 1} </span> <b>${idcArr[i] !== undefined && idcArr[i] !== null ? idcArr[i] + (idcArr[i] !== '--' ? ' A' : '') : '--'}</b></div>
+                    <div class="info-row"><span>Công suất PV${i + 1} </span> <b>${formattedPdc}</b></div>
                 `;
             }
             document.getElementById('pv-dynamic-strings').innerHTML = pvHtml;
