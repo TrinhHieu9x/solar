@@ -37,7 +37,7 @@
             </div>
         </div>
 
-        <!-- 2. Điện mặt trời (Quang điện - 2 String) -->
+        <!-- 2. Điện mặt trời (Quang điện - Động theo số lượng String) -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
                 <span><span class="accordion-icon">☀️</span> ĐIỆN MẶT TRỜI (QUANG ĐIỆN)</span>
@@ -46,16 +46,9 @@
             <div class="accordion-content">
                 <div class="info-grid">
                     <div class="info-row"><span>Tổng công suất DC</span> <b id="pv-total-dc">--</b></div>
-                    <!-- String 1 -->
-                    <div class="sub-group-title">--- STRING 1 ---</div>
-                    <div class="info-row"><span>Điện áp PV1 (Vdc)</span> <b id="pv-vdc-0">--</b></div>
-                    <div class="info-row"><span>Dòng điện PV1 (Idc)</span> <b id="pv-idc-0">--</b></div>
-                    <div class="info-row"><span>Công suất PV1 (Pdc)</span> <b id="pv-pdc-0">--</b></div>
-                    <!-- String 2 -->
-                    <div class="sub-group-title">--- STRING 2 ---</div>
-                    <div class="info-row"><span>Điện áp PV2 (Vdc)</span> <b id="pv-vdc-1">--</b></div>
-                    <div class="info-row"><span>Dòng điện PV2 (Idc)</span> <b id="pv-idc-1">--</b></div>
-                    <div class="info-row"><span>Công suất PV2 (Pdc)</span> <b id="pv-pdc-1">--</b></div>
+                    
+                    <!-- Khu vực chứa các chuỗi PV render động -->
+                    <div id="pv-dynamic-strings"></div>
                     
                     <div class="sub-group-title">--- SẢN LƯỢNG ---</div>
                     <div class="info-row"><span>Sản lượng hôm nay (ETDay)</span> <b id="pv-et-day">--</b></div>
@@ -64,31 +57,15 @@
             </div>
         </div>
 
-        <!-- 3. Pin lưu trữ (2 Pack) -->
+        <!-- 3. Pin lưu trữ (Động theo số lượng Pack) -->
         <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)">
                 <span><span class="accordion-icon">🔋</span> PIN LƯU TRỮ</span>
                 <span class="arrow">▼</span>
             </div>
             <div class="accordion-content">
-                <div class="info-grid">
-                    <!-- Pack 1 -->
-                    <div class="sub-group-title">--- PACK PIN 1 ---</div>
-                    <div class="info-row"><span>Thương hiệu</span> <b id="bat-brand">--</b></div>
-                    <div class="info-row"><span>Dung lượng (SOC)</span> <b id="bat-soc">--</b></div>
-                    <div class="info-row"><span>SOH</span> <b id="bat-soh">--</b></div>
-                    <div class="info-row"><span>Điện áp (Volt)</span> <b id="bat-volt">--</b></div>
-                    <div class="info-row"><span>Dòng điện (Cur)</span> <b id="bat-cur">--</b></div>
-                    <div class="info-row"><span>Nhiệt độ BMS</span> <b id="bat-temp">--</b></div>
-
-                    <!-- Pack 2 -->
-                    <div class="sub-group-title">--- PACK PIN 2 ---</div>
-                    <div class="info-row"><span>Thương hiệu 2</span> <b id="bat-brand2">--</b></div>
-                    <div class="info-row"><span>Dung lượng (SOC 2)</span> <b id="bat-soc2">--</b></div>
-                    <div class="info-row"><span>SOH 2</span> <b id="bat-soh2">--</b></div>
-                    <div class="info-row"><span>Điện áp 2 (Volt)</span> <b id="bat-volt2">--</b></div>
-                    <div class="info-row"><span>Dòng điện 2 (Cur)</span> <b id="bat-cur2">--</b></div>
-                    <div class="info-row"><span>Nhiệt độ BMS 2</span> <b id="bat-temp2">--</b></div>
+                <div class="info-grid" id="battery-dynamic-packs">
+                    <!-- Render động các pack pin từ dữ liệu trả về -->
                 </div>
             </div>
         </div>
@@ -100,7 +77,7 @@
                 <span class="arrow">▼</span>
             </div>
             <div class="accordion-content">
-                <div class="info-grid">
+                <div class="info-grid" id="grid-dynamic-container">
                     <div class="info-row"><span>Điện áp lưới (Vac)</span> <b id="grid-vac">--</b></div>
                     <div class="info-row"><span>Dòng điện lưới (Iac)</span> <b id="grid-iac">--</b></div>
                     <div class="info-row"><span>Tần số lưới (Fac)</span> <b id="grid-fac">--</b></div>
@@ -116,7 +93,7 @@
                 <span class="arrow">▼</span>
             </div>
             <div class="accordion-content">
-                <div class="info-grid">
+                <div class="info-grid" id="load-dynamic-container">
                     <div class="info-row"><span>Điện áp tải (Vac)</span> <b id="load-vac">--</b></div>
                     <div class="info-row"><span>Dòng điện tải (Iac)</span> <b id="load-iac">--</b></div>
                     <div class="info-row"><span>Công suất tải (Currpac)</span> <b id="load-pac">--</b></div>
@@ -132,7 +109,7 @@
                 <span class="arrow">▼</span>
             </div>
             <div class="accordion-content">
-                <div class="info-grid">
+                <div class="info-grid" id="eps-dynamic-container">
                     <div class="info-row"><span>Điện áp EPS (Vac)</span> <b id="eps-vac">--</b></div>
                     <div class="info-row"><span>Dòng điện EPS (Iac)</span> <b id="eps-iac">--</b></div>
                     <div class="info-row"><span>Tần số EPS (Fac)</span> <b id="eps-fac">--</b></div>
@@ -212,7 +189,6 @@
         user-select: none;
         transition: background-color 0.3s ease, color 0.3s ease;
     }
-    /* Phóng to icon tiêu đề */
     .accordion-icon {
         font-size: 18px;
         margin-right: 4px;
@@ -237,7 +213,7 @@
         padding: 0 16px;
     }
     .accordion-item.active .accordion-content {
-        max-height: 1200px;
+        max-height: 2000px; /* Tăng chiều cao tối đa để chứa nhiều dòng dữ liệu */
         padding: 0 16px 14px 16px;
     }
     .info-grid {
@@ -348,61 +324,98 @@
         document.getElementById('csb-version').innerText = data.CSBVersion || '--';
         document.getElementById('wifi-version').innerText = data.ESP32Version ? data.ESP32Version.Version : '--';
 
-        // 2. Điện mặt trời (PV - 2 String)
+        // 2. Điện mặt trời (PV - Render động theo số lượng phần tử mảng thực tế)
         document.getElementById('pv-total-dc').innerText = (data.TotalDCpower || 0) + ' W';
         
-        const vdcArr = data.data && data.data.Vdc ? data.data.Vdc : [0, 0];
-        const idcArr = data.data && data.data.Idc ? data.data.Idc : [0, 0];
-        const pdcArr = data.data && data.data.Pdc ? data.data.Pdc : [0, 0];
+        const vdcArr = data.data && Array.isArray(data.data.Vdc) ? data.data.Vdc : [];
+        const idcArr = data.data && Array.isArray(data.data.Idc) ? data.data.Idc : [];
+        const pdcArr = data.data && Array.isArray(data.data.Pdc) ? data.data.Pdc : [];
+        const maxPvLength = Math.max(vdcArr.length, idcArr.length, pdcArr.length);
 
-        // String 1
-        document.getElementById('pv-vdc-0').innerText = (vdcArr[0] !== undefined ? vdcArr[0] : '--') + ' V';
-        document.getElementById('pv-idc-0').innerText = (idcArr[0] !== undefined ? idcArr[0] : '--') + ' A';
-        document.getElementById('pv-pdc-0').innerText = (pdcArr[0] !== undefined ? pdcArr[0] : '--') + ' W';
-        
-        // String 2
-        document.getElementById('pv-vdc-1').innerText = (vdcArr[1] !== undefined ? vdcArr[1] : '--') + ' V';
-        document.getElementById('pv-idc-1').innerText = (idcArr[1] !== undefined ? idcArr[1] : '--') + ' A';
-        document.getElementById('pv-pdc-1').innerText = (pdcArr[1] !== undefined ? pdcArr[1] : '--') + ' W';
+        let pvHtml = '';
+        for (let i = 0; i < maxPvLength; i++) {
+            pvHtml += `
+                <div class="sub-group-title">--- STRING ${i + 1} ---</div>
+                <div class="info-row"><span>Điện áp PV${i + 1} (Vdc)</span> <b>${vdcArr[i] !== undefined ? vdcArr[i] + ' V' : '--'}</b></div>
+                <div class="info-row"><span>Dòng điện PV${i + 1} (Idc)</span> <b>${idcArr[i] !== undefined ? idcArr[i] + ' A' : '--'}</b></div>
+                <div class="info-row"><span>Công suất PV${i + 1} (Pdc)</span> <b>${pdcArr[i] !== undefined ? pdcArr[i] + ' W' : '--'}</b></div>
+            `;
+        }
+        document.getElementById('pv-dynamic-strings').innerHTML = pvHtml;
 
         document.getElementById('pv-et-day').innerText = (data.ETDay || '0') + ' kWh';
         document.getElementById('pv-et-total').innerText = (data.ETTotal || '0') + ' kWh';
 
-        // 3. Pin lưu trữ (2 Pack)
-        // Pack 1
-        document.getElementById('bat-brand').innerText = data.brand || '--';
-        document.getElementById('bat-soc').innerText = (data.SOC || '0') + ' %';
-        document.getElementById('bat-soh').innerText = (data.SOH || '0') + ' %';
-        document.getElementById('bat-volt').innerText = (data.volt || '0') + ' V';
-        document.getElementById('bat-cur').innerText = (data.cur || '0') + ' A';
-        document.getElementById('bat-temp').innerText = (data.BMS_temp || '--') + ' °C';
+        // 3. Pin lưu trữ (Hỗ trợ hiển thị đầy đủ cả Pack 1, Pack 2 hoặc nhiều hơn nếu có)
+        let batHtml = `
+            <div class="sub-group-title">--- PACK PIN 1 ---</div>
+            <div class="info-row"><span>Thương hiệu</span> <b>${data.brand || '--'}</b></div>
+            <div class="info-row"><span>Dung lượng (SOC)</span> <b>${data.SOC !== undefined ? data.SOC + ' %' : '--'}</b></div>
+            <div class="info-row"><span>SOH</span> <b>${data.SOH !== undefined ? data.SOH + ' %' : '--'}</b></div>
+            <div class="info-row"><span>Điện áp (Volt)</span> <b>${data.volt !== undefined ? data.volt + ' V' : '--'}</b></div>
+            <div class="info-row"><span>Dòng điện (Cur)</span> <b>${data.cur !== undefined ? data.cur + ' A' : '--'}</b></div>
+            <div class="info-row"><span>Nhiệt độ BMS</span> <b>${data.BMS_temp !== undefined ? data.BMS_temp + ' °C' : '--'}</b></div>
+        `;
 
-        // Pack 2
-        document.getElementById('bat-brand2').innerText = data.brand2 || 'Trống';
-        document.getElementById('bat-soc2').innerText = (data.SOC2 !== "" ? data.SOC2 + ' %' : '--');
-        document.getElementById('bat-soh2').innerText = (data.SOH2 !== "" ? data.SOH2 + ' %' : '--');
-        document.getElementById('bat-volt2').innerText = (data.volt2 !== "" ? data.volt2 + ' V' : '--');
-        document.getElementById('bat-cur2').innerText = (data.cur2 !== "" ? data.cur2 + ' A' : '--');
-        document.getElementById('bat-temp2').innerText = (data.BMS_temp2 !== "" ? data.BMS_temp2 + ' °C' : '--');
+        // Nếu có dữ liệu Pack 2
+        if (data.brand2 || data.SOC2 !== "" && data.SOC2 !== undefined) {
+            batHtml += `
+                <div class="sub-group-title">--- PACK PIN 2 ---</div>
+                <div class="info-row"><span>Thương hiệu 2</span> <b>${data.brand2 || 'Trống'}</b></div>
+                <div class="info-row"><span>Dung lượng (SOC 2)</span> <b>${data.SOC2 !== undefined ? data.SOC2 + ' %' : '--'}</b></div>
+                <div class="info-row"><span>SOH 2</span> <b>${data.SOH2 !== undefined ? data.SOH2 + ' %' : '--'}</b></div>
+                <div class="info-row"><span>Điện áp 2 (Volt)</span> <b>${data.volt2 !== undefined ? data.volt2 + ' V' : '--'}</b></div>
+                <div class="info-row"><span>Dòng điện 2 (Cur)</span> <b>${data.cur2 !== undefined ? data.cur2 + ' A' : '--'}</b></div>
+                <div class="info-row"><span>Nhiệt độ BMS 2</span> <b>${data.BMS_temp2 !== undefined ? data.BMS_temp2 + ' °C' : '--'}</b></div>
+            `;
+        }
+        document.getElementById('battery-dynamic-packs').innerHTML = batHtml;
+
+        // Hàm phụ trợ để render mảng đa pha (Lưới, Tải, EPS)
+        function renderMultiPhase(containerId, label, vacArr, iacArr, facVal, pacArr, extraRowsHtml = '') {
+            let html = '';
+            const len = Math.max(
+                Array.isArray(vacArr) ? vacArr.length : 0, 
+                Array.isArray(iacArr) ? iacArr.length : 0, 
+                Array.isArray(pacArr) ? pacArr.length : 0
+            );
+
+            if (len > 1) {
+                for (let i = 0; i < len; i++) {
+                    html += `
+                        <div class="sub-group-title">--- PHA ${i + 1} ---</div>
+                        <div class="info-row"><span>Điện áp ${label} (Vac)</span> <b>${vacArr && vacArr[i] !== undefined ? vacArr[i] + ' V' : '--'}</b></div>
+                        <div class="info-row"><span>Dòng điện ${label} (Iac)</span> <b>${iacArr && iacArr[i] !== undefined ? iacArr[i] + ' A' : '--'}</b></div>
+                        <div class="info-row"><span>Công suất ${label} (Currpac)</span> <b>${pacArr && pacArr[i] !== undefined ? pacArr[i] + ' W' : '--'}</b></div>
+                    `;
+                }
+                if (facVal) {
+                    html += `<div class="info-row"><span>Tần số ${label} (Fac)</span> <b>${facVal} Hz</b></div>`;
+                }
+            } else {
+                html += `
+                    <div class="info-row"><span>Điện áp ${label} (Vac)</span> <b>${vacArr && vacArr[0] !== undefined ? vacArr[0] + ' V' : '--'}</b></div>
+                    <div class="info-row"><span>Dòng điện ${label} (Iac)</span> <b>${iacArr && iacArr[0] !== undefined ? iacArr[0] + ' A' : '--'}</b></div>
+                    ${facVal ? `<div class="info-row"><span>Tần số ${label} (Fac)</span> <b>${facVal} Hz</b></div>` : ''}
+                    <div class="info-row"><span>Công suất ${label} (Currpac)</span> <b>${pacArr && pacArr[0] !== undefined ? pacArr[0] + ' W' : '--'}</b></div>
+                `;
+            }
+            html += extraRowsHtml;
+            document.getElementById(containerId).innerHTML = html;
+        }
 
         // 4. Lưới điện
-        document.getElementById('grid-vac').innerText = (data.gridVac && data.gridVac[0]) ? data.gridVac[0] + ' V' : '--';
-        document.getElementById('grid-iac').innerText = (data.gridIac && data.gridIac[0]) ? data.gridIac[0] + ' A' : '--';
-        document.getElementById('grid-fac').innerText = (data.gridFac || '0') + ' Hz';
-        document.getElementById('grid-pac').innerText = (data.gridCurrpac && data.gridCurrpac[0]) ? data.gridCurrpac[0] + ' W' : '--';
+        renderMultiPhase('grid-dynamic-container', 'lưới', data.gridVac, data.gridIac, data.gridFac, data.gridCurrpac);
 
-        // 5. Tải trên lưới
-        document.getElementById('load-vac').innerText = (data.loadVac && data.loadVac[0]) ? data.loadVac[0] + ' V' : '--';
-        document.getElementById('load-iac').innerText = (data.loadIac && data.loadIac[0]) ? data.loadIac[0] + ' A' : '--';
-        document.getElementById('load-pac').innerText = (data.loadCurrpac && data.loadCurrpac[0]) ? data.loadCurrpac[0] + ' W' : '--';
-        document.getElementById('load-elday').innerText = (data.ELDay || '0') + ' kWh';
+        // 5. Tải trên lưới (với CT)
+        renderMultiPhase('load-dynamic-container', 'tải', data.loadVac, data.loadIac, null, data.loadCurrpac, 
+            `<div class="info-row"><span>Sản lượng tiêu thụ ngày (ELDay)</span> <b>${data.ELDay || '0'} kWh</b></div>`
+        );
 
         // 6. Tải dự phòng (EPS)
-        document.getElementById('eps-vac').innerText = (data.epsVac && data.epsVac[0]) ? data.epsVac[0] + ' V' : '--';
-        document.getElementById('eps-iac').innerText = (data.epsIac && data.epsIac[0]) ? data.epsIac[0] + ' A' : '--';
-        document.getElementById('eps-fac').innerText = (data.epsFac || '0') + ' Hz';
-        document.getElementById('eps-pac').innerText = (data.epsCurrpac && data.epsCurrpac[0]) ? data.epsCurrpac[0] + ' W' : '--';
-        document.getElementById('eps-day').innerText = (data.EPSDay || '0') + ' kWh';
-        document.getElementById('eps-total').innerText = (data.EPSTotal || '0') + ' kWh';
+        renderMultiPhase('eps-dynamic-container', 'EPS', data.epsVac, data.epsIac, data.epsFac, data.epsCurrpac, 
+            `<div class="info-row"><span>Sản lượng EPS ngày (EPSDay)</span> <b>${data.EPSDay || '0'} kWh</b></div>
+             <div class="info-row"><span>Tổng sản lượng EPS (EPSTotal)</span> <b>${data.EPSTotal || '0'} kWh</b></div>`
+        );
     }
 </script>
