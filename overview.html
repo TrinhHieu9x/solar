@@ -526,8 +526,8 @@
                     html += `
                         <div class="info-row"><span>Điện áp ${label} (Vac)</span> <b>${cleanVac[i] !== undefined && cleanVac[i] !== null ? cleanVac[i] + (cleanVac[i] !== '--' ? ' V' : '') : '--'}</b></div>
                         <div class="info-row"><span>Dòng điện ${label} (Iac)</span> <b>${cleanIac[i] !== undefined && cleanIac[i] !== null ? cleanIac[i] + (cleanIac[i] !== '--' ? ' A' : '') : '--'}</b></div>
-                        <div class="info-row"><span>Tần số ${label} (Fac)</span> <b>${facVal || '--'} ${facVal ? 'Hz' : ''}</b></div>
                         <div class="info-row"><span>Công suất ${label}</span> <b>${cleanPac[i] !== undefined && cleanPac[i] !== null ? cleanPac[i] + (cleanPac[i] !== '--' ? ' W' : '') : '--'}</b></div>
+                        <div class="info-row"><span>Tần số ${label} (Fac)</span> <b>${facVal || '--'} ${facVal ? 'Hz' : ''}</b></div>
                     `;
                 }
                 html += extraRowsHtml;
