@@ -258,17 +258,17 @@ body.dark-mode #topo-pv2-volts {
             </div>
         </div>
 
-<nav class="flex items-center space-x-1 text-xs overflow-x-auto py-0.5">
-    <button onclick="switchTab('monitor.html', this)" class="nav-btn px-2.5 py-1 rounded bg-white/25 font-semibold flex items-center gap-1 whitespace-nowrap transition">
-        <i class="fa-solid fa-compass"></i> Màn hình
-    </button>
-    <button onclick="switchTab('setting.html', this)" class="nav-btn px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap">
-        <i class="fa-solid fa-gear"></i> Cấu hình
-    </button>
-    <button onclick="switchTab('overview.html', this)" class="nav-btn px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap">
-        <i class="fa-solid fa-grip"></i> Tổng quan
-    </button>
-</nav>
+        <nav class="flex items-center space-x-1 text-xs overflow-x-auto py-0.5">
+            <a href="/" class="px-2.5 py-1 rounded bg-white/25 font-semibold flex items-center gap-1 whitespace-nowrap transition">
+                <i class="fa-solid fa-compass"></i> Màn hình
+            </a>
+            <a href="/setting" class="px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap">
+                <i class="fa-solid fa-gear"></i> Cấu hình
+            </a>
+            <a href="/overview" class="px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap">
+                <i class="fa-solid fa-grip"></i> Tổng quan
+            </a>
+        </nav>
 
         <!-- User Info & Dropdown Menu -->
         <div class="relative">
@@ -305,12 +305,7 @@ body.dark-mode #topo-pv2-volts {
     </div>
 </header>
 
-<!-- Khu vực nội dung các tab sẽ được load vào đây -->
-<main id="app-container" class="max-w-7xl mx-auto px-2.5 mt-4">
-    <!-- Nội dung tab sẽ hiển thị ở đây -->
-</main>
 
-    
     <main class="max-w-7xl mx-auto px-2 sm:px-4 py-2 space-y-2">
 
         <div class="bg-white rounded-lg px-2.5 py-1 shadow-xs border border-slate-200 flex items-center justify-between gap-2 text-[11px]">
@@ -2416,42 +2411,6 @@ function updateAlarmUI(alarmValue) {
         }
     });
 
-
-// Hàm chuyển tab mượt mà bằng fetch
-function switchTab(url, element) {
-    // 1. Gọi nội dung file HTML tương ứng
-    fetch(url)
-        .then(response => {
-            if (!response.ok) throw new Error('Không thể tải trang');
-            return response.text();
-        })
-        .then(html => {
-            // Đổ HTML vào khung chứa
-            document.getElementById('app-container').innerHTML = html;
-
-            // 2. Cập nhật trạng thái active (sáng lên) cho các nút trên menu
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.className = "nav-btn px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap";
-            });
-            element.className = "nav-btn px-2.5 py-1 rounded bg-white/25 font-semibold flex items-center gap-1 whitespace-nowrap transition";
-
-            // 3. (Tùy chọn) Lưu lịch sử URL giả lập trên thanh địa chỉ trình duyệt nếu muốn
-            window.history.pushState({path: url}, '', '/' + url.replace('.html', ''));
-        })
-        .catch(error => {
-            console.error('Lỗi:', error);
-            document.getElementById('app-container').innerHTML = '<p class="text-center text-red-500 py-4">Không thể tải nội dung tab này.</p>';
-        });
-}
-
-// Tự động load màn hình chính (monitor.html) khi vừa mở trang index.html
-document.addEventListener("DOMContentLoaded", () => {
-    // Tìm nút "Màn hình" đầu tiên và kích hoạt load nó
-    const defaultBtn = document.querySelector('.nav-btn');
-    if (defaultBtn) {
-        switchTab('monitor.html', defaultBtn);
-    }
-});
 
 
 </script>
