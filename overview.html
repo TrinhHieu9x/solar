@@ -479,6 +479,7 @@
             }
             document.getElementById('pv-dynamic-strings').innerHTML = pvHtml;
             document.getElementById('pv-et-day').innerText = (data.EToday || '--') + (data.EToday ? ' kWh' : '');
+            document.getElementById('pv-Peackpower').innerText = (data.Peackpower || '--') + (data.Peackpower ? ' kWh' : '');
             document.getElementById('pv-et-total').innerText = (data.ETotal || '--') + (data.ETotal ? ' kWh' : '');
 
             // 3. Pin lưu trữ
@@ -538,8 +539,8 @@
             renderMultiPhase('grid-dynamic-container', 'lưới', data.gridVac, data.gridIac, data.gridFac, data.gridCurrpac,
                 `<div class="info-row" style="margin-top:6px;"><span>Sản lượng hòa vào lưới ngày</span> <b>${data.ETDay || '--'} ${data.ETDay ? 'kWh' : ''}</b></div>
                  <div class="info-row"><span>Tổng sản lượng hoà vào lưới</span> <b>${data.ELTotal || '--'} ${data.ELTotal ? 'kWh' : ''}</b></div>
-                 <div class="info-row" style="margin-top:6px;"><span>Sản lượng lấy lưới ngày</span> <b>${data.ETDay || '--'} ${data.ETDay ? 'kWh' : ''}</b></div>
-                 <div class="info-row"><span>Tổng sản lượng lấy lưới</span> <b>${data.ELTotal || '--'} ${data.ELTotal ? 'kWh' : ''}</b></div>`
+                 <div class="info-row" style="margin-top:6px;"><span>Sản lượng lấy lưới ngày</span> <b>${data.EFDay || '--'} ${data.EFDay ? 'kWh' : ''}</b></div>
+                 <div class="info-row"><span>Tổng sản lượng lấy lưới</span> <b>${data.EFTotal || '--'} ${data.EFTotal ? 'kWh' : ''}</b></div>`
 
 
             );
