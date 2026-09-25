@@ -536,7 +536,9 @@
 
             // 5. Lưới điện
             renderMultiPhase('grid-dynamic-container', 'lưới', data.gridVac, data.gridIac, data.gridFac, data.gridCurrpac,
-                `<div class="info-row" style="margin-top:6px;"><span>Sản lượng hòa lưới ngày</span> <b>${data.ETDay || '--'} ${data.ETDay ? 'kWh' : ''}</b></div>`
+                `<div class="info-row" style="margin-top:6px;"><span>Sản lượng hòa vào lưới ngày</span> <b>${data.ETDay || '--'} ${data.ETDay ? 'kWh' : ''}</b></div>`
+                 <div class="info-row"><span>Tổng sản lượng hoà vào lưới (ELTotal)</span> <b>${data.ELTotal || '--'} ${data.ELTotal ? 'kWh' : ''}</b></div>`
+
             );
 
             // 6. Tải trên lưới (với CT)
