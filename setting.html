@@ -363,10 +363,16 @@
 </div>
 <div id="sec_discharge" class="accordion-content">
     <div class="card">
-        <div id="group_soc_charge">
+      <div id="group_soc_charge">
             <div class="row">
-                <div class="label">Ngắt xả khi mất lưới <span class="unit">(%)</span></div>
+                <div class="label">SOC ngắt xả khi mất lưới <span class="unit">(%)</span></div>
                 <input type="number" id="reg_214A" class="val-edit" value="---">
+            </div>
+        </div>
+        <div id="group_volt_charge" style="display:none;">
+            <div class="row">
+                <div class="label">Áp pin ngắt xả khi mất lưới <span class="unit">(V)</span></div>
+                <input type="number" id="reg_214B" step="0.1" class="val-edit" value="---">
             </div>
         </div>
         <div class="row">
