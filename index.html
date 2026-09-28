@@ -416,110 +416,330 @@
     
 <script src="tabs.js"></script>
 
-    <!-- KIỂM TRA DỮ LIỆU ĐĂNG NHẬP -->
-    <script>
-        (function() {
-            const savedData = localStorage.getItem('solar_token') || sessionStorage.getItem('solar_token');
-            if (!savedData) {
-                window.location.href = 'login.html';
-            }
-        })();
+ <script>
+    // ==========================================
+    // 1. KIỂM TRA ĐĂNG NHẬP
+    // ==========================================
+    (function() {
+        const savedData = localStorage.getItem('solar_token') || sessionStorage.getItem('solar_token');
+        if (!savedData) {
+            window.location.href = 'login.html';
+        }
+    })();
 
-        function handleLogout() {
-            if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
-                localStorage.removeItem('solar_token');
-                sessionStorage.removeItem('solar_token');
-                window.location.href = 'login.html'; 
-            }
+    function handleLogout() {
+        if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
+            localStorage.removeItem('solar_token');
+            sessionStorage.removeItem('solar_token');
+            window.location.href = 'login.html'; 
+        }
+    }
+
+    // ==========================================
+    // 2. XỬ LÝ THEME & BIỂU ĐỒ (DARK MODE)
+    // ==========================================
+    function updateChartsTheme() {
+        const isDark = document.body.classList.contains('dark-mode');
+        const gridColor = isDark ? 'rgba(255, 255, 255, 0.06)' : '#f1f5f9';
+        const textColor = isDark ? '#94a3b8' : '#64748b';
+
+        if (typeof powerChartInstance !== 'undefined' && powerChartInstance) {
+            if (powerChartInstance.options.scales.x?.grid) powerChartInstance.options.scales.x.grid.color = gridColor;
+            if (powerChartInstance.options.scales.x?.ticks) powerChartInstance.options.scales.x.ticks.color = textColor;
+            if (powerChartInstance.options.scales.y?.grid) powerChartInstance.options.scales.y.grid.color = gridColor;
+            if (powerChartInstance.options.scales.y?.ticks) powerChartInstance.options.scales.y.ticks.color = textColor;
+            powerChartInstance.update();
+        }
+    }
+
+    function toggleDarkMode() {
+        const isDark = document.body.classList.toggle('dark-mode');
+        updateDarkModeUI(isDark);
+        updateChartsTheme();
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    function updateDarkModeUI(isDark) {
+        const icon = document.getElementById('darkModeMenuIcon');
+        const text = document.getElementById('darkModeText');
+        const statusText = document.getElementById('darkModeStatusText');
+
+        if (isDark) {
+            if (icon) icon.className = "fa-solid fa-sun text-amber-400 w-4";
+            if (text) text.innerText = "Light Mode";
+            if (statusText) statusText.innerText = "On";
+        } else {
+            if (icon) icon.className = "fa-solid fa-moon text-slate-500 w-4";
+            if (text) text.innerText = "Dark Mode";
+            if (statusText) statusText.innerText = "Off";
+        }
+    }
+
+    // ==========================================
+    // 3. ĐIỀU HƯỚNG TAB (SPA) & XỬ LÝ HASH
+    // ==========================================
+    function switchTab(tabName, element) {
+        const container = document.getElementById('app-container');
+        
+        if (typeof TabContents !== 'undefined' && TabContents[tabName]) {
+            container.innerHTML = TabContents[tabName];
+        } else {
+            container.innerHTML = '<p class="text-center text-red-500 py-4">Không tìm thấy nội dung tab.</p>';
         }
 
-        function updateChartsTheme() {
-            const isDark = document.body.classList.contains('dark-mode');
-            const gridColor = isDark ? 'rgba(255, 255, 255, 0.06)' : '#f1f5f9';
-            const textColor = isDark ? '#94a3b8' : '#64748b';
-
-            if (typeof powerChartInstance !== 'undefined' && powerChartInstance) {
-                if (powerChartInstance.options.scales.x?.grid) powerChartInstance.options.scales.x.grid.color = gridColor;
-                if (powerChartInstance.options.scales.x?.ticks) powerChartInstance.options.scales.x.ticks.color = textColor;
-                if (powerChartInstance.options.scales.y?.grid) powerChartInstance.options.scales.y.grid.color = gridColor;
-                if (powerChartInstance.options.scales.y?.ticks) powerChartInstance.options.scales.y.ticks.color = textColor;
-                powerChartInstance.update();
-            }
-        }
-
-        function toggleDarkMode() {
-            const isDark = document.body.classList.toggle('dark-mode');
-            updateDarkModeUI(isDark);
-            updateChartsTheme();
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        }
-
-        function updateDarkModeUI(isDark) {
-            const icon = document.getElementById('darkModeMenuIcon');
-            const text = document.getElementById('darkModeText');
-            const statusText = document.getElementById('darkModeStatusText');
-
-            if (isDark) {
-                if (icon) icon.className = "fa-solid fa-sun text-amber-400 w-4";
-                if (text) text.innerText = "Light Mode";
-                if (statusText) statusText.innerText = "On";
-            } else {
-                if (icon) icon.className = "fa-solid fa-moon text-slate-500 w-4";
-                if (text) text.innerText = "Dark Mode";
-                if (statusText) statusText.innerText = "Off";
-            }
-        }
-
-        // HÀM CHUYỂN TAB DÙNG HASH (#view, #setting, #overview) - SIÊU GỌN VÀ AN TOÀN KHI F5
-        function switchTab(tabName, element) {
-            const container = document.getElementById('app-container');
-            
-            if (TabContents[tabName]) {
-                container.innerHTML = TabContents[tabName];
-            } else {
-                container.innerHTML = '<p class="text-center text-red-500 py-4">Không tìm thấy nội dung.</p>';
-            }
-
-            // Đổi trạng thái active của các nút menu
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.className = "nav-btn px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap";
-            });
-            if (element) {
-                element.className = "nav-btn px-2.5 py-1 rounded bg-white/25 font-semibold flex items-center gap-1 whitespace-nowrap transition";
-            }
-
-            // Ghi nhận hash vào URL để F5 không bị lỗi 404 trên Cloudflare
-            window.location.hash = tabName;
-        }
-
-        // Tự động kích hoạt tab dựa theo URL Hash khi vừa vào trang hoặc F5
-        document.addEventListener("DOMContentLoaded", () => {
-            const hash = window.location.hash.replace('#', '') || 'view';
-            const navButtons = document.querySelectorAll('nav button');
-            
-            let targetBtn = navButtons[0];
-            if (hash === 'setting' && navButtons[1]) {
-                targetBtn = navButtons[1];
-            } else if (hash === 'overview' && navButtons[2]) {
-                targetBtn = navButtons[2];
-            }
-
-            switchTab(hash, targetBtn);
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.className = "nav-btn px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap";
         });
+        if (element) {
+            element.className = "nav-btn px-2.5 py-1 rounded bg-white/25 font-semibold flex items-center gap-1 whitespace-nowrap transition";
+        }
 
-        // Khởi tạo giao diện Dark Mode lúc tải trang
-        (function() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-                updateDarkModeUI(true);
-            } else {
-                updateDarkModeUI(false);
+        window.location.hash = tabName;
+
+        // Tự động tải lại dữ liệu phù hợp khi chuyển tab nếu cần
+        setTimeout(() => {
+            if (typeof loadInverterData === 'function') loadInverterData();
+        }, 150);
+    }
+
+    // ==========================================
+    // 4. HIỆU ỨNG ACCORDION & GIAO DIỆN
+    // ==========================================
+    function toggleAccordion(header) {
+        const item = header.parentElement;
+        const content = item.querySelector('.accordion-content');
+        
+        if (item.classList.contains('active')) {
+            content.style.maxHeight = '0px';
+            item.classList.remove('active');
+        } else {
+            item.classList.add('active');
+            content.style.maxHeight = content.scrollHeight + 'px';
+        }
+    }
+
+    function toggleAcc(header, id) {
+        const content = document.getElementById(id);
+        const isOpen = header.classList.contains('active');
+
+        if (!isOpen) {
+            if(content) content.style.display = "block";
+            header.classList.add('active');
+        } else {
+            if(content) content.style.display = "none";
+            header.classList.remove('active');
+        }
+    }
+
+    function toggleSwitch(el) {
+        el.classList.toggle('on');
+        if (navigator.vibrate) navigator.vibrate(15);
+    }
+
+    function confirmCancel() {
+        if (confirm("Hủy bỏ thay đổi và quay lại trang chủ?")) {
+            window.location.href = 'index.html'; 
+        }
+    }
+
+    // ==========================================
+    // 5. ĐỒNG BỘ CẤU HÌNH PIN & SOC / VOLT
+    // ==========================================
+    function toggleCapacityMode() {
+        const modeEl = document.getElementById('reg_2124');
+        if (!modeEl) return;
+        const mode = modeEl.value;
+        const socGroup = document.getElementById('group_soc_settings');
+        const voltGroup = document.getElementById('group_volt_settings');
+
+        if (mode === "0") { 
+            if (socGroup) socGroup.style.display = 'block';
+            if (voltGroup) voltGroup.style.display = 'none';
+
+            document.querySelectorAll('#group_soc_charge').forEach(el => el.style.display = 'block');
+            document.querySelectorAll('#group_volt_charge').forEach(el => el.style.display = 'none');
+        } else { 
+            if (voltGroup) voltGroup.style.display = 'block';
+            if (socGroup) socGroup.style.display = 'none';
+
+            document.querySelectorAll('#group_volt_charge').forEach(el => el.style.display = 'block');
+            document.querySelectorAll('#group_soc_charge').forEach(el => el.style.display = 'none');
+        }
+    }
+
+    function TypeBatteryMode() {
+        const modeEl = document.getElementById('reg_2110');
+        if (!modeEl) return;
+        const mode = modeEl.value;
+        const leadParams = document.getElementById('lead_acid_params');
+        const eqSection = document.getElementById('group_eq_settings');
+        const pylonParams = document.getElementById('pylon_params');
+    
+        if (mode === "1") { 
+            if (leadParams) leadParams.style.display = 'block';
+            if (eqSection) eqSection.style.display = 'block';
+            if (pylonParams) pylonParams.style.display = 'none';
+        } else {
+            if (pylonParams) pylonParams.style.display = 'block';
+            if (leadParams) leadParams.style.display = 'none';
+            if (eqSection) eqSection.style.display = 'none';
+        }
+    }
+
+    function syncVoltageDisplay() {
+        const vCutOff = document.getElementById('reg_2113')?.value; 
+        const vFull = document.getElementById('reg_2114')?.value;    
+        const socCutOff = document.getElementById('reg_211B')?.value; 
+        const socFull = document.getElementById('reg_2119')?.value;    
+        
+        const displayVLow = document.getElementById('display_2113');
+        const displayVHigh = document.getElementById('display_2114');
+        const displaySLow = document.getElementById('display_soc_low');
+        const displaySHigh = document.getElementById('display_soc_high');
+    
+        if (displayVLow && vCutOff) displayVLow.value = vCutOff;
+        if (displayVHigh && vFull) displayVHigh.value = vFull;
+        if (displaySLow && socCutOff) displaySLow.value = socCutOff;
+        if (displaySHigh && socFull) displaySHigh.value = socFull;
+    }
+
+    // ==========================================
+    // 6. GỌI API ĐỌC / GHI DỮ LIỆU
+    // ==========================================
+    const activeRequests = {};
+
+    async function fetchWithCancel(apiName, url, options = {}) {
+        if (activeRequests[apiName]) {
+            activeRequests[apiName].abort();
+        }
+
+        const controller = new AbortController();
+        activeRequests[apiName] = controller;
+        options.signal = controller.signal;
+
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                throw new Error(`Lỗi gọi API: ${response.status}`);
             }
-            setTimeout(updateChartsTheme, 100);
-        })();
-    </script>
+            return await response.json();
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                console.log(`Request [${apiName}] đã bị hủy do có request mới.`);
+                return null;
+            }
+            throw error;
+        } finally {
+            if (activeRequests[apiName] === controller) {
+                delete activeRequests[apiName];
+            }
+        }
+    }
 
+    async function loadInverterData() {
+        const btn = document.getElementById('refreshBtn') || document.getElementById('refresh-btn');
+        const title = document.getElementById('mainTitle');
+        const originalTitle = title ? title.innerText : "THIẾT LẬP HỆ THỐNG";
+        const goodsId = localStorage.getItem('solar_GoodsID') || sessionStorage.getItem('solar_GoodsID');
+        const operator = localStorage.getItem('solar_username') || sessionStorage.getItem('solar_username');
+        
+        const allElements = document.querySelectorAll('[id^="reg_"]');
+        const idsToFetch = Array.from(allElements).map(el => el.id.replace('reg_', ''));
+
+        if (idsToFetch.length === 0) return;
+
+        if (btn) btn.classList.add('spinning');
+        if (title) title.innerText = "🔄 ĐANG ĐỌC TẤT CẢ...";
+
+        try {
+            const url = `https://api.solarvn.workers.dev/read?ids=${idsToFetch.join(',')}&goods_id=${encodeURIComponent(goodsId)}&operator=${encodeURIComponent(operator)}`;
+            const response = await fetch(url, { cache: 'no-store' });
+            if (!response.ok) throw new Error("Server Worker lỗi");
+
+            const data = await response.json(); 
+            
+            if (Array.isArray(data)) {
+                data.forEach(item => {
+                    const innerKey = Object.keys(item)[0];
+                    const innerObj = item[innerKey];
+                    const address = Object.keys(innerObj)[0];
+                    const value = innerObj[address];
+                    
+                    const element = document.getElementById('reg_' + address);
+                    if (element) {
+                        if (element.classList.contains('switch')) {
+                            if (parseInt(value) === 1) {
+                                element.classList.add('on');
+                            } else {
+                                element.classList.remove('on');
+                            }
+                        } else if (address === "211E") {
+                            element.value = value;
+                        } else {
+                            const stepValue = element.getAttribute('step');
+                            if (stepValue === "0.1") {
+                                element.value = (parseFloat(value) / 10).toFixed(1);
+                            } else {
+                                element.value = value;
+                            }
+                        }
+
+                        element.style.backgroundColor = "#d4edda";
+                        setTimeout(() => { element.style.backgroundColor = ""; }, 800);
+                    }
+                });
+                if (title) title.innerText = "✅ ĐÃ CẬP NHẬT";
+            }
+        } catch (error) {
+            console.error("Lỗi:", error);
+            if (title) title.innerText = "❌ LỖI ĐỌC";
+        } finally {
+            if (btn) btn.classList.remove('spinning');
+            setTimeout(() => { if(title && title.innerText !== "❌ LỖI ĐỌC") title.innerText = originalTitle; }, 2000);
+            
+            toggleCapacityMode();
+            TypeBatteryMode();
+            syncVoltageDisplay();
+        }
+    }
+
+    function triggerRefresh() {
+        loadInverterData();
+    }
+
+    // ==========================================
+    // 7. KHỞI TẠO KHI TẢI TRANG (DOM LOADED)
+    // ==========================================
+    document.addEventListener("DOMContentLoaded", () => {
+        // Khởi tạo Dark Mode
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            updateDarkModeUI(true);
+        } else {
+            updateDarkModeUI(false);
+        }
+        setTimeout(updateChartsTheme, 100);
+
+        // Xử lý mở tab mặc định dựa theo URL Hash
+        const hash = window.location.hash.replace('#', '') || 'view';
+        const navButtons = document.querySelectorAll('nav button');
+        
+        let targetBtn = navButtons[0];
+        if (hash === 'setting' && navButtons[1]) {
+            targetBtn = navButtons[1];
+        } else if (hash === 'overview' && navButtons[2]) {
+            targetBtn = navButtons[2];
+        }
+
+        switchTab(hash, targetBtn);
+
+        // Tự động tải dữ liệu lần đầu
+        setTimeout(() => {
+            loadInverterData();
+        }, 200);
+    });
+</script>
     <!-- HEADER CHÍNH -->
     <header class="bg-[#2565c7] text-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-2.5 py-1.5 flex items-center justify-between gap-2">
