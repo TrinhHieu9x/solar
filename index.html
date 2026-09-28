@@ -258,10 +258,28 @@ body.dark-mode #topo-pv2-volts {
                 });
         }
 document.addEventListener("DOMContentLoaded", () => {
-    // Tìm nút "Màn hình" đầu tiên và kích hoạt load nó
-    const defaultBtn = document.querySelector('.nav-btn');
-    if (defaultBtn) {
-        switchTab('view.html', defaultBtn);
+    const path = window.location.pathname; 
+    let targetUrl = 'view.html';
+    let targetBtn = document.querySelector('.nav-btn'); // Nút Màn hình mặc định
+
+    // Kiểm tra URL hiện tại đang đứng ở trang nào để load đúng file và active đúng nút trên menu
+    const navButtons = document.querySelectorAll('nav button');
+    
+    if (path.includes('setting')) {
+        targetUrl = 'setting.html';
+        if (navButtons[1]) targetBtn = navButtons[1];
+    } else if (path.includes('overview')) {
+        targetUrl = 'overview.html';
+        if (navButtons[2]) targetBtn = navButtons[2];
+    } else {
+        if (navButtons[0]) targetBtn = navButtons[0];
+    }
+
+    // Tiến hành nạp nội dung tab tương ứng vào khung của index.html
+    if (targetBtn) {
+        switchTab(targetUrl, targetBtn);
+    } else {
+        switchTab('view.html', document.querySelector('.nav-btn'));
     }
 });
 
