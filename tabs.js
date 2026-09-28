@@ -319,19 +319,485 @@ const TabContents = {
     </div>
     `,
     setting: `
-        <div class="max-w-7xl mx-auto px-2.5 py-4">
-            <h2 class="text-lg font-bold mb-4 text-slate-800 dark:text-white">Cài đặt hệ thống</h2>
-            <div class="bg-white dark:bg-[#1e1e1e] p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 card">
-                <p class="text-slate-700 dark:text-slate-300">Các tùy chọn cấu hình ở đây...</p>
+
+<div class="header">
+    <div onclick="confirmCancel()" style="font-size:24px; cursor:pointer">✕</div>
+    <div class="header-title" id="mainTitle">THIẾT LẬP HỆ THỐNG</div>
+    <div id="refreshBtn" onclick="loadInverterData()" class="btn-refresh">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+    </div>
+</div>
+
+<div class="section-header active" onclick="toggleAcc(this, 'sec_battery')" style="box-shadow: none;">
+    <span>CÀI ĐẶT PIN</span>
+    <div class="arrow">▼</div>
+</div>
+    
+<div id="sec_battery" class="accordion-content" style="display: block;">
+    <div class="card" id="sec_battery_main">
+        <div class="row">
+            <div class="label">Thương hiệu</div>
+            <select class="val-edit" id="reg_2110" onchange="TypeBatteryMode()">
+                <option value="0"> No Battery </option>
+                <option value="1"> Lead-Acid Battery</option>
+                <option value="2"> PYLON </option>
+                <option value="3"> Dyness </option>
+                <option value="4"> UZ </option>
+                <option value="5"> Lithium Battery (Without COMM) </option>
+                <option value="6"> PrimeVOLT_LV </option>
+                <option value="7"> Lithium-LV </option>
+            </select>
+        </div>
+        <div class="row">
+            <div class="label-group"><span class="label">Quản lý dung lượng</span></div>
+            <select class="val-edit" id="reg_2124" onchange="toggleCapacityMode()">
+                <option value="0">SOC (%)</option>
+                <option value="1">Voltage (V)</option>
+            </select>
+        </div>
+        <div class="row">
+            <div class="label">Dung lượng <span class="unit">(Ah)</span></div>
+            <input type="number" id="reg_2112" class="val-edit" value="---">
+        </div>
+        <div id="group_soc_settings">
+            <div class="row">
+                <div class="label">Điểm dừng xả (SOC) <span class="unit">(%)</span></div>
+                <input type="number" id="reg_211B" class="val-edit" value="---" oninput="syncVoltageDisplay()">
+            </div>
+            <div class="row">
+                <div class="label">Điểm dừng sạc (SOC) <span class="unit">(%)</span></div>
+                <input type="number" id="reg_2119" class="val-edit" value="---" oninput="syncVoltageDisplay()">
+            </div>
+            <div class="row">
+                <div class="label">Điểm kết nối lại pin khi mất lưới (SOC) <span class="unit">(%)</span></div>
+                <input type="number" id="reg_2186" class="val-edit" value="---" oninput="syncVoltageDisplay()">
+            </div>
+            <div class="row">
+                <div class="label">Xả/Sạc <span class="unit">(%)</span></div>
+                <div style="display:flex; align-items:center;">
+                    <input type="number" id="display_soc_low" class="val-edit" style="width:45px" value="---" readonly>
+                    <span style="margin:0 5px">-</span>
+                    <input type="number" id="display_soc_high" class="val-edit" style="width:45px" value="---" readonly>
+                </div>
+            </div>
+            <div style="height: 0.1px;"></div>
+        </div>
+        <div id="group_volt_settings" style="display:none;">
+                <div id="lead_acid_params" style="display:none;">
+                    <div class="row">
+                        <div class="label">Điện áp sạc duy trì <span class="unit">(V)</span></div>
+                        <input type="number" id="reg_2180" step="0.1" class="val-edit" value="---">
+                    </div>
+                    <div class="row">
+                        <div class="label">Điện áp sạc hấp thụ <span class="unit">(V)</span></div>
+                        <input type="number" id="reg_2181" step="0.1" class="val-edit" value="---">
+                    </div>
+                    <div class="row">
+                        <div class="label">Điện trở trong <span class="unit">(mΩ)</span></div>
+                        <input type="number" id="reg_214F" class="val-edit" value="---">
+                    </div>
+                    <div class="row">
+                        <div class="label">Thời gian hấp thụ <span class="unit">(m)</span></div>
+                        <input type="number" id="reg_2605" class="val-edit" value="---">
+                    </div>
+                    <div style="height: 0.1px;"></div>
+                </div>
+                <div id="pylon_params" style="display:none;">
+                    <div class="row">
+                        <div class="label">Điện áp ngắt xả <span class="unit">(V)</span></div>
+                        <input type="number" id="reg_2113" step="0.1" class="val-edit" value="---" oninput="syncVoltageDisplay()">
+                    </div>
+                    <div class="row">
+                        <div class="label">Điện áp ngắt sạc <span class="unit">(V)</span></div>
+                        <input type="number" id="reg_2114" step="0.1" class="val-edit" value="---" oninput="syncVoltageDisplay()">
+                    </div>
+                    <div class="row">
+                        <div class="label">Điện áp kết nối lại pin khi mất lưới <span class="unit">(V)</span></div>
+                        <input type="number" id="reg_212F" step="0.1" class="val-edit" value="---" oninput="syncVoltageDisplay()">
+                    </div>
+                    <div style="height: 0.1px;"></div>
+                </div>
+                <div class="row">
+                    <div class="label">Xả/Sạc <span class="unit">(V)</span></div>
+                    <div style="display:flex; align-items:center;">
+                        <input type="number" id="display_2113" class="val-edit" style="width:45px" value="---" readonly>
+                        <span style="margin:0 5px">-</span>
+                        <input type="number" id="display_2114" class="val-edit" style="width:45px" value="---" readonly>
+                    </div>
+                </div>
+            <div style="height: 0.1px;"></div>
+        </div>
+        <div class="row">
+            <div class="label">CS Sạc tối đa <span class="unit">(W)</span></div>
+            <input type="number" id="reg_2118" class="val-edit" value="---">
+        </div>
+        <div class="row">
+            <div class="label">CS Xả tối đa <span class="unit">(W)</span></div>
+            <input type="number" id="reg_211A" class="val-edit" value="---">
+        </div>
+    </div>
+</div>
+<div id="group_eq_settings" style="display:none;">
+    <div class="section-header" onclick="toggleAcc(this, 'sec_leadacid')">
+        <span>CÂN BẰNG PIN (EQ) </span>
+        <div class="arrow">▼</div>
+    </div>
+    <div id="sec_leadacid" class="accordion-content">
+        <div class="card">
+            <div class="row">
+                <div class="label">Áp cân bằng EQ <span class="unit">(V)</span></div>
+                <input type="number" step="0.1" class="val-edit" value="---">
+            </div>
+            <div class="row">
+                <div class="label">Thời gian EQ <span class="unit">(min)</span></div>
+                <input type="number" class="val-edit" value="---">
+            </div>
+            <div class="row">
+                <div class="label">Thời gian tối đa được phép thử cân bằng EQ <span class="unit">(min)</span></div>
+                <input type="number" class="val-edit" value="---">
+            </div>
+            <div class="row">
+                <div class="label">Số ngày giữa các lần sạc EQ tự động <span class="unit">(Day)</span></div>
+                <input type="number" class="val-edit" value="---">
+            </div>
+            <div class="row">
+                <div class="label">Cưỡng chế EQ ngay</div>
+                <div class="switch" onclick="(this)"></div>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="section-header" onclick="toggleAcc(this, 'sec_grid_charge')">
+    <span>SẠC TỪ LƯỚI ĐIỆN </span>
+    <div class="arrow">▼</div>
+</div>
+    
+<div id="sec_grid_charge" class="accordion-content">
+    <div class="card">
+        <div class="row">
+            <div class="label">Cho phép sạc lưới</div>
+            <div class="switch" id="reg_2115" onclick="toggleSwitch(this)"></div>
+        </div>
+        <div class="row">
+            <div class="label">CS sạc lưới tối đa <span class="unit">(W)</span></div>
+            <input type="number" id="reg_2116" class="val-edit" value="---">
+        </div>
+        <div id="group_soc_charge">
+            <div class="row">
+                <div class="label">SOC dừng sạc lưới <span class="unit">(%)</span></div>
+                <input type="number" id="reg_2117" class="val-edit" value="---">
+            </div>
+        </div>
+        <div id="group_volt_charge" style="display:none;">
+            <div class="row">
+                <div class="label">Áp pin dừng sạc lưới <span class="unit">(V)</span></div>
+                <input type="number" id="reg_2148" step="0.1" class="val-edit" value="---">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="section-header" onclick="toggleAcc(this, 'sec_discharge')">
+    <span>CÀI ĐẶT XẢ PIN </span>
+    <div class="arrow">▼</div>
+</div>
+<div id="sec_discharge" class="accordion-content">
+    <div class="card">
+      <div id="group_soc_charge">
+            <div class="row">
+                <div class="label">SOC ngắt xả ( Có lưới ) <span class="unit">(%)</span></div>
+                <input type="number" id="reg_214A" class="val-edit" value="---">
+            </div>
+        </div>
+        <div id="group_volt_charge" style="display:none;">
+            <div class="row">
+                <div class="label">Áp pin ngắt xả ( Có lưới ) <span class="unit">(V)</span></div>
+                <input type="number" id="reg_214B" step="0.1" class="val-edit" value="---">
+            </div>
+        </div>
+        <div class="row">
+            <div class="label">Xả pin đến tải</div>
+            <div class="switch" id="reg_2141" onclick="toggleSwitch(this)"></div>
+        </div>
+        <div class="row">
+            <div class="label">Xả pin lên lưới</div>
+            <div class="switch" id="reg_2149" onclick="toggleSwitch(this)"></div>
+        </div>
+    </div>
+</div>
+    
+<div class="section-header" onclick="toggleAcc(this, 'sec_backup')">
+    <span>TẢI DỰ PHÒNG </span>
+    <div class="arrow">▼</div>
+</div>
+<div id="sec_backup" class="accordion-content">
+    <div class="card">
+        <div class="row">
+            <div class="label-group">
+                <span class="label">Đầu ra dự phòng</span>
+            </div>
+            <div class="switch" id="reg_211C" onclick="toggleSwitch(this)"></div>
+        </div>
+        <div class="row">
+            <div class="label">Điện áp đầu ra định mức <span class="unit">(V)</span></div>
+            <input type="number" id="reg_211D" class="val-edit" value="---" step="0.1">
+        </div>
+        <div class="row">
+            <div class="label-group">
+                <span class="label">Tối đa. Điện áp đầu ra dự phòng <span class="unit">(V)</span></span>
+            </div>
+            <input type="number" id="reg_2133" class="val-edit" value="---" step="0.1">
+        </div>
+        <div class="row">
+            <div class="label-group">
+                <span class="label">Tối thiểu Điện áp đầu ra dự phòng <span class="unit">(V)</span></span>
+            </div>
+            <input type="number" id="reg_2132" class="val-edit" value="---" step="0.1">
+        </div>
+        <div class="row">
+            <div class="label">Tần số đầu ra định mức <span class="unit">(HZ)</span></div>
+            <select class="val-edit" id="reg_211E">
+                <option value="5000">50</option>
+                <option value="6000">60</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="section-header" onclick="toggleAcc(this, 'sec_power')">
+    <span>ĐIỀU KHIỂN CÔNG SUẤT </span>
+    <div class="arrow">▼</div>
+</div>
+<div id="sec_power" class="accordion-content">
+    <div class="card">
+        <div class="row">
+            <div class="label">Điều khiển công suất </div>
+            <select class="val-edit" id="reg_30B3" >
+            <option value="0"> Tắt </option>
+            <option value="2"> Cảm biến CT</option>
+            <option value="3"> Công tơ điện kỹ thuật số</option>
+        </select>
+        </div>
+        <div class="row">
+            <div class="label">Vị trí công tơ </div>
+            <select class="val-edit" id="reg_30B5" >
+                <option value="0"> Phía lưới điện</option>
+                <option value="1"> Phía tải</option>
+            </select>
+        </div>
+        <div class="row">
+            <div class="label">Hướng dòng năng lượng </div>
+            <select class="val-edit" id="reg_30B2" >
+                <option value="0"> Từ lưới đến biến tần</option>
+                <option value="1"> Từ biến tần đến tải</option>
+            </select>
+        </div>
+        <div class="row">
+            <div class="label">Phương pháp giới hạn CS </div>
+            <select class="val-edit" id="reg_3089" >
+                <option value="0"> CS một pha nhỏ nhất </option>
+                <option value="1"> ổng công suất </option>
+            </select>
+        </div>
+        <div class="row">
+            <div class="label">CS Tối đa phát lưới <span class="unit">(W)</span></div>
+            <input type="number" id="reg_30BA" class="val-edit" value="---">
+        </div>
+        <div class="row">
+            <div class="label">CS Tối đa nhập lưới <span class="unit">(W)</span></div>
+            <input type="number" id="reg_308E" class="val-edit" value="---">
+        </div>
+    </div>
+</div>
+
+<div class="section-header" onclick="toggleAcc(this, 'sec_protect')">
+    <span>BẢO VỆ </span>
+    <div class="arrow">▼</div>
+</div>
+<div id="sec_protect" class="accordion-content">
+    <div class="card">
+        <div class="row">
+            <div class="label">Duy trì vận hành ở điện áp thấp</div>
+            <div class="switch" id="reg_510E" onclick="toggleSwitch(this)"></div>
+        </div>
+        <div class="row">
+            <div class="label">Ngưỡng kích hoạt LVRT <span class="unit">(V)</span></div>
+            <input type="number" id="reg_5063" class="val-edit" value="---" step="0.1">
+        </div>
+        <div class="row">
+            <div class="label">Ngưỡng kích hoạt HVRT <span class="unit">(V)</span></div>
+            <input type="number" id="reg_5064" class="val-edit" value="---" step="0.1">
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="row">
+            <div class="label">Phát hiện đảo lưới điện</div>
+            <div class="switch" id="reg_5112" onclick="toggleSwitch(this)"></div>
+        </div>
+        <div class="row">
+            <div class="label">Phát hiện cách ly</div>
+            <div class="switch" id="reg_5117" onclick="toggleSwitch(this)"></div>
+        </div>
+        <div class="row">
+            <div class="label">Phát hiện dòng rò (GFCI)</div>
+            <div class="switch" id="reg_5118" onclick="toggleSwitch(this)"></div>
+        </div>
+        <div class="row">
+            <div class="label">Điểm điện trở cách điện PV <span class="unit">(kΩ)</span></div>
+            <input type="number" id="reg_501B" class="val-edit" value="---" step="1">
+        </div>
+        <div class="row">
+            <div class="label">Điểm dòng rò PV <span class="unit">(mA)</span></div>
+            <input type="number" id="reg_5110" class="val-edit" value="---" step="1">
+        </div>
+        <div class="row">
+            <div class="label-group">
+                <span class="label">Giảm công suất khi đạt <span class="unit">(%)</span></span>
+            </div>
+            <input type="number" id="reg_5104" class="val-edit" value="---" step="1">
+        </div>
+    </div>
+</div>
+
+<div class="footer-actions">
+    <button class="btn-save" onclick="saveAll(this)">LƯU THIẾT LẬP</button>
+</div>
     `,
     overview: `
-        <div class="max-w-7xl mx-auto px-2.5 py-4">
-            <h2 class="text-lg font-bold mb-4 text-slate-800 dark:text-white">Tổng quan hệ thống</h2>
-            <div class="bg-white dark:bg-[#1e1e1e] p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 card">
-                <p class="text-slate-700 dark:text-slate-300">Biểu đồ tổng quan ở đây...</p>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <a href="/" class="icon-btn" title="Trang chủ">
+                <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </a>
+        </div>
+        <div class="top-title">
+            <span id="header-sn">--</span>
+            <span class="status-dot"></span>
+        </div>
+        <div class="top-bar-right">
+            <button class="icon-btn" id="refresh-btn" onclick="triggerRefresh()" title="Làm mới dữ liệu">
+                <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Device Subheader -->
+    <div class="device-info-card">
+        <div class="device-header">
+            <span>🔌 SN: <span id="info-sn">--</span></span>
+            <span id="info-wifi" style="font-size: 15px; color: #2563eb;">📶 --</span>
+        </div>
+        <div class="device-sub" id="update-time-wrap">Cập nhật lần cuối: <span id="update-time">--</span></div>
+    </div>
+
+    <!-- Accordion List -->
+    <div class="accordion-container">
+
+        <!-- 1. Các Inverter -->
+        <div class="accordion-item active">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>📥 Các Inverter</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="accordion-content" style="max-height: 1200px;">
+                <div class="accordion-inner">
+                    <div class="info-row"><span>SN</span> <b id="inv-sn">--</b></div>
+                    <div class="info-row"><span>Tên Inverter</span> <b id="inv-name">--</b></div>
+                    <div class="info-row"><span>Tự tiêu thụ</span> <b id="inv-self-use">--</b></div>
+                    <div class="info-row"><span>Tự cung tự cấp</span> <b id="inv-self-suff">--</b></div>
+                    <div class="info-row"><span>Chế độ đang chạy</span> <b id="inv-mode">--</b></div>
+                    <div class="info-row"><span>Nhiệt độ Inverter</span> <b id="inv-temp">--</b></div>
+                    <div class="info-row"><span>Chế độ hoạt động</span> <b>Chế độ tự tiêu thụ</b></div>
+                    <div class="info-row"><span>Phiên bản phần mềm DSP</span> <b id="cnt-version">--</b></div>
+                    <div class="info-row"><span>Phiên bản Slave DSP</span> <b id="csb-version">--</b></div>
+                    <div class="info-row"><span>Phiên bản mạch điều khiển</span> <b id="cnt-version-2">--</b></div>
+                    <div class="info-row"><span>Phiên bản module Wifi</span> <b id="wifi-version">--</b></div>
+                </div>
             </div>
         </div>
+
+        <!-- 2. Điện mặt trời (Quang điện) -->
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>⚡ Điện mặt trời (Quang điện)</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-inner">
+                    <div class="info-row"><span>Tổng công suất DC</span> <b id="pv-total-dc">--</b></div>
+                    <div id="pv-dynamic-strings"></div>
+                    <div class="info-row" style="margin-top: 8px;"><span>Sản lượng trong ngày</span> <b id="pv-et-day">--</b></div>
+                    <div class="info-row" style="margin-top: 8px;"><span>Công suất đỉnh trong ngày</span> <b id="pv-Peackpower">--</b></div>
+                    <div class="info-row"><span>Tổng sản lượng</span> <b id="pv-et-total">--</b></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Pin lưu trữ -->
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>🔋 Pin lưu trữ</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-inner" id="battery-dynamic-packs"></div>
+            </div>
+        </div>
+
+        <!-- 4. BMS -->
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>🎛️ BMS</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-inner">
+                    <div class="info-row"><span>Trạng thái BMS (BMS_Status)</span> <b id="bms-status">--</b></div>
+                    <div class="info-row"><span>Phiên bản BMS</span> <b id="bms-ver">--</b></div>
+                    <div class="info-row"><span>Giới hạn điện áp sạc</span> <b id="bms-vol-chg">--</b></div>
+                    <div class="info-row"><span>Giới hạn điện áp xả</span> <b id="bms-vol-dis">--</b></div>
+                    <div class="info-row"><span>Giới hạn dòng sạc</span> <b id="bms-cur-chg">--</b></div>
+                    <div class="info-row"><span>Giới hạn dòng xả</span> <b id="bms-cur-dis">--</b></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Lưới điện -->
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>🌐 Lưới điện</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-inner" id="grid-dynamic-container"></div>
+            </div>
+        </div>
+
+        <!-- 6. Tải trên lưới (với CT) -->
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>🏠 Tải trên lưới (với CT)</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-inner" id="load-dynamic-container"></div>
+            </div>
+        </div>
+
+        <!-- 7. Tải dự phòng (EPS) -->
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>💡 Tải dự phòng (EPS)</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-inner" id="eps-dynamic-container"></div>
+            </div>
+        </div>
+
+    </div>
     `
 };
