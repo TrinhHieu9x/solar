@@ -599,7 +599,6 @@ function confirmCancel() {
         window.location.href = 'index.html'; 
     }
 }
-
 async function loadInverterData() {
     const btn = document.getElementById('refreshBtn');
     const title = document.getElementById('mainTitle');
@@ -625,37 +624,43 @@ async function loadInverterData() {
         
         if (Array.isArray(data)) {
             data.forEach(item => {
-                const innerKey = Object.keys(item)[0];
-                const innerObj = item[innerKey];
-                if (!innerObj) return;
-                const address = Object.keys(innerObj)[0];
-                const value = innerObj[address];
-                
-                const element = document.getElementById('reg_' + address);
-                if (element) {
-                    if (element.classList.contains('switch')) {
-                        if (parseInt(value) === 1) {
-                            element.classList.add('on');
-                        } else {
-                            element.classList.remove('on');
-                        }
-                    } 
-                    else if (element.tagName === 'SELECT') {
-                        element.value = value;
-                    }
-                    else {
-                        const stepValue = element.getAttribute('step');
-                        if (stepValue === "0.1") {
-                            element.value = (parseFloat(value) / 10).toFixed(1);
-                        } else {
+                // Duyệt qua từng cặp key-value trong mảng JSON trả về (ví dụ key: "2110", value: "2")
+                for (const [address, value] of Object.entries(item)) {
+                    const element = document.getElementById('reg_' + address);
+                    if (element) {
+                        if (element.classList.contains('switch')) {
+                            if (parseInt(value) === 1) {
+                                element.classList.add('on');
+                            } else {
+                                element.classList.remove('on');
+                            }
+                        } 
+                        else if (element.tagName === 'SELECT') {
                             element.value = value;
                         }
-                    }
+                        else {
+                            const stepValue = element.getAttribute('step');
+                            if (stepValue === "0.1") {
+                                element.value = (parseFloat(value) / 10).toFixed(1);
+                            } else {
+                                element.value = value;
+                            }
+                        }
 
-                    element.style.backgroundColor = "#d4edda";
-                    setTimeout(() => { element.style.backgroundColor = ""; }, 800);
+                        element.style.backgroundColor = "#d4edda";
+                        setTimeout(() => { element.style.backgroundColor = ""; }, 800);
+                    }
                 }
             });
+
+            // Mở hiển thị các khối nội dung bên trong accordion sau khi đã load xong dữ liệu
+            document.querySelectorAll('.accordion-content').forEach(content => {
+                content.style.display = 'block';
+            });
+            document.querySelectorAll('.accordion-header').forEach(header => {
+                header.classList.add('active');
+            });
+
             if (title) title.innerText = "✅ ĐÃ CẬP NHẬT";
         }
     } catch (error) {
