@@ -966,6 +966,7 @@ function switchTab(tabName, element) {
             try { renderDashboard(); } catch(e) {}
             try { initPowerLineChart(); } catch(e) {}
             try { initEnergyBarChart(); } catch(e) {}
+            const isDark = document.body.classList.toggle('dark-mode');
             updateDarkModeUI(isDark);
 
             // Gọi các API khởi tạo dữ liệu song song
