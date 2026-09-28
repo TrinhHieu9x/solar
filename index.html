@@ -966,6 +966,7 @@ function switchTab(tabName, element) {
             try { renderDashboard(); } catch(e) {}
             try { initPowerLineChart(); } catch(e) {}
             try { initEnergyBarChart(); } catch(e) {}
+            updateDarkModeUI(isDark);
 
             // Gọi các API khởi tạo dữ liệu song song
             Promise.allSettled([
