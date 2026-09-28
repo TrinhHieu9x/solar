@@ -234,6 +234,41 @@ body.dark-mode #topo-pv2-volts {
                 if (statusText) statusText.innerText = "Off";
             }
         }
+        // Hàm chuyển tab mượt mà bằng fetch
+function switchTab(url, element) {
+    // 1. Gọi nội dung file HTML tương ứng
+    fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error('Không thể tải trang');
+            return response.text();
+        })
+        .then(html => {
+            // Đổ HTML vào khung chứa
+            document.getElementById('app-container').innerHTML = html;
+
+            // 2. Cập nhật trạng thái active (sáng lên) cho các nút trên menu
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap";
+            });
+            element.className = "nav-btn px-2.5 py-1 rounded bg-white/25 font-semibold flex items-center gap-1 whitespace-nowrap transition";
+
+            // 3. (Tùy chọn) Lưu lịch sử URL giả lập trên thanh địa chỉ trình duyệt nếu muốn
+            window.history.pushState({path: url}, '', '/' + url.replace('.html', ''));
+        })
+        .catch(error => {
+            console.error('Lỗi:', error);
+            document.getElementById('app-container').innerHTML = '<p class="text-center text-red-500 py-4">Không thể tải nội dung tab này.</p>';
+        });
+}
+
+// Tự động load màn hình chính (monitor.html) khi vừa mở trang index.html
+document.addEventListener("DOMContentLoaded", () => {
+    // Tìm nút "Màn hình" đầu tiên và kích hoạt load nó
+    const defaultBtn = document.querySelector('.nav-btn');
+    if (defaultBtn) {
+        switchTab('monitor.html', defaultBtn);
+    }
+});
 
         // Tự động kiểm tra chế độ đã lưu khi vừa mở trang
         (function() {
@@ -260,16 +295,16 @@ body.dark-mode #topo-pv2-volts {
         </div>
 
         <!-- Cụm 3 nút: Căn giữa tuyệt đối khoảng trống giữa Logo và User bằng flex-1 và justify-center -->
-        <nav class="flex items-center justify-center bg-black/10 dark:bg-white/5 p-1 rounded-xl border border-black/10 dark:border-white/10 space-x-1 text-xs overflow-x-auto flex-1 max-w-xl mx-2 py-0.5">
-            <a href="/" class="px-2.5 py-1 rounded-lg bg-white/25 font-semibold flex items-center justify-center gap-1 whitespace-nowrap transition flex-1">
-                <i class="fa-solid fa-compass"></i> <span>Màn hình</span>
-            </a>
-            <a href="/setting" class="px-2.5 py-1 rounded-lg hover:bg-white/10 transition font-medium flex items-center justify-center gap-1 whitespace-nowrap flex-1">
-                <i class="fa-solid fa-gear"></i> <span>Cấu hình</span>
-            </a>
-            <a href="/overview" class="px-2.5 py-1 rounded-lg hover:bg-white/10 transition font-medium flex items-center justify-center gap-1 whitespace-nowrap flex-1">
-                <i class="fa-solid fa-grip"></i> <span>Tổng quan</span>
-            </a>
+        <nav class="flex items-center space-x-1 text-xs overflow-x-auto py-0.5">
+            <button onclick="switchTab('monitor.html', this)" class="nav-btn px-2.5 py-1 rounded bg-white/25 font-semibold flex items-center gap-1 whitespace-nowrap transition">
+                <i class="fa-solid fa-compass"></i> Màn hình
+            </button>
+            <button onclick="switchTab('setting.html', this)" class="nav-btn px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap">
+                <i class="fa-solid fa-gear"></i> Cấu hình
+            </button>
+            <button onclick="switchTab('overview.html', this)" class="nav-btn px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap">
+                <i class="fa-solid fa-grip"></i> Tổng quan
+            </button>
         </nav>
 
         <!-- User Info & Dropdown Menu bên phải -->
@@ -321,7 +356,11 @@ body.dark-mode #topo-pv2-volts {
                 <span id="connection-dot" class="w-2 h-2 rounded-full bg-slate-300"></span> <span id="connection-text">Đang chờ API...</span>
             </div>
         </div>
-
+        
+<!-- Khu vực nội dung các tab sẽ được load vào đây -->
+<main id="app-container" class="max-w-7xl mx-auto px-2.5 mt-4">
+    <!-- Nội dung tab sẽ hiển thị ở đây -->
+</main>
         <div class="grid grid-cols-4 gap-1 sm:gap-1.5">
             <!-- KPI 1: Solar Yield -->
             <div id="kpi-pv-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-amber-300 transition-colors" onclick="togglePVCardMode()" title="Nhấp chuyển đổi hiển thị công suất cực đại trong ngày">
