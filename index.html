@@ -342,6 +342,11 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
 </header>
 
+    <!-- Khu vực nội dung các tab sẽ được load vào đây -->
+<main id="app-container" class="max-w-7xl mx-auto px-2.5 mt-4">
+    <!-- Nội dung tab sẽ hiển thị ở đây -->
+</main>
+    
     <main class="max-w-7xl mx-auto px-2 sm:px-4 py-2 space-y-2">
 
         <div class="bg-white rounded-lg px-2.5 py-1 shadow-xs border border-slate-200 flex items-center justify-between gap-2 text-[11px]">
@@ -357,10 +362,6 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         </div>
         
-<!-- Khu vực nội dung các tab sẽ được load vào đây -->
-<main id="app-container" class="max-w-7xl mx-auto px-2.5 mt-4">
-    <!-- Nội dung tab sẽ hiển thị ở đây -->
-</main>
         <div class="grid grid-cols-4 gap-1 sm:gap-1.5">
             <!-- KPI 1: Solar Yield -->
             <div id="kpi-pv-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-amber-300 transition-colors" onclick="togglePVCardMode()" title="Nhấp chuyển đổi hiển thị công suất cực đại trong ngày">
