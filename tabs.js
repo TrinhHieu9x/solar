@@ -1,12 +1,415 @@
 // tabs.js
 const TabContents = {
     view: `
-        <div class="max-w-7xl mx-auto px-2.5 py-4">
-            <h2 class="text-lg font-bold mb-4 text-slate-800 dark:text-white">Màn hình giám sát</h2>
-            <div class="bg-white dark:bg-[#1e1e1e] p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 card">
-                <p class="text-slate-700 dark:text-slate-300">Nội dung màn hình chính ở đây...</p>
+
+    <main class="max-w-7xl mx-auto px-2 sm:px-4 py-2 space-y-2">
+
+        <div class="bg-white rounded-lg px-2.5 py-1 shadow-xs border border-slate-200 flex items-center justify-between gap-2 text-[11px]">
+            <div class="flex items-center gap-1.5">
+                <span class="font-medium text-slate-500">Trạm chọn:</span>
+                <select id="station-select" class="border border-slate-300 rounded px-1.5 py-0.5 bg-slate-50 font-semibold text-slate-700 outline-none text-[11px]">
+                    <option id="stationOptionName" value="station-1">Đang tải...</option>
+                </select>
+                <span id="system-serial-badge" class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-bold border border-slate-200 text-[10px]">---</span>
+            </div>
+            <div id="connection-status-indicator" class="flex items-center gap-1 text-[10px] text-slate-400 font-medium">
+                <span id="connection-dot" class="w-2 h-2 rounded-full bg-slate-300"></span> <span id="connection-text">Đang chờ API...</span>
             </div>
         </div>
+
+        <div class="grid grid-cols-4 gap-1 sm:gap-1.5">
+            <!-- KPI 1: Solar Yield -->
+            <div id="kpi-pv-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-amber-300 transition-colors" onclick="togglePVCardMode()" title="Nhấp chuyển đổi hiển thị công suất cực đại trong ngày">
+                <div id="kpi-pv-header" class="bg-amber-500 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center transition-colors">
+                    <span id="kpi-pv-title" class="truncate">Năng suất MT</span>
+                    <i class="fa-solid fa-solar-panel shrink-0 text-[10px]"></i>
+                </div>
+                <div class="p-1 sm:p-1.5 flex items-center justify-between gap-1">
+                    <div id="kpi-pv-icon" class="text-amber-500 text-base sm:text-xl shrink-0 transition-colors">
+                        <i class="fa-solid fa-sun"></i>
+                    </div>
+                    <div class="text-right w-full min-w-0">
+                        <div class="text-xs sm:text-base font-bold font-mono text-slate-800 leading-none"><span id="kpi-pv-today">--</span> <span id="kpi-pv-unit" class="text-[8px] sm:text-[9px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[8px] text-slate-400" id="kpi-pv-label1">Hôm nay</div>
+                        <div class="text-[10px] sm:text-xs font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-pv-total">--</span> <span class="text-[8px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[8px] text-slate-400" id="kpi-pv-label2">Tổng cộng</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- KPI 2: Battery (Green for discharge, Teal for charge) -->
+            <div id="kpi-bat-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-slate-300 transition-colors" onclick="toggleBatteryMode()">
+                <div id="kpi-bat-header" class="bg-emerald-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center transition-colors">
+                    <span id="kpi-bat-title" class="truncate">Xả pin</span>
+                    <i id="kpi-bat-header-icon" class="fa-solid fa-battery-half shrink-0 text-[10px]"></i>
+                </div>
+                <div class="p-1 sm:p-1.5 flex items-center justify-between gap-1">
+                    <div id="kpi-bat-icon" class="text-emerald-500 text-base sm:text-xl shrink-0 transition-colors">
+                        <i class="fa-solid fa-car-battery"></i>
+                    </div>
+                    <div class="text-right w-full min-w-0">
+                        <div class="text-xs sm:text-base font-bold font-mono text-slate-800 leading-none"><span id="kpi-bat-val1">--</span> <span class="text-[8px] sm:text-[9px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[8px] text-slate-400" id="kpi-bat-label1">Xả hôm nay</div>
+                        <div class="text-[10px] sm:text-xs font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-bat-val2">--</span> <span class="text-[8px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[8px] text-slate-400" id="kpi-bat-label2">Tổng xả</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI 3: Grid (Sky blue for Import, Purple for Export) -->
+            <div id="kpi-grid-card" class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:border-sky-300 transition-colors" onclick="cycleGridMode()" title="Nhấp chuyển đổi xem Lấy/Đẩy lưới">
+                <div id="kpi-grid-header" class="bg-sky-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center transition-colors">
+                    <span id="kpi-grid-title" class="truncate">Import</span>
+                    <i class="fa-solid fa-tower-cell shrink-0 text-[10px]"></i>
+                </div>
+                <div class="p-1 sm:p-1.5 flex items-center justify-between gap-1">
+                    <div id="kpi-grid-icon" class="text-sky-500 text-base sm:text-xl shrink-0 transition-colors">
+                        <i class="fa-solid fa-plug-circle-bolt"></i>
+                    </div>
+                    <div class="text-right w-full min-w-0">
+                        <div class="text-xs sm:text-base font-bold font-mono text-slate-800 leading-none"><span id="kpi-grid-val1">--</span> <span class="text-[8px] sm:text-[9px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[8px] text-slate-400" id="kpi-grid-label1">Lấy hôm nay</div>
+                        <div class="text-[10px] sm:text-xs font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-grid-val2">--</span> <span class="text-[8px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[8px] text-slate-400" id="kpi-grid-label2">Tổng lấy</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI 4: Consumption -->
+            <div class="bg-white rounded-lg shadow-2xs border border-slate-200 overflow-hidden flex flex-col justify-between">
+                <div class="bg-blue-600 text-white px-1.5 py-0.5 font-semibold text-[10px] sm:text-xs flex justify-between items-center">
+                    <span class="truncate">Sự tiêu thụ</span>
+                    <i class="fa-solid fa-house-chimney shrink-0 text-[10px]"></i>
+                </div>
+                <div class="p-1 sm:p-1.5 flex items-center justify-between gap-1">
+                    <div class="text-blue-500 text-base sm:text-xl shrink-0">
+                        <i class="fa-solid fa-house-laptop"></i>
+                    </div>
+                    <div class="text-right w-full min-w-0">
+                        <div class="text-xs sm:text-base font-bold font-mono text-slate-800 leading-none"><span id="kpi-load-today">--</span> <span class="text-[8px] sm:text-[9px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[8px] text-slate-400">Dùng hôm nay</div>
+                        <div class="text-[10px] sm:text-xs font-semibold font-mono text-slate-700 mt-0.5 leading-none"><span id="kpi-load-total">--</span> <span class="text-[8px] font-normal text-slate-500">kWh</span></div>
+                        <div class="text-[8px] text-slate-400">Tổng dùng</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-amber-50/90 rounded-lg px-2.5 py-1 border border-amber-200/80 shadow-2xs flex items-center justify-between gap-2 text-[10px] sm:text-[11px] text-amber-900">
+            <div class="flex items-center gap-1.5 overflow-hidden">
+                <i class="fa-solid fa-bullhorn text-amber-500 text-xs shrink-0"></i>
+                <span class="font-medium truncate">Thông báo: Đang kết nối trực tiếp đến dữ liệu API thời gian thực của biến tần.</span>
+            </div>
+            <span id="notice-date" class="text-[9px] sm:text-[10px] font-mono text-amber-600 shrink-0 font-semibold">--</span>
+        </div>
+<!-- TOPOLOGY POWER FLOW MAP -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-2xs p-2.5 sm:p-3 relative overflow-hidden">
+
+    <!-- Topology Header Toolbar -->
+    <div class="flex items-center justify-between mb-2 border-b border-slate-100 pb-1.5">
+        <div class="flex items-center gap-2">
+            <span class="font-bold text-slate-800 text-xs sm:text-sm font-mono">Thông tin hệ thống</span>
+            <span id="system-status-badge" class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] bg-emerald-50 text-emerald-600 font-semibold flex items-center gap-1 border border-emerald-200">
+                <span id="status-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> <span id="system-status-text">Normal</span>
+            </span>
+        </div>
+
+        <!-- Fast Charge Button Top-Right -->
+        <button onclick="triggerFastCharge()" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-medium transition shadow-2xs cursor-pointer flex items-center gap-1">
+            <i class="fa-solid fa-bolt"></i> Bắt đầu sạc nhanh
+        </button>
+    </div>
+
+    <!-- Canvas SVG Graphic Container -->
+    <div class="relative w-full max-w-[850px] mx-auto h-[270px] sm:h-[310px] flex items-center justify-center">
+
+        <!-- SVG Animated Flow Streams -->
+        <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 850 260">
+            <defs>
+                <marker id="arrow-amber" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#f59e0b"/>
+                </marker>
+                <marker id="arrow-emerald" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981"/>
+                </marker>
+                <marker id="arrow-teal" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#0d9488"/>
+                </marker>
+                <marker id="arrow-sky" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#0284c7"/>
+                </marker>
+                <marker id="arrow-purple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#a855f7"/>
+                </marker>
+                <marker id="arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563eb"/>
+                </marker>
+            </defs>
+
+            <!-- Base Path Guides -->
+            <!-- PV to Inverter -->
+            <path d="M 140 25 L 328 25 Q 340 25, 340 57 L 340 105 Q 340 107, 352 107 L 375 107" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+            
+            <!-- Grid to Inverter -->
+            <path d="M 710 25 L 522 25 Q 510 25, 510 57 L 510 105 Q 510 107, 498 107 L 475 107" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+            
+            <!-- Battery to Inverter -->
+            <path d="M 140 210 L 328 210 Q 340 210, 340 198 L 340 165 Q 340 143, 352 143 L 375 143" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+            
+            <!-- Inverter to Load -->
+            <path d="M 475 143 L 498 143 Q 510 143, 510 165 L 510 198 Q 510 210, 522 210 L 710 210" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+
+            <!-- Đường nét đứt nối từ đáy Inverter xuống EPS ở giữa -->
+            <path d="M 425 150 L 425 220" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+
+            <!-- Animated Chevron Flow Stream Groups -->
+            <g id="stream-pv"></g>
+            <g id="stream-bat"></g>
+            <g id="stream-grid"></g>
+            <g id="stream-load"></g>
+        </svg>
+
+        <!-- NODE 1: Pin Mặt Trời (PV) -->
+        <div class="absolute top-2 left-[4%] sm:left-[6%] flex items-center gap-2 z-10">
+            <div class="flex flex-col items-center text-center">
+                <div id="card-pv" title="Nhấp bật/tắt PV" class="cursor-pointer node-card bg-white rounded-2xl shadow-sm border border-slate-200 p-2.5 w-20 h-20 sm:w-24 sm:h-24 flex flex-col items-center justify-center hover:shadow-md hover:border-amber-400">
+                    <i id="topo-pv-icon" class="fa-solid fa-solar-panel text-2xl sm:text-3xl text-slate-400 transition-transform"></i>
+                    <span class="text-[10px] sm:text-xs font-semibold text-slate-600 mt-1 truncate">Pin mặt trời</span>
+                </div>
+                <div class="mt-1 font-mono text-center">
+                    <div id="topo-pv-total-watts" class="font-bold text-slate-400 text-xs sm:text-sm leading-tight">-- W</div>
+                    <div class="text-[8px] sm:text-[9px] text-slate-400 leading-tight mt-0.5">Công suất phát</div>
+                </div>
+                            </div>
+                <div id="pv-info-box" class="font-mono text-left bg-white/95 backdrop-blur-xs px-2 py-1 rounded-lg border border-slate-200/85 shadow-2xs self-start mt-1">
+                    <div class="text-[8px] sm:text-[9px] text-slate-500 leading-tight space-y-0.5">
+                        <div>PV1: <span id="topo-pv1-watts" class="font-semibold text-slate-700">--W</span> (<span id="topo-pv1-volts">--V</span>)</div>
+                        <div>PV2: <span id="topo-pv2-watts" class="font-semibold text-slate-600">--W</span> (<span id="topo-pv2-volts">--V</span>)</div>
+                    </div>
+                </div>
+
+
+        </div>
+
+        <!-- NODE 2: Hòa Lưới (Grid) -->
+        <div class="absolute top-2 right-[4%] sm:right-[6%] flex items-center flex-row-reverse gap-2 z-10">
+            <div class="flex flex-col items-center text-center">
+                <div id="card-grid" title="Nhấp đổi chế độ Lưới" class="cursor-pointer node-card bg-white rounded-2xl shadow-sm border border-slate-200 p-2.5 w-20 h-20 sm:w-24 sm:h-24 flex flex-col items-center justify-center hover:shadow-md hover:border-sky-400">
+                    <i id="topo-grid-icon" class="fa-solid fa-tower-cell text-2xl sm:text-3xl text-slate-400 transition-transform"></i>
+                    <span class="text-[10px] sm:text-xs font-semibold text-slate-600 mt-1 truncate">Hòa lưới</span>
+                </div>
+                <div class="mt-1 font-mono text-center">
+                    <div id="topo-grid-watts" class="font-bold text-slate-400 text-xs sm:text-sm leading-tight">-- W</div>
+                    <div class="text-[8px] sm:text-[9px] text-slate-400 leading-tight mt-0.5">
+                        <span id="topo-grid-volts">-- V</span> | <span id="topo-grid-freq">-- Hz</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NODE 3: Center Inverter Box (Chữ ECO nằm ở nửa dưới máy) -->
+        <div class="absolute top-[48%] -translate-y-1/2 left-1/2 -translate-x-1/2 flex flex-col items-center z-25">
+            <svg class="w-20 h-22 sm:w-24 sm:h-26 md:w-28 md:h-30 drop-shadow-md transition-transform duration-300" viewBox="0 0 100 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Thân inverter chính -->
+                <rect x="15" y="6" width="70" height="86" rx="10" fill="#E2EEF9" stroke="#1E293B" stroke-width="3.5"/>
+                
+                <!-- Đường kẻ ngang phân cách -->
+                <line x1="15" y1="62" x2="85" y2="62" stroke="#1E293B" stroke-width="3"/>
+
+                <!-- Màn hình hiển thị phát sáng ở nửa trên -->
+                <rect x="34" y="16" width="32" height="24" rx="4" fill="#0284C7" stroke="#1E293B" stroke-width="3"/>
+                <rect x="39" y="21" width="22" height="14" rx="2" fill="#38BDF8" class="animate-pulse"/>
+
+                <!-- Chữ ECO nằm ở nửa dưới (bên dưới đường gạch ngang) -->
+                <text x="50" y="78" text-anchor="middle" fill="#64748B" font-size="11" font-family="monospace" font-weight="bold" letter-spacing="2">ECO</text>
+
+                <!-- Các cổng cắm ở đáy -->
+                <path d="M 32 92 V 96 C 32 98, 35 98, 38 98 H 42 C 45 98, 48 98, 48 96 V 92 Z" fill="#E2EEF9" stroke="#1E293B" stroke-width="2.5"/>
+                <path d="M 48 92 V 96 C 48 98, 51 98, 54 98 H 58 C 61 98, 64 98, 64 96 V 92 Z" fill="#E2EEF9" stroke="#1E293B" stroke-width="2.5"/>
+                <path d="M 64 92 V 95 C 64 97, 66 97, 68 97 H 70 C 72 97, 74 97, 74 95 V 92 Z" fill="#E2EEF9" stroke="#1E293B" stroke-width="2.5"/>
+                <path d="M 26 92 V 95 C 26 97, 28 97, 30 97 H 32 C 34 97, 36 97, 36 95 V 92 Z" fill="#E2EEF9" stroke="#1E293B" stroke-width="2.5"/>
+            </svg>
+        </div>
+
+        <!-- NODE 4: Pin Lưu Trữ (Battery) -->
+        <div class="absolute bottom-2 left-[4%] sm:left-[6%] flex items-center gap-2 z-10">
+            <div class="flex flex-col items-center text-center">
+                <div id="card-bat" title="Nhấp chuyển Sạc/Xả pin" class="cursor-pointer node-card bg-white rounded-2xl shadow-sm border border-slate-200 p-2.5 w-20 h-20 sm:w-24 sm:h-24 flex flex-col items-center justify-center relative hover:shadow-md hover:border-emerald-400">
+                    <i id="topo-bat-icon" class="fa-solid fa-battery-half text-3xl sm:text-4xl text-slate-400 transition-transform"></i>
+                    <span class="text-[10px] sm:text-xs font-semibold text-slate-600 mt-1 truncate">Pin lưu trữ</span>
+                </div>
+                <div class="mt-1 font-mono text-center">
+                    <div id="topo-bat-watts" class="font-bold text-slate-400 text-xs sm:text-sm leading-tight">-- W</div>
+                    <div class="text-[8px] sm:text-[9px] text-slate-400 leading-tight mt-0.5">
+                        SOC: <span id="topo-bat-soc" class="font-semibold text-slate-500">--%</span> | <span id="topo-bat-volts">-- Vdc</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!-- NODE 5: Tải Dự Phòng (EPS / Backup) -->
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center z-20">
+    <div id="topo-eps-box" class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center shadow-sm transition-all">
+        <i id="topo-eps-icon" class="fa-solid fa-plug-circle-bolt text-slate-400 text-xl transition-all"></i>
+    </div>
+    <span class="text-[9px] sm:text-[10px] font-medium text-slate-400 mt-0.5 whitespace-nowrap">Tải dự phòng (EPS)</span>
+    <span id="topo-eps-watts" class="font-bold text-slate-400 text-xs font-mono">0 W</span>
+</div>
+
+
+        <!-- NODE 6: Tải Tiêu Thụ (Load) -->
+        <div class="absolute bottom-2 right-[4%] sm:right-[6%] flex items-center flex-row-reverse gap-2 z-10">
+            <div class="flex flex-col items-center text-center">
+                <div id="card-load" class="cursor-pointer node-card bg-white rounded-2xl shadow-sm border border-slate-200 p-2.5 w-20 h-20 sm:w-24 sm:h-24 flex flex-col items-center justify-center hover:shadow-md hover:border-blue-400">
+                    <i id="topo-load-icon" class="fa-solid fa-house-chimney text-2xl sm:text-3xl text-slate-400 transition-transform"></i>
+                    <span class="text-[10px] sm:text-xs font-semibold text-slate-600 mt-1 truncate">Tải</span>
+                </div>
+                <div class="mt-1 font-mono text-center">
+                    <div id="topo-load-watts" class="font-bold text-slate-400 text-xs sm:text-sm leading-tight">-- W</div>
+                    <div class="text-[8px] sm:text-[9px] text-slate-400 leading-tight mt-0.5">Công suất tiêu thụ</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer Timestamp -->
+    <div class="mt-1 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500 font-mono">
+        <span class="flex items-center gap-1">
+            <i class="fa-regular fa-clock text-slate-400"></i>
+            Cập nhật lần cuối: <strong id="last-updated-time" class="text-slate-400">--</strong>
+        </span>
+        <span id="connection-status-footer" class="text-slate-400 font-semibold text-[9px]">Status: Disconnected</span>
+    </div>
+</div>
+
+
+        <div class="grid grid-cols-2 gap-2 sm:gap-2.5">
+            <!-- Card 1: Chế độ đang chạy (Working Mode) -->
+            <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-2xs border border-slate-200 flex flex-col justify-between">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5">
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-6 h-6 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-sliders text-xs"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-xs sm:text-sm truncate">Chế độ đang chạy</h4>
+                    </div>
+                    <button onclick="alert('Mở cài đặt chế độ vận hành')" class="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer">
+                        <i class="fa-solid fa-sliders text-xs"></i>
+                    </button>
+                </div>
+                <div class="space-y-0.5 py-0.5">
+                    <div class="text-emerald-600 font-bold text-xs sm:text-sm flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span id="mode-primary-title">Hòa lưới</span>
+                    </div>
+                    <div id="mode-secondary-desc" class="text-[11px] text-slate-500 font-medium truncate">
+                        Chế độ tự tiêu thụ (Self-consumption mode)
+                    </div>
+                </div>
+<div class="mt-1 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[9px] sm:text-[10px] text-slate-400 font-mono">
+    <span id="mode-priority-text" class="truncate">Ưu tiên: Tải > Pin > Lưới</span>
+    <span id="mode-badge-text" class="text-emerald-600 font-semibold shrink-0">Tối ưu</span>
+</div>
+
+            </div>
+            <!-- Card 2: Nhật ký / Cảnh báo (System Logs & Alarms) -->
+            <div id="alarm-card" class="bg-white rounded-xl p-2.5 sm:p-3 shadow-2xs border border-slate-200 flex flex-col justify-between transition-colors">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5">
+                    <div class="flex items-center gap-1.5">
+                        <div id="alarm-icon-bg" class="w-6 h-6 rounded-md bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-clipboard-list text-xs"></i>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <h4 class="font-bold text-slate-800 text-xs sm:text-sm">Nhật ký</h4>
+                            <i class="fa-regular fa-circle-question text-slate-400 text-xs cursor-pointer" onclick="alert('Nhật ký ghi nhận các cảnh báo và sự kiện vận hành hệ thống')"></i>
+                        </div>
+                    </div>
+                    <button onclick="alert('Xem toàn bộ lịch sử cảnh báo')" class="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+                
+                <!-- Khu vực hiển thị tên lỗi -->
+                <div id="log-status-container" class="py-1 flex items-center gap-1.5 text-xs text-slate-600">
+                    <i id="alarm-status-icon" class="fa-solid fa-circle-check text-emerald-500 text-sm shrink-0"></i>
+                    <span id="alarm-text" class="font-medium text-slate-700 text-[11px] sm:text-xs truncate">Hiện tại không có cảnh báo</span>
+                </div>
+
+                <!-- Khu vực hiển thị giá trị thô và trạng thái -->
+                <div class="mt-1 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[9px] sm:text-[10px] text-slate-400 font-mono">
+                    <span>Mã lỗi (Dec): <strong id="alarm-code" class="text-slate-600">0</strong></span>
+                    <span id="alarm-badge" class="text-emerald-600 font-semibold">Bình thường</span>
+                </div>
+            </div>
+          </div>
+
+        
+        <!-- Khung Biểu đồ Công Suất Ngày (Input & Output Power) được tinh chỉnh giao diện dễ nhìn -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+            <div class="flex flex-wrap items-center justify-between mb-3 gap-2">
+                <h2 class="text-base font-bold text-gray-800">Input & Output Power (Biểu đồ công suất ngày)</h2>
+                <!-- Bộ chọn ngày kiểu mới gọn gàng -->
+<div class="flex items-center space-x-2 bg-gray-100 px-3 py-1.5 rounded-lg text-sm">
+    <button onclick="changeDay(-1)" class="text-gray-500 hover:text-gray-800"><i class="fa-solid fa-chevron-left"></i></button>
+    
+    <span id="current-day-label" onclick="openQuickSelectModal('day')" class="font-medium text-gray-700 cursor-pointer hover:text-blue-600 transition" title="Bấm để chọn nhanh ngày">Ngày 13 thg 9, 2026</span>
+    
+    <button onclick="changeDay(1)" class="text-gray-500 hover:text-gray-800"><i class="fa-solid fa-chevron-right"></i></button>
+</div>
+
+            </div>
+            <!-- Vùng hiển thị biểu đồ ngày -->
+            <div class="relative w-full h-64">
+                <canvas id="dailyPowerChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Khung Biểu đồ Năng Lượng (Energy Overview) có nút bấm chuyển Tháng / Năm kèm bộ chọn tương ứng -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+            <div class="flex flex-wrap items-center justify-between mb-3 gap-2">
+                <h2 class="text-base font-bold text-gray-800" id="energy-chart-title">Energy Overview (Năng lượng tháng)</h2>
+                
+                <div class="flex items-center space-x-3">
+                    <!-- Nút chọn Tháng / Năm -->
+                    <div class="inline-flex rounded-lg bg-gray-100 p-0.5 text-xs font-medium">
+                        <button id="btn-tab-month" onclick="switchEnergyMode('month')" class="px-3 py-1.5 rounded-md bg-white text-blue-600 shadow-sm transition">Tháng</button>
+                        <button id="btn-tab-year" onclick="switchEnergyMode('year')" class="px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 transition">Năm</button>
+                    </div>
+        
+                    <!-- Bộ lọc thời gian -->
+                    <div class="flex items-center space-x-1 bg-gray-100 px-2.5 py-1 rounded-lg text-xs">
+                        <button onclick="changeEnergyPeriod(-1)" class="text-gray-500 hover:text-gray-800 p-1"><i class="fa-solid fa-chevron-left"></i></button>
+                        
+                        <span id="energy-period-label" onclick="openQuickSelectModal()" class="font-medium text-gray-700 cursor-pointer hover:text-blue-600 transition" title="Bấm để chọn nhanh thời gian">2026-09</span>
+                        
+                        <button onclick="changeEnergyPeriod(1)" class="text-gray-500 hover:text-gray-800 p-1"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Vùng hiển thị biểu đồ Năng lượng -->
+            <div class="relative w-full h-64">
+                <canvas id="energyOverviewChart"></canvas>
+            </div>
+        </div>
+
+
+    </main>
+
+    <!-- Custom Modal Message Box -->
+    <div id="notification-modal" class="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl p-4 max-w-sm w-full mx-4 shadow-xl border border-slate-200 text-center space-y-3">
+            <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mx-auto text-lg">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+            <h4 class="font-bold text-slate-800 text-sm">Thông báo hệ thống</h4>
+            <p id="modal-message-text" class="text-xs text-slate-600"></p>
+            <button onclick="closeNotification()" class="w-full py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-semibold transition cursor-pointer">
+                Đóng
+            </button>
+        </div>
+    </div>
     `,
     setting: `
         <div class="max-w-7xl mx-auto px-2.5 py-4">
