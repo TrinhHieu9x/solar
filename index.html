@@ -20,8 +20,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js"></script>
 
    <style>
-    /* ==========================================
-       1. RESET & VARIABLES (Gộp từ các bản)
+  /* ==========================================
+       1. RESET & VARIABLES
        ========================================== */
     * {
         box-sizing: border-box;
@@ -147,18 +147,16 @@
     .row:last-child { border-bottom: none; }
 
     /* ==========================================
-       4. DEVICE INFO & ACCORDION
+       4. DEVICE INFO & ACCORDION (Đã sửa lỗi hiển thị)
        ========================================== */
     .device-info-card {
         background: #fff;
-        margin: 12px;
+        margin: 12px auto;
         padding: 14px 18px;
         border-radius: 8px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.03);
         border: 1px solid var(--border-color);
         max-width: 800px;
-        margin-left: auto;
-        margin-right: auto;
     }
     .device-header {
         display: flex;
@@ -175,10 +173,8 @@
     }
 
     .accordion-container {
-        margin: 12px;
+        margin: 12px auto;
         max-width: 800px;
-        margin-left: auto;
-        margin-right: auto;
     }
     .accordion-item {
         background: #fff;
@@ -212,21 +208,24 @@
         color: #94a3b8;
         font-size: 14px;
     }
-    .accordion-item.active .accordion-header .arrow {
-        transform: rotate(90deg);
+    .accordion-item.active .accordion-header .arrow,
+    .section-header.active .arrow {
+        transform: rotate(180deg);
         color: var(--primary);
     }
     
+    /* FIX: Hỗ trợ hiển thị nội dung khi JS gán style display block hoặc dùng class active */
     .accordion-content {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease;
+        display: none; 
         background: #fafafa;
-    }
-    .accordion-item.active .accordion-content {
-        max-height: 1000px; /* Hoặc điều chỉnh độ cao phù hợp */
         border-top: 1px solid var(--border-color);
     }
+    .accordion-item.active .accordion-content,
+    .accordion-content[style*="display: block"] {
+        display: block !important;
+        max-height: none !important;
+    }
+
     .accordion-inner {
         padding: 14px 18px;
     }
@@ -251,12 +250,12 @@
         font-weight: 600; 
         color: var(--primary); 
         text-align: center; 
-        width: 40px; 
+        width: 60px; 
         outline: none; 
     }
     input[value="--"] { color: #ccc; }
     .val-edit:focus { border-color: var(--primary); background: #fff; }
-    select.val-edit { width: auto; min-width: 70px; text-align-last: center; appearance: none; }
+    select.val-edit { width: auto; min-width: 90px; text-align-last: center; appearance: none; }
 
     input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {
@@ -396,7 +395,7 @@
             right: 0;
         }
         .val-edit {
-            width: 50px;
+            width: 60px;
             min-width: 80px;
         }
     }
@@ -406,9 +405,6 @@
        ========================================== */
     .spinning svg { animation: spin 1s linear infinite; }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    
-    .arrow { transition: 0.3s; font-size: 12px; color: #999; }
-    .active .arrow { transform: rotate(180deg); color: var(--primary); }
 </style>
 </head>
 
