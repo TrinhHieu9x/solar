@@ -523,16 +523,15 @@
     function toggleAcc(header, id) {
         const content = document.getElementById(id);
         const isOpen = header.classList.contains('active');
-
+    
         if (!isOpen) {
-            if (content) content.style.display = "block";
+            content.style.display = "block";
             header.classList.add('active');
         } else {
-            if (content) content.style.display = "none";
+            content.style.display = "none";
             header.classList.remove('active');
         }
     }
-
     function toggleSwitch(el) {
         el.classList.toggle('on');
         if (navigator.vibrate) navigator.vibrate(15);
@@ -542,10 +541,10 @@
     // ==========================================
     // 4. LOGIC ĐIỀU KHIỂN GIAO DIỆN CÀI ĐẶT (SETTINGS)
     // ==========================================
+
+    // Hàm ẩn/hiện dựa trên chế độ SOC/Volt
     function toggleCapacityMode() {
-        const modeEl = document.getElementById('reg_2124');
-        if (!modeEl) return;
-        const mode = modeEl.value;
+        const mode = document.getElementById('reg_2124').value;
         const socGroup = document.getElementById('group_soc_settings');
         const voltGroup = document.getElementById('group_volt_settings');
 
@@ -553,53 +552,55 @@
             if (socGroup) socGroup.style.display = 'block';
             if (voltGroup) voltGroup.style.display = 'none';
 
+            // Ẩn/hiện tất cả các nhóm sạc/xả lưới mang ID group_soc_charge
             document.querySelectorAll('#group_soc_charge').forEach(el => el.style.display = 'block');
             document.querySelectorAll('#group_volt_charge').forEach(el => el.style.display = 'none');
         } else { // Chế độ Volt
             if (voltGroup) voltGroup.style.display = 'block';
             if (socGroup) socGroup.style.display = 'none';
 
+            // Ẩn/hiện tất cả các nhóm sạc/xả lưới mang ID group_volt_charge
             document.querySelectorAll('#group_volt_charge').forEach(el => el.style.display = 'block');
             document.querySelectorAll('#group_soc_charge').forEach(el => el.style.display = 'none');
         }
     }
 
     function TypeBatteryMode() {
-        const modeEl = document.getElementById('reg_2110');
-        if (!modeEl) return;
-        const mode = modeEl.value;
+        const mode = document.getElementById('reg_2110').value;
         const leadParams = document.getElementById('lead_acid_params');
         const eqSection = document.getElementById('group_eq_settings');
         const pylonParams = document.getElementById('pylon_params');
     
-        if (mode === "1") { // Lead-Acid
-            if (leadParams) leadParams.style.display = 'block';
-            if (eqSection) eqSection.style.display = 'block';
-            if (pylonParams) pylonParams.style.display = 'none';
+        if (mode === "1") { // 1 là Lead-Acid
+            leadParams.style.display = 'block';
+            eqSection.style.display = 'block';
+            pylonParams.style.display = 'none';
         } else {
-            if (pylonParams) pylonParams.style.display = 'block';
-            if (leadParams) leadParams.style.display = 'none';
-            if (eqSection) eqSection.style.display = 'none';
+            pylonParams.style.display = 'block';
+            leadParams.style.display = 'none';
+            eqSection.style.display = 'none';
         }
     }
-
     function syncVoltageDisplay() {
-        const vCutOff = document.getElementById('reg_2113')?.value; 
-        const vFull = document.getElementById('reg_2114')?.value;    
-        const socCutOff = document.getElementById('reg_211B')?.value; 
-        const socFull = document.getElementById('reg_2119')?.value;    
+        // 1. Lấy giá trị từ các ô nhập liệu
+        const vCutOff = document.getElementById('reg_2113').value; 
+        const vFull = document.getElementById('reg_2114').value;   
+        const socCutOff = document.getElementById('reg_211B').value; 
+        const socFull = document.getElementById('reg_2119').value;   
         
+        // 2. Lấy các ô hiển thị (Target)
         const displayVLow = document.getElementById('display_2113');
         const displayVHigh = document.getElementById('display_2114');
         const displaySLow = document.getElementById('display_soc_low');
         const displaySHigh = document.getElementById('display_soc_high');
     
-        if (displayVLow && vCutOff) displayVLow.value = vCutOff;
-        if (displayVHigh && vFull) displayVHigh.value = vFull;
-        if (displaySLow && socCutOff) displaySLow.value = socCutOff;
-        if (displaySHigh && socFull) displaySHigh.value = socFull;
+        // 3. Đổ dữ liệu vào (Check xem ô đó có tồn tại trên màn hình không rồi mới đổ)
+        if (displayVLow) displayVLow.value = vCutOff;
+        if (displayVHigh) displayVHigh.value = vFull;
+        
+        if (displaySLow) displaySLow.value = socCutOff;
+        if (displaySHigh) displaySHigh.value = socFull;
     }
-
     function confirmCancel() {
         if (confirm("Hủy bỏ thay đổi và quay lại trang chủ?")) {
             window.location.href = 'index.html'; 
@@ -719,155 +720,146 @@
     }
 
     // Hàm render dữ liệu tổng quan cho trang Overview
-    function renderOverviewData(data) {
-        data = data || {};
+        function renderData(data) {
+            data = data || {};
 
-        const setVal = (id, val) => {
-            const el = document.getElementById(id);
-            if (el) el.innerText = val;
-        };
-
-        setVal('header-sn', data.GoodsID || '--');
-        setVal('info-sn', data.GoodsID || '--');
-        setVal('info-wifi', '📶 ' + (data.WifiStrength !== undefined ? data.WifiStrength + '%' : '--'));
-        
-        const now = new Date();
-        setVal('update-time', now.getFullYear() + '-' + 
-            String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-            String(now.getDate()).padStart(2, '0') + ' ' + 
-            String(now.getHours()).padStart(2, '0') + ':' + 
-            String(now.getMinutes()).padStart(2, '0') + ':' + 
-            String(now.getSeconds()).padStart(2, '0')
-        );
-
-        // 1. Inverter
-        setVal('inv-sn', data.GoodsID || '--');
-        setVal('inv-name', data.modelName || '--');
-        setVal('inv-self-use', data.Dailyself_userate !== undefined ? data.Dailyself_userate + ' %' : '--');
-        setVal('inv-self-suff', data.Dailyself_sufficiencyrate !== undefined ? data.Dailyself_sufficiencyrate + ' %' : '--');
-        setVal('inv-mode', data.Operatingstatus !== undefined ? (data.Operatingstatus == "0" ? "Hòa lưới" : "Khác") : '--');
-        setVal('inv-temp', data.Tntc !== undefined ? data.Tntc + ' °C' : '--');
-        setVal('cnt-version', data.CntVersion2 || '--');
-        setVal('csb-version', data.CSBVersion || '--');
-        setVal('cnt-version-2', data.CntVersion2 || '--');
-        setVal('wifi-version', data.ESP32Version ? data.ESP32Version.Version : '--');
-
-        // 2. Điện mặt trời (PV)
-        setVal('pv-total-dc', (data.TotalDCpower !== undefined && data.TotalDCpower !== null && data.TotalDCpower !== '--') 
-            ? (Number(data.TotalDCpower)).toFixed(1) + ' W' 
-            : '--');
-
-        const pvData = data.data || {};
-        const vdcArr = Array.isArray(pvData.Vdc) && pvData.Vdc.length > 0 ? pvData.Vdc : ['--'];
-        const idcArr = Array.isArray(pvData.Idc) && idcArr.length > 0 ? pvData.Idc : ['--'];
-        const pdcArr = Array.isArray(pvData.Pdc) && pvData.Pdc.length > 0 ? pvData.Pdc : ['--'];
-        const maxPvLength = Math.max(vdcArr.length, idcArr.length, pdcArr.length);
-
-        let pvHtml = '';
-        for (let i = 0; i < maxPvLength; i++) {
-            let rawPdc = pdcArr[i];
-            let formattedPdc = '--';
-            if (rawPdc !== undefined && rawPdc !== null && rawPdc !== '--') {
-                formattedPdc = (Number(rawPdc) * 1000).toFixed(1) + ' W';
-            }
-
-            pvHtml += `
-                <div class="sub-group-title">--- STRING ${i + 1} ---</div>
-                <div class="info-row"><span>Điện áp PV${i + 1} </span> <b>${vdcArr[i] !== undefined && vdcArr[i] !== null ? vdcArr[i] + (vdcArr[i] !== '--' ? ' V' : '') : '--'}</b></div>
-                <div class="info-row"><span>Dòng điện PV${i + 1} </span> <b>${idcArr[i] !== undefined && idcArr[i] !== null ? idcArr[i] + (idcArr[i] !== '--' ? ' A' : '') : '--'}</b></div>
-                <div class="info-row"><span>Công suất PV${i + 1} </span> <b>${formattedPdc}</b></div>
-            `;
-        }
-        if (document.getElementById('pv-dynamic-strings')) {
-            document.getElementById('pv-dynamic-strings').innerHTML = pvHtml;
-        }
-        setVal('pv-et-day', (data.EToday || '--') + (data.EToday ? ' kWh' : ''));
-        setVal('pv-Peackpower', (data.Peackpower || '--') + (data.Peackpower ? ' W' : ''));
-        setVal('pv-et-total', (data.ETotal || '--') + (data.ETotal ? ' kWh' : ''));
-
-        // 3. Pin lưu trữ
-        let batHtml = `
-            <div class="sub-group-title">--- PACK PIN 1 ---</div>
-            <div class="info-row"><span>Thương hiệu</span> <b>${data.brand || '--'}</b></div>
-            <div class="info-row"><span>Điện áp (Volt)</span> <b>${data.volt !== undefined && data.volt !== '' ? data.volt + ' V' : '--'}</b></div>
-            <div class="info-row"><span>Dòng điện (Cur)</span> <b>${data.cur !== undefined && data.cur !== '' ? data.cur + ' A' : '--'}</b></div>
-            <div class="info-row"><span>Công suất sạc/xả</span> <b>${data.toPbat > 0 ? '-' + data.toPbat + ' W (Sạc)' : (data.fromPbat > 0 ? '+' + data.fromPbat + ' W (Xả)' : '--')}</b></div>
-            <div class="info-row"><span>Dung lượng (SOC)</span> <b>${data.SOC !== undefined && data.SOC !== '' ? data.SOC + ' %' : '--'}</b></div>
-            <div class="info-row"><span>SOH</span> <b>${data.SOH !== undefined && data.SOH !== '' ? data.SOH + ' %' : '--'}</b></div>
-            <div class="info-row"><span>Nhiệt độ BMS</span> <b>${data.BMS_temp !== undefined && data.BMS_temp !== '' ? data.BMS_temp + ' °C' : '--'}</b></div>
-            <div class="info-row"><span>Dung lượng Pin lưu trữ</span> <b>${data.capacity !== undefined && data.capacity !== '' ? data.capacity + ' Ah' : '--'}</b></div>
-        `;
-        if (data.brand2 && data.brand2 !== "") {
-            batHtml += `
-                <div class="sub-group-title">--- PACK PIN 2 ---</div>
-                <div class="info-row"><span>Thương hiệu 2</span> <b>${data.brand2}</b></div>
-                <div class="info-row"><span>Dung lượng (SOC 2)</span> <b>${data.SOC2 !== undefined ? data.SOC2 + ' %' : '--'}</b></div>
-                <div class="info-row"><span>SOH 2</span> <b>${data.SOH2 !== undefined ? data.SOH2 + ' %' : '--'}</b></div>
-            `;
-        }
-        if (document.getElementById('battery-dynamic-packs')) {
-            document.getElementById('battery-dynamic-packs').innerHTML = batHtml;
-        }
-
-        // 4. BMS
-        setVal('bms-status', data.BMS_Status || '--');
-        setVal('bms-ver', data.BMS_version || '--');
-        setVal('bms-vol-chg', data.bmsChargeVolLimit ? data.bmsChargeVolLimit + ' V' : '--');
-        setVal('bms-vol-dis', data.bmsDischargeVolLimit ? data.bmsDischargeVolLimit + ' V' : '--');
-        setVal('bms-cur-chg', data.bmsChargeCurLimit ? data.bmsChargeCurLimit + ' A' : '--');
-        setVal('bms-cur-dis', data.bmsDishargeCurLimit ? data.bmsDishargeCurLimit + ' A' : '--');
-
-        function renderMultiPhase(containerId, label, vacArr, iacArr, facVal, pacArr, extraRowsHtml = '') {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            let html = '';
-            const cleanVac = Array.isArray(vacArr) && vacArr.length > 0 ? vacArr : ['--'];
-            const cleanIac = Array.isArray(iacArr) && iacArr.length > 0 ? iacArr : ['--'];
-            const cleanPac = Array.isArray(pacArr) && pacArr.length > 0 ? pacArr : ['--'];
+            document.getElementById('header-sn').innerText = data.GoodsID || '--';
+            document.getElementById('info-sn').innerText = data.GoodsID || '--';
+            document.getElementById('info-wifi').innerText = '📶 ' + (data.WifiStrength !== undefined ? data.WifiStrength + '%' : '--');
             
-            const len = Math.max(cleanVac.length, cleanIac.length, cleanPac.length);
+            const now = new Date();
+            document.getElementById('update-time').innerText = now.getFullYear() + '-' + 
+                String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                String(now.getDate()).padStart(2, '0') + ' ' + 
+                String(now.getHours()).padStart(2, '0') + ':' + 
+                String(now.getMinutes()).padStart(2, '0') + ':' + 
+                String(now.getSeconds()).padStart(2, '0');
 
-            for (let i = 0; i < len; i++) {
-                if (len > 1) {
-                    html += `<div class="sub-group-title">--- PHA ${i + 1} ---</div>`;
+            // 1. Inverter
+            document.getElementById('inv-sn').innerText = data.GoodsID || '--';
+            document.getElementById('inv-name').innerText = data.modelName || '--';
+            document.getElementById('inv-self-use').innerText = data.Dailyself_userate !== undefined ? data.Dailyself_userate + ' %' : '--';
+            document.getElementById('inv-self-suff').innerText = data.Dailyself_sufficiencyrate !== undefined ? data.Dailyself_sufficiencyrate + ' %' : '--';
+            document.getElementById('inv-mode').innerText = data.Operatingstatus !== undefined ? (data.Operatingstatus == "0" ? "Hòa lưới" : "Khác") : '--';
+            document.getElementById('inv-temp').innerText = data.Tntc !== undefined ? data.Tntc + ' °C' : '--';
+            document.getElementById('cnt-version').innerText = data.CntVersion2 || '--';
+            document.getElementById('csb-version').innerText = data.CSBVersion || '--';
+            document.getElementById('cnt-version-2').innerText = data.CntVersion2 || '--';
+            document.getElementById('wifi-version').innerText = data.ESP32Version ? data.ESP32Version.Version : '--';
+
+            // 2. Điện mặt trời (PV)
+            // Tổng công suất DC (nếu API trả về kW thì nhân 1000 để ra W, ở đây giả sử API trả về kW giống Pdc)
+            document.getElementById('pv-total-dc').innerText = (data.TotalDCpower !== undefined && data.TotalDCpower !== null && data.TotalDCpower !== '--') 
+                ? (Number(data.TotalDCpower) ).toFixed(1) + ' W' 
+                : '--';
+
+            const pvData = data.data || {};
+            const vdcArr = Array.isArray(pvData.Vdc) && pvData.Vdc.length > 0 ? pvData.Vdc : ['--'];
+            const idcArr = Array.isArray(pvData.Idc) && pvData.Idc.length > 0 ? pvData.Idc : ['--'];
+            const pdcArr = Array.isArray(pvData.Pdc) && pvData.Pdc.length > 0 ? pvData.Pdc : ['--'];
+            const maxPvLength = Math.max(vdcArr.length, idcArr.length, pdcArr.length);
+
+            let pvHtml = '';
+            for (let i = 0; i < maxPvLength; i++) {
+                // Xử lý chuyển đổi kW -> W an toàn cho từng string Pdc
+                let rawPdc = pdcArr[i];
+                let formattedPdc = '--';
+                if (rawPdc !== undefined && rawPdc !== null && rawPdc !== '--') {
+                    formattedPdc = (Number(rawPdc) * 1000).toFixed(1) + ' W';
                 }
-                html += `
-                    <div class="info-row"><span>Điện áp ${label} (Vac)</span> <b>${cleanVac[i] !== undefined && cleanVac[i] !== null ? cleanVac[i] + (cleanVac[i] !== '--' ? ' V' : '') : '--'}</b></div>
-                    <div class="info-row"><span>Dòng điện ${label} (Iac)</span> <b>${cleanIac[i] !== undefined && cleanIac[i] !== null ? cleanIac[i] + (cleanIac[i] !== '--' ? ' A' : '') : '--'}</b></div>
-                    <div class="info-row"><span>Công suất ${label}</span> <b>${cleanPac[i] !== undefined && cleanPac[i] !== null ? cleanPac[i] + (cleanPac[i] !== '--' ? ' W' : '') : '--'}</b></div>
-                    <div class="info-row"><span>Tần số ${label} (Fac)</span> <b>${facVal || '--'} ${facVal ? 'Hz' : ''}</b></div>
+
+                pvHtml += `
+                    <div class="sub-group-title">--- STRING ${i + 1} ---</div>
+                    <div class="info-row"><span>Điện áp PV${i + 1} </span> <b>${vdcArr[i] !== undefined && vdcArr[i] !== null ? vdcArr[i] + (vdcArr[i] !== '--' ? ' V' : '') : '--'}</b></div>
+                    <div class="info-row"><span>Dòng điện PV${i + 1} </span> <b>${idcArr[i] !== undefined && idcArr[i] !== null ? idcArr[i] + (idcArr[i] !== '--' ? ' A' : '') : '--'}</b></div>
+                    <div class="info-row"><span>Công suất PV${i + 1} </span> <b>${formattedPdc}</b></div>
                 `;
             }
-            html += extraRowsHtml;
-            container.innerHTML = html;
+            document.getElementById('pv-dynamic-strings').innerHTML = pvHtml;
+            document.getElementById('pv-et-day').innerText = (data.EToday || '--') + (data.EToday ? ' kWh' : '');
+            document.getElementById('pv-Peackpower').innerText = (data.Peackpower || '--') + (data.Peackpower ? ' W' : '');
+            document.getElementById('pv-et-total').innerText = (data.ETotal || '--') + (data.ETotal ? ' kWh' : '');
+
+            // 3. Pin lưu trữ
+            let batHtml = `
+                <div class="sub-group-title">--- PACK PIN 1 ---</div>
+                <div class="info-row"><span>Thương hiệu</span> <b>${data.brand || '--'}</b></div>
+                <div class="info-row"><span>Điện áp (Volt)</span> <b>${data.volt !== undefined && data.volt !== '' ? data.volt + ' V' : '--'}</b></div>
+                <div class="info-row"><span>Dòng điện (Cur)</span> <b>${data.cur !== undefined && data.cur !== '' ? data.cur + ' A' : '--'}</b></div>
+                <div class="info-row"><span>Công suất sạc/xả</span> <b>${data.toPbat > 0 ? '-' + data.toPbat + ' W (Sạc)' : (data.fromPbat > 0 ? '+' + data.fromPbat + ' W (Xả)' : '--')}</b></div>
+                <div class="info-row"><span>Dung lượng (SOC)</span> <b>${data.SOC !== undefined && data.SOC !== '' ? data.SOC + ' %' : '--'}</b></div>
+                <div class="info-row"><span>SOH</span> <b>${data.SOH !== undefined && data.SOH !== '' ? data.SOH + ' %' : '--'}</b></div>
+                <div class="info-row"><span>Nhiệt độ BMS</span> <b>${data.BMS_temp !== undefined && data.BMS_temp !== '' ? data.BMS_temp + ' °C' : '--'}</b></div>
+                <div class="info-row"><span>Dung lượng Pin lưu trữ</span> <b>${data.capacity !== undefined && data.capacity !== '' ? data.capacity + ' Ah' : '--'}</b></div>
+            `;
+            if (data.brand2 && data.brand2 !== "") {
+                batHtml += `
+                    <div class="sub-group-title">--- PACK PIN 2 ---</div>
+                    <div class="info-row"><span>Thương hiệu 2</span> <b>${data.brand2}</b></div>
+                    <div class="info-row"><span>Dung lượng (SOC 2)</span> <b>${data.SOC2 !== undefined ? data.SOC2 + ' %' : '--'}</b></div>
+                    <div class="info-row"><span>SOH 2</span> <b>${data.SOH2 !== undefined ? data.SOH2 + ' %' : '--'}</b></div>
+                `;
+            }
+            document.getElementById('battery-dynamic-packs').innerHTML = batHtml;
+
+            // 4. BMS
+            document.getElementById('bms-status').innerText = data.BMS_Status || '--';
+            document.getElementById('bms-ver').innerText = data.BMS_version || '--';
+            document.getElementById('bms-vol-chg').innerText = data.bmsChargeVolLimit ? data.bmsChargeVolLimit + ' V' : '--';
+            document.getElementById('bms-vol-dis').innerText = data.bmsDischargeVolLimit ? data.bmsDischargeVolLimit + ' V' : '--';
+            document.getElementById('bms-cur-chg').innerText = data.bmsChargeCurLimit ? data.bmsChargeCurLimit + ' A' : '--';
+            document.getElementById('bms-cur-dis').innerText = data.bmsDishargeCurLimit ? data.bmsDishargeCurLimit + ' A' : '--';
+
+            function renderMultiPhase(containerId, label, vacArr, iacArr, facVal, pacArr, extraRowsHtml = '') {
+                let html = '';
+                const cleanVac = Array.isArray(vacArr) && vacArr.length > 0 ? vacArr : ['--'];
+                const cleanIac = Array.isArray(iacArr) && iacArr.length > 0 ? iacArr : ['--'];
+                const cleanPac = Array.isArray(pacArr) && pacArr.length > 0 ? pacArr : ['--'];
+                
+                const len = Math.max(cleanVac.length, cleanIac.length, cleanPac.length);
+
+                for (let i = 0; i < len; i++) {
+                    if (len > 1) {
+                        html += `<div class="sub-group-title">--- PHA ${i + 1} ---`;
+                    }
+                    html += `
+                        <div class="info-row"><span>Điện áp ${label} (Vac)</span> <b>${cleanVac[i] !== undefined && cleanVac[i] !== null ? cleanVac[i] + (cleanVac[i] !== '--' ? ' V' : '') : '--'}</b></div>
+                        <div class="info-row"><span>Dòng điện ${label} (Iac)</span> <b>${cleanIac[i] !== undefined && cleanIac[i] !== null ? cleanIac[i] + (cleanIac[i] !== '--' ? ' A' : '') : '--'}</b></div>
+                        <div class="info-row"><span>Công suất ${label}</span> <b>${cleanPac[i] !== undefined && cleanPac[i] !== null ? cleanPac[i] + (cleanPac[i] !== '--' ? ' W' : '') : '--'}</b></div>
+                        <div class="info-row"><span>Tần số ${label} (Fac)</span> <b>${facVal || '--'} ${facVal ? 'Hz' : ''}</b></div>
+                    `;
+                }
+                html += extraRowsHtml;
+                document.getElementById(containerId).innerHTML = html;
+            }
+
+            // 5. Lưới điện
+            renderMultiPhase('grid-dynamic-container', 'lưới', data.gridVac, data.gridIac, data.gridFac, data.gridCurrpac,
+                `<div class="info-row" style="margin-top:6px;"><span>Sản lượng hòa vào lưới ngày</span> <b>${data.ETDay || '--'} ${data.ETDay ? 'kWh' : ''}</b></div>
+                 <div class="info-row"><span>Tổng sản lượng hoà vào lưới</span> <b>${data.ETTotal || '--'} ${data.ETTotal ? 'kWh' : ''}</b></div>
+                 <div class="info-row" style="margin-top:6px;"><span>Sản lượng lấy lưới ngày</span> <b>${data.EFDay || '--'} ${data.EFDay ? 'kWh' : ''}</b></div>
+                 <div class="info-row"><span>Tổng sản lượng lấy lưới</span> <b>${data.EFTotal || '--'} ${data.EFTotal ? 'kWh' : ''}</b></div>`
+
+
+            );
+
+            // 6. Tải trên lưới (với CT)
+            renderMultiPhase('load-dynamic-container', 'tải', data.loadVac, data.loadIac, data.loadFac, data.loadCurrpac, 
+                `<div class="info-row" style="margin-top:6px;"><span>Sản lượng tiêu thụ ngày (ELDay)</span> <b>${data.ELDay || '--'} ${data.ELDay ? 'kWh' : ''}</b></div>
+                 <div class="info-row"><span>Tổng sản lượng tiêu thụ (ELTotal)</span> <b>${data.ELTotal || '--'} ${data.ELTotal ? 'kWh' : ''}</b></div>`
+            );
+
+            // 7. Tải dự phòng (EPS)
+            renderMultiPhase('eps-dynamic-container', 'EPS', data.epsVac, data.epsIac, data.epsFac, data.epsCurrpac, 
+                `<div class="info-row" style="margin-top:6px;"><span>Sản lượng EPS ngày (EPSDay)</span> <b>${data.EPSDay || '--'} ${data.EPSDay ? 'kWh' : ''}</b></div>
+                 <div class="info-row"><span>Tổng sản lượng EPS (EPSTotal)</span> <b>${data.EPSTotal || '--'} ${data.EPSTotal ? 'kWh' : ''}</b></div>`
+            );
+
+            // Cập nhật lại chiều cao các thẻ đang mở
+            document.querySelectorAll('.accordion-item.active .accordion-content').forEach(content => {
+                content.style.maxHeight = content.scrollHeight + 'px';
+            });
         }
-
-        // 5. Lưới điện
-        renderMultiPhase('grid-dynamic-container', 'lưới', data.gridVac, data.gridIac, data.gridFac, data.gridCurrpac,
-            `<div class="info-row" style="margin-top:6px;"><span>Sản lượng hòa vào lưới ngày</span> <b>${data.ETDay || '--'} ${data.ETDay ? 'kWh' : ''}</b></div>
-             <div class="info-row"><span>Tổng sản lượng hoà vào lưới</span> <b>${data.ETTotal || '--'} ${data.ETTotal ? 'kWh' : ''}</b></div>
-             <div class="info-row" style="margin-top:6px;"><span>Sản lượng lấy lưới ngày</span> <b>${data.EFDay || '--'} ${data.EFDay ? 'kWh' : ''}</b></div>
-             <div class="info-row"><span>Tổng sản lượng lấy lưới</span> <b>${data.EFTotal || '--'} ${data.EFTotal ? 'kWh' : ''}</b></div>`
-        );
-
-        // 6. Tải trên lưới (với CT)
-        renderMultiPhase('load-dynamic-container', 'tải', data.loadVac, data.loadIac, data.loadFac, data.loadCurrpac, 
-            `<div class="info-row" style="margin-top:6px;"><span>Sản lượng tiêu thụ ngày (ELDay)</span> <b>${data.ELDay || '--'} ${data.ELDay ? 'kWh' : ''}</b></div>
-             <div class="info-row"><span>Tổng sản lượng tiêu thụ (ELTotal)</span> <b>${data.ELTotal || '--'} ${data.ELTotal ? 'kWh' : ''}</b></div>`
-        );
-
-        // 7. Tải dự phòng (EPS)
-        renderMultiPhase('eps-dynamic-container', 'EPS', data.epsVac, data.epsIac, data.epsFac, data.epsCurrpac, 
-            `<div class="info-row" style="margin-top:6px;"><span>Sản lượng EPS ngày (EPSDay)</span> <b>${data.EPSDay || '--'} ${data.EPSDay ? 'kWh' : ''}</b></div>
-             <div class="info-row"><span>Tổng sản lượng EPS (EPSTotal)</span> <b>${data.EPSTotal || '--'} ${data.EPSTotal ? 'kWh' : ''}</b></div>`
-        );
-
-        document.querySelectorAll('.accordion-item.active .accordion-content').forEach(content => {
-            content.style.maxHeight = content.scrollHeight + 'px';
-        });
-    }
-
-
     // ==========================================
     // 7. KHỞI TẠO KHI DOM LOAD XONG
     // ==========================================
