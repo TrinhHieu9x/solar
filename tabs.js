@@ -659,10 +659,6 @@ const TabContents = {
         </div>
     </div>
 </div>
-
-<div class="footer-actions">
-    <button class="btn-save" onclick="saveAll(this)">LƯU THIẾT LẬP</button>
-</div>
     `,
     overview: `
 
