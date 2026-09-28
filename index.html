@@ -295,17 +295,17 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <!-- Cụm 3 nút: Căn giữa tuyệt đối khoảng trống giữa Logo và User bằng flex-1 và justify-center -->
-        <nav class="flex items-center space-x-1 text-xs overflow-x-auto py-0.5">
-            <button onclick="switchTab('monitor.html', this)" class="nav-btn px-2.5 py-1 rounded bg-white/25 font-semibold flex items-center gap-1 whitespace-nowrap transition">
-                <i class="fa-solid fa-compass"></i> Màn hình
-            </button>
-            <button onclick="switchTab('setting.html', this)" class="nav-btn px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap">
-                <i class="fa-solid fa-gear"></i> Cấu hình
-            </button>
-            <button onclick="switchTab('overview.html', this)" class="nav-btn px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap">
-                <i class="fa-solid fa-grip"></i> Tổng quan
-            </button>
-        </nav>
+            <nav class="flex items-center space-x-1 text-xs overflow-x-auto py-0.5">
+                <button onclick="switchTab('monitor', '', this)" class="nav-btn px-2.5 py-1 rounded bg-white/25 font-semibold flex items-center gap-1 whitespace-nowrap transition">
+                    <i class="fa-solid fa-compass"></i> Màn hình
+                </button>
+                <button onclick="switchTab('fetch', 'setting.html', this)" class="nav-btn px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap">
+                    <i class="fa-solid fa-gear"></i> Cấu hình
+                </button>
+                <button onclick="switchTab('fetch', 'overview.html', this)" class="nav-btn px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap">
+                    <i class="fa-solid fa-grip"></i> Tổng quan
+                </button>
+            </nav>
 
         <!-- User Info & Dropdown Menu bên phải -->
         <div class="relative shrink-0">
