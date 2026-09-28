@@ -915,6 +915,9 @@ function renderOverviewData(data) {
     // ==========================================
     // 7. KHỞI TẠO KHI DOM LOAD XONG
     // ==========================================
+// ==========================================
+    // 7. KHỞI TẠO KHI DOM LOAD XONG
+    // ==========================================
 function switchTab(tabName, element) {
     const container = document.getElementById('app-container');
     
@@ -949,6 +952,30 @@ function switchTab(tabName, element) {
             if (typeof fetchInverterData === 'function') {
                 fetchInverterData();
             }
+        }, 50);
+    } else if (tabName === 'view') {
+        // --> BỔ SUNG GỌI API CHO TAB VIEW TẠI ĐÂY <--
+        setTimeout(() => {
+            const dObj = new Date();
+            const dayLabel = document.getElementById('current-day-label');
+            const energyLabel = document.getElementById('energy-period-label');
+            
+            if (dayLabel) dayLabel.innerText = `Ngày ${dObj.getDate()} thg ${dObj.getMonth() + 1}, ${dObj.getFullYear()}`;
+            if (energyLabel) energyLabel.innerText = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
+            
+            try { renderDashboard(); } catch(e) {}
+            try { initPowerLineChart(); } catch(e) {}
+            try { initEnergyBarChart(); } catch(e) {}
+
+            // Gọi các API khởi tạo dữ liệu song song
+            Promise.allSettled([
+                typeof fetchVendorAPI === 'function' ? fetchVendorAPI() : Promise.resolve(),
+                typeof fetchFlowAPI === 'function' ? fetchFlowAPI() : Promise.resolve(),
+                typeof fetchRuntimeAPI === 'function' ? fetchRuntimeAPI() : Promise.resolve(),
+                typeof initDashboardAPI === 'function' ? initDashboardAPI(API_CONFIG.SERIAL_NUM) : Promise.resolve()
+            ]).catch(err => {
+                console.warn("Lỗi khi tải dữ liệu ban đầu cho tab view:", err);
+            });
         }, 50);
     }
 }
