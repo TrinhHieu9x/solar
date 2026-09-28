@@ -631,41 +631,6 @@
         }
     }
 
-
-    // ==========================================
-    // 5. QUẢN LÝ GỌI API (FETCH & ABORT CONTROLLER)
-    // ==========================================
-    const activeRequests = {};
-
-    async function fetchWithCancel(apiName, url, options = {}) {
-        if (activeRequests[apiName]) {
-            activeRequests[apiName].abort();
-        }
-
-        const controller = new AbortController();
-        activeRequests[apiName] = controller;
-        options.signal = controller.signal;
-
-        try {
-            const response = await fetch(url, options);
-            if (!response.ok) {
-                throw new Error(`Lỗi gọi API: ${response.status}`);
-            }
-            return await response.json();
-        } catch (error) {
-            if (error.name === 'AbortError') {
-                console.log(`Request [${apiName}] đã bị hủy do có request mới.`);
-                return null;
-            }
-            throw error;
-        } finally {
-            if (activeRequests[apiName] === controller) {
-                delete activeRequests[apiName];
-            }
-        }
-    }
-
-
     // ==========================================
     // 6. TẢI DỮ LIỆU INVERTER (HỖ TRỢ CẢ 2 LOẠI TRANG)
     // ==========================================
