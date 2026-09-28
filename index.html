@@ -234,31 +234,26 @@ body.dark-mode #topo-pv2-volts {
                 if (statusText) statusText.innerText = "Off";
             }
         }
-        // Hàm chuyển tab mượt mà bằng fetch
-function switchTab(url, element) {
-    // 1. Gọi nội dung file HTML tương ứng
-    fetch(url)
-        .then(response => {
-            if (!response.ok) throw new Error('Không thể tải trang');
-            return response.text();
-        })
-        .then(html => {
-            // Đổ HTML vào khung chứa
-            document.getElementById('app-container').innerHTML = html;
+// Hàm chuyển tab ẩn/hiện trực tiếp trên index.html (Không fetch, không lặp)
+function switchTab(tabId, element) {
+    // 1. Ẩn tất cả các tab-pane có trên trang
+    document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.classList.add('hidden');
+    });
+    
+    // 2. Hiện cái tab được chọn lên
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) {
+        targetTab.classList.remove('hidden');
+    }
 
-            // 2. Cập nhật trạng thái active (sáng lên) cho các nút trên menu
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.className = "nav-btn px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap";
-            });
-            element.className = "nav-btn px-2.5 py-1 rounded bg-white/25 font-semibold flex items-center gap-1 whitespace-nowrap transition";
-
-            // 3. (Tùy chọn) Lưu lịch sử URL giả lập trên thanh địa chỉ trình duyệt nếu muốn
-            window.history.pushState({path: url}, '', '/' + url.replace('.html', ''));
-        })
-        .catch(error => {
-            console.error('Lỗi:', error);
-            document.getElementById('app-container').innerHTML = '<p class="text-center text-red-500 py-4">Không thể tải nội dung tab này.</p>';
-        });
+    // 3. Cập nhật giao diện nút bấm active trên menu
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.className = "nav-btn px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap";
+    });
+    if (element) {
+        element.className = "nav-btn px-2.5 py-1 rounded bg-white/25 font-semibold flex items-center gap-1 whitespace-nowrap transition";
+    }
 }
 
 // Tự động load màn hình chính (monitor.html) khi vừa mở trang index.html
@@ -342,7 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
 </header>
     
-<div id="monitor-content" class="tab-content hidden">
+<div id="monitor-content">
     <main class="max-w-7xl mx-auto px-2 sm:px-4 py-2 space-y-2">
 
         <div class="bg-white rounded-lg px-2.5 py-1 shadow-xs border border-slate-200 flex items-center justify-between gap-2 text-[11px]">
