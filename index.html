@@ -921,26 +921,42 @@ function renderOverviewData(data) {
     // 7. KHỞI TẠO KHI DOM LOAD XONG
     // ==========================================
 function switchTab(tabName, element) {
-        const container = document.getElementById('app-container');
-        
-        // Kiểm tra xem TabContents (đã định nghĩa ở file tabs.js hoặc trong script) có tồn tại không
-        if (typeof TabContents !== 'undefined' && TabContents[tabName]) {
-            container.innerHTML = TabContents[tabName];
-        } else {
-            container.innerHTML = '<p class="text-center text-red-500 py-4">Không tìm thấy nội dung tab.</p>';
-        }
-
-        // Đổi trạng thái active của các nút menu
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.className = "nav-btn px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap";
-        });
-        if (element) {
-            element.className = "nav-btn px-2.5 py-1 rounded bg-white/25 font-semibold flex items-center gap-1 whitespace-nowrap transition";
-        }
-
-        // Ghi nhận hash vào URL để F5 không bị lỗi 404
-        window.location.hash = tabName;
+    const container = document.getElementById('app-container');
+    
+    // 1. Nạp HTML của tab vào container
+    if (typeof TabContents !== 'undefined' && TabContents[tabName]) {
+        container.innerHTML = TabContents[tabName];
+    } else {
+        container.innerHTML = '<p class="text-center text-red-500 py-4">Không tìm thấy nội dung tab.</p>';
     }
+
+    // 2. Đổi trạng thái active của các nút menu
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.className = "nav-btn px-2.5 py-1 rounded hover:bg-white/10 transition font-medium flex items-center gap-1 whitespace-nowrap";
+    });
+    if (element) {
+        element.className = "nav-btn px-2.5 py-1 rounded bg-white/25 font-semibold flex items-center gap-1 whitespace-nowrap transition";
+    }
+
+    // 3. Ghi nhận hash vào URL
+    window.location.hash = tabName;
+
+    // 4. QUAN TRỌNG: Kích hoạt tải dữ liệu tương ứng với từng Tab sau khi HTML đã hiện lên DOM
+    if (tabName === 'setting') {
+        // Đợi 50ms để DOM render xong các thẻ reg_ thì mới gọi API đọc giá trị
+        setTimeout(() => {
+            if (typeof loadInverterData === 'function') {
+                loadInverterData();
+            }
+        }, 50);
+    } else if (tabName === 'overview') {
+        setTimeout(() => {
+            if (typeof fetchInverterData === 'function') {
+                fetchInverterData();
+            }
+        }, 50);
+    }
+}
 
     // ==========================================
     // 4. KHỞI TẠO KHI TẢI TRANG (DOM LOADED)
