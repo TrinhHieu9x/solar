@@ -665,6 +665,7 @@ async function loadInverterData() {
     const title = document.getElementById('mainTitle');
     const originalTitle = "THIẾT LẬP HỆ THỐNG";
     const goodsId = localStorage.getItem('solar_GoodsID') || sessionStorage.getItem('solar_GoodsID');
+    const operator = localStorage.getItem('solar_username') || sessionStorage.getItem('solar_username');
     
     // 1. Quét toàn bộ trang để lấy TẤT CẢ ID có tiền tố reg_
     const allElements = document.querySelectorAll('[id^="reg_"]');
@@ -678,7 +679,7 @@ async function loadInverterData() {
     try {
         // Chia nhỏ danh sách ID nếu quá dài (Worker thường giới hạn độ dài URL)
         // Nhưng với số lượng thanh ghi biến tần, gửi 1 lần vẫn ổn.
-        const url = `https://api.solarvn.workers.dev/read?ids=${idsToFetch.join(',')}&goods_id=${encodeURIComponent(goodsId)}`;
+        const url = `https://api.solarvn.workers.dev/read?ids=${idsToFetch.join(',')}&goods_id=${encodeURIComponent(goodsId)}&operator=${encodeURIComponent(operator)}`;
         const response = await fetch(url, { cache: 'no-store' });
         if (!response.ok) throw new Error("Server Worker lỗi");
 
