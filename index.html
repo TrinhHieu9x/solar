@@ -257,12 +257,11 @@ body.dark-mode #topo-pv2-volts {
                     document.getElementById('app-container').innerHTML = '<p class="text-center text-red-500 py-4">Không thể tải nội dung tab này.</p>';
                 });
         }
-// Tự động load màn hình chính (monitor.html) khi vừa mở trang index.html
 document.addEventListener("DOMContentLoaded", () => {
     // Tìm nút "Màn hình" đầu tiên và kích hoạt load nó
     const defaultBtn = document.querySelector('.nav-btn');
     if (defaultBtn) {
-        switchTab('monitor.html', defaultBtn);
+        switchTab('view.html', defaultBtn);
     }
 });
 
