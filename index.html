@@ -619,69 +619,92 @@
         const goodsId = getStorage('solar_GoodsID');
         const operator = getStorage('solar_username');
         
+        // 1. Quét toàn bộ trang để lấy TẤT CẢ ID có tiền tố reg_
         const allElements = document.querySelectorAll('[id^="reg_"]');
+        const idsToFetch = Array.from(allElements).map(el => el.id.replace('reg_', ''));
         if (allElements.length === 0) {
             // Nếu không có phần tử reg_ trên trang, chuyển sang gọi fetchInverterData (dạng Overview)
             return fetchInverterData();
         }
 
-        const idsToFetch = Array.from(allElements).map(el => el.id.replace('reg_', ''));
+    btn.classList.add('spinning');
+    title.innerText = "🔄 ĐANG ĐỌC TẤT CẢ...";
 
-        if (btn) btn.classList.add('spinning');
-        if (title) title.innerText = "🔄 ĐANG ĐỌC TẤT CẢ...";
+    try {
+        // Chia nhỏ danh sách ID nếu quá dài (Worker thường giới hạn độ dài URL)
+        // Nhưng với số lượng thanh ghi biến tần, gửi 1 lần vẫn ổn.
+        const url = `https://api.solarvn.workers.dev/read?ids=${idsToFetch.join(',')}&goods_id=${encodeURIComponent(goodsId)}&operator=${encodeURIComponent(operator)}`;
+        const response = await fetch(url, { cache: 'no-store' });
+        if (!response.ok) throw new Error("Server Worker lỗi");
 
-        try {
-            const url = `https://api.solarvn.workers.dev/read?ids=${idsToFetch.join(',')}&goods_id=${encodeURIComponent(goodsId)}&operator=${encodeURIComponent(operator)}`;
-            const response = await fetch(url, { cache: 'no-store' });
-            if (!response.ok) throw new Error("Server Worker lỗi");
-
-            const data = await response.json(); 
-            
-            if (Array.isArray(data)) {
-                data.forEach(item => {
-                    const innerKey = Object.keys(item)[0];
-                    const innerObj = item[innerKey];
-                    const address = Object.keys(innerObj)[0];
-                    const value = innerObj[address];
-                    
-                    const element = document.getElementById('reg_' + address);
-                    if (element) {
-                        if (element.classList.contains('switch')) {
-                            if (parseInt(value) === 1) {
-                                element.classList.add('on');
-                            } else {
-                                element.classList.remove('on');
-                            }
-                        } else if (address === "211E") {
-                            element.value = value;
+        const data = await response.json(); 
+        
+        if (Array.isArray(data)) {
+            data.forEach(item => {
+                const innerKey = Object.keys(item)[0];
+                const innerObj = item[innerKey];
+                const address = Object.keys(innerObj)[0];
+                const value = innerObj[address];
+                
+                const element = document.getElementById('reg_' + address);
+                if (element) {
+                    // Xử lý Switch (Nút gạt)
+                    if (element.classList.contains('switch')) {
+                        if (parseInt(value) === 1) {
+                            element.classList.add('on');
                         } else {
-                            const stepValue = element.getAttribute('step');
-                            if (stepValue === "0.1") {
-                                element.value = (parseFloat(value) / 10).toFixed(1);
-                            } else {
-                                element.value = value;
-                            }
+                            element.classList.remove('on');
                         }
-
-                        element.style.backgroundColor = "#d4edda";
-                        setTimeout(() => { element.style.backgroundColor = ""; }, 800);
+                    } 
+                    // Xử lý Tần số (chia 100 nếu cần, hiện tại đang để nguyên theo code cũ)
+                    else if (address === "211E") {
+                        element.value = value;
                     }
-                });
-                if (title) title.innerText = "✅ ĐÃ CẬP NHẬT";
-            }
-        } catch (error) {
-            console.error("Lỗi:", error);
-            if (title) title.innerText = "❌ LỖI ĐỌC";
-        } finally {
-            if (btn) btn.classList.remove('spinning');
-            setTimeout(() => { if(title && title.innerText !== "❌ LỖI ĐỌC") title.innerText = originalTitle; }, 2000);
-            
-            toggleCapacityMode();
-            TypeBatteryMode();
-            syncVoltageDisplay();
+                    // Xử lý Input số có bước nhảy 0.1
+                    else {
+                        const stepValue = element.getAttribute('step');
+                        if (stepValue === "0.1") {
+                            element.value = (parseFloat(value) / 10).toFixed(1);
+                        } else {
+                            element.value = value;
+                        }
+                    }
+
+                    // Hiệu ứng xanh nhẹ báo hiệu đã cập nhật xong
+                    element.style.backgroundColor = "#d4edda";
+                    setTimeout(() => { element.style.backgroundColor = ""; }, 800);
+                }
+            });
+            title.innerText = "✅ ĐÃ CẬP NHẬT";
         }
+    } catch (error) {
+        console.error("Lỗi:", error);
+        title.innerText = "❌ LỖI ĐỌC";
+    } finally {
+        btn.classList.remove('spinning');
+        setTimeout(() => { if(title.innerText !== "❌ LỖI ĐỌC") title.innerText = originalTitle; }, 2000);
+        
+        // Gọi các hàm đồng bộ giao diện cho toàn bộ các mục
+        toggleCapacityMode();
+        TypeBatteryMode();
+        syncVoltageDisplay();
+    }
+}
+    function getIdsFromPinSection() {
+        const mainSection = document.getElementById('sec_battery_main');
+        if (!mainSection) return [];
+        const elements = mainSection.querySelectorAll('[id^="reg_"]');
+        return Array.from(elements).map(el => el.id.replace('reg_', ''));
+    }
+    function getIdsFromContainer(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return [];
+        
+        const elements = container.querySelectorAll('[id^="reg_"]');
+        return Array.from(elements).map(el => el.id.replace('reg_', ''));
     }
 
+     
     // Trường hợp B: Trang Overview (Đọc JSON tổng quan thông số)
     async function fetchInverterData() {
         const btn = document.getElementById('refresh-btn');
