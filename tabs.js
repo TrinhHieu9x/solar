@@ -226,65 +226,68 @@ const TabContents = {
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-2 sm:gap-2.5">
-            <!-- Card 1: Chế độ đang chạy (Working Mode) -->
-            <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-2xs border border-slate-200 flex flex-col justify-between">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5">
-                    <div class="flex items-center gap-1.5">
-                        <div class="w-6 h-6 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-sliders text-xs"></i>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-xs sm:text-sm truncate">Chế độ đang chạy</h4>
-                    </div>
-                    <button onclick="alert('Mở cài đặt chế độ vận hành')" class="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer">
-                        <i class="fa-solid fa-sliders text-xs"></i>
-                    </button>
+<div class="grid grid-cols-2 gap-2 sm:gap-2.5">
+    <!-- Card 1: Chế độ đang chạy (Working Mode) -->
+    <div class="bg-white rounded-xl p-2.5 sm:p-3 shadow-2xs border border-slate-200 flex flex-col justify-between">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5">
+            <div class="flex items-center gap-1.5">
+                <div class="w-6 h-6 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-sliders text-xs"></i>
                 </div>
-                <div class="space-y-0.5 py-0.5">
-                    <div class="text-emerald-600 font-bold text-xs sm:text-sm flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span id="mode-primary-title">Hòa lưới</span>
-                    </div>
-                    <div id="mode-secondary-desc" class="text-[11px] text-slate-500 font-medium truncate">
-                        Chế độ tự tiêu thụ (Self-consumption mode)
-                    </div>
+                <h4 class="font-bold text-slate-800 text-xs sm:text-sm truncate">Chế độ đang chạy</h4>
+            </div>
+            <!-- Thêm active:scale-95 để tạo hiệu ứng nảy nhẹ khi bấm và nhả ra mất luôn -->
+            <button onclick="alert('Mở cài đặt chế độ vận hành')" class="w-8 h-8 -mr-1.5 flex items-center justify-center text-slate-400 hover:text-slate-600 active:scale-90 transition-transform cursor-pointer">
+                <i class="fa-solid fa-sliders text-xs"></i>
+            </button>
+        </div>
+        <div class="space-y-0.5 py-0.5">
+            <div class="text-emerald-600 font-bold text-xs sm:text-sm flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span id="mode-primary-title">Hòa lưới</span>
+            </div>
+            <div id="mode-secondary-desc" class="text-[11px] text-slate-500 font-medium truncate">
+                Chế độ tự tiêu thụ (Self-consumption mode)
+            </div>
+        </div>
+        <div class="mt-1 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[9px] sm:text-[10px] text-slate-400 font-mono">
+            <span id="mode-priority-text" class="truncate">Ưu tiên: Tải > Pin > Lưới</span>
+            <span id="mode-badge-text" class="text-emerald-600 font-semibold shrink-0">Tối ưu</span>
+        </div>
+    </div>
+
+    <!-- Card 2: Nhật ký / Cảnh báo (System Logs & Alarms) -->
+    <div id="alarm-card" class="bg-white rounded-xl p-2.5 sm:p-3 shadow-2xs border border-slate-200 flex flex-col justify-between transition-colors">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5">
+            <div class="flex items-center gap-1.5">
+                <div id="alarm-icon-bg" class="w-6 h-6 rounded-md bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-clipboard-list text-xs"></i>
                 </div>
-<div class="mt-1 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[9px] sm:text-[10px] text-slate-400 font-mono">
-    <span id="mode-priority-text" class="truncate">Ưu tiên: Tải > Pin > Lưới</span>
-    <span id="mode-badge-text" class="text-emerald-600 font-semibold shrink-0">Tối ưu</span>
+                <div class="flex items-center gap-1">
+                    <h4 class="font-bold text-slate-800 text-xs sm:text-sm">Nhật ký</h4>
+                    <span onclick="alert('Nhật ký ghi nhận các cảnh báo và sự kiện vận hành hệ thống')" class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-slate-600 active:scale-90 transition-transform cursor-pointer">
+                        <i class="fa-regular fa-circle-question text-xs"></i>
+                    </span>
+                </div>
+            </div>
+            <button onclick="alert('Xem toàn bộ lịch sử cảnh báo')" class="w-8 h-8 -mr-1.5 flex items-center justify-center text-slate-400 hover:text-slate-600 active:scale-90 transition-transform cursor-pointer">
+                <i class="fa-solid fa-chevron-right text-xs"></i>
+            </button>
+        </div>
+        
+        <!-- Khu vực hiển thị tên lỗi -->
+        <div id="log-status-container" class="py-1 flex items-center gap-1.5 text-xs text-slate-600">
+            <i id="alarm-status-icon" class="fa-solid fa-circle-check text-emerald-500 text-sm shrink-0"></i>
+            <span id="alarm-text" class="font-medium text-slate-700 text-[11px] sm:text-xs truncate">Hiện tại không có cảnh báo</span>
+        </div>
+
+        <!-- Khu vực hiển thị giá trị thô và trạng thái -->
+        <div class="mt-1 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[9px] sm:text-[10px] text-slate-400 font-mono">
+            <span>Mã lỗi (Dec): <strong id="alarm-code" class="text-slate-600">0</strong></span>
+            <span id="alarm-badge" class="text-emerald-600 font-semibold">Bình thường</span>
+        </div>
+    </div>
 </div>
-
-            </div>
-            <!-- Card 2: Nhật ký / Cảnh báo (System Logs & Alarms) -->
-            <div id="alarm-card" class="bg-white rounded-xl p-2.5 sm:p-3 shadow-2xs border border-slate-200 flex flex-col justify-between transition-colors">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5">
-                    <div class="flex items-center gap-1.5">
-                        <div id="alarm-icon-bg" class="w-6 h-6 rounded-md bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-clipboard-list text-xs"></i>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <h4 class="font-bold text-slate-800 text-xs sm:text-sm">Nhật ký</h4>
-                            <i class="fa-regular fa-circle-question text-slate-400 text-xs cursor-pointer" onclick="alert('Nhật ký ghi nhận các cảnh báo và sự kiện vận hành hệ thống')"></i>
-                        </div>
-                    </div>
-                    <button onclick="alert('Xem toàn bộ lịch sử cảnh báo')" class="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer">
-                        <i class="fa-solid fa-chevron-right text-xs"></i>
-                    </button>
-                </div>
-                
-                <!-- Khu vực hiển thị tên lỗi -->
-                <div id="log-status-container" class="py-1 flex items-center gap-1.5 text-xs text-slate-600">
-                    <i id="alarm-status-icon" class="fa-solid fa-circle-check text-emerald-500 text-sm shrink-0"></i>
-                    <span id="alarm-text" class="font-medium text-slate-700 text-[11px] sm:text-xs truncate">Hiện tại không có cảnh báo</span>
-                </div>
-
-                <!-- Khu vực hiển thị giá trị thô và trạng thái -->
-                <div class="mt-1 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[9px] sm:text-[10px] text-slate-400 font-mono">
-                    <span>Mã lỗi (Dec): <strong id="alarm-code" class="text-slate-600">0</strong></span>
-                    <span id="alarm-badge" class="text-emerald-600 font-semibold">Bình thường</span>
-                </div>
-            </div>
-          </div>
 
         <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
             <div class="flex flex-wrap items-center justify-between mb-3 gap-2">
