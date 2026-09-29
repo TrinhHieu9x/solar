@@ -2612,43 +2612,49 @@ function closeErrorModal() {
 
 // Hàm render dữ liệu ra danh sách HTML
 function renderErrorList(data) {
-    const container = document.getElementById('error-list-container');
-    const subText = document.getElementById('total-error-sub');
+    const errorContainer = document.getElementById('error-list-container');
     
-    subText.innerText = `Tổng số sự kiện: ${data.total_error_num}`;
-    
-    if (!data.infoerror || data.infoerror.length === 0) {
-        container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">Không có lịch sử cảnh báo nào.</div>`;
+    // Gom nhóm các sự kiện thô thành phiên lỗi bắt đầu - kết thúc
+    const sessions = processErrorLogs(data);
+
+    if (sessions.length === 0) {
+        errorContainer.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">Không có lịch sử lỗi nào trong khoảng thời gian này.</div>`;
         return;
     }
 
-    let html = '';
-    data.infoerror.forEach(item => {
-        // Phân biệt trạng thái: status "1" là đang phát sinh lỗi (hoặc mở), "0" là đã khôi phục/tắt
-        const isActive = item.status === "1";
-        const statusBadge = isActive 
-            ? `<span class="px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 font-semibold text-[10px]">Đang xảy ra</span>`
-            : `<span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 font-semibold text-[10px]">Đã khôi phục</span>`;
-        
-        const borderColor = isActive ? 'border-l-4 border-l-rose-500' : 'border-l-4 border-l-emerald-500';
+    let html = `
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-slate-800 text-slate-400 uppercase">
+                    <tr>
+                        <th class="p-2">Mã Lỗi</th>
+                        <th class="p-2">Bắt Đầu</th>
+                        <th class="p-2">Kết Thúc</th>
+                        <th class="p-2">Trạng Thái</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800">
+    `;
+
+    sessions.forEach(item => {
+        const isOngoing = item.status === "1";
+        const statusBadge = isOngoing 
+            ? `<span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 font-medium">Đang lỗi</span>` 
+            : `<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-medium">Đã khắc phục</span>`;
 
         html += `
-            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs ${borderColor} flex flex-col gap-1.5">
-                <div class="flex items-center justify-between">
-                    <span class="font-mono text-xs font-bold text-slate-700">Mã lỗi (Code): ${item.ErrorCode}</span>
-                    ${statusBadge}
-                </div>
-                <div class="text-[11px] text-slate-500 flex items-center justify-between font-mono">
-                    <span>Model: ${item.ModelName}</span>
-                    <span><i class="fa-regular fa-clock mr-1"></i>${item.Time}</span>
-                </div>
-            </div>
+            <tr class="hover:bg-slate-800/50">
+                <td class="p-2 font-bold text-amber-400">Error #${item.ErrorCode}</td>
+                <td class="p-2 text-slate-300">${item.startTime}</td>
+                <td class="p-2 text-slate-300">${item.endTime}</td>
+                <td class="p-2">${statusBadge}</td>
+            </tr>
         `;
     });
 
-    container.innerHTML = html;
+    html += `</tbody></table></div>`;
+    errorContainer.innerHTML = html;
 }
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
 let currentDayAbortController = null;
