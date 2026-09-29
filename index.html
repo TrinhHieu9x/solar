@@ -2550,6 +2550,70 @@ function updateRuntimeUI(data) {
     }
     renderDashboard();
 }
+
+// Hàm mở Modal và gọi API lấy lịch sử lỗi
+function openErrorModal() {
+    const modal = document.getElementById('errorModal');
+    modal.classList.remove('hidden');
+    
+    // Gọi API lấy dữ liệu (Thay link bên dưới bằng API thực tế của bạn)
+    fetch('URL_API_CUA_BAN_O_DAY')
+        .then(response => response.json())
+        .then(data => {
+            renderErrorList(data);
+        })
+        .catch(error => {
+            console.error('Lỗi khi tải lịch sử:', error);
+            document.getElementById('error-list-container').innerHTML = `
+                <div class="text-center py-8 text-rose-500 text-xs">Không thể tải dữ liệu lịch sử lỗi.</div>
+            `;
+        });
+}
+
+// Hàm đóng Modal
+function closeErrorModal() {
+    document.getElementById('errorModal').classList.add('hidden');
+}
+
+// Hàm render dữ liệu ra danh sách HTML
+function renderErrorList(data) {
+    const container = document.getElementById('error-list-container');
+    const subText = document.getElementById('total-error-sub');
+    
+    subText.innerText = `Tổng số sự kiện: ${data.total_error_num}`;
+    
+    if (!data.infoerror || data.infoerror.length === 0) {
+        container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">Không có lịch sử cảnh báo nào.</div>`;
+        return;
+    }
+
+    let html = '';
+    data.infoerror.forEach(item => {
+        // Phân biệt trạng thái: status "1" là đang phát sinh lỗi (hoặc mở), "0" là đã khôi phục/tắt
+        const isActive = item.status === "1";
+        const statusBadge = isActive 
+            ? `<span class="px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 font-semibold text-[10px]">Đang xảy ra</span>`
+            : `<span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 font-semibold text-[10px]">Đã khôi phục</span>`;
+        
+        const borderColor = isActive ? 'border-l-4 border-l-rose-500' : 'border-l-4 border-l-emerald-500';
+
+        html += `
+            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs ${borderColor} flex flex-col gap-1.5">
+                <div class="flex items-center justify-between">
+                    <span class="font-mono text-xs font-bold text-slate-700">Mã lỗi (Code): ${item.ErrorCode}</span>
+                    ${statusBadge}
+                </div>
+                <div class="text-[11px] text-slate-500 flex items-center justify-between font-mono">
+                    <span>Model: ${item.ModelName}</span>
+                    <span><i class="fa-regular fa-clock mr-1"></i>${item.Time}</span>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
 let currentDayAbortController = null;
