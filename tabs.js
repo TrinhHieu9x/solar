@@ -237,7 +237,7 @@ const TabContents = {
                 <h4 class="font-bold text-slate-800 text-xs sm:text-sm truncate">Chế độ đang chạy</h4>
             </div>
             <!-- Thêm active:scale-95 để tạo hiệu ứng nảy nhẹ khi bấm và nhả ra mất luôn -->
-            <button onclick="alert('Mở cài đặt chế độ vận hành')" class="w-8 h-8 -mr-1.5 flex items-center justify-center text-slate-400 hover:text-slate-600 active:scale-90 transition-transform cursor-pointer">
+            <button onclick="openSettingsModal()" class="w-8 h-8 -mr-1.5 flex items-center justify-center text-slate-400 hover:text-slate-600 active:scale-90 transition-transform cursor-pointer">
                 <i class="fa-solid fa-sliders text-xs"></i>
             </button>
         </div>
@@ -365,6 +365,136 @@ const TabContents = {
         <!-- Footer Modal -->
         <div class="p-3 border-t border-slate-800 bg-slate-900 flex justify-end">
             <button onclick="closeErrorModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl transition-colors cursor-pointer">
+                Đóng
+            </button>
+        </div>
+    </div>
+</div>
+<!-- Modal Cài đặt hệ thống (Giao diện Dark Mode đồng bộ) -->
+<div id="settingsModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-lg rounded-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        
+        <!-- Header Modal -->
+        <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between bg-slate-900/80 shrink-0">
+            <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center border border-emerald-800/50">
+                    <i class="fa-solid fa-sliders text-xs"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-100 text-sm">Cài đặt hệ thống</h3>
+                    <p class="text-[11px] text-slate-400">Cấu hình thông số và chế độ vận hành</p>
+                </div>
+            </div>
+            <button onclick="closeSettingsModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer transition-colors">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+        </div>
+
+        <!-- Body Danh sách các mục cài đặt -->
+        <div class="p-4 overflow-y-auto space-y-3 flex-1 bg-slate-950/50 text-xs text-slate-300">
+            
+            <!-- Nhóm 1: Cài đặt hệ thống -->
+            <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-1">Cài đặt hệ thống</div>
+            
+            <!-- Item: Chế độ hoạt động -->
+            <div onclick="alert('Mở cấu hình Chế độ hoạt động')" class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
+                <div>
+                    <div class="font-bold text-slate-200 text-xs">Chế độ hoạt động</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Chọn logic hoạt động khác nhau cho Inverter[span_5](start_span)[span_5](end_span)[span_6](start_span)[span_6](end_span)</div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-emerald-400 font-medium text-[11px]">Chế độ tự tiêu thụ</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+                </div>
+            </div>
+
+            <!-- Nhóm 2: Điều khiển theo thời gian -->
+            <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-1 pt-1">Điều khiển theo thời gian</div>
+
+            <!-- Item: Kiểm soát theo thời gian (Có công tắc Toggle) -->
+            <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 space-y-3">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="font-bold text-slate-200 text-xs">Kiểm soát theo thời gian</div>
+                        <div class="text-[11px] text-slate-400 mt-0.5">Lịch trình sạc/xả pin lưu trữ[span_7](start_span)[span_7](end_span)</div>
+                    </div>
+                    <!-- Toggle Switch -->
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="timeControlToggle" class="sr-only peer" checked onchange="toggleTimeControl(this)">
+                        <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                    </label>
+                </div>
+
+                <!-- Danh sách lịch trình con bên trong (Hiển thị khi bật) -->
+                <div id="schedule-slots-container" class="space-y-2 pt-2 border-t border-slate-800/60">
+                    <!-- Slot 1: Đang sạc -->
+                    <div class="bg-slate-950/60 rounded-lg p-2.5 flex items-center justify-between border border-slate-800/40">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-battery-three-quarters text-emerald-400 text-sm"></i>
+                            <div>
+                                <div class="text-emerald-400 font-semibold text-[11px]">Đang sạc[span_8](start_span)[span_8](end_span)</div>
+                                <div class="text-[10px] text-slate-400 font-mono">00:00 ~ 23:59 • 600W, 52V[span_9](start_span)[span_9](end_span)</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
+                    </div>
+
+                    <!-- Các Slot tắt (Tối giản như giao diện mẫu) -->
+                    <div class="bg-slate-950/30 rounded-lg px-3 py-2 flex items-center justify-between text-slate-500">
+                        <span class="font-mono text-[11px]">Thời gian 2</span>
+                        <span class="text-[11px]">Tắt[span_10](start_span)[span_10](end_span)</span>
+                    </div>
+                    <div class="bg-slate-950/30 rounded-lg px-3 py-2 flex items-center justify-between text-slate-500">
+                        <span class="font-mono text-[11px]">Thời gian 3</span>
+                        <span class="text-[11px]">Tắt[span_11](start_span)[span_11](end_span)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nhóm 3: Các tính năng mở rộng khác -->
+            <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-1 pt-1">Cấu hình cổng & Khác</div>
+
+            <!-- Item: GEN (Máy phát điện) -->
+            <div onclick="alert('Mở cài đặt GEN')" class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
+                <div>
+                    <div class="font-bold text-slate-200 text-xs">GEN (Máy phát điện)</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt chức năng cổng GEN[span_12](start_span)[span_12](end_span)</div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+            </div>
+
+            <!-- Item: Song song -->
+            <div onclick="alert('Mở cài đặt Song song')" class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
+                <div>
+                    <div class="font-bold text-slate-200 text-xs">Song song</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt song song[span_13](start_span)[span_13](end_span)</div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+            </div>
+
+            <!-- Item: Giảm tải đỉnh -->
+            <div onclick="alert('Mở cài đặt Giảm tải đỉnh')" class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
+                <div>
+                    <div class="font-bold text-slate-200 text-xs">Giảm tải đỉnh</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt quản lý giảm tải đỉnh[span_14](start_span)[span_14](end_span)</div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+            </div>
+
+            <!-- Item: Khác -->
+            <div onclick="alert('Mở cài đặt Khác')" class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
+                <div>
+                    <div class="font-bold text-slate-200 text-xs">Khác</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt khác[span_15](start_span)[span_15](end_span)</div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+            </div>
+
+        </div>
+
+        <!-- Footer Modal -->
+        <div class="p-3 border-t border-slate-800 bg-slate-900 flex justify-end shrink-0">
+            <button onclick="closeSettingsModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl transition-colors cursor-pointer">
                 Đóng
             </button>
         </div>
