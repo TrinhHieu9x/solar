@@ -355,7 +355,7 @@ const TabContents = {
                     <span>Dung lượng <span class="unit">(Ah)</span></span>
                     <input type="number" id="reg_2112" class="val-edit" value="---">
                 </div>
-                <div id="group_soc_settings">
+                <div class="group-soc-settings">
                     <div class="info-row">
                         <span>Điểm dừng xả (SOC) <span class="unit">(%)</span></span>
                         <input type="number" id="reg_211B" class="val-edit" value="---" oninput="syncVoltageDisplay()">
@@ -377,7 +377,7 @@ const TabContents = {
                         </div>
                     </div>
                 </div>
-                <div id="group_volt_settings" style="display:none;">
+                <div class="group-volt-settings" style="display:none;">
                     <div id="lead_acid_params" style="display:none;">
                         <div class="info-row">
                             <span>Điện áp sạc duy trì <span class="unit">(V)</span></span>
@@ -479,13 +479,13 @@ const TabContents = {
                     <span>CS sạc lưới tối đa <span class="unit">(W)</span></span>
                     <input type="number" id="reg_2116" class="val-edit" value="---">
                 </div>
-                <div id="group_soc_charge">
+                <div class="group-soc-charge">
                     <div class="info-row">
                         <span>SOC dừng sạc lưới <span class="unit">(%)</span></span>
                         <input type="number" id="reg_2117" class="val-edit" value="---">
                     </div>
                 </div>
-                <div id="group_volt_charge" style="display:none;">
+                <div class="group-volt-charge" style="display:none;">
                     <div class="info-row">
                         <span>Áp pin dừng sạc lưới <span class="unit">(V)</span></span>
                         <input type="number" id="reg_2148" step="0.1" class="val-edit" value="---">
@@ -503,13 +503,13 @@ const TabContents = {
         </div>
         <div class="accordion-content">
             <div class="accordion-inner">
-                <div id="group_soc_discharge">
+                <div class="group-soc-discharge">
                     <div class="info-row">
                         <span>SOC ngắt xả ( Có lưới ) <span class="unit">(%)</span></span>
                         <input type="number" id="reg_214A" class="val-edit" value="---">
                     </div>
                 </div>
-                <div id="group_volt_discharge" style="display:none;">
+                <div class="group-volt-discharge" style="display:none;">
                     <div class="info-row">
                         <span>Áp pin ngắt xả ( Có lưới ) <span class="unit">(V)</span></span>
                         <input type="number" id="reg_214B" step="0.1" class="val-edit" value="---">
