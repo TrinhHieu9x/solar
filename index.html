@@ -243,13 +243,22 @@
 
 /* Chuẩn hóa lại các ô nhập liệu và dropdown trong phần Setting */
 .val-edit {
-    min-width: 60px !important;     /* Tăng chiều rộng tối thiểu để chứa thoải mái 4-5 chữ số */
-    max-width: 105px !important;    /* Giới hạn không bị quá dài trên màn hình di động */
-    width: auto !important;         /* Cho phép tự co giãn theo nội dung */
-    padding: 4px 4px !important;    /* Tạo khoảng đệm bên trong cho thoáng */
-    text-align: right !important;   /* Canh số về bên phải cho dễ nhìn */
+    width: auto !important;          /* Không ép chiều rộng cố định nữa */
+    min-width: 50px !important;     /* Đặt mức tối thiểu vừa đủ nhìn */
+    max-width: 70px !important;    /* Không bị bè quá dài */
+    flex-shrink: 0;                 /* Không bị bóp méo trên flexbox */
+    padding: 4px 4px !important;
+    text-align: right !important;   /* Căn phải cho số liệu đẹp mắt */
     box-sizing: border-box !important;
 }
+
+/* Riêng thẻ select (dropdown) cho phép rộng hơn chút để hiển thị đủ chữ dài */
+select.val-edit {
+    width: auto !important;
+    max-width: 180px !important;
+    text-align: left !important;
+}
+
 
 /* Riêng phần ghép đôi Xả/Sạc (hai ô đứng cạnh nhau) */
 .info-row div[style*="display:flex"] .val-edit {
