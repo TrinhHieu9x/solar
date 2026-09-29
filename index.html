@@ -419,6 +419,22 @@ body.dark-mode .header {
         border-color: #2d3748 !important;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
     }
+/* Khắc phục triệt để đường chỉ trắng và khung thừa trong Dark Mode */
+body.dark-mode .accordion-header {
+    border-bottom: 1px solid #2d3748 !important; /* Đồng bộ màu viền tối cho header */
+}
+
+body.dark-mode .accordion-item.active .accordion-content {
+    border-top: 1px solid #2d3748 !important; /* Ẩn hoặc làm tối đường chỉ ranh giới */
+}
+
+body.dark-mode .info-row {
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.06) !important; /* Làm mờ các đường gạch ngang giữa các dòng */
+}
+
+body.dark-mode .accordion-item {
+    border-color: #2d3748 !important; /* Đồng bộ viền bao quanh các card */
+}
 
 
     /* ==========================================
@@ -448,8 +464,8 @@ body.dark-mode .header {
             right: 0;
         }
         .val-edit {
-            width: 60px;
-            min-width: 80px;
+            width: 80px;
+            min-width: 100px;
         }
     }
 
