@@ -2765,6 +2765,11 @@ function renderErrorList(data) {
     
     const sessions = processErrorLogsStrict(data);
 
+    const totalSubEl = document.getElementById('total-error-sub');
+    if (totalSubEl) {
+        totalSubEl.textContent = `Tổng số: ${sessions.length} bản ghi lỗi`;
+    }
+
     if (sessions.length === 0) {
         errorContainer.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">Không có lịch sử lỗi nào trong khoảng thời gian này.</div>`;
         return;
