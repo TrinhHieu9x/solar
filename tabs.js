@@ -329,7 +329,7 @@ const TabContents = {
             <span>🔋 CÀI ĐẶT PIN</span>
             <span class="arrow">▼</span>
         </div>
-        <div class="accordion-content" style="display: block;">
+        <div class="accordion-content" style="display: none;">
             <div class="accordion-inner">
                 <div class="info-row">
                     <span>Thương hiệu</span>
