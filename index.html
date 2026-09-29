@@ -744,6 +744,7 @@ async function loadInverterData() {
     if (idsToFetch.length === 0) return;
 
     //btn.classList.add('spinning');
+document.getElementById('sun-logo-icon').classList.add('spinning');
     //title.innerText = "🔄 ĐANG ĐỌC TẤT CẢ...";
 
     try {
@@ -792,14 +793,16 @@ async function loadInverterData() {
                 }
             });
             //title.innerText = "✅ ĐÃ CẬP NHẬT";
+document.getElementById('sun-logo-icon').classList.remove('spinning');
         }
     } catch (error) {
         console.error("Lỗi:", error);
         //title.innerText = "❌ LỖI ĐỌC";
+document.getElementById('sun-logo-icon').classList.remove('spinning');
     } finally {
         //btn.classList.remove('spinning');
         //setTimeout(() => { if(title.innerText !== "❌ LỖI ĐỌC") title.innerText = originalTitle; }, 2000);
-        
+        document.getElementById('sun-logo-icon').classList.remove('spinning');
         // Gọi các hàm đồng bộ giao diện cho toàn bộ các mục
         toggleCapacityMode();
         TypeBatteryMode();
@@ -818,8 +821,8 @@ async function loadInverterData() {
     // Trường hợp B: Trang Overview (Đọc JSON tổng quan thông số)
     async function fetchInverterData() {
         const btn = document.getElementById('refresh-btn');
-        if (btn) btn.classList.add('spinning');
-
+        //if (btn) btn.classList.add('spinning');
+document.getElementById('sun-logo-icon').classList.add('spinning')
         const goodsID = getStorage('solar_GoodsID');
         const memberAutoID = getStorage('solar_MemberAutoID');
         const sign = getStorage('solar_sign', '');
@@ -844,7 +847,8 @@ async function loadInverterData() {
             }
             return data;
         } finally {
-            if (btn) btn.classList.remove('spinning');
+            //if (btn) btn.classList.remove('spinning');
+            document.getElementById('sun-logo-icon').classList.remove('spinning');
         }
     }
 
@@ -1090,36 +1094,37 @@ updateChartsTheme();
         switchTab(hash, targetBtn);
     });
 </script>
- <!-- HEADER CHÍNH -->
+<!-- HEADER CHÍNH -->
     <header class="bg-[#2565c7] text-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-3 py-2 flex items-center justify-between gap-2.5">
+        <div class="max-w-7xl mx-auto px-3.5 py-2.5 flex items-center justify-between gap-3">
             <!-- Logo -->
             <div class="flex items-center space-x-2 shrink-0">
-                <div class="flex items-center font-bold text-sm sm:text-base tracking-wide">
-                    <i class="fa-solid fa-sun text-amber-400 text-xl mr-1.5"></i>
+                <div class="flex items-center font-bold text-base sm:text-lg tracking-wide">
+                    <!-- Đã thêm id="sun-logo-icon" để điều khiển hiệu ứng xoay khi load -->
+                    <i id="sun-logo-icon" class="fa-solid fa-sun text-amber-400 text-2xl mr-2"></i>
                     <span>Senergy</span>
                 </div>
             </div>
 
             <!-- Menu Điều hướng Tabs -->
-            <nav class="flex items-center justify-center bg-black/5 dark:bg-white/5 p-1.5 rounded-xl border border-black/5 dark:border-white/10 space-x-1.5 text-xs sm:text-sm overflow-x-auto flex-1 max-w-xl mx-2 py-1">
-                <button onclick="switchTab('view', this)" class="nav-btn px-3 py-1.5 rounded bg-white/25 font-semibold flex items-center gap-1.5 whitespace-nowrap transition">
+            <nav class="flex items-center justify-center bg-black/5 dark:bg-white/5 p-1.5 rounded-xl border border-black/5 dark:border-white/10 space-x-1.5 text-sm sm:text-base overflow-x-auto flex-1 max-w-xl mx-2 py-1.5">
+                <button onclick="switchTab('view', this)" class="nav-btn px-3.5 py-1.5 rounded bg-white/25 font-semibold flex items-center gap-2 whitespace-nowrap transition">
                     <i class="fa-solid fa-compass"></i> Màn hình
                 </button>
-                <button onclick="switchTab('setting', this)" class="nav-btn px-3 py-1.5 rounded hover:bg-white/10 transition font-medium flex items-center gap-1.5 whitespace-nowrap">
+                <button onclick="switchTab('setting', this)" class="nav-btn px-3.5 py-1.5 rounded hover:bg-white/10 transition font-medium flex items-center gap-2 whitespace-nowrap">
                     <i class="fa-solid fa-gear"></i> Cấu hình
                 </button>
-                <button onclick="switchTab('overview', this)" class="nav-btn px-3 py-1.5 rounded hover:bg-white/10 transition font-medium flex items-center gap-1.5 whitespace-nowrap">
+                <button onclick="switchTab('overview', this)" class="nav-btn px-3.5 py-1.5 rounded hover:bg-white/10 transition font-medium flex items-center gap-2 whitespace-nowrap">
                     <i class="fa-solid fa-grip"></i> Tổng quan
                 </button>
             </nav>
 
             <!-- User Dropdown -->
             <div class="relative shrink-0">
-                <button id="userMenuBtn" class="flex items-center text-xs sm:text-sm gap-1.5 font-medium bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg transition focus:outline-none">
-                    <i class="fa-solid fa-circle-user text-base"></i>
+                <button id="userMenuBtn" class="flex items-center text-sm sm:text-base gap-2 font-medium bg-white/10 hover:bg-white/20 px-3.5 py-2 rounded-lg transition focus:outline-none">
+                    <i class="fa-solid fa-circle-user text-lg"></i>
                     <span class="hidden sm:inline">admin</span>
-                    <i class="fa-solid fa-chevron-down text-[11px] ml-0.5"></i>
+                    <i class="fa-solid fa-chevron-down text-xs ml-0.5"></i>
                 </button>
 
                 <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white text-slate-800 rounded-xl shadow-xl border border-slate-200 overflow-hidden z-50 py-1">
