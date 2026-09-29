@@ -234,28 +234,38 @@
       border-radius: 0 0 12px 12px;
   }
 
-  /* ==========================================
+    /* ==========================================
      5. INPUTS, LABELS & ROWS (SETTING FIXES)
      ========================================== */
   .label { font-size: 16px; font-weight: 400; color: #333; }
   .unit { color: var(--text-sub); font-size: 12px; margin-left: 4px; font-weight: 400; }
 
+  /* FIX: Thêm nền xám nhạt và đường viền rõ ràng cho ô nhập ở Light Mode để dễ nhận biết */
   .val-edit {
       width: auto !important;
-      min-width: 50px !important;
-      max-width: 70px !important;
+      min-width: 55px !important;
+      max-width: 75px !important;
       flex-shrink: 0;
-      padding: 4px 4px !important;
+      padding: 6px 8px !important;
       text-align: right !important;
       box-sizing: border-box !important;
+      background-color: #f8fafc !important; /* Nền xám nhạt nổi bật */
+      border: 1px solid #cbd5e1 !important; /* Viền sắc nét hơn */
+      border-radius: 6px;
+      font-weight: 600;
+      color: var(--text-main);
+      transition: all 0.2s;
   }
   select.val-edit {
       width: auto !important;
       max-width: 180px !important;
-      min-width: 90px;
+      min-width: 100px;
       text-align: left !important;
       text-align-last: center;
       appearance: none;
+      background-color: #f8fafc !important;
+      border: 1px solid #cbd5e1 !important;
+      border-radius: 6px;
   }
   .info-row div[style*="display:flex"] .val-edit {
       min-width: 55px !important;
@@ -263,8 +273,13 @@
       text-align: center !important;
   }
 
-  input[value="--"] { color: #ccc; }
-  .val-edit:focus { border-color: var(--primary); background: #fff; }
+  input[value="--"] { color: #aaa; }
+  .val-edit:focus { 
+      border-color: var(--primary) !important; 
+      background: #fff !important; 
+      box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.15);
+      outline: none;
+  }
 
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
@@ -276,6 +291,7 @@
   .info-row {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       padding: 12px 0;
       font-size: 15px; 
       border-bottom: 1px dashed #edf2f7 !important;
@@ -302,6 +318,7 @@
       background: transparent !important;
       padding: 0 !important;
   }
+
 
   /* ==========================================
      6. SWITCH & CHART
