@@ -2608,11 +2608,11 @@ function closeErrorModal() {
     document.getElementById('errorModal').classList.add('hidden');
 }
 
-// [MỚI THÊM] Thuật toán gom nhóm tuần tự (đảm bảo không nhảy cóc, đúng thứ tự thời gian FIFO)
+// Thuật toán gom nhóm tuần tự với logic trạng thái ngược của hãng (0: Bắt đầu lỗi, 1: Đã kết thúc)
 function processErrorLogsStrict(apiResponse) {
     if (!apiResponse || !apiResponse.infoerror) return [];
 
-    // Sắp xếp danh sách theo thời gian TĂNG DẦN (cũ nhất trước, mới nhất sau) để quét đúng dòng thời gian thực tế
+    // Sắp xếp danh sách theo thời gian TĂNG DẦN (cũ nhất trước, mới nhất sau) để quét đúng dòng thời gian
     const rawLogs = [...apiResponse.infoerror].sort((a, b) => new Date(a.Time) - new Date(b.Time));
     
     const sessions = [];
@@ -2625,7 +2625,8 @@ function processErrorLogsStrict(apiResponse) {
             activeAlarms[code] = [];
         }
 
-        if (log.status === "1") {
+        // ĐẢO NGƯỢC LOGIC: 0 là bắt đầu lỗi, 1 là đã giải quyết
+        if (log.status === "0") {
             // Ghi nhận thời điểm lỗi bắt đầu phát sinh
             activeAlarms[code].push({
                 ModelName: log.ModelName,
@@ -2633,30 +2634,30 @@ function processErrorLogsStrict(apiResponse) {
                 ErrorCode: code,
                 startTime: log.Time,
                 endTime: "Đang diễn ra",
-                status: "1"
+                status: "0" // 0 nghĩa là đang lỗi
             });
-        } else if (log.status === "0") {
-            // Khi gặp status 0, lấy sự kiện bật (status 1) cũ nhất chưa tắt ra để ghép cặp (FIFO)
+        } else if (log.status === "1") {
+            // Khi gặp status 1 (đã giải quyết), lấy sự kiện 0 cũ nhất chưa tắt ra để ghép cặp (FIFO)
             if (activeAlarms[code].length > 0) {
                 const session = activeAlarms[code].shift(); 
                 session.endTime = log.Time;
-                session.status = "0";
+                session.status = "1"; // 1 nghĩa là đã khắc phục xong
                 sessions.push(session);
             } else {
-                // Trường hợp tắt nhưng không tìm thấy sự kiện bật trước đó trong phạm vi dữ liệu
+                // Trường hợp nhận được status 1 nhưng không tìm thấy điểm bắt đầu 0 trước đó trong phạm vi dữ liệu
                 sessions.push({
                     ModelName: log.ModelName,
                     GoodsID: log.GoodsID,
                     ErrorCode: code,
                     startTime: "Trước khoảng lọc",
                     endTime: log.Time,
-                    status: "0"
+                    status: "1"
                 });
             }
         }
     });
 
-    // Những lỗi đến cuối khoảng thời gian mà vẫn chưa có status 0 đóng lại (vẫn đang kẹt lỗi)
+    // Những lỗi đến cuối khoảng thời gian mà vẫn chưa có status 1 đóng lại (vẫn đang kẹt lỗi status 0)
     for (let code in activeAlarms) {
         activeAlarms[code].forEach(session => {
             sessions.push(session);
@@ -2675,7 +2676,6 @@ function processErrorLogsStrict(apiResponse) {
 function renderErrorList(data) {
     const errorContainer = document.getElementById('error-list-container');
     
-    // Gọi hàm gom nhóm tuần tự chuẩn xác
     const sessions = processErrorLogsStrict(data);
 
     if (sessions.length === 0) {
@@ -2698,7 +2698,8 @@ function renderErrorList(data) {
     `;
 
     sessions.forEach(item => {
-        const isOngoing = item.status === "1";
+        // Nếu status vẫn là "0" tức là chưa có "1" để đóng lại -> Đang lỗi
+        const isOngoing = item.status === "0";
         const statusBadge = isOngoing 
             ? `<span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 font-medium">Đang lỗi</span>` 
             : `<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-medium">Đã khắc phục</span>`;
