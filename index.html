@@ -19,508 +19,458 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js"></script>
 
-   <style>
+<style>
   /* ==========================================
-       1. RESET & VARIABLES
-       ========================================== */
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
+     1. RESET & VARIABLES
+     ========================================== */
+  * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
 
-    :root { 
-        --primary: #2ecc71; 
-        --bg: #f1f5f9; 
-        --card-bg: #ffffff; 
-        --text-main: #1e293b; 
-        --text-sub: #64748b;
-        --border-color: #e2e8f0;
-    }
-    
-    body { 
-        background: var(--bg); 
-        color: var(--text-main);
-        margin: 0; 
-        padding: 0 0 100px 0; 
-        -webkit-tap-highlight-color: transparent;
-        min-height: 100vh;
-    }
+  :root { 
+      --primary: #2ecc71; 
+      --bg: #f1f5f9; 
+      --card-bg: #ffffff; 
+      --text-main: #1e293b; 
+      --text-sub: #64748b;
+      --border-color: #e2e8f0;
+  }
+  
+  body { 
+      background: var(--bg); 
+      color: var(--text-main);
+      margin: 0; 
+      padding: 0 0 100px 0; 
+      -webkit-tap-highlight-color: transparent;
+      min-height: 100vh;
+  }
 
-    /* ==========================================
-       2. TOP BAR & HEADER STYLES
-       ========================================== */
-    .top-bar {
-        background: #fff;
-        padding: 14px 18px;
-        display: grid;
-        grid-template-columns: 50px 1fr 50px;
-        align-items: center;
-        border-bottom: 1px solid var(--border-color);
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    .top-bar-left {
-        display: flex;
-        align-items: center;
-    }
-    .top-bar-right {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-    }
-    .icon-btn {
-        background: #f1f5f9;
-        border: none;
-        width: 46px;
-        height: 46px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        color: var(--text-main);
-        transition: background 0.2s, transform 0.2s;
-        text-decoration: none;
-    }
-    .icon-btn:hover { background: #e2e8f0; }
-    .icon-btn:active { transform: scale(0.95); }
-    .icon-btn svg { width: 24px; height: 24px; fill: currentColor; }
-    
-    .top-title, .header-title {
-        font-size: 19px;
-        font-weight: 600;
-        color: var(--primary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        text-align: center;
-        flex: 1;
-    }
-    .status-dot {
-        width: 10px;
-        height: 10px;
-        background-color: var(--primary);
-        border-radius: 50%;
-        display: inline-block;
-    }
+  /* ==========================================
+     2. TOP BAR & HEADER STYLES
+     ========================================== */
+  .top-bar {
+      background: #fff;
+      padding: 14px 18px;
+      display: grid;
+      grid-template-columns: 50px 1fr 50px;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .top-bar-left {
+      display: flex;
+      align-items: center;
+  }
+  .top-bar-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+  }
+  .icon-btn {
+      background: #f1f5f9;
+      border: none;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-main);
+      transition: background 0.2s, transform 0.2s;
+      text-decoration: none;
+  }
+  .icon-btn:hover { background: #e2e8f0; }
+  .icon-btn:active { transform: scale(0.95); }
+  .icon-btn svg { width: 24px; height: 24px; fill: currentColor; }
+  
+  .top-title, .header-title, .header {
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-align: center;
+      flex: 1;
+  }
+  .status-dot {
+      width: 10px;
+      height: 10px;
+      background-color: var(--primary);
+      border-radius: 50%;
+      display: inline-block;
+  }
 
-    /* ==========================================
-       3. SECTION & CARD STYLES
-       ========================================== */
-    .section-header {
-        margin: 5px 10px 0px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: #fff;
-        padding: 12px 15px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        cursor: pointer;
-        border: 1px solid transparent;
-    }
-    .section-header.active {
-        margin-bottom: 0;
-        border-radius: 12px 12px 0 0;
-        border-color: var(--border-color);
-    }
+  /* ==========================================
+     3. SECTION & CARD STYLES
+     ========================================== */
+  .section-header {
+      margin: 5px 10px 0px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      padding: 12px 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      cursor: pointer;
+      border: 1px solid transparent;
+  }
+  .section-header.active {
+      margin-bottom: 0;
+      border-radius: 12px 12px 0 0;
+      border-color: var(--border-color);
+  }
 
-    .card { 
-        background: var(--card-bg); 
-        border-radius: 12px; 
-        margin: 0 10px 5px; 
-        overflow: hidden; 
-        border: 1px solid var(--border-color);
-    }
-    .row { 
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center; 
-        padding: 16px 15px; 
-        border-bottom: 1px solid var(--border-color); 
-    }
-    .row:last-child { border-bottom: none; }
+  .card { 
+      background: var(--card-bg); 
+      border-radius: 12px; 
+      margin: 0 10px 5px; 
+      overflow: hidden; 
+      border: 1px solid var(--border-color);
+  }
+  .row { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      padding: 16px 15px; 
+      border-bottom: 1px solid var(--border-color); 
+  }
+  .row:last-child { border-bottom: none; }
 
-    /* ==========================================
-       4. DEVICE INFO & ACCORDION (Đã sửa lỗi hiển thị)
-       ========================================== */
-    .device-info-card {
-        background: #fff;
-        margin: 12px auto;
-        padding: 14px 18px;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-        border: 1px solid var(--border-color);
-        max-width: 800px;
-    }
-    .device-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 16px;
-        font-weight: 600;
-        color: #1e293b;
-    }
-    .device-sub {
-        font-size: 14px;
-        color: var(--text-sub);
-        margin-top: 6px;
-    }
+  /* ==========================================
+     4. DEVICE INFO & ACCORDION STYLES
+     ========================================== */
+  .device-info-card {
+      background: #fff;
+      margin: 12px auto;
+      padding: 14px 18px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      border: 1px solid var(--border-color);
+      max-width: 800px;
+  }
+  .device-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1e293b;
+  }
+  .device-sub {
+      font-size: 14px;
+      color: var(--text-sub);
+      margin-top: 6px;
+  }
 
-    .accordion-container {
-        margin: 12px auto;
-        max-width: 800px;
-    }
-    .accordion-item {
-        background: #fff;
-        margin-bottom: 8px;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-        border: 1px solid var(--border-color);
-    }
-    .accordion-header {
-        padding: 16px 18px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--text-main);
-        cursor: pointer;
-        user-select: none;
-        background: #fff;
-        transition: background 0.2s;
-    }
-    .accordion-header:hover { background: #f8fafc; }
-    .accordion-header span {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .accordion-header .arrow {
-        transition: transform 0.3s ease;
-        color: #94a3b8;
-        font-size: 14px;
-    }
-    .accordion-item.active .accordion-header .arrow,
-    .section-header.active .arrow {
-        transform: rotate(180deg);
-        color: var(--primary);
-    }
-    
-    /* FIX: Hỗ trợ hiển thị nội dung khi JS gán style display block hoặc dùng class active */
-    .accordion-content {
-        display: none; 
-        background: #fafafa;
-        border-top: 1px solid var(--border-color);
-    }
-    .accordion-item.active .accordion-content,
-    .accordion-content[style*="display: block"] {
-        display: block !important;
-        max-height: none !important;
-    }
+  .accordion-container {
+      margin: 12px auto;
+      max-width: 800px;
+  }
+  .accordion-item {
+      background: #fff;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+      border: 1px solid var(--border-color);
+  }
+  .accordion-header {
+      padding: 16px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      user-select: none;
+      background: #fff;
+      transition: background 0.2s;
+  }
+  .accordion-header:hover { background: #f8fafc; }
+  .accordion-header span {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+  }
+  .accordion-header .arrow {
+      transition: transform 0.3s ease;
+      color: #94a3b8;
+      font-size: 14px;
+  }
+  .accordion-item.active .accordion-header .arrow,
+  .section-header.active .arrow {
+      transform: rotate(180deg);
+      color: var(--primary);
+  }
+  
+  .accordion-content {
+      display: none; 
+      background: #fafafa;
+      border-top: 1px solid var(--border-color);
+  }
+  .accordion-item.active .accordion-content,
+  .accordion-content[style*="display: block"] {
+      display: block !important;
+      max-height: none !important;
+  }
 
-    .accordion-inner {
-        padding: 14px 18px;
-    }
-    .accordion-content .card {
-        margin-top: 0;
-        border-top: none;
-        border-radius: 0 0 12px 12px;
-    }
+  .accordion-inner {
+      padding: 14px 18px;
+  }
+  .accordion-content .card {
+      margin-top: 0;
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+  }
 
-    /* ==========================================
-       5. INPUTS, LABELS & ROWS
-       ========================================== */
-    .label { font-size: 16px; font-weight: 400; color: #333; }
-    .unit { color: var(--text-sub); font-size: 12px; margin-left: 4px; font-weight: 400; }
+  /* ==========================================
+     5. INPUTS, LABELS & ROWS (SETTING FIXES)
+     ========================================== */
+  .label { font-size: 16px; font-weight: 400; color: #333; }
+  .unit { color: var(--text-sub); font-size: 12px; margin-left: 4px; font-weight: 400; }
 
-/* Chuẩn hóa lại các ô nhập liệu và dropdown trong phần Setting */
-.val-edit {
-    width: auto !important;          /* Không ép chiều rộng cố định nữa */
-    min-width: 50px !important;     /* Đặt mức tối thiểu vừa đủ nhìn */
-    max-width: 70px !important;    /* Không bị bè quá dài */
-    flex-shrink: 0;                 /* Không bị bóp méo trên flexbox */
-    padding: 4px 4px !important;
-    text-align: right !important;   /* Căn phải cho số liệu đẹp mắt */
-    box-sizing: border-box !important;
-}
+  .val-edit {
+      width: auto !important;
+      min-width: 50px !important;
+      max-width: 70px !important;
+      flex-shrink: 0;
+      padding: 4px 4px !important;
+      text-align: right !important;
+      box-sizing: border-box !important;
+  }
+  select.val-edit {
+      width: auto !important;
+      max-width: 180px !important;
+      min-width: 90px;
+      text-align: left !important;
+      text-align-last: center;
+      appearance: none;
+  }
+  .info-row div[style*="display:flex"] .val-edit {
+      min-width: 55px !important;
+      width: 65px !important;
+      text-align: center !important;
+  }
 
-/* Riêng thẻ select (dropdown) cho phép rộng hơn chút để hiển thị đủ chữ dài */
-select.val-edit {
-    width: auto !important;
-    max-width: 180px !important;
-    text-align: left !important;
-}
+  input[value="--"] { color: #ccc; }
+  .val-edit:focus { border-color: var(--primary); background: #fff; }
 
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+  }
+  input[type=number] { -moz-appearance: textfield; }
 
-/* Riêng phần ghép đôi Xả/Sạc (hai ô đứng cạnh nhau) */
-.info-row div[style*="display:flex"] .val-edit {
-    min-width: 55px !important;
-    width: 65px !important;
-    text-align: center !important;
-}
+  .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      font-size: 15px; 
+      border-bottom: 1px dashed #edf2f7 !important;
+      background: transparent !important;
+  }
+  .info-row:last-child { border-bottom: none !important; }
+  .info-row span { color: var(--text-sub); }
+  .info-row b { color: var(--text-main); font-weight: 500; }
+  
+  .sub-group-title {
+      font-size: 14px; 
+      font-weight: 600;
+      color: #0284c7;
+      margin: 16px 0 8px 0;
+      text-transform: uppercase;
+      text-align: center;
+  }
 
-    input[value="--"] { color: #ccc; }
-    .val-edit:focus { border-color: var(--primary); background: #fff; }
-    select.val-edit { width: auto; min-width: 90px; text-align-last: center; appearance: none; }
+  .accordion-content div[style*="display"],
+  #group_soc_settings, #group_volt_settings, 
+  #lead_acid_params, #pylon_params, #group_eq_settings {
+      border: none !important;
+      box-shadow: none !important;
+      background: transparent !important;
+      padding: 0 !important;
+  }
 
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-    input[type=number] { -moz-appearance: textfield; }
+  /* ==========================================
+     6. SWITCH & CHART
+     ========================================== */
+  .switch { width: 56px; height: 30px; background: #ccd0d5; border-radius: 20px; position: relative; transition: .3s; }
+  .switch.on { background: var(--primary); }
+  .switch::after { content: ''; position: absolute; width: 24px; height: 24px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: .3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+  .switch.on::after { left: 29px; }
 
-    .info-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 12px 0;
-        font-size: 15px; 
-        border-bottom: 1px dashed #edf2f7;
-    }
-    .info-row:last-child {border-bottom: none !important;}
-    .info-row span { color: var(--text-sub); }
-    .info-row b { color: var(--text-main); font-weight: 500; }
-    
-    .sub-group-title {
-        font-size: 14px; 
-        font-weight: 600;
-        color: #0284c7;
-        margin: 16px 0 8px 0;
-        text-transform: uppercase;
-        text-align: center;
-    }
+  .chart-container {
+      position: relative;
+      width: 100%;
+      height: 240px;
+  }
+  .node-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .node-card:hover { transform: translateY(-2px); }
 
-    /* ==========================================
-       6. SWITCH & CHART
-       ========================================== */
-    .switch { width: 56px; height: 30px; background: #ccd0d5; border-radius: 20px; position: relative; transition: .3s; }
-    .switch.on { background: var(--primary); }
-    .switch::after { content: ''; position: absolute; width: 24px; height: 24px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: .3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-    .switch.on::after { left: 29px; }
+  /* ==========================================
+     7. FOOTER ACTIONS
+     ========================================== */
+  .footer-actions { 
+      position: fixed; bottom: 0; left: 0; right: 0; 
+      background: rgba(255,255,255,0.95); 
+      padding: 15px; 
+      backdrop-filter: blur(10px);
+      border-top: 1px solid #ddd;
+      z-index: 99;
+  }
+  .btn-save { 
+      width: 100%; background: var(--primary); color: white; border: none; 
+      padding: 16px; border-radius: 14px; font-size: 18px; font-weight: 700; 
+      box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+      cursor: pointer;
+  }
 
-    .chart-container {
-        position: relative;
-        width: 100%;
-        height: 240px;
-    }
-    .node-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .node-card:hover { transform: translateY(-2px); }
+  /* ==========================================
+     8. DARK MODE STYLES
+     ========================================== */
+  body.dark-mode {
+      background-color: #121212 !important;
+      color: #e2e8f0 !important;
+  }
+  body.dark-mode header,
+  body.dark-mode .top-bar,
+  body.dark-mode .header,
+  body.dark-mode .bg-white,
+  body.dark-mode .device-info-card,
+  body.dark-mode .device-header, 
+  body.dark-mode .accordion-item,
+  body.dark-mode .accordion-header,
+  body.dark-mode .card,
+  body.dark-mode .info-box,
+  body.dark-mode .accordion-inner {
+      background-color: #1e1e1e !important;
+      color: #f8fafc !important;
+      border-color: #2d3748 !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+  body.dark-mode h1, body.dark-mode h2, body.dark-mode h3,
+  body.dark-mode .top-title,
+  body.dark-mode .text-slate-800,
+  body.dark-mode .text-slate-700,
+  body.dark-mode b, 
+  body.dark-mode strong {
+      color: #f1f5f9 !important;
+  }
+  body.dark-mode .text-slate-500,
+  body.dark-mode .text-slate-400,
+  body.dark-mode .info-row span {
+      color: #94a3b8 !important;
+  }
+  body.dark-mode select,
+  body.dark-mode option,
+  body.dark-mode input.val-edit, 
+  body.dark-mode select.val-edit {
+      background-color: #2a2a2a !important;
+      color: #f8fafc !important;
+      border-color: #4a5568 !important;
+  }
+  body.dark-mode #userDropdown {
+      background-color: #1e1e1e !important;
+      border-color: #2d3748 !important;
+  }
+  body.dark-mode .border,
+  body.dark-mode .border-b,
+  body.dark-mode .border-t {
+      border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+  body.dark-mode .accordion-header {
+      border-bottom: 1px solid #2d3748 !important;
+  }
+  body.dark-mode .accordion-item.active .accordion-content {
+      border-top: 1px solid #2d3748 !important;
+  }
+  body.dark-mode .info-row {
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.08) !important;
+      background: transparent !important;
+  }
+  body.dark-mode .accordion-item {
+      border-color: #2d3748 !important;
+  }
+  body.dark-mode #pv-info-box {
+      background-color: #0f172a !important;
+      border-color: #1e293b !important;
+      color: #94a3b8 !important;
+  }
+  body.dark-mode #topo-pv1-watts,
+  body.dark-mode #topo-pv2-watts {
+      color: #facc15 !important;
+  }
+  body.dark-mode #topo-pv1-volts,
+  body.dark-mode #topo-pv2-volts {
+      color: #e2e8f0 !important;
+  }
 
-    /* ==========================================
-       7. FOOTER ACTIONS
-       ========================================== */
-    .footer-actions { 
-        position: fixed; bottom: 0; left: 0; right: 0; 
-        background: rgba(255,255,255,0.95); 
-        padding: 15px; 
-        backdrop-filter: blur(10px);
-        border-top: 1px solid #ddd;
-        z-index: 99;
-    }
-    .btn-save { 
-        width: 100%; background: var(--primary); color: white; border: none; 
-        padding: 16px; border-radius: 14px; font-size: 18px; font-weight: 700; 
-        box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
-        cursor: pointer;
-    }
+  /* ==========================================
+     9. RESPONSIVE MEDIA QUERIES (PC)
+     ========================================== */
+  @media (min-width: 768px) {
+      .top-bar,
+      .header, 
+      .section-header, 
+      .card, 
+      .footer-actions,
+      .device-info-card,
+      .accordion-container,
+      .accordion-content { 
+          max-width: 800px !important;
+          margin-left: auto !important;
+          margin-right: auto !important;
+          width: 100%;
+          box-sizing: border-box;
+      }
+      .card {
+          margin-left: auto !important;
+          margin-right: auto !important;
+      }
+      .top-bar, .header, .footer-actions {
+          left: 0;
+          right: 0;
+      }
+  }
 
-    /* ==========================================
-       8. DARK MODE STYLES
-       ========================================== */
-    body.dark-mode {
-        background-color: #121212 !important;
-        color: #e2e8f0 !important;
-    }
-    body.dark-mode header,
-    body.dark-mode .top-bar,
-    body.dark-mode .bg-white,
-    body.dark-mode .device-info-card,
-    body.dark-mode .device-header, 
-    body.dark-mode .accordion-item,
-    body.dark-mode .accordion-header,
-    body.dark-mode .card,
-    body.dark-mode .info-box {
-        background-color: #1e1e1e !important;
-        color: #f8fafc !important;
-        border-color: #2d3748 !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-    }
-    body.dark-mode h1, body.dark-mode h2, body.dark-mode h3,
-    body.dark-mode .top-title,
-    body.dark-mode .text-slate-800,
-    body.dark-mode .text-slate-700,
-    body.dark-mode b, 
-    body.dark-mode strong {
-        color: #f1f5f9 !important;
-    }
-    body.dark-mode .text-slate-500,
-    body.dark-mode .text-slate-400,
-    body.dark-mode .info-row span {
-        color: #94a3b8 !important;
-    }
-    body.dark-mode select,
-    body.dark-mode option {
-        background-color: #1e1e1e !important;
-        color: #f8fafc !important;
-        border-color: #4a5568 !important;
-    }
-    body.dark-mode #userDropdown {
-        background-color: #1e1e1e !important;
-        border-color: #2d3748 !important;
-    }
-    body.dark-mode .border,
-    body.dark-mode .border-b,
-    body.dark-mode .border-t {
-        border-color: rgba(255, 255, 255, 0.08) !important;
-    }
-    body.dark-mode #pv-info-box {
-    background-color: #0f172a !important; /* Xanh tối (slate-900) */
-    border-color: #1e293b !important;     /* Viền tối mờ */
-    color: #94a3b8 !important;            /* Màu chữ nhãn mờ đi cho dễ nhìn */
-    }
-    
-    /* Đổi màu chữ số liệu công suất (--W) thành xanh ngọc nổi bật */
-    body.dark-mode #topo-pv1-watts,
-    body.dark-mode #topo-pv2-watts {
-        color: #facc15 !important;            /* Xanh ngọc (emerald-400) */
-    }
-    
-    /* Đổi màu chữ điện áp (--V) thành màu sáng trắng */
-    body.dark-mode #topo-pv1-volts,
-    body.dark-mode #topo-pv2-volts {
-        color: #e2e8f0 !important;            /* Trắng sáng nhẹ */
-    }
-    /* Bổ sung hỗ trợ Dark Mode cho tab Setting & Overview */
-body.dark-mode .accordion-inner,
-body.dark-mode .accordion-inner .info-row {
-    background-color: #1e1e1e !important;
-    color: #f8fafc !important;
-    border-color: #2d3748 !important;
-}
+  /* ==========================================
+     10. ANIMATIONS
+     ========================================== */
+  .spinning svg { animation: spin 1s linear infinite; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-body.dark-mode input.val-edit, 
-body.dark-mode select.val-edit {
-    background-color: #2a2a2a !important;
-    color: #f8fafc !important;
-    border-color: #4a5568 !important;
-}
-
-body.dark-mode .header {
-    background-color: #1e1e1e !important;
-    border-color: #2d3748 !important;
-    color: #f8fafc !important;
-}
-    body.dark-mode header,
-    body.dark-mode .top-bar,
-    body.dark-mode .header, /* <--- Thêm dòng này vào */
-    body.dark-mode .bg-white,
-    body.dark-mode .device-info-card,
-    body.dark-mode .device-header, 
-    body.dark-mode .accordion-item,
-    body.dark-mode .accordion-header,
-    body.dark-mode .card,
-    body.dark-mode .info-box {
-        background-color: #1e1e1e !important;
-        color: #f8fafc !important;
-        border-color: #2d3748 !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-    }
-/* Khắc phục triệt để đường chỉ trắng và khung thừa trong Dark Mode */
-body.dark-mode .accordion-header {
-    border-bottom: 1px solid #2d3748 !important; /* Đồng bộ màu viền tối cho header */
-}
-
-body.dark-mode .accordion-item.active .accordion-content {
-    border-top: 1px solid #2d3748 !important; /* Ẩn hoặc làm tối đường chỉ ranh giới */
-}
-
-body.dark-mode .info-row {
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.06) !important; /* Làm mờ các đường gạch ngang giữa các dòng */
-}
-
-body.dark-mode .accordion-item {
-    border-color: #2d3748 !important; /* Đồng bộ viền bao quanh các card */
-}
-
-/* Tự động làm phẳng các dòng nằm trong khối ẩn hiện raw */
-.accordion-content .info-row {
-    background: transparent !important;
-    border-left: none !important;
-    border-right: none !important;
-}
-
-/* Đảm bảo các khối ẩn hiện theo điều kiện không bị sinh viền thừa */
-#group_soc_settings, #group_volt_settings, 
-#lead_acid_params, #pylon_params, #group_eq_settings {
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-}
-/* Tự động làm phẳng các dòng nằm trong khối ẩn hiện raw */
-.accordion-content .info-row {
-    background: transparent !important;
-    border-left: none !important;
-    border-right: none !important;
-}
-.accordion-content div[style*="display"] {
-    border: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-}
-
-/* Đảm bảo các khối ẩn hiện theo điều kiện không bị sinh viền thừa */
-#group_soc_settings, #group_volt_settings, 
-#lead_acid_params, #pylon_params, #group_eq_settings {
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-}
-
-    /* ==========================================
-       9. RESPONSIVE MEDIA QUERIES (PC)
-       ========================================== */
-    @media (min-width: 768px) {
-        .top-bar,
-        .header, 
-        .section-header, 
-        .card, 
-        .footer-actions,
-        .device-info-card,
-        .accordion-container,
-        .accordion-content { 
-            max-width: 800px !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .card {
-            margin-left: auto !important;
-            margin-right: auto !important;
-        }
-        .top-bar, .header, .footer-actions {
-            left: 0;
-            right: 0;
-        }
-
-    }
-
-    /* ==========================================
-       10. ANIMATIONS
-       ========================================== */
-    .spinning svg { animation: spin 1s linear infinite; }
-    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  /* ==========================================
+     11. MOBILE OPTIMIZATION & TOUCH FIXES
+     ========================================== */
+  @media (max-width: 767px) {
+      /* Tránh bị tràn màn hình ngang */
+      body {
+          overflow-x: hidden;
+      }
+      /* Tăng kích thước vùng chạm của các nút bấm trên mobile cho thân thiện */
+      .icon-btn {
+          min-width: 44px;
+          min-height: 44px;
+      }
+      /* Ép các ô input không bị phóng to bất thường khi focus trên Safari iOS */
+      input.val-edit, select.val-edit {
+          font-size: 16px !important; 
+      }
+  }
 </style>
+
 </head>
 
 <body class="bg-slate-100 min-h-screen text-slate-800 pb-8">
