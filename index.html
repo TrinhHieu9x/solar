@@ -633,24 +633,36 @@ function toggleAcc(header, id) {
 
     // Hàm ẩn/hiện dựa trên chế độ SOC/Volt
     function toggleCapacityMode() {
-        const mode = document.getElementById('reg_2124').value;
-        const socGroup = document.getElementById('group_soc_settings');
-        const voltGroup = document.getElementById('group_volt_settings');
+        const modeReg = document.getElementById('reg_2124');
+        if (!modeReg) return;
+        const mode = modeReg.value;
+
+        // Lấy danh sách các nhóm theo Class
+        const socSettings = document.querySelectorAll('.group-soc-settings');
+        const voltSettings = document.querySelectorAll('.group-volt-settings');
+        const socCharge = document.querySelectorAll('.group-soc-charge');
+        const voltCharge = document.querySelectorAll('.group-volt-charge');
+        const socDischarge = document.querySelectorAll('.group-soc-discharge');
+        const voltDischarge = document.querySelectorAll('.group-volt-discharge');
 
         if (mode === "0") { // Chế độ SOC
-            if (socGroup) socGroup.style.display = 'block';
-            if (voltGroup) voltGroup.style.display = 'none';
-
-            // Ẩn/hiện tất cả các nhóm sạc/xả lưới mang ID group_soc_charge
-            document.querySelectorAll('#group_soc_charge').forEach(el => el.style.display = 'block');
-            document.querySelectorAll('#group_volt_charge').forEach(el => el.style.display = 'none');
+            socSettings.forEach(el => el.style.display = 'block');
+            voltSettings.forEach(el => el.style.display = 'none');
+            
+            socCharge.forEach(el => el.style.display = 'block');
+            voltCharge.forEach(el => el.style.display = 'none');
+            
+            socDischarge.forEach(el => el.style.display = 'block');
+            voltDischarge.forEach(el => el.style.display = 'none');
         } else { // Chế độ Volt
-            if (voltGroup) voltGroup.style.display = 'block';
-            if (socGroup) socGroup.style.display = 'none';
-
-            // Ẩn/hiện tất cả các nhóm sạc/xả lưới mang ID group_volt_charge
-            document.querySelectorAll('#group_volt_charge').forEach(el => el.style.display = 'block');
-            document.querySelectorAll('#group_soc_charge').forEach(el => el.style.display = 'none');
+            voltSettings.forEach(el => el.style.display = 'block');
+            socSettings.forEach(el => el.style.display = 'none');
+            
+            voltCharge.forEach(el => el.style.display = 'block');
+            socCharge.forEach(el => el.style.display = 'none');
+            
+            voltDischarge.forEach(el => el.style.display = 'block');
+            socDischarge.forEach(el => el.style.display = 'none');
         }
     }
 
