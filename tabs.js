@@ -372,7 +372,7 @@ const TabContents = {
 </div>
 
 
-<!-- Modal Cài đặt hệ thống (Giao diện Accordion chuẩn chỉnh) -->
+<!-- Modal Cài đặt hệ thống (Đúng chuẩn giao diện Inverter) -->
 <div id="settingsModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-lg rounded-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
@@ -383,7 +383,7 @@ const TabContents = {
                     <i class="fa-solid fa-sliders text-xs"></i>
                 </div>
                 <div>
-                    <h3 class="font-bold text-slate-100 text-sm">Cài đặt hệ thống</h3>
+                    <h3 class="font-bold text-slate-100 text-sm">Cài đặt</h3>
                     <p class="text-[11px] text-slate-400">Cấu hình thông số và chế độ vận hành</p>
                 </div>
             </div>
@@ -392,90 +392,146 @@ const TabContents = {
             </button>
         </div>
 
-        <!-- Body Danh sách Accordion -->
-        <div class="p-4 overflow-y-auto space-y-2.5 flex-1 bg-slate-950/50 text-xs text-slate-300">
+        <!-- Body Danh sách cấu hình -->
+        <div class="p-4 overflow-y-auto space-y-3 flex-1 bg-slate-950/50 text-xs text-slate-300">
             
-            <!-- Mục 1: Cài đặt Pin (Đang mở mặc định) -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-                <button onclick="toggleAccordion('acc-battery')" class="w-full px-4 py-3 flex items-center justify-between text-left font-bold text-slate-200 hover:bg-slate-800/50 transition-colors cursor-pointer">
-                    <div class="flex items-center gap-2.5">
-                        <i class="fa-solid fa-battery-half text-emerald-400"></i>
-                        <span>CÀI ĐẶT PIN</span>
-                    </div>
-                    <i id="icon-acc-battery" class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200 rotate-180"></i>
-                </button>
-                <div id="acc-battery" class="px-4 pb-3 space-y-3 border-t border-slate-800/60 pt-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-slate-400">Dung lượng tối thiểu (%)</span>
-                        <input type="number" value="20" class="w-20 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-right text-emerald-400 font-mono">
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-slate-400">Dòng sạc tối đa (A)</span>
-                        <input type="number" value="50" class="w-20 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-right text-emerald-400 font-mono">
-                    </div>
+            <!-- Nhóm: Cài đặt hệ thống -->
+            <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-1">Cài đặt hệ thống</div>
+            
+            <!-- 1. Chế độ hoạt động -->
+            <div onclick="alert('Mở cấu hình Chế độ hoạt động')" class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
+                <div>
+                    <div class="font-bold text-slate-200 text-xs">Chế độ hoạt động</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Chọn logic hoạt động khác nhau cho Inverter[span_2](start_span)[span_2](end_span)[span_3](start_span)[span_3](end_span)</div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-emerald-400 font-medium text-[11px]">Chế độ tự tiêu thụ[span_4](start_span)[span_4](end_span)[span_5](start_span)[span_5](end_span)</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
                 </div>
             </div>
 
-            <!-- Mục 2: Sạc từ lưới điện -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-                <button onclick="toggleAccordion('acc-grid-charge')" class="w-full px-4 py-3 flex items-center justify-between text-left font-bold text-slate-200 hover:bg-slate-800/50 transition-colors cursor-pointer">
-                    <div class="flex items-center gap-2.5">
-                        <i class="fa-solid fa-bolt text-amber-400"></i>
-                        <span>SẠC TỪ LƯỚI ĐIỆN</span>
+            <!-- Nhóm: Điều khiển theo thời gian -->
+            <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-1 pt-1">Điều khiển theo thời gian</div>
+
+            <!-- 2. Kiểm soát theo thời gian (Có công tắc bật/tắt lịch trình sạc/xả) -->
+            <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 space-y-3">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="font-bold text-slate-200 text-xs">Kiểm soát theo thời gian</div>
+                        <div class="text-[11px] text-slate-400 mt-0.5">Lịch trình sạc/xả pin lưu trữ[span_6](start_span)[span_6](end_span)[span_7](start_span)[span_7](end_span)</div>
                     </div>
-                    <i id="icon-acc-grid-charge" class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200"></i>
-                </button>
-                <div id="acc-grid-charge" class="px-4 pb-3 space-y-3 border-t border-slate-800/60 pt-3 hidden">
-                    <div class="flex items-center justify-between">
-                        <span class="text-slate-400">Cho phép sạc lưới</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" class="sr-only peer" checked>
-                            <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
-                        </label>
+                    <!-- Toggle Switch -->
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="timeControlToggle" class="sr-only peer" checked onchange="toggleTimeControl(this)">
+                        <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                    </label>
+                </div>
+
+                <!-- Danh sách các khung giờ sạc/xả (Hiện ra khi bật công tắc) -->
+                <div id="schedule-slots-container" class="space-y-2 pt-2 border-t border-slate-800/60">
+                    <!-- Slot 1: Đang sạc -->
+                    <div class="bg-slate-950/60 rounded-lg p-2.5 flex items-center justify-between border border-slate-800/40 cursor-pointer hover:border-emerald-500/50 transition-colors">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-clock-rotate-left text-slate-400 text-sm"></i>
+                            <div>
+                                <div class="text-emerald-400 font-semibold text-[11px]">Đang sạc[span_8](start_span)[span_8](end_span)</div>
+                                <div class="text-[10px] text-slate-400 font-mono">00:00 ~ 23:59 • 600W, 52V[span_9](start_span)[span_9](end_span)</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
                     </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-slate-400">CS sạc lưới tối đa (W)</span>
-                        <input type="number" value="252" class="w-20 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-right text-emerald-400 font-mono">
+
+                    <!-- Slot 2: Tắt -->
+                    <div class="bg-slate-950/30 rounded-lg px-3 py-2.5 flex items-center justify-between text-slate-500 cursor-pointer hover:bg-slate-950/60 transition-colors">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-clock-rotate-left text-slate-600 text-sm"></i>
+                            <span class="font-mono text-[11px] text-slate-400">Thời gian 2[span_10](start_span)[span_10](end_span)</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px]">Tắt[span_11](start_span)[span_11](end_span)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
+                        </div>
                     </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-slate-400">Áp pin dừng sạc lưới (V)</span>
-                        <input type="text" value="51.4" class="w-20 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-right text-emerald-400 font-mono">
+
+                    <!-- Slot 3: Tắt -->
+                    <div class="bg-slate-950/30 rounded-lg px-3 py-2.5 flex items-center justify-between text-slate-500 cursor-pointer hover:bg-slate-950/60 transition-colors">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-clock-rotate-left text-slate-600 text-sm"></i>
+                            <span class="font-mono text-[11px] text-slate-400">Thời gian 3[span_12](start_span)[span_12](end_span)</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px]">Tắt[span_13](start_span)[span_13](end_span)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
+                        </div>
                     </div>
+
+                    <!-- Slot 4: Tắt -->
+                    <div class="bg-slate-950/30 rounded-lg px-3 py-2.5 flex items-center justify-between text-slate-500 cursor-pointer hover:bg-slate-950/60 transition-colors">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-clock-rotate-left text-slate-600 text-sm"></i>
+                            <span class="font-mono text-[11px] text-slate-400">Thời gian 4</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px]">Tắt[span_14](start_span)[span_14](end_span)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
+                        </div>
+                    </div>
+
+                    <!-- Slot 5: Tắt -->
+                    <div class="bg-slate-950/30 rounded-lg px-3 py-2.5 flex items-center justify-between text-slate-500 cursor-pointer hover:bg-slate-950/60 transition-colors">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-clock-rotate-left text-slate-600 text-sm"></i>
+                            <span class="font-mono text-[11px] text-slate-400">Thời gian 5</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px]">Tắt[span_15](start_span)[span_15](end_span)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-[10px] text-slate-500 italic pt-1">
+                    Bật chức năng này khi bạn muốn tùy chỉnh lịch trình sạc và xả[span_16](start_span)[span_16](end_span)[span_17](start_span)[span_17](end_span)
                 </div>
             </div>
 
-            <!-- Mục 3: Cài đặt xả pin -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-                <button onclick="toggleAccordion('acc-discharge')" class="w-full px-4 py-3 flex items-center justify-between text-left font-bold text-slate-200 hover:bg-slate-800/50 transition-colors cursor-pointer">
-                    <div class="flex items-center gap-2.5">
-                        <i class="fa-solid fa-car-battery text-sky-400"></i>
-                        <span>CÀI ĐẶT XẢ PIN</span>
-                    </div>
-                    <i id="icon-acc-discharge" class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200"></i>
-                </button>
-                <div id="acc-discharge" class="px-4 pb-3 space-y-3 border-t border-slate-800/60 pt-3 hidden">
-                    <div class="flex items-center justify-between">
-                        <span class="text-slate-400">Điện áp cắt xả (V)</span>
-                        <input type="text" value="45.0" class="w-20 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-right text-emerald-400 font-mono">
-                    </div>
+            <!-- Nhóm: Cấu hình cổng & Khác (Đã bỏ Bảo vệ và Tải dự phòng) -->
+            <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-1 pt-1">Cấu hình tính năng</div>
+
+            <!-- 3. GEN (Máy phát điện) -->
+            <div onclick="alert('Mở cài đặt GEN')" class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
+                <div>
+                    <div class="font-bold text-slate-200 text-xs">GEN (Máy phát điện)</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt chức năng cổng GEN[span_18](start_span)[span_18](end_span)[span_19](start_span)[span_19](end_span)</div>
                 </div>
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
             </div>
 
-            <!-- Mục 4: Điều khiển công suất -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-                <button onclick="toggleAccordion('acc-power')" class="w-full px-4 py-3 flex items-center justify-between text-left font-bold text-slate-200 hover:bg-slate-800/50 transition-colors cursor-pointer">
-                    <div class="flex items-center gap-2.5">
-                        <i class="fa-solid fa-gauge-high text-purple-400"></i>
-                        <span>ĐIỀU KHIỂN CÔNG SUẤT</span>
-                    </div>
-                    <i id="icon-acc-power" class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200"></i>
-                </button>
-                <div id="acc-power" class="px-4 pb-3 space-y-3 border-t border-slate-800/60 pt-3 hidden">
-                    <div class="flex items-center justify-between">
-                        <span class="text-slate-400">Giới hạn phát điện lên lưới (%)</span>
-                        <input type="number" value="100" class="w-20 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-right text-emerald-400 font-mono">
-                    </div>
+            <!-- 4. Song song -->
+            <div onclick="alert('Mở cài đặt Song song')" class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
+                <div>
+                    <div class="font-bold text-slate-200 text-xs">Song song</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt song song[span_20](start_span)[span_20](end_span)[span_21](start_span)[span_21](end_span)</div>
                 </div>
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+            </div>
+
+            <!-- 5. Giảm tải đỉnh -->
+            <div onclick="alert('Mở cài đặt Giảm tải đỉnh')" class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
+                <div>
+                    <div class="font-bold text-slate-200 text-xs">Giảm tải đỉnh</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt quản lý giảm tải đỉnh[span_22](start_span)[span_22](end_span)[span_23](start_span)[span_23](end_span)</div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+            </div>
+
+            <!-- 6. Khác -->
+            <div onclick="alert('Mở cài đặt Khác')" class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
+                <div>
+                    <div class="font-bold text-slate-200 text-xs">Khác</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt khác[span_24](start_span)[span_24](end_span)[span_25](start_span)[span_25](end_span)</div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
             </div>
 
         </div>
@@ -488,6 +544,7 @@ const TabContents = {
         </div>
     </div>
 </div>
+
 
 
 
