@@ -2608,11 +2608,104 @@ function closeErrorModal() {
     document.getElementById('errorModal').classList.add('hidden');
 }
 
-// Thuật toán gom nhóm tuần tự với logic trạng thái ngược của hãng (0: Bắt đầu lỗi, 1: Đã kết thúc)
+// ==========================================
+// TỪ ĐIỂN ÁNH XẠ MÃ LỖI (Dựa theo tài liệu hãng)
+// ==========================================
+
+// Bảng 1: Inverter Error (Table 1)
+const inverterErrorTable = {
+    0: "Grid AC over voltage",
+    1: "Grid AC under voltage", // Lưới áp thấp
+    2: "Grid AC absent",
+    3: "Grid AC over frequency",
+    4: "Grid AC under frequency",
+    5: "PV DC over voltage",
+    6: "PV insulation abnormal",
+    7: "Leakage current abnormal",
+    8: "Inverter in power limit state",
+    9: "Control power low",
+    10: "PV string abnormal",
+    11: "PV DC under voltage",
+    12: "PV irradiation weak",
+    13: "Grid abnormal",
+    14: "Arc fault detection",
+    15: "AC moving average voltage high",
+    16: "Output DC over current",
+    17: "Inverter relay abnormal",
+    18: "Remote off",
+    19: "Inverter over temperature",
+    20: "Leakage current HCT abnormal",
+    21: "PV string reverse",
+    22: "System type error",
+    23: "Fan lock",
+    24: "Bus under voltage",
+    25: "Bus over voltage",
+    26: "Internal communication error",
+    27: "Software incompatibility",
+    28: "EEPROM error",
+    29: "Consistent warning",
+    30: "Inverter abnormal",
+    31: "Boost abnormal"
+};
+
+// Bảng 4: Battery & BMS Error (Table 4)
+const batteryErrorTable = {
+    0: "Battery absent",
+    1: "Battery over volt",
+    2: "Battery under volt",
+    3: "Battery discharger over curr",
+    4: "BMS - EMS communication loss", // Lỗi giao tiếp BMS (như mã 56 / bit tương ứng)
+    5: "EPS over load",
+    6: "DC current abnormal",
+    7: "EPS short",
+    8: "Neutral fault",
+    9: "Zero fire wire reverse",
+    10: "EPS capacitance decrease",
+    11: "BMS - EMS communication error",
+    12: "EMS - MasterDSP communication loss",
+    13: "MasterDSP - DC/DC DSP communication loss",
+    14: "Reserved",
+    15: "Reserved"
+};
+
+// Hàm dịch mã lỗi thô sang tên mô tả (Hỗ trợ giải mã theo bitmask nếu là dạng bit gộp, hoặc tra trực tiếp)
+function getErrorDescription(errorCode) {
+    const codeNum = parseInt(errorCode, 10);
+    
+    // Kiểm tra trực tiếp trong bảng 1 (Inverter Error)
+    if (inverterErrorTable[codeNum]) {
+        return `[Inv] ${inverterErrorTable[codeNum]}`;
+    }
+    
+    // Kiểm tra trực tiếp trong bảng 4 (Battery Error)
+    if (batteryErrorTable[codeNum]) {
+        return `[BMS] ${batteryErrorTable[codeNum]}`;
+    }
+
+    // Nếu không khớp trực tiếp, thử quét hệ bit (bitmask) giống như hàm realtime của bạn
+    let activeBits = [];
+    for (let bit = 0; bit <= 31; bit++) {
+        if ((codeNum & (1 << bit)) !== 0) {
+            if (inverterErrorTable[bit]) {
+                activeBits.push(inverterErrorTable[bit]);
+            }
+        }
+    }
+
+    if (activeBits.length > 0) {
+        return activeBits.join(", ");
+    }
+
+    return `Error Code #${errorCode}`;
+}
+
+// ==========================================
+// THUẬT TOÁN GOM NHÓM TUẦN TỰ (FIFO)
+// ==========================================
 function processErrorLogsStrict(apiResponse) {
     if (!apiResponse || !apiResponse.infoerror) return [];
 
-    // Sắp xếp danh sách theo thời gian TĂNG DẦN (cũ nhất trước, mới nhất sau) để quét đúng dòng thời gian
+    // Sắp xếp danh sách theo thời gian TĂNG DẦN (cũ nhất trước, mới nhất sau)
     const rawLogs = [...apiResponse.infoerror].sort((a, b) => new Date(a.Time) - new Date(b.Time));
     
     const sessions = [];
@@ -2625,30 +2718,29 @@ function processErrorLogsStrict(apiResponse) {
             activeAlarms[code] = [];
         }
 
-        // ĐẢO NGƯỢC LOGIC: 0 là bắt đầu lỗi, 1 là đã giải quyết
+        // Logic hãng: 0 là bắt đầu lỗi, 1 là đã giải quyết
         if (log.status === "0") {
-            // Ghi nhận thời điểm lỗi bắt đầu phát sinh
             activeAlarms[code].push({
                 ModelName: log.ModelName,
                 GoodsID: log.GoodsID,
                 ErrorCode: code,
+                errorName: getErrorDescription(code), // Lấy tên lỗi tự động dịch
                 startTime: log.Time,
                 endTime: "Đang diễn ra",
-                status: "0" // 0 nghĩa là đang lỗi
+                status: "0"
             });
         } else if (log.status === "1") {
-            // Khi gặp status 1 (đã giải quyết), lấy sự kiện 0 cũ nhất chưa tắt ra để ghép cặp (FIFO)
             if (activeAlarms[code].length > 0) {
                 const session = activeAlarms[code].shift(); 
                 session.endTime = log.Time;
-                session.status = "1"; // 1 nghĩa là đã khắc phục xong
+                session.status = "1";
                 sessions.push(session);
             } else {
-                // Trường hợp nhận được status 1 nhưng không tìm thấy điểm bắt đầu 0 trước đó trong phạm vi dữ liệu
                 sessions.push({
                     ModelName: log.ModelName,
                     GoodsID: log.GoodsID,
                     ErrorCode: code,
+                    errorName: getErrorDescription(code),
                     startTime: "Trước khoảng lọc",
                     endTime: log.Time,
                     status: "1"
@@ -2657,14 +2749,14 @@ function processErrorLogsStrict(apiResponse) {
         }
     });
 
-    // Những lỗi đến cuối khoảng thời gian mà vẫn chưa có status 1 đóng lại (vẫn đang kẹt lỗi status 0)
+    // Các lỗi đến cuối khoảng thời gian mà vẫn chưa có status 1 đóng lại (vẫn đang kẹt lỗi)
     for (let code in activeAlarms) {
         activeAlarms[code].forEach(session => {
             sessions.push(session);
         });
     }
 
-    // Sắp xếp kết quả cuối cùng theo thời gian mới nhất lên đầu bảng hiển thị
+    // Sắp xếp kết quả cuối cùng theo thời gian mới nhất lên đầu bảng
     return sessions.sort((a, b) => {
         const timeA = a.startTime === "Trước khoảng lọc" ? 0 : new Date(a.startTime);
         const timeB = b.startTime === "Trước khoảng lọc" ? 0 : new Date(b.startTime);
@@ -2688,7 +2780,7 @@ function renderErrorList(data) {
             <table class="w-full text-left text-xs text-slate-300">
                 <thead class="bg-slate-800 text-slate-400 uppercase">
                     <tr>
-                        <th class="p-2">Mã Lỗi</th>
+                        <th class="p-2">Mô Tả Lỗi</th>
                         <th class="p-2">Bắt Đầu</th>
                         <th class="p-2">Kết Thúc</th>
                         <th class="p-2">Trạng Thái</th>
@@ -2698,7 +2790,6 @@ function renderErrorList(data) {
     `;
 
     sessions.forEach(item => {
-        // Nếu status vẫn là "0" tức là chưa có "1" để đóng lại -> Đang lỗi
         const isOngoing = item.status === "0";
         const statusBadge = isOngoing 
             ? `<span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 font-medium">Đang lỗi</span>` 
@@ -2706,7 +2797,10 @@ function renderErrorList(data) {
 
         html += `
             <tr class="hover:bg-slate-800/50">
-                <td class="p-2 font-bold text-amber-400">Error #${item.ErrorCode}</td>
+                <td class="p-2">
+                    <div class="font-bold text-amber-400">${item.errorName}</div>
+                    <div class="text-[10px] text-slate-500">Code: ${item.ErrorCode}</div>
+                </td>
                 <td class="p-2 text-slate-300">${item.startTime}</td>
                 <td class="p-2 text-slate-300">${item.endTime}</td>
                 <td class="p-2">${statusBadge}</td>
@@ -2716,6 +2810,80 @@ function renderErrorList(data) {
 
     html += `</tbody></table></div>`;
     errorContainer.innerHTML = html;
+}
+// Hàm phân giải mã lỗi realtime (hỗ trợ cả mã đơn và mã gộp bitmask)
+function getRealtimeErrorDescriptions(alarmValue) {
+    const codeNum = parseInt(alarmValue, 10);
+    if (isNaN(codeNum) || codeNum === 0) return [];
+
+    let activeAlarms = [];
+
+    // 1. Kiểm tra nếu giá trị khớp trực tiếp với mã đơn trong Bảng 1 hoặc Bảng 4
+    if (inverterErrorTable[codeNum]) {
+        activeAlarms.push(`[Inv] ${inverterErrorTable[codeNum]}`);
+    }
+    if (batteryErrorTable[codeNum]) {
+        activeAlarms.push(`[BMS] ${batteryErrorTable[codeNum]}`);
+    }
+
+    if (activeAlarms.length > 0) {
+        return activeAlarms;
+    }
+
+    // 2. Nếu không khớp mã đơn, tiến hành quét hệ bit (Bitmask từ 0 đến 31)
+    for (let bit = 0; bit <= 31; bit++) {
+        if ((codeNum & (1 << bit)) !== 0) {
+            if (inverterErrorTable[bit]) {
+                activeAlarms.push(`[Inv] ${inverterErrorTable[bit]}`);
+            } else if (batteryErrorTable[bit]) {
+                activeAlarms.push(`[BMS] ${batteryErrorTable[bit]}`);
+            } else {
+                activeAlarms.push(`Unknown Error (Bit ${bit})`);
+            }
+        }
+    }
+
+    return activeAlarms;
+}
+
+// ==========================================
+// HÀM CẬP NHẬT GIAO DIỆN CẢNH BÁO REALTIME
+// ==========================================
+function updateAlarmUI(alarmValue) {
+    const alarmCard = document.getElementById('alarm-card');
+    const alarmIconBg = document.getElementById('alarm-icon-bg');
+    const alarmStatusIcon = document.getElementById('alarm-status-icon');
+    const alarmText = document.getElementById('alarm-text');
+    const alarmCode = document.getElementById('alarm-code');
+    const alarmBadge = document.getElementById('alarm-badge');
+
+    if (!alarmCard) return; // Tránh lỗi nếu chưa load DOM card
+
+    alarmCode.textContent = alarmValue;
+
+    // Lấy danh sách các lỗi đang kích hoạt từ giá trị dec nhận về
+    const activeAlarms = getRealtimeErrorDescriptions(alarmValue);
+
+    if (activeAlarms.length > 0) {
+        // Có lỗi: Đổi card sang màu đỏ/cảnh báo
+        alarmCard.classList.add('border-red-200', 'bg-red-50/25');
+        alarmIconBg.className = "w-6 h-6 rounded-md bg-red-100 text-red-600 flex items-center justify-center shrink-0";
+        alarmStatusIcon.className = "fa-solid fa-triangle-exclamation text-red-500 text-sm shrink-0";
+        
+        alarmText.textContent = activeAlarms.join(", ");
+        alarmText.className = "font-medium text-red-700 text-[11px] sm:text-xs truncate";
+        alarmBadge.textContent = `Cảnh báo (${activeAlarms.length})`;
+        alarmBadge.className = "text-red-600 font-semibold";
+    } else {
+        // Trạng thái bình thường (Alarm = 0 hoặc không có lỗi)
+        alarmCard.classList.remove('border-red-200', 'bg-red-50/25');
+        alarmIconBg.className = "w-6 h-6 rounded-md bg-sky-50 text-sky-600 flex items-center justify-center shrink-0";
+        alarmStatusIcon.className = "fa-solid fa-circle-check text-emerald-500 text-sm shrink-0";
+        alarmText.textContent = "Hiện tại không có cảnh báo";
+        alarmText.className = "font-medium text-slate-700 text-[11px] sm:text-xs truncate";
+        alarmBadge.textContent = "Bình thường";
+        alarmBadge.className = "text-emerald-600 font-semibold";
+    }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
@@ -2818,67 +2986,7 @@ function setConnectionStatus(isConnected, message = "", target = "api") {
             }
         }
     }
-// Từ điển ánh xạ lỗi dựa chuẩn theo bảng Error Code Table
-const alarmDescriptions = {
-    0: "Battery absent",
-    1: "Battery over volt",
-    2: "Battery under volt",
-    3: "Battery discharger over curr",
-    4: "BMS - EMS communication loss",
-    5: "EPS over load",
-    6: "DC current abnormal",
-    7: "EPS short",
-    8: "Neutral fault",
-    9: "Zero fire wire reverse",
-    10: "EPS capacitance decrease",
-    11: "BMS - EMS communication error",
-    12: "EMS - MasterDSP communication loss",
-    13: "MasterDSP - DC/DC DSP communication loss",
-    14: "Reserved (Bit 14)",
-    15: "Reserved (Bit 15)"
-};
 
-function updateAlarmUI(alarmValue) {
-    const alarmCard = document.getElementById('alarm-card');
-    const alarmIconBg = document.getElementById('alarm-icon-bg');
-    const alarmStatusIcon = document.getElementById('alarm-status-icon');
-    const alarmText = document.getElementById('alarm-text');
-    const alarmCode = document.getElementById('alarm-code');
-    const alarmBadge = document.getElementById('alarm-badge');
-
-    if (!alarmCard) return; // Tránh lỗi nếu chưa load DOM card
-
-    alarmCode.textContent = alarmValue;
-
-    // Quét tìm tất cả các bit đang bật (bằng 1)
-    let activeAlarms = [];
-    for (let bit = 0; bit <= 15; bit++) {
-        if ((alarmValue & (1 << bit)) !== 0) {
-            activeAlarms.push(alarmDescriptions[bit] || `Unknown Error (Bit ${bit})`);
-        }
-    }
-
-    if (activeAlarms.length > 0) {
-        // Có lỗi: Đổi card sang màu đỏ/cảnh báo
-        alarmCard.classList.add('border-red-200', 'bg-red-50/25');
-        alarmIconBg.className = "w-6 h-6 rounded-md bg-red-100 text-red-600 flex items-center justify-center shrink-0";
-        alarmStatusIcon.className = "fa-solid fa-triangle-exclamation text-red-500 text-sm shrink-0";
-        
-        alarmText.textContent = activeAlarms.join(", ");
-        alarmText.className = "font-medium text-red-700 text-[11px] sm:text-xs truncate";
-        alarmBadge.textContent = `Cảnh báo (${activeAlarms.length})`;
-        alarmBadge.className = "text-red-600 font-semibold";
-    } else {
-        // Trạng thái bình thường (Alarm = 0)
-        alarmCard.classList.remove('border-red-200', 'bg-red-50/25');
-        alarmIconBg.className = "w-6 h-6 rounded-md bg-sky-50 text-sky-600 flex items-center justify-center shrink-0";
-        alarmStatusIcon.className = "fa-solid fa-circle-check text-emerald-500 text-sm shrink-0";
-        alarmText.textContent = "Hiện tại không có cảnh báo";
-        alarmText.className = "font-medium text-slate-700 text-[11px] sm:text-xs truncate";
-        alarmBadge.textContent = "Bình thường";
-        alarmBadge.className = "text-emerald-600 font-semibold";
-    }
-}
     function openQuickSelectModal(mode = null) {
         const modal = document.getElementById('quickSelectModal');
         const titleEl = document.getElementById('modalTitle');
