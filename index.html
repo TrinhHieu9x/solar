@@ -2553,11 +2553,30 @@ function updateRuntimeUI(data) {
 
 // Hàm mở Modal và gọi API lấy lịch sử lỗi
 function openErrorModal() {
-    const modal = document.getElementById('errorModal');
-    modal.classList.remove('hidden');
-    
-    // Gọi API lấy dữ liệu (Thay link bên dưới bằng API thực tế của bạn)
-    fetch('URL_API_CUA_BAN_O_DAY')
+  const getStorage = (key, fallback) => {
+    return localStorage.getItem(key) || sessionStorage.getItem(key) || fallback;
+  };
+
+  const goodsID = getStorage('solar_GoodsID');
+  const memberAutoID = getStorage('solar_MemberAutoID');
+  const sign = getStorage('solar_sign', '');
+  const token = getStorage('solar_token', '');
+
+  // Gọi qua hàm chung, đặt tên định danh cho API này là 'fetchInverter'
+  const data = await fetchWithCancel('fetchListErr', '/api/openErrorModal', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": token 
+    },
+    body: JSON.stringify({ 
+      sign: sign, 
+      GoodsID: goodsID, 
+      MemberAutoID: memberAutoID 
+    })
+  });
+
+  if (data) {
         .then(response => response.json())
         .then(data => {
             renderErrorList(data);
@@ -2568,6 +2587,8 @@ function openErrorModal() {
                 <div class="text-center py-8 text-rose-500 text-xs">Không thể tải dữ liệu lịch sử lỗi.</div>
             `;
         });
+}
+
 }
 
 // Hàm đóng Modal
