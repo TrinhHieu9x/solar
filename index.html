@@ -743,8 +743,8 @@ async function loadInverterData() {
 
     if (idsToFetch.length === 0) return;
 
-    btn.classList.add('spinning');
-    title.innerText = "🔄 ĐANG ĐỌC TẤT CẢ...";
+    //btn.classList.add('spinning');
+    //title.innerText = "🔄 ĐANG ĐỌC TẤT CẢ...";
 
     try {
         // Chia nhỏ danh sách ID nếu quá dài (Worker thường giới hạn độ dài URL)
@@ -791,14 +791,14 @@ async function loadInverterData() {
                     setTimeout(() => { element.style.backgroundColor = ""; }, 800);
                 }
             });
-            title.innerText = "✅ ĐÃ CẬP NHẬT";
+            //title.innerText = "✅ ĐÃ CẬP NHẬT";
         }
     } catch (error) {
         console.error("Lỗi:", error);
-        title.innerText = "❌ LỖI ĐỌC";
+        //title.innerText = "❌ LỖI ĐỌC";
     } finally {
-        btn.classList.remove('spinning');
-        setTimeout(() => { if(title.innerText !== "❌ LỖI ĐỌC") title.innerText = originalTitle; }, 2000);
+        //btn.classList.remove('spinning');
+        //setTimeout(() => { if(title.innerText !== "❌ LỖI ĐỌC") title.innerText = originalTitle; }, 2000);
         
         // Gọi các hàm đồng bộ giao diện cho toàn bộ các mục
         toggleCapacityMode();
