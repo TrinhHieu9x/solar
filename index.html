@@ -2562,9 +2562,9 @@ function openErrorModal() {
     `;
 
     // 1. Lấy các giá trị từ bộ nhớ web (localStorage / sessionStorage)
-    const goodsId = localStorage.getItem('solar_GoodsID') || '';
-    const memberId = localStorage.getItem('solar_username') || '';
-    const apiKey = localStorage.getItem('solar_token') || '';
+    const goodsId = localStorage.getItem('solar_GoodsID') || sessionStorage.getItem('solar_GoodsID') ;
+    const memberId = localStorage.getItem('solar_username') || sessionStorage.getItem('solar_username') ;
+    const apiKey = localStorage.getItem('solar_token') || sessionStorage.getItem('solar_token') ;
 
     // 2. Tự động lấy ngày hiện tại và lùi lại khoảng 7 ngày làm khoảng thời gian (SDate -> EDate)
     const today = new Date();
