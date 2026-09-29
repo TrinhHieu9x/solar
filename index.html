@@ -285,7 +285,7 @@ select.val-edit {
         font-size: 15px; 
         border-bottom: 1px dashed #edf2f7;
     }
-    .info-row:last-child { border-bottom: none; }
+    .info-row:last-child {border-bottom: none !important;}
     .info-row span { color: var(--text-sub); }
     .info-row b { color: var(--text-main); font-weight: 500; }
     
@@ -470,6 +470,11 @@ body.dark-mode .accordion-item {
     background: transparent !important;
     border-left: none !important;
     border-right: none !important;
+}
+.accordion-content div[style*="display"] {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
 }
 
 /* Đảm bảo các khối ẩn hiện theo điều kiện không bị sinh viền thừa */
