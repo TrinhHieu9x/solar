@@ -2550,6 +2550,43 @@ function updateRuntimeUI(data) {
     }
     renderDashboard();
 }
+
+
+
+// Hàm mở Modal Cài đặt
+function openSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+}
+
+// Hàm đóng Modal Cài đặt
+function closeSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+// Hàm xử lý ẩn/hiện danh sách lịch trình khi bật tắt công tắc Kiểm soát theo thời gian
+function toggleTimeControl(checkbox) {
+    const container = document.getElementById('schedule-slots-container');
+    if (container) {
+        if (checkbox.checked) {
+            container.style.display = 'block';
+        } else {
+            container.style.display = 'none';
+        }
+    }
+}
+
+
+
+
+
+
+
 function openErrorModal() {
     const modal = document.getElementById('errorModal');
     modal.classList.remove('hidden');
