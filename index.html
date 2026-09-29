@@ -450,6 +450,36 @@ body.dark-mode .accordion-item {
     border-color: #2d3748 !important; /* Đồng bộ viền bao quanh các card */
 }
 
+/* Tự động làm phẳng các dòng nằm trong khối ẩn hiện raw */
+.accordion-content .info-row {
+    background: transparent !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+
+/* Đảm bảo các khối ẩn hiện theo điều kiện không bị sinh viền thừa */
+#group_soc_settings, #group_volt_settings, 
+#lead_acid_params, #pylon_params, #group_eq_settings {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+/* Tự động làm phẳng các dòng nằm trong khối ẩn hiện raw */
+.accordion-content .info-row {
+    background: transparent !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+
+/* Đảm bảo các khối ẩn hiện theo điều kiện không bị sinh viền thừa */
+#group_soc_settings, #group_volt_settings, 
+#lead_acid_params, #pylon_params, #group_eq_settings {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
 
     /* ==========================================
        9. RESPONSIVE MEDIA QUERIES (PC)
@@ -621,27 +651,26 @@ function toggleAcc(header, id) {
     }
 
     // Hàm ẩn/hiện dựa trên chế độ SOC/Volt
-    function toggleCapacityMode() {
-        const mode = document.getElementById('reg_2124').value;
-        const socGroup = document.getElementById('group_soc_settings');
-        const voltGroup = document.getElementById('group_volt_settings');
+function toggleCapacityMode() {
+    const mode = document.getElementById('reg_2124').value;
+    const socGroup = document.getElementById('group_soc_settings');
+    const voltGroup = document.getElementById('group_volt_settings');
 
-        if (mode === "0") { // Chế độ SOC
-            if (socGroup) socGroup.style.display = 'block';
-            if (voltGroup) voltGroup.style.display = 'none';
+    if (mode === "0") { // Chế độ SOC
+        if (socGroup) socGroup.style.display = 'block';
+        if (voltGroup) voltGroup.style.display = 'none';
 
-            // Ẩn/hiện tất cả các nhóm sạc/xả lưới mang ID group_soc_charge
-            document.querySelectorAll('#group_soc_charge').forEach(el => el.style.display = 'block');
-            document.querySelectorAll('#group_volt_charge').forEach(el => el.style.display = 'none');
-        } else { // Chế độ Volt
-            if (voltGroup) voltGroup.style.display = 'block';
-            if (socGroup) socGroup.style.display = 'none';
+        document.querySelectorAll('#group_soc_charge').forEach(el => el.style.display = 'block');
+        document.querySelectorAll('#group_volt_charge').forEach(el => el.style.display = 'none');
+    } else { // Chế độ Volt
+        if (voltGroup) voltGroup.style.display = 'block';
+        if (socGroup) socGroup.style.display = 'none';
 
-            // Ẩn/hiện tất cả các nhóm sạc/xả lưới mang ID group_volt_charge
-            document.querySelectorAll('#group_volt_charge').forEach(el => el.style.display = 'block');
-            document.querySelectorAll('#group_soc_charge').forEach(el => el.style.display = 'none');
-        }
+        document.querySelectorAll('#group_volt_charge').forEach(el => el.style.display = 'block');
+        document.querySelectorAll('#group_soc_charge').forEach(el => el.style.display = 'none');
     }
+}
+
 
     function TypeBatteryMode() {
         const mode = document.getElementById('reg_2110').value;
