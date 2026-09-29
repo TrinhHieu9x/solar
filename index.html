@@ -2669,31 +2669,26 @@ const batteryErrorTable = {
 };
 
 // Hàm dịch mã lỗi thô sang tên mô tả (Hỗ trợ giải mã theo bitmask nếu là dạng bit gộp, hoặc tra trực tiếp)
+// ==========================================
+// HÀM DỊCH MÃ LỖI THEO ĐIỀU KIỆN NGƯỠNG 31 & OFFSET 45
+// ==========================================
 function getErrorDescription(errorCode) {
     const codeNum = parseInt(errorCode, 10);
-    
-    // Kiểm tra trực tiếp trong bảng 1 (Inverter Error)
-    if (inverterErrorTable[codeNum]) {
-        return `[Inv] ${inverterErrorTable[codeNum]}`;
-    }
-    
-    // Kiểm tra trực tiếp trong bảng 4 (Battery Error)
-    if (batteryErrorTable[codeNum]) {
-        return `[BMS] ${batteryErrorTable[codeNum]}`;
-    }
+    if (isNaN(codeNum)) return `Error Code #${errorCode}`;
 
-    // Nếu không khớp trực tiếp, thử quét hệ bit (bitmask) giống như hàm realtime của bạn
-    let activeBits = [];
-    for (let bit = 0; bit <= 31; bit++) {
-        if ((codeNum & (1 << bit)) !== 0) {
-            if (inverterErrorTable[bit]) {
-                activeBits.push(inverterErrorTable[bit]);
-            }
+    if (codeNum <= 31) {
+        // Mã từ 0 đến 31: Thuộc bảng Inverter Error Table
+        if (inverterErrorTable[codeNum]) {
+            return `[Inv] ${inverterErrorTable[codeNum]}`;
         }
-    }
-
-    if (activeBits.length > 0) {
-        return activeBits.join(", ");
+    } else {
+        // Mã lớn hơn 31 (như 56): Trừ đi offset 45 để ra mã chuẩn trong bảng Battery Error Table (56 - 45 = 11)
+        const OFFSET = 45;
+        const adjustedCode = codeNum - OFFSET;
+        
+        if (batteryErrorTable[adjustedCode]) {
+            return `[BMS] ${batteryErrorTable[adjustedCode]}`;
+        }
     }
 
     return `Error Code #${errorCode}`;
