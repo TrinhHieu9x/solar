@@ -372,7 +372,7 @@ const TabContents = {
 </div>
 
 
-<!-- Modal Cài đặt hệ thống (Đúng chuẩn giao diện Inverter) -->
+<!-- Modal Cài đặt hệ thống (Sạch, chuẩn Dark Mode, không dùng alert) -->
 <div id="settingsModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-lg rounded-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
@@ -399,13 +399,13 @@ const TabContents = {
             <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-1">Cài đặt hệ thống</div>
             
             <!-- 1. Chế độ hoạt động -->
-            <div onclick="alert('Mở cấu hình Chế độ hoạt động')" class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
+            <div class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
                 <div>
                     <div class="font-bold text-slate-200 text-xs">Chế độ hoạt động</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">Chọn logic hoạt động khác nhau cho Inverter[span_2](start_span)[span_2](end_span)[span_3](start_span)[span_3](end_span)</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Chọn logic hoạt động khác nhau cho Inverter</div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span class="text-emerald-400 font-medium text-[11px]">Chế độ tự tiêu thụ[span_4](start_span)[span_4](end_span)[span_5](start_span)[span_5](end_span)</span>
+                    <span class="text-emerald-400 font-medium text-[11px]">Chế độ tự tiêu thụ</span>
                     <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
                 </div>
             </div>
@@ -413,12 +413,12 @@ const TabContents = {
             <!-- Nhóm: Điều khiển theo thời gian -->
             <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-1 pt-1">Điều khiển theo thời gian</div>
 
-            <!-- 2. Kiểm soát theo thời gian (Có công tắc bật/tắt lịch trình sạc/xả) -->
+            <!-- 2. Kiểm soát theo thời gian -->
             <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 space-y-3">
                 <div class="flex items-center justify-between">
                     <div>
                         <div class="font-bold text-slate-200 text-xs">Kiểm soát theo thời gian</div>
-                        <div class="text-[11px] text-slate-400 mt-0.5">Lịch trình sạc/xả pin lưu trữ[span_6](start_span)[span_6](end_span)[span_7](start_span)[span_7](end_span)</div>
+                        <div class="text-[11px] text-slate-400 mt-0.5">Lịch trình sạc/xả pin lưu trữ</div>
                     </div>
                     <!-- Toggle Switch -->
                     <label class="relative inline-flex items-center cursor-pointer">
@@ -427,109 +427,104 @@ const TabContents = {
                     </label>
                 </div>
 
-                <!-- Danh sách các khung giờ sạc/xả (Hiện ra khi bật công tắc) -->
+                <!-- Danh sách khung giờ -->
                 <div id="schedule-slots-container" class="space-y-2 pt-2 border-t border-slate-800/60">
-                    <!-- Slot 1: Đang sạc -->
                     <div class="bg-slate-950/60 rounded-lg p-2.5 flex items-center justify-between border border-slate-800/40 cursor-pointer hover:border-emerald-500/50 transition-colors">
                         <div class="flex items-center gap-2.5">
                             <i class="fa-solid fa-clock-rotate-left text-slate-400 text-sm"></i>
                             <div>
-                                <div class="text-emerald-400 font-semibold text-[11px]">Đang sạc[span_8](start_span)[span_8](end_span)</div>
-                                <div class="text-[10px] text-slate-400 font-mono">00:00 ~ 23:59 • 600W, 52V[span_9](start_span)[span_9](end_span)</div>
+                                <div class="text-emerald-400 font-semibold text-[11px]">Đang sạc</div>
+                                <div class="text-[10px] text-slate-400 font-mono">00:00 ~ 23:59 • 600W, 52V</div>
                             </div>
                         </div>
                         <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
                     </div>
 
-                    <!-- Slot 2: Tắt -->
                     <div class="bg-slate-950/30 rounded-lg px-3 py-2.5 flex items-center justify-between text-slate-500 cursor-pointer hover:bg-slate-950/60 transition-colors">
                         <div class="flex items-center gap-2.5">
                             <i class="fa-solid fa-clock-rotate-left text-slate-600 text-sm"></i>
-                            <span class="font-mono text-[11px] text-slate-400">Thời gian 2[span_10](start_span)[span_10](end_span)</span>
+                            <span class="font-mono text-[11px] text-slate-400">Thời gian 2</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-[11px]">Tắt[span_11](start_span)[span_11](end_span)</span>
+                            <span class="text-[11px]">Tắt</span>
                             <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
                         </div>
                     </div>
 
-                    <!-- Slot 3: Tắt -->
                     <div class="bg-slate-950/30 rounded-lg px-3 py-2.5 flex items-center justify-between text-slate-500 cursor-pointer hover:bg-slate-950/60 transition-colors">
                         <div class="flex items-center gap-2.5">
                             <i class="fa-solid fa-clock-rotate-left text-slate-600 text-sm"></i>
-                            <span class="font-mono text-[11px] text-slate-400">Thời gian 3[span_12](start_span)[span_12](end_span)</span>
+                            <span class="font-mono text-[11px] text-slate-400">Thời gian 3</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-[11px]">Tắt[span_13](start_span)[span_13](end_span)</span>
+                            <span class="text-[11px]">Tắt</span>
                             <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
                         </div>
                     </div>
 
-                    <!-- Slot 4: Tắt -->
                     <div class="bg-slate-950/30 rounded-lg px-3 py-2.5 flex items-center justify-between text-slate-500 cursor-pointer hover:bg-slate-950/60 transition-colors">
                         <div class="flex items-center gap-2.5">
                             <i class="fa-solid fa-clock-rotate-left text-slate-600 text-sm"></i>
                             <span class="font-mono text-[11px] text-slate-400">Thời gian 4</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-[11px]">Tắt[span_14](start_span)[span_14](end_span)</span>
+                            <span class="text-[11px]">Tắt</span>
                             <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
                         </div>
                     </div>
 
-                    <!-- Slot 5: Tắt -->
                     <div class="bg-slate-950/30 rounded-lg px-3 py-2.5 flex items-center justify-between text-slate-500 cursor-pointer hover:bg-slate-950/60 transition-colors">
                         <div class="flex items-center gap-2.5">
                             <i class="fa-solid fa-clock-rotate-left text-slate-600 text-sm"></i>
                             <span class="font-mono text-[11px] text-slate-400">Thời gian 5</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-[11px]">Tắt[span_15](start_span)[span_15](end_span)</span>
+                            <span class="text-[11px]">Tắt</span>
                             <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
                         </div>
                     </div>
                 </div>
 
                 <div class="text-[10px] text-slate-500 italic pt-1">
-                    Bật chức năng này khi bạn muốn tùy chỉnh lịch trình sạc và xả[span_16](start_span)[span_16](end_span)[span_17](start_span)[span_17](end_span)
+                    Bật chức năng này khi bạn muốn tùy chỉnh lịch trình sạc và xả
                 </div>
             </div>
 
-            <!-- Nhóm: Cấu hình cổng & Khác (Đã bỏ Bảo vệ và Tải dự phòng) -->
+            <!-- Nhóm: Cấu hình tính năng -->
             <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-1 pt-1">Cấu hình tính năng</div>
 
             <!-- 3. GEN (Máy phát điện) -->
-            <div onclick="alert('Mở cài đặt GEN')" class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
+            <div class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
                 <div>
                     <div class="font-bold text-slate-200 text-xs">GEN (Máy phát điện)</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt chức năng cổng GEN[span_18](start_span)[span_18](end_span)[span_19](start_span)[span_19](end_span)</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt chức năng cổng GEN</div>
                 </div>
                 <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
             </div>
 
             <!-- 4. Song song -->
-            <div onclick="alert('Mở cài đặt Song song')" class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
+            <div class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
                 <div>
                     <div class="font-bold text-slate-200 text-xs">Song song</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt song song[span_20](start_span)[span_20](end_span)[span_21](start_span)[span_21](end_span)</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt song song</div>
                 </div>
                 <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
             </div>
 
             <!-- 5. Giảm tải đỉnh -->
-            <div onclick="alert('Mở cài đặt Giảm tải đỉnh')" class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
+            <div class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
                 <div>
                     <div class="font-bold text-slate-200 text-xs">Giảm tải đỉnh</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt quản lý giảm tải đỉnh[span_22](start_span)[span_22](end_span)[span_23](start_span)[span_23](end_span)</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt quản lý giảm tải đỉnh</div>
                 </div>
                 <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
             </div>
 
             <!-- 6. Khác -->
-            <div onclick="alert('Mở cài đặt Khác')" class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
+            <div class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
                 <div>
                     <div class="font-bold text-slate-200 text-xs">Khác</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt khác[span_24](start_span)[span_24](end_span)[span_25](start_span)[span_25](end_span)</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt khác</div>
                 </div>
                 <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
             </div>
