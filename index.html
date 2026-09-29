@@ -856,7 +856,7 @@ async function loadInverterData() {
 function renderOverviewData(data) {
             data = data || {};
 
-            document.getElementById('header-sn').innerText = data.GoodsID || '--';
+            //document.getElementById('header-sn').innerText = data.GoodsID || '--';
             document.getElementById('info-sn').innerText = data.GoodsID || '--';
             document.getElementById('info-wifi').innerText = '📶 ' + (data.WifiStrength !== undefined ? data.WifiStrength + '%' : '--');
             
