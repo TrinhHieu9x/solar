@@ -632,26 +632,27 @@ function toggleAcc(header, id) {
     }
 
     // Hàm ẩn/hiện dựa trên chế độ SOC/Volt
-function toggleCapacityMode() {
-    const mode = document.getElementById('reg_2124').value;
-    const socGroup = document.getElementById('group_soc_settings');
-    const voltGroup = document.getElementById('group_volt_settings');
+    function toggleCapacityMode() {
+        const mode = document.getElementById('reg_2124').value;
+        const socGroup = document.getElementById('group_soc_settings');
+        const voltGroup = document.getElementById('group_volt_settings');
 
-    if (mode === "0") { // Chế độ SOC
-        if (socGroup) socGroup.style.display = 'block';
-        if (voltGroup) voltGroup.style.display = 'none';
+        if (mode === "0") { // Chế độ SOC
+            if (socGroup) socGroup.style.display = 'block';
+            if (voltGroup) voltGroup.style.display = 'none';
 
-        document.querySelectorAll('#group_soc_charge').forEach(el => el.style.display = 'block');
-        document.querySelectorAll('#group_volt_charge').forEach(el => el.style.display = 'none');
-    } else { // Chế độ Volt
-        if (voltGroup) voltGroup.style.display = 'block';
-        if (socGroup) socGroup.style.display = 'none';
+            // Ẩn/hiện tất cả các nhóm sạc/xả lưới mang ID group_soc_charge
+            document.querySelectorAll('#group_soc_charge').forEach(el => el.style.display = 'block');
+            document.querySelectorAll('#group_volt_charge').forEach(el => el.style.display = 'none');
+        } else { // Chế độ Volt
+            if (voltGroup) voltGroup.style.display = 'block';
+            if (socGroup) socGroup.style.display = 'none';
 
-        document.querySelectorAll('#group_volt_charge').forEach(el => el.style.display = 'block');
-        document.querySelectorAll('#group_soc_charge').forEach(el => el.style.display = 'none');
+            // Ẩn/hiện tất cả các nhóm sạc/xả lưới mang ID group_volt_charge
+            document.querySelectorAll('#group_volt_charge').forEach(el => el.style.display = 'block');
+            document.querySelectorAll('#group_soc_charge').forEach(el => el.style.display = 'none');
+        }
     }
-}
-
 
     function TypeBatteryMode() {
         const mode = document.getElementById('reg_2110').value;
