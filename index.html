@@ -2551,44 +2551,58 @@ function updateRuntimeUI(data) {
     renderDashboard();
 }
 
-// Hàm mở Modal và gọi API lấy lịch sử lỗi
 function openErrorModal() {
-  const getStorage = (key, fallback) => {
-    return localStorage.getItem(key) || sessionStorage.getItem(key) || fallback;
-  };
+    const modal = document.getElementById('errorModal');
+    modal.classList.remove('hidden');
 
-  const goodsID = getStorage('solar_GoodsID');
-  const memberAutoID = getStorage('solar_MemberAutoID');
-  const sign = getStorage('solar_sign', '');
-  const token = getStorage('solar_token', '');
+    // Hiển thị trạng thái đang tải
+    document.getElementById('error-list-container').innerHTML = `
+        <div class="text-center py-8 text-slate-500 text-xs flex items-center justify-center gap-2">
+            <i class="fa-solid fa-spinner animate-spin"></i> Đang tải dữ liệu lịch sử...
+        </div>
+    `;
 
-  // Gọi qua hàm chung, đặt tên định danh cho API này là 'fetchInverter'
-  const data = await fetchWithCancel('fetchListErr', '/api/openErrorModal', {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": token 
-    },
-    body: JSON.stringify({ 
-      sign: sign, 
-      GoodsID: goodsID, 
-      MemberAutoID: memberAutoID 
+    // 1. Lấy các giá trị từ bộ nhớ web (localStorage / sessionStorage)
+    // (Bạn thay đổi tên key bên dưới cho khớp với lúc lưu trong code của bạn)
+    const goodsId = localStorage.getItem('solar_GoodsID') || '';
+    const memberId = localStorage.getItem('solar_username') || '';
+    const apiKey = localStorage.getItem('solar_token') || '';
+
+    // 2. Tự động lấy ngày hiện tại và lùi lại khoảng 7 ngày làm khoảng thời gian (SDate -> EDate)
+    const today = new Date();
+    const priorDate = new Date();
+    priorDate.setDate(today.getDate() - 7);
+
+    const formatDate = (d) => d.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+    // 3. Chuẩn bị dữ liệu gửi đi (Payload)
+    const payload = {
+        GoodsID: goodsId,
+        MemberID: memberId,
+        key: apiKey,
+        SDate: formatDate(priorDate),
+        EDate: formatDate(today),
+        selectType: 2
+    };
+
+    // 4. Gọi API với phương thức POST
+    fetch('https://view.solarvn.workers.dev/api/logsearch', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json' // Hoặc 'application/x-www-form-urlencoded' tùy thuộc vào Backend yêu cầu
+        },
+        body: JSON.stringify(payload)
     })
-  });
-
-  if (data) {
-        .then(response => response.json())
-        .then(data => {
-            renderErrorList(data);
-        })
-        .catch(error => {
-            console.error('Lỗi khi tải lịch sử:', error);
-            document.getElementById('error-list-container').innerHTML = `
-                <div class="text-center py-8 text-rose-500 text-xs">Không thể tải dữ liệu lịch sử lỗi.</div>
-            `;
-        });
-}
-
+    .then(response => response.json())
+    .then(data => {
+        renderErrorList(data);
+    })
+    .catch(error => {
+        console.error('Lỗi khi tải lịch sử:', error);
+        document.getElementById('error-list-container').innerHTML = `
+            <div class="text-center py-8 text-rose-400 text-xs">Không thể tải dữ liệu lịch sử lỗi.</div>
+        `;
+    });
 }
 
 // Hàm đóng Modal
