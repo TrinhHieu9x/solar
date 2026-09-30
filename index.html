@@ -790,26 +790,29 @@ function toggleAcc(header, id) {
         }
     }
 
-async function loadInverterData() {
-    const btn = document.getElementById('refreshBtn');
-    const title = document.getElementById('mainTitle');
-    const originalTitle = "THIẾT LẬP HỆ THỐNG";
+async function loadInverterData(sectionId) {
     const goodsId = localStorage.getItem('solar_GoodsID') || sessionStorage.getItem('solar_GoodsID');
     const operator = localStorage.getItem('solar_username') || sessionStorage.getItem('solar_username');
     
-    // 1. Quét toàn bộ trang để lấy TẤT CẢ ID có tiền tố reg_
-    const allElements = document.querySelectorAll('[id^="reg_"]');
-    const idsToFetch = Array.from(allElements).map(el => el.id.replace('reg_', ''));
+    let allElements;
+    
+    // 👉 TRƯỜNG HỢP 1: Nếu có truyền sectionId và tìm thấy thẻ -> Chỉ quét các thanh ghi trong mục đó (dành cho trang chia accordion)
+    if (sectionId) {
+        const sectionEl = document.getElementById(sectionId);
+        allElements = sectionEl ? sectionEl.querySelectorAll('[id^="reg_"]') : [];
+    } 
+    // 👉 TRƯỜNG HỢP 2: Nếu không truyền sectionId (hoặc đang ở trang Setting All) -> Quét toàn bộ trang
+    else {
+        allElements = document.querySelectorAll('[id^="reg_"]');
+    }
 
+    const idsToFetch = Array.from(allElements).map(el => el.id.replace('reg_', ''));
     if (idsToFetch.length === 0) return;
 
-    //btn.classList.add('spinning');
-document.getElementById('sun-logo-icon').classList.add('spinning');
-    //title.innerText = "🔄 ĐANG ĐỌC TẤT CẢ...";
+    const sunIcon = document.getElementById('sun-logo-icon');
+    if (sunIcon) sunIcon.classList.add('spinning');
 
     try {
-        // Chia nhỏ danh sách ID nếu quá dài (Worker thường giới hạn độ dài URL)
-        // Nhưng với số lượng thanh ghi biến tần, gửi 1 lần vẫn ổn.
         const url = `https://api.solarvn.workers.dev/read?ids=${idsToFetch.join(',')}&goods_id=${encodeURIComponent(goodsId)}&operator=${encodeURIComponent(operator)}`;
         const response = await fetch(url, { cache: 'no-store' });
         if (!response.ok) throw new Error("Server Worker lỗi");
@@ -825,20 +828,15 @@ document.getElementById('sun-logo-icon').classList.add('spinning');
                 
                 const element = document.getElementById('reg_' + address);
                 if (element) {
-                    // Xử lý Switch (Nút gạt)
                     if (element.classList.contains('switch')) {
                         if (parseInt(value) === 1) {
                             element.classList.add('on');
                         } else {
                             element.classList.remove('on');
                         }
-                    } 
-                    // Xử lý Tần số (chia 100 nếu cần, hiện tại đang để nguyên theo code cũ)
-                    else if (address === "211E") {
+                    } else if (address === "211E") {
                         element.value = value;
-                    }
-                    // Xử lý Input số có bước nhảy 0.1
-                    else {
+                    } else {
                         const stepValue = element.getAttribute('step');
                         if (stepValue === "0.1") {
                             element.value = (parseFloat(value) / 10).toFixed(1);
@@ -852,18 +850,11 @@ document.getElementById('sun-logo-icon').classList.add('spinning');
                     setTimeout(() => { element.style.backgroundColor = ""; }, 800);
                 }
             });
-            //title.innerText = "✅ ĐÃ CẬP NHẬT";
-document.getElementById('sun-logo-icon').classList.remove('spinning');
         }
     } catch (error) {
         console.error("Lỗi:", error);
-        //title.innerText = "❌ LỖI ĐỌC";
-document.getElementById('sun-logo-icon').classList.remove('spinning');
     } finally {
-        //btn.classList.remove('spinning');
-        //setTimeout(() => { if(title.innerText !== "❌ LỖI ĐỌC") title.innerText = originalTitle; }, 2000);
-        document.getElementById('sun-logo-icon').classList.remove('spinning');
-        // Gọi các hàm đồng bộ giao diện cho toàn bộ các mục
+        if (sunIcon) sunIcon.classList.remove('spinning');
         toggleCapacityMode();
         TypeBatteryMode();
         syncVoltageDisplay();
