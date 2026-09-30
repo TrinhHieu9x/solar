@@ -2603,26 +2603,29 @@ const workModeNames = {
     "2": "Chế độ dự phòng"
 };
 
-// Khi bạn gọi hàm đọc thanh ghi (ví dụ khi mở modal cài đặt):
+// Hàm mở modal cài đặt
 async function openSettingsModal() {
     // 1. Mở modal lên trước cho mượt giao diện
     document.getElementById('settingsModal').classList.remove('hidden');
     
+    // Đặt chữ "Đang tải..." trong lúc chờ dữ liệu về
+    const textElement = document.getElementById('current_work_mode_text');
+    if (textElement) textElement.innerText = "Đang tải...";
+
     try {
-        // 2. Gọi hàm lấy dữ liệu thanh ghi 2100 của bạn (giả sử nó trả về giá trị val)
-        // Ví dụ: const val = await loadInverterData('2100');
+        // 2. Chờ lấy dữ liệu thanh ghi 2100 trả về trực tiếp
+        const val = await loadInverterData('2100'); 
         
-        // Hoặc nếu hàm của bạn dùng callback / fetch:
-        loadInverterData('2100', function(val) {
-            updateWorkModeUI(val);
-        });
+        // 3. Cập nhật giao diện ngay khi có kết quả
+        updateWorkModeUI(val);
 
     } catch (err) {
         console.error("Lỗi tải chế độ hoạt động:", err);
+        if (textElement) textElement.innerText = "Lỗi tải";
     }
 }
 
-// Hàm cập nhật giao diện khi đã có giá trị `val` trả về từ API
+// Hàm cập nhật giao diện
 function updateWorkModeUI(val) {
     const stringVal = String(val);
 
