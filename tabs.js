@@ -371,9 +371,7 @@ const TabContents = {
     </div>
 </div>
 
-<!-- ==========================================
-     MODAL CÀI ĐẶT HỆ THỐNG (HOÀN CHỈNH & ĐẦY ĐỦ)
-     ========================================== -->
+<!-- Modal Container -->
 <div id="settingsModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-lg rounded-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
@@ -384,8 +382,8 @@ const TabContents = {
                     <i class="fa-solid fa-sliders text-xs"></i>
                 </div>
                 <div>
-                    <h3 class="font-bold text-slate-100 text-sm">Cài đặt</h3>
-                    <p class="text-[11px] text-slate-400">Cấu hình thông số và chế độ vận hành</p>
+                    <h3 class="font-bold text-slate-100 text-sm">Cài đặt hệ thống</h3>
+                    <p class="text-[11px] text-slate-400">Cấu hình thông số và chế độ vận hành Inverter</p>
                 </div>
             </div>
             <button onclick="closeSettingsModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer transition-colors">
@@ -399,7 +397,7 @@ const TabContents = {
             <!-- Nhóm: Cài đặt hệ thống -->
             <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-1">Cài đặt hệ thống</div>
             
-            <!-- 1. Chế độ hoạt động (Accordion) -->
+            <!-- 1. Chế độ hoạt động (Thanh ghi 2100) -->
             <div class="bg-slate-900 border border-slate-800/80 rounded-xl overflow-hidden transition-all">
                 <div onclick="toggleAccordionMenu('workModeSection')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-colors">
                     <div>
@@ -407,14 +405,12 @@ const TabContents = {
                         <div class="text-[11px] text-slate-400 mt-0.5">Chọn logic hoạt động cho Inverter</div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span id="current_work_mode_text" class="text-emerald-400 font-medium text-[11px]">Đang tải...</span>
-                        <i id="icon_work_workModeSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
+                        <span id="text_reg_2100" class="text-emerald-400 font-medium text-[11px]">Đang tải...</span>
+                        <i id="icon_workModeSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
                     </div>
                 </div>
             
-                <!-- Phần nội dung ẩn/hiện chứa các radio option -->
-                 <div id="workModeSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
-                    <!-- Đặt name="reg_2100" để hàm JS tự quét và tự tick đúng giá trị "0", "1", "2" -->
+                <div id="workModeSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
                     <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                         <span class="text-slate-200">Chế độ tự tiêu thụ</span>
                         <input type="radio" name="reg_2100" value="0" class="accent-emerald-500" onchange="writeRegister('2100', this.value)">
@@ -423,45 +419,34 @@ const TabContents = {
                         <span class="text-slate-200">Chế độ ưu tiên phát lưới điện</span>
                         <input type="radio" name="reg_2100" value="1" class="accent-emerald-500" onchange="writeRegister('2100', this.value)">
                     </label>
+                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
+                        <span class="text-slate-200">Chế độ dự phòng</span>
+                        <input type="radio" name="reg_2100" value="2" class="accent-emerald-500" onchange="writeRegister('2100', this.value)">
+                    </label>
                 </div>
             </div>
 
             <!-- Nhóm: Điều khiển theo thời gian -->
             <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-1 pt-1">Điều khiển theo thời gian</div>
 
-            <!-- 2. Kiểm soát theo thời gian -->
+            <!-- 2. Kiểm soát theo thời gian (Thanh ghi 2101) -->
             <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 space-y-3">
-                <!-- Thanh ghi ẩn cho trạng thái bật/tắt tổng (ID giả định reg_2101) -->
-                <input type="hidden" id="reg_2101">
-
                 <div class="flex items-center justify-between">
                     <div>
                         <div class="font-bold text-slate-200 text-xs">Kiểm soát theo thời gian</div>
                         <div class="text-[11px] text-slate-400 mt-0.5">Lịch trình sạc/xả pin lưu trữ</div>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="reg_time_control" class="sr-only peer" onchange="writeRegister('reg_time_control', this.checked ? 1 : 0)">
+                        <input type="checkbox" id="reg_2101" class="sr-only peer" onchange="writeRegister('2101', this.checked ? 1 : 0)">
                         <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
                     </label>
                 </div>
-
-                <div id="schedule-slots-container" class="space-y-2 pt-2 border-t border-slate-800/60">
-                    <div class="bg-slate-950/60 rounded-lg p-2.5 flex items-center justify-between border border-slate-800/40">
-                        <div class="flex items-center gap-2.5">
-                            <i class="fa-solid fa-clock-rotate-left text-slate-400 text-sm"></i>
-                            <div>
-                                <div class="text-emerald-400 font-semibold text-[11px]">Thời gian 1 (Đang sạc)</div>
-                                <div class="text-[10px] text-slate-400 font-mono">00:00 ~ 23:59 • 600W, 52V</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <!-- Nhóm: Cấu hình tính năng -->
+<!-- Nhóm: Cấu hình tính năng -->
             <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-1 pt-1">Cấu hình tính năng</div>
 
-            <!-- 3. GEN (Máy phát điện) (Accordion) -->
+            <!-- 3. GEN / Máy phát điện (Thanh ghi 2102) -->
             <div class="bg-slate-900 border border-slate-800/80 rounded-xl overflow-hidden transition-all">
                 <div onclick="toggleAccordionMenu('genModeSection')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-colors">
                     <div>
@@ -469,30 +454,23 @@ const TabContents = {
                         <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt chức năng cổng GEN</div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span id="current_gen_mode_text" class="text-slate-400 font-medium text-[11px]">Không bật</span>
-                        <i id="icon_gen_genModeSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
+                        <span id="text_reg_2102" class="text-slate-400 font-medium text-[11px]">Đang tải...</span>
+                        <i id="icon_genModeSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
                     </div>
                 </div>
 
                 <div id="genModeSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
-                    <!-- Thanh ghi ẩn cho chế độ GEN (ID giả định reg_2102) -->
-                    <input type="hidden" id="reg_2102">
-
                     <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                         <span class="text-slate-200">Không bật</span>
-                        <input type="radio" name="reg_gen_mode" value="0" class="accent-emerald-500" onchange="writeRegister('reg_gen_mode', this.value)">
+                        <input type="radio" name="reg_2102" value="0" class="accent-emerald-500" onchange="writeRegister('2102', this.value)">
                     </label>
                     <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                         <span class="text-slate-200">Máy phát điện</span>
-                        <input type="radio" name="reg_gen_mode" value="1" class="accent-emerald-500" onchange="writeRegister('reg_gen_mode', this.value)">
+                        <input type="radio" name="reg_2102" value="1" class="accent-emerald-500" onchange="writeRegister('2102', this.value)">
                     </label>
                     <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                         <span class="text-slate-200">Tải thông minh</span>
-                        <input type="radio" name="reg_gen_mode" value="2" class="accent-emerald-500" onchange="writeRegister('reg_gen_mode', this.value)">
-                    </label>
-                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
-                        <span class="text-slate-200">Ghép nối AC</span>
-                        <input type="radio" name="reg_gen_mode" value="3" class="accent-emerald-500" onchange="writeRegister('reg_gen_mode', this.value)">
+                        <input type="radio" name="reg_2102" value="2" class="accent-emerald-500" onchange="writeRegister('2102', this.value)">
                     </label>
                 </div>
             </div>
