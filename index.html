@@ -2623,53 +2623,40 @@ function toggleAccordionMenu(sectionId) {
     }
 }
 
-function handleRegisterValue(address, value) {
-    const stringVal = String(value);
-    const element = document.getElementById('reg_' + address);
-    if (!element) return;
+function handleApiResponse(responseArray) {
+    if (!Array.isArray(responseArray)) return;
 
-    // 1. Kiểm tra xem trên HTML có khai báo data-labels (dạng chọn lựa: 0, 1, 2, 3...) không
-    const labelsRaw = element.getAttribute('data-labels');
-    if (labelsRaw) {
-        try {
-            const labelsMap = JSON.parse(labelsRaw);
-            const textValue = labelsMap[stringVal] || stringVal;
+    responseArray.forEach(item => {
+        for (let indexKey in item) {
+            let registerObj = item[indexKey];
             
-            // Tự động tìm xem có thẻ span nào được chỉ định để hiện chữ hay không
-            const textTargetId = element.getAttribute('data-text-target');
-            if (textTargetId) {
-                const textEl = document.getElementById(textTargetId);
-                if (textEl) textEl.innerText = textValue;
+            for (let regId in registerObj) {
+                let value = registerObj[regId];
+                
+                // 1. Tự động tìm input theo ID (dạng reg_2100, reg_max_grid_power,...) và gán giá trị
+                let el = document.getElementById(`reg_${regId}`);
+                if (el) {
+                    if (el.type === 'checkbox') {
+                        el.checked = (value === "1" || value === 1 || value === true);
+                    } else {
+                        el.value = value;
+                    }
+                }
+
+                // 2. Tự động tìm Radio button theo nhóm name="reg_{regId}"
+                let radios = document.querySelectorAll(`input[name="reg_${regId}"]`);
+                radios.forEach(radio => {
+                    radio.checked = (radio.value === String(value));
+                });
+
+                // 3. Tự động cập nhật Text hiển thị đi kèm (nếu có thẻ span ID dạng text_reg_XXXX)
+                let textEl = document.getElementById(`text_reg_${regId}`);
+                if (textEl) {
+                    textEl.textContent = value;
+                }
             }
-
-            // Tự động tick chọn radio hoặc option tương ứng nếu có
-            const radio = document.querySelector(`input[name="reg_${address}"][value="${stringVal}"]`);
-            if (radio) radio.checked = true;
-            
-            if (element.tagName === 'SELECT') element.value = stringVal;
-        } catch (e) {
-            console.error("Lỗi đọc data-labels của thanh ghi", address, e);
         }
-        return;
-    }
-
-    // 2. Kiểm tra nếu là dạng Switch (0 / 1)
-    if (element.classList.contains('switch')) {
-        const toggleTargetId = element.getAttribute('data-toggle-target');
-        const targetEl = toggleTargetId ? document.getElementById(toggleTargetId) : null;
-
-        if (parseInt(value) === 1) {
-            element.classList.add('on');
-            if (targetEl) targetEl.classList.remove('hidden'); // Hiện vùng ẩn liên quan
-        } else {
-            element.classList.remove('on');
-            if (targetEl) targetEl.classList.add('hidden'); // Ẩn vùng liên quan đi
-        }
-        return;
-    }
-
-    // 3. Mặc định cho các loại input nhập số/chữ bình thường
-    element.value = value;
+    });
 }
 async function openSettingsModal() {
     // 1. Mở modal lên
@@ -2693,7 +2680,7 @@ async function openSettingsModal() {
             const address = Object.keys(innerObj)[0];
             const value = innerObj[address];
 
-            handleRegisterValue(address, value);
+            handleApiResponse(address, value);
         });
     }
 }
