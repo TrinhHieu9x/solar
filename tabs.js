@@ -482,7 +482,7 @@ const TabContents = {
                     <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt hoạt động song song các inverter</div>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="reg_parallel_mode" class="sr-only peer" onchange="writeRegister('reg_parallel_mode', this.checked ? 1 : 0)">
+                    <input type="checkbox" id="reg_2103" class="sr-only peer" onchange="writeRegister('reg_2013', this.checked ? 1 : 0)">
                     <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
                 </label>
             </div>
@@ -495,7 +495,7 @@ const TabContents = {
                         <div class="text-[11px] text-slate-400 mt-0.5">Quản lý giới hạn lưới điện</div>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="reg_peak_shaving" class="sr-only peer" onchange="writeRegister('reg_peak_shaving', this.checked ? 1 : 0)">
+                        <input type="checkbox" id="reg_2014" class="sr-only peer" onchange="writeRegister('reg_2014', this.checked ? 1 : 0)">
                         <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
                     </label>
                 </div>
