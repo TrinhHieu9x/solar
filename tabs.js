@@ -371,8 +371,9 @@ const TabContents = {
     </div>
 </div>
 
-
-<!-- Modal Cài đặt hệ thống (Sạch, chuẩn Dark Mode, không dùng alert) -->
+<!-- ==========================================
+     MODAL CÀI ĐẶT HỆ THỐNG (CHUẨN DARK MODE & API)
+     ========================================== -->
 <div id="settingsModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-lg rounded-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
@@ -398,15 +399,28 @@ const TabContents = {
             <!-- Nhóm: Cài đặt hệ thống -->
             <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-1">Cài đặt hệ thống</div>
             
-            <!-- 1. Chế độ hoạt động -->
-            <div class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
-                <div>
-                    <div class="font-bold text-slate-200 text-xs">Chế độ hoạt động</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">Chọn logic hoạt động khác nhau cho Inverter</div>
+            <!-- 1. Chế độ hoạt động (Ảnh 1) -->
+            <div class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 space-y-2">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="font-bold text-slate-200 text-xs">Chế độ hoạt động</div>
+                        <div class="text-[11px] text-slate-400 mt-0.5">Chọn logic hoạt động cho Inverter</div>
+                    </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-emerald-400 font-medium text-[11px]">Chế độ tự tiêu thụ</span>
-                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+                <!-- Các tùy chọn Radio cho Chế độ hoạt động -->
+                <div class="space-y-1.5 pt-2 border-t border-slate-800/60">
+                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800/50 cursor-pointer">
+                        <span class="text-slate-200">Chế độ tự tiêu thụ</span>
+                        <input type="radio" name="reg_work_mode" value="0" class="accent-emerald-500" onchange="writeRegister('reg_work_mode', this.value)">
+                    </label>
+                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800/50 cursor-pointer">
+                        <span class="text-slate-200">Chế độ ưu tiên phát lưới điện</span>
+                        <input type="radio" name="reg_work_mode" value="1" class="accent-emerald-500" onchange="writeRegister('reg_work_mode', this.value)">
+                    </label>
+                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800/50 cursor-pointer">
+                        <span class="text-slate-200">Chế độ dự phòng</span>
+                        <input type="radio" name="reg_work_mode" value="2" class="accent-emerald-500" onchange="writeRegister('reg_work_mode', this.value)">
+                    </label>
                 </div>
             </div>
 
@@ -422,111 +436,152 @@ const TabContents = {
                     </div>
                     <!-- Toggle Switch -->
                     <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="timeControlToggle" class="sr-only peer" checked onchange="toggleTimeControl(this)">
+                        <input type="checkbox" id="reg_time_control" class="sr-only peer" onchange="writeRegister('reg_time_control', this.checked ? 1 : 0)">
                         <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
                     </label>
                 </div>
 
-                <!-- Danh sách khung giờ -->
+                <!-- Danh sách khung giờ mẫu -->
                 <div id="schedule-slots-container" class="space-y-2 pt-2 border-t border-slate-800/60">
-                    <div class="bg-slate-950/60 rounded-lg p-2.5 flex items-center justify-between border border-slate-800/40 cursor-pointer hover:border-emerald-500/50 transition-colors">
+                    <div class="bg-slate-950/60 rounded-lg p-2.5 flex items-center justify-between border border-slate-800/40">
                         <div class="flex items-center gap-2.5">
                             <i class="fa-solid fa-clock-rotate-left text-slate-400 text-sm"></i>
                             <div>
-                                <div class="text-emerald-400 font-semibold text-[11px]">Đang sạc</div>
+                                <div class="text-emerald-400 font-semibold text-[11px]">Thời gian 1 (Đang sạc)</div>
                                 <div class="text-[10px] text-slate-400 font-mono">00:00 ~ 23:59 • 600W, 52V</div>
                             </div>
                         </div>
-                        <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
                     </div>
-
-                    <div class="bg-slate-950/30 rounded-lg px-3 py-2.5 flex items-center justify-between text-slate-500 cursor-pointer hover:bg-slate-950/60 transition-colors">
-                        <div class="flex items-center gap-2.5">
-                            <i class="fa-solid fa-clock-rotate-left text-slate-600 text-sm"></i>
-                            <span class="font-mono text-[11px] text-slate-400">Thời gian 2</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[11px]">Tắt</span>
-                            <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-950/30 rounded-lg px-3 py-2.5 flex items-center justify-between text-slate-500 cursor-pointer hover:bg-slate-950/60 transition-colors">
-                        <div class="flex items-center gap-2.5">
-                            <i class="fa-solid fa-clock-rotate-left text-slate-600 text-sm"></i>
-                            <span class="font-mono text-[11px] text-slate-400">Thời gian 3</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[11px]">Tắt</span>
-                            <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-950/30 rounded-lg px-3 py-2.5 flex items-center justify-between text-slate-500 cursor-pointer hover:bg-slate-950/60 transition-colors">
-                        <div class="flex items-center gap-2.5">
-                            <i class="fa-solid fa-clock-rotate-left text-slate-600 text-sm"></i>
-                            <span class="font-mono text-[11px] text-slate-400">Thời gian 4</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[11px]">Tắt</span>
-                            <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-950/30 rounded-lg px-3 py-2.5 flex items-center justify-between text-slate-500 cursor-pointer hover:bg-slate-950/60 transition-colors">
-                        <div class="flex items-center gap-2.5">
-                            <i class="fa-solid fa-clock-rotate-left text-slate-600 text-sm"></i>
-                            <span class="font-mono text-[11px] text-slate-400">Thời gian 5</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[11px]">Tắt</span>
-                            <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="text-[10px] text-slate-500 italic pt-1">
-                    Bật chức năng này khi bạn muốn tùy chỉnh lịch trình sạc và xả
                 </div>
             </div>
 
             <!-- Nhóm: Cấu hình tính năng -->
             <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-1 pt-1">Cấu hình tính năng</div>
 
-            <!-- 3. GEN (Máy phát điện) -->
-            <div class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
-                <div>
-                    <div class="font-bold text-slate-200 text-xs">GEN (Máy phát điện)</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt chức năng cổng GEN</div>
+            <!-- 3. GEN (Máy phát điện) (Ảnh 5) -->
+            <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 space-y-2">
+                <div class="font-bold text-slate-200 text-xs">GEN (Máy phát điện)</div>
+                <div class="text-[11px] text-slate-400">Điều chỉnh GEN ở chế độ chờ</div>
+                <div class="space-y-1.5 pt-2 border-t border-slate-800/60">
+                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800/50 cursor-pointer">
+                        <span class="text-slate-200">Không bật</span>
+                        <input type="radio" name="reg_gen_mode" value="0" class="accent-emerald-500" onchange="writeRegister('reg_gen_mode', this.value)">
+                    </label>
+                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800/50 cursor-pointer">
+                        <span class="text-slate-200">Máy phát điện</span>
+                        <input type="radio" name="reg_gen_mode" value="1" class="accent-emerald-500" onchange="writeRegister('reg_gen_mode', this.value)">
+                    </label>
+                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800/50 cursor-pointer">
+                        <span class="text-slate-200">Tải thông minh</span>
+                        <input type="radio" name="reg_gen_mode" value="2" class="accent-emerald-500" onchange="writeRegister('reg_gen_mode', this.value)">
+                    </label>
+                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800/50 cursor-pointer">
+                        <span class="text-slate-200">Ghép nối AC</span>
+                        <input type="radio" name="reg_gen_mode" value="3" class="accent-emerald-500" onchange="writeRegister('reg_gen_mode', this.value)">
+                    </label>
                 </div>
-                <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
             </div>
 
-            <!-- 4. Song song -->
-            <div class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
+            <!-- 4. Song song (Ảnh 4) -->
+            <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between">
                 <div>
-                    <div class="font-bold text-slate-200 text-xs">Song song</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt song song</div>
+                    <div class="font-bold text-slate-200 text-xs">Chế độ song song</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt hoạt động song song các inverter</div>
                 </div>
-                <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="reg_parallel_mode" class="sr-only peer" onchange="writeRegister('reg_parallel_mode', this.checked ? 1 : 0)">
+                    <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                </label>
             </div>
 
-            <!-- 5. Giảm tải đỉnh -->
-            <div class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
-                <div>
-                    <div class="font-bold text-slate-200 text-xs">Giảm tải đỉnh</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt quản lý giảm tải đỉnh</div>
+            <!-- 5. Giảm tải đỉnh / Cắt đỉnh (Ảnh 3) -->
+            <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 space-y-3">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="font-bold text-slate-200 text-xs">Cắt đỉnh (Giảm tải đỉnh)</div>
+                        <div class="text-[11px] text-slate-400 mt-0.5">Quản lý giới hạn lưới điện</div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="reg_peak_shaving" class="sr-only peer" onchange="writeRegister('reg_peak_shaving', this.checked ? 1 : 0)">
+                        <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                    </label>
                 </div>
-                <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+                
+                <!-- Ô nhập công suất tối đa từ lưới -->
+                <div class="flex items-center justify-between pt-2 border-t border-slate-800/60">
+                    <div>
+                        <div class="text-slate-300 text-xs">Công suất đầu vào tối đa từ lưới điện</div>
+                        <div class="text-[10px] text-slate-500">Giới hạn công suất lấy từ lưới AC</div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" id="reg_max_grid_power" class="val-edit bg-slate-800 text-emerald-400 px-2 py-1 rounded text-right w-20 text-xs border border-slate-700" onchange="writeRegister('reg_max_grid_power', this.value)">
+                        <span class="text-[11px] text-slate-400">W</span>
+                    </div>
+                </div>
+
+                <!-- Thời gian trễ -->
+                <div class="flex items-center justify-between pt-2 border-t border-slate-800/60">
+                    <div class="text-slate-300 text-xs">Thời gian trễ (s)</div>
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" id="reg_peak_delay" class="val-edit bg-slate-800 text-emerald-400 px-2 py-1 rounded text-right w-20 text-xs border border-slate-700" onchange="writeRegister('reg_peak_delay', this.value)">
+                        <span class="text-[11px] text-slate-400">s</span>
+                    </div>
+                </div>
+
+                <!-- Thời gian xả pin lưu trữ -->
+                <div class="flex items-center justify-between pt-2 border-t border-slate-800/60">
+                    <div>
+                        <div class="text-slate-300 text-xs">Thời gian xả Pin lưu trữ (s)</div>
+                        <div class="text-[10px] text-slate-500">Thời gian sạc để cắt đỉnh tiêu thụ</div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" id="reg_peak_discharge_time" class="val-edit bg-slate-800 text-emerald-400 px-2 py-1 rounded text-right w-20 text-xs border border-slate-700" onchange="writeRegister('reg_peak_discharge_time', this.value)">
+                        <span class="text-[11px] text-slate-400">s</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- 6. Khác -->
-            <div class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between cursor-pointer transition-colors">
-                <div>
-                    <div class="font-bold text-slate-200 text-xs">Khác</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt khác</div>
+            <!-- 6. Khác (Ảnh 2) -->
+            <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 space-y-3">
+                <div class="font-bold text-slate-200 text-xs">Cài đặt khác</div>
+                
+                <div class="space-y-2 pt-1 border-t border-slate-800/60">
+                    <!-- Force Start-Up with PV Only -->
+                    <div class="flex items-center justify-between py-1">
+                        <span class="text-slate-300">Force Start-Up with PV Only</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="reg_force_pv" class="sr-only peer" onchange="writeRegister('reg_force_pv', this.checked ? 1 : 0)">
+                            <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                    </div>
+
+                    <!-- Chuông cảnh báo -->
+                    <div class="flex items-center justify-between py-1 border-t border-slate-800/40">
+                        <span class="text-slate-300">Chuông cảnh báo</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="reg_buzzer" class="sr-only peer" onchange="writeRegister('reg_buzzer', this.checked ? 1 : 0)">
+                            <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                    </div>
+
+                    <!-- DRM -->
+                    <div class="flex items-center justify-between py-1 border-t border-slate-800/40">
+                        <span class="text-slate-300">DRM</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="reg_drm" class="sr-only peer" onchange="writeRegister('reg_drm', this.checked ? 1 : 0)">
+                            <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                    </div>
+
+                    <!-- Chức năng ghép nối AC -->
+                    <div class="flex items-center justify-between py-1 border-t border-slate-800/40">
+                        <span class="text-slate-300">Chức năng ghép nối AC</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="reg_ac_couple" class="sr-only peer" onchange="writeRegister('reg_ac_couple', this.checked ? 1 : 0)">
+                            <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                    </div>
                 </div>
-                <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
             </div>
 
         </div>
@@ -539,6 +594,7 @@ const TabContents = {
         </div>
     </div>
 </div>
+
 
 
 
