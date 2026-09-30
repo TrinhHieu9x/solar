@@ -372,7 +372,7 @@ const TabContents = {
 </div>
 
 <!-- ==========================================
-     MODAL CÀI ĐẶT HỆ THỐNG (CHUẨN DARK MODE & API)
+     MODAL CÀI ĐẶT HỆ THỐNG (HOÀN CHỈNH & ĐẦY ĐỦ)
      ========================================== -->
 <div id="settingsModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-lg rounded-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -399,25 +399,29 @@ const TabContents = {
             <!-- Nhóm: Cài đặt hệ thống -->
             <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-1">Cài đặt hệ thống</div>
             
-            <!-- 1. Chế độ hoạt động (Ảnh 1) -->
-            <div class="bg-slate-900 hover:bg-slate-800/80 border border-slate-800/80 rounded-xl p-3 space-y-2">
-                <div class="flex items-center justify-between">
+            <!-- 1. Chế độ hoạt động (Accordion) -->
+            <div class="bg-slate-900 border border-slate-800/80 rounded-xl overflow-hidden transition-all">
+                <div onclick="toggleAccordionMenu('workModeSection')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-colors">
                     <div>
                         <div class="font-bold text-slate-200 text-xs">Chế độ hoạt động</div>
                         <div class="text-[11px] text-slate-400 mt-0.5">Chọn logic hoạt động cho Inverter</div>
                     </div>
+                    <div class="flex items-center gap-2">
+                        <span id="current_work_mode_text" class="text-emerald-400 font-medium text-[11px]">Đang tải...</span>
+                        <i id="icon_work_workModeSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
+                    </div>
                 </div>
-                <!-- Các tùy chọn Radio cho Chế độ hoạt động -->
-                <div class="space-y-1.5 pt-2 border-t border-slate-800/60">
-                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800/50 cursor-pointer">
+
+                <div id="workModeSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
+                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                         <span class="text-slate-200">Chế độ tự tiêu thụ</span>
                         <input type="radio" name="reg_work_mode" value="0" class="accent-emerald-500" onchange="writeRegister('reg_work_mode', this.value)">
                     </label>
-                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800/50 cursor-pointer">
+                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                         <span class="text-slate-200">Chế độ ưu tiên phát lưới điện</span>
                         <input type="radio" name="reg_work_mode" value="1" class="accent-emerald-500" onchange="writeRegister('reg_work_mode', this.value)">
                     </label>
-                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800/50 cursor-pointer">
+                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                         <span class="text-slate-200">Chế độ dự phòng</span>
                         <input type="radio" name="reg_work_mode" value="2" class="accent-emerald-500" onchange="writeRegister('reg_work_mode', this.value)">
                     </label>
@@ -434,14 +438,12 @@ const TabContents = {
                         <div class="font-bold text-slate-200 text-xs">Kiểm soát theo thời gian</div>
                         <div class="text-[11px] text-slate-400 mt-0.5">Lịch trình sạc/xả pin lưu trữ</div>
                     </div>
-                    <!-- Toggle Switch -->
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="reg_time_control" class="sr-only peer" onchange="writeRegister('reg_time_control', this.checked ? 1 : 0)">
                         <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
                     </label>
                 </div>
 
-                <!-- Danh sách khung giờ mẫu -->
                 <div id="schedule-slots-container" class="space-y-2 pt-2 border-t border-slate-800/60">
                     <div class="bg-slate-950/60 rounded-lg p-2.5 flex items-center justify-between border border-slate-800/40">
                         <div class="flex items-center gap-2.5">
@@ -458,31 +460,40 @@ const TabContents = {
             <!-- Nhóm: Cấu hình tính năng -->
             <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-1 pt-1">Cấu hình tính năng</div>
 
-            <!-- 3. GEN (Máy phát điện) (Ảnh 5) -->
-            <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 space-y-2">
-                <div class="font-bold text-slate-200 text-xs">GEN (Máy phát điện)</div>
-                <div class="text-[11px] text-slate-400">Điều chỉnh GEN ở chế độ chờ</div>
-                <div class="space-y-1.5 pt-2 border-t border-slate-800/60">
-                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800/50 cursor-pointer">
+            <!-- 3. GEN (Máy phát điện) (Accordion) -->
+            <div class="bg-slate-900 border border-slate-800/80 rounded-xl overflow-hidden transition-all">
+                <div onclick="toggleAccordionMenu('genModeSection')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-colors">
+                    <div>
+                        <div class="font-bold text-slate-200 text-xs">GEN (Máy phát điện)</div>
+                        <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt chức năng cổng GEN</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="current_gen_mode_text" class="text-slate-400 font-medium text-[11px]">Không bật</span>
+                        <i id="icon_gen_genModeSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
+                    </div>
+                </div>
+
+                <div id="genModeSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
+                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                         <span class="text-slate-200">Không bật</span>
                         <input type="radio" name="reg_gen_mode" value="0" class="accent-emerald-500" onchange="writeRegister('reg_gen_mode', this.value)">
                     </label>
-                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800/50 cursor-pointer">
+                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                         <span class="text-slate-200">Máy phát điện</span>
                         <input type="radio" name="reg_gen_mode" value="1" class="accent-emerald-500" onchange="writeRegister('reg_gen_mode', this.value)">
                     </label>
-                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800/50 cursor-pointer">
+                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                         <span class="text-slate-200">Tải thông minh</span>
                         <input type="radio" name="reg_gen_mode" value="2" class="accent-emerald-500" onchange="writeRegister('reg_gen_mode', this.value)">
                     </label>
-                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800/50 cursor-pointer">
+                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                         <span class="text-slate-200">Ghép nối AC</span>
                         <input type="radio" name="reg_gen_mode" value="3" class="accent-emerald-500" onchange="writeRegister('reg_gen_mode', this.value)">
                     </label>
                 </div>
             </div>
 
-            <!-- 4. Song song (Ảnh 4) -->
+            <!-- 4. Song song -->
             <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between">
                 <div>
                     <div class="font-bold text-slate-200 text-xs">Chế độ song song</div>
@@ -494,7 +505,7 @@ const TabContents = {
                 </label>
             </div>
 
-            <!-- 5. Giảm tải đỉnh / Cắt đỉnh (Ảnh 3) -->
+            <!-- 5. Giảm tải đỉnh / Cắt đỉnh -->
             <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 space-y-3">
                 <div class="flex items-center justify-between">
                     <div>
@@ -507,7 +518,6 @@ const TabContents = {
                     </label>
                 </div>
                 
-                <!-- Ô nhập công suất tối đa từ lưới -->
                 <div class="flex items-center justify-between pt-2 border-t border-slate-800/60">
                     <div>
                         <div class="text-slate-300 text-xs">Công suất đầu vào tối đa từ lưới điện</div>
@@ -519,7 +529,6 @@ const TabContents = {
                     </div>
                 </div>
 
-                <!-- Thời gian trễ -->
                 <div class="flex items-center justify-between pt-2 border-t border-slate-800/60">
                     <div class="text-slate-300 text-xs">Thời gian trễ (s)</div>
                     <div class="flex items-center gap-1.5">
@@ -528,7 +537,6 @@ const TabContents = {
                     </div>
                 </div>
 
-                <!-- Thời gian xả pin lưu trữ -->
                 <div class="flex items-center justify-between pt-2 border-t border-slate-800/60">
                     <div>
                         <div class="text-slate-300 text-xs">Thời gian xả Pin lưu trữ (s)</div>
@@ -541,12 +549,11 @@ const TabContents = {
                 </div>
             </div>
 
-            <!-- 6. Khác (Ảnh 2) -->
+            <!-- 6. Khác -->
             <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 space-y-3">
                 <div class="font-bold text-slate-200 text-xs">Cài đặt khác</div>
                 
                 <div class="space-y-2 pt-1 border-t border-slate-800/60">
-                    <!-- Force Start-Up with PV Only -->
                     <div class="flex items-center justify-between py-1">
                         <span class="text-slate-300">Force Start-Up with PV Only</span>
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -555,7 +562,6 @@ const TabContents = {
                         </label>
                     </div>
 
-                    <!-- Chuông cảnh báo -->
                     <div class="flex items-center justify-between py-1 border-t border-slate-800/40">
                         <span class="text-slate-300">Chuông cảnh báo</span>
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -564,7 +570,6 @@ const TabContents = {
                         </label>
                     </div>
 
-                    <!-- DRM -->
                     <div class="flex items-center justify-between py-1 border-t border-slate-800/40">
                         <span class="text-slate-300">DRM</span>
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -573,7 +578,6 @@ const TabContents = {
                         </label>
                     </div>
 
-                    <!-- Chức năng ghép nối AC -->
                     <div class="flex items-center justify-between py-1 border-t border-slate-800/40">
                         <span class="text-slate-300">Chức năng ghép nối AC</span>
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -594,7 +598,6 @@ const TabContents = {
         </div>
     </div>
 </div>
-
 
 
 
