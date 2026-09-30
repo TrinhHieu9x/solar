@@ -2579,12 +2579,10 @@ function updateRuntimeUI(data) {
     }
     renderDashboard();
 }
-
 async function fetchInverterRegisters(ids) {
     const goodsId = localStorage.getItem('solar_GoodsID') || sessionStorage.getItem('solar_GoodsID');
     const operator = localStorage.getItem('solar_username') || sessionStorage.getItem('solar_username');
     
-    // Nếu truyền vào một mảng hoặc chuỗi các ID cần lấy
     const idsString = Array.isArray(ids) ? ids.join(',') : ids;
     if (!idsString) return null;
 
@@ -2597,7 +2595,7 @@ async function fetchInverterRegisters(ids) {
         if (!response.ok) throw new Error("Server Worker lỗi");
 
         const data = await response.json(); 
-        return data; // Trả về dữ liệu gốc từ API
+        return data; 
     } catch (error) {
         console.error("Lỗi fetch Inverter data:", error);
         return null;
@@ -2605,7 +2603,7 @@ async function fetchInverterRegisters(ids) {
         if (sunIcon) sunIcon.classList.remove('spinning');
     }
 }
-    
+
 // Hàm bật/tắt hiệu ứng xổ xuống (Accordion)
 function toggleAccordionMenu(sectionId) {
     const section = document.getElementById(sectionId);
@@ -2613,7 +2611,7 @@ function toggleAccordionMenu(sectionId) {
     
     if (section.classList.contains('hidden')) {
         section.classList.remove('hidden');
-        if (icon) icon.classList.add('rotate-90'); // Xoay mũi tên chỉ xuống
+        if (icon) icon.classList.add('rotate-90');
     } else {
         section.classList.add('hidden');
         if (icon) icon.classList.remove('rotate-90');
@@ -2624,22 +2622,16 @@ function handleApiResponse(responseArray) {
     if (!Array.isArray(responseArray)) return;
 
     responseArray.forEach(item => {
-        // Hỗ trợ cả 2 dạng cấu trúc trả về từ Worker (tùy thuộc vào cách bạn thiết kế JSON trả về)
-        // Dạng 1: item = { "0": { "2100": "1" } } hoặc Dạng 2: item trực tiếp dạng object chứa regId
         for (let indexKey in item) {
             let registerObj = item[indexKey];
-            
-            // Đề phòng trường hợp item trả về phẳng luôn dạng { "2100": "1" }
             let targetObj = (typeof registerObj === 'object' && registerObj !== null) ? registerObj : item;
 
             for (let regId in targetObj) {
-                // Nếu lặp qua dính key điều khiển khác thì bỏ qua
-                if (typeof targetObj[regId] === 'object' && targetObj[regId] !== null) continue;
-                
                 let value = targetObj[regId];
-                
-                // A. Xử lý cho thẻ Input thông thường (text, number, hidden...)
-                let el = document.getElementById(`reg_${regId}`);
+                let stringRegId = String(regId);
+
+                // 1. Xử lý cho Input thông thường (text, number, checkbox có id="reg_{id}")
+                let el = document.getElementById(`reg_${stringRegId}`);
                 if (el) {
                     if (el.type === 'checkbox') {
                         el.checked = (value === "1" || value === 1 || value === true);
@@ -2648,19 +2640,19 @@ function handleApiResponse(responseArray) {
                     }
                 }
 
-                // B. Xử lý cho nhóm Radio Button có name="reg_{regId}"
-                let radios = document.querySelectorAll(`input[name="reg_${regId}"]`);
+                // 2. Xử lý nhóm Radio Button có name="reg_{id}"
+                let radios = document.querySelectorAll(`input[name="reg_${stringRegId}"]`);
                 radios.forEach(radio => {
                     radio.checked = (radio.value === String(value));
                 });
 
-                // C. Tự động cập nhật Text hiển thị đi kèm (nếu có thẻ span id="text_reg_{regId}")
-                let textEl = document.getElementById(`text_reg_${regId}`);
+                // 3. Tự động cập nhật Text hiển thị đi kèm (id="text_reg_{id}")
+                let textEl = document.getElementById(`text_reg_${stringRegId}`);
                 if (textEl) {
-                    if (regId === "2100") {
+                    if (stringRegId === "2100") {
                         const modes = { "0": "Tự tiêu thụ", "1": "Ưu tiên phát lưới", "2": "Dự phòng" };
                         textEl.textContent = modes[value] || value;
-                    } else if (regId === "2102") {
+                    } else if (stringRegId === "2102") {
                         const genModes = { "0": "Không bật", "1": "Máy phát điện", "2": "Tải thông minh" };
                         textEl.textContent = genModes[value] || value;
                     } else {
@@ -2668,30 +2660,44 @@ function handleApiResponse(responseArray) {
                     }
                 }
             }
-            // Nếu cấu trúc là dạng phẳng ở cấp 1 thì chỉ cần chạy 1 lần tránh lặp vô công
             if (targetObj === item) break;
         }
     });
 }
 
+// [QUAN TRỌNG]: Tự động quét toàn diện tất cả các dạng định danh trên HTML Modal
 async function openSettingsModal() {
-    // 1. Mở modal lên
     const modalEl = document.getElementById('settingsModal');
     if (!modalEl) return;
     modalEl.classList.remove('hidden');
 
-    // 2. Tự động gom tất cả các thẻ có id bắt đầu bằng "reg_" đang có mặt trong modal này
-    const regElements = modalEl.querySelectorAll('[id^="reg_"]');
-    const idsToFetch = Array.from(regElements).map(el => el.id.replace('reg_', ''));
+    let extractedIds = new Set();
 
-    // Lọc bỏ các ID bị trùng lặp (nếu có nhiều element dùng chung 1 reg)
-    const uniqueIds = [...new Set(idsToFetch)];
+    // A. Quét các thẻ có ID chứa tiền tố "reg_" hoặc "text_reg_"
+    const allElementsWithId = modalEl.querySelectorAll('[id*="reg_"]');
+    allElementsWithId.forEach(el => {
+        // Tách lấy phần số hiệu/mã thanh ghi đằng sau chữ reg_
+        let parts = el.id.split('reg_');
+        if (parts.length > 1 && parts[1]) {
+            extractedIds.add(parts[1]);
+        }
+    });
+
+    // B. Quét thêm các nhóm Radio Button có name bắt đầu bằng "reg_"
+    const allRadioGroups = modalEl.querySelectorAll('input[name^="reg_"]');
+    allRadioGroups.forEach(radio => {
+        let nameAttr = radio.getAttribute('name');
+        let parts = nameAttr.split('reg_');
+        if (parts.length > 1 && parts[1]) {
+            extractedIds.add(parts[1]);
+        }
+    });
+
+    const uniqueIds = Array.from(extractedIds);
     if (uniqueIds.length === 0) return;
 
-    // 3. Gọi hàm fetch dùng chung với danh sách các ID vừa quét được
+    // Gọi API lấy dữ liệu toàn bộ danh sách ID vừa gom được
     const data = await fetchInverterRegisters(uniqueIds);
-
-    // 4. Đổ dữ liệu trả về vào hàm xử lý chung
     if (data) {
         handleApiResponse(data);
     }
@@ -2701,7 +2707,6 @@ function closeSettingsModal() {
     document.getElementById('settingsModal').classList.add('hidden');
 }
 
-// Hàm ghi dữ liệu khi người dùng thay đổi lựa chọn
 async function writeRegister(regName, regValue) {
     const goodsId = localStorage.getItem('solar_GoodsID') || sessionStorage.getItem('solar_GoodsID');
     const operator = localStorage.getItem('solar_username') || sessionStorage.getItem('solar_username');
@@ -2714,7 +2719,6 @@ async function writeRegister(regName, regValue) {
     };
 
     try {
-        // Cân nhắc đổi endpoint sang Cloudflare Worker nếu hệ thống write xử lý ở đó
         let response = await fetch('https://api.solarvn.workers.dev/write', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -2723,8 +2727,6 @@ async function writeRegister(regName, regValue) {
         
         if (response.ok) {
             console.log(`Ghi thành công [${regName} = ${regValue}]`);
-            // Sau khi ghi thành công, có thể gọi lại hàm fetch để đồng bộ lại giao diện
-            // fetchInverterRegisters([regName]).then(data => handleApiResponse(data));
         } else {
             console.error("Thiết bị từ chối ghi lệnh.");
         }
@@ -2732,7 +2734,6 @@ async function writeRegister(regName, regValue) {
         console.error("Lỗi kết nối khi gửi lệnh write:", error);
     }
 }
-
 
 
 
