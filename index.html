@@ -2596,47 +2596,46 @@ function toggleAccordionMenu(sectionId) {
     }
 }
 
-// Khi click mở Modal cài đặt chính -> Gọi API lấy dữ liệu cập nhật trạng thái hiện tại
+// Mảng map giá trị thanh ghi 2100 ra tên tiếng Việt
+const workModeNames = {
+    "0": "Chế độ tự tiêu thụ",
+    "1": "Chế độ ưu tiên phát lưới điện",
+    "2": "Chế độ dự phòng"
+};
+
+// Khi bạn gọi hàm đọc thanh ghi (ví dụ khi mở modal cài đặt):
 async function openSettingsModal() {
+    // 1. Mở modal lên trước cho mượt giao diện
     document.getElementById('settingsModal').classList.remove('hidden');
-
+    
     try {
-        let response = await fetch('/api/settings/get'); // Đường dẫn API lấy thanh ghi của bạn
-        let data = await response.json(); 
-        // Ví dụ data trả về: { reg_work_mode: 0, reg_gen_mode: 1, reg_time_control: 1, ... }
+        // 2. Gọi hàm lấy dữ liệu thanh ghi 2100 của bạn (giả sử nó trả về giá trị val)
+        // Ví dụ: const val = await loadInverterData('2100');
+        
+        // Hoặc nếu hàm của bạn dùng callback / fetch:
+        loadInverterData('2100', function(val) {
+            updateWorkModeUI(val);
+        });
 
-        // 1. Cập nhật trạng thái Chế độ hoạt động
-        if (data.reg_work_mode !== undefined) {
-            const radios = document.querySelectorAll('input[name="reg_work_mode"]');
-            const texts = ["Chế độ tự tiêu thụ", "Chế độ ưu tiên phát lưới điện", "Chế độ dự phòng"];
-            
-            radios.forEach(r => {
-                if (r.value == data.reg_work_mode) r.checked = true;
-            });
-            document.getElementById('current_work_mode_text').innerText = texts[data.reg_work_mode] || "Không xác định";
-        }
+    } catch (err) {
+        console.error("Lỗi tải chế độ hoạt động:", err);
+    }
+}
 
-        // 2. Cập nhật trạng thái GEN
-        if (data.reg_gen_mode !== undefined) {
-            const radios = document.querySelectorAll('input[name="reg_gen_mode"]');
-            const texts = ["Không bật", "Máy phát điện", "Tải thông minh", "Ghép nối AC"];
-            
-            radios.forEach(r => {
-                if (r.value == data.reg_gen_mode) r.checked = true;
-            });
-            document.getElementById('current_gen_mode_text').innerText = texts[data.reg_gen_mode] || "Không bật";
-        }
+// Hàm cập nhật giao diện khi đã có giá trị `val` trả về từ API
+function updateWorkModeUI(val) {
+    const stringVal = String(val);
 
-        // 3. Cập nhật các Toggle Switch khác
-        const timeToggle = document.getElementById('reg_time_control');
-        if (timeToggle) timeToggle.checked = (data.reg_time_control == 1);
+    // Cập nhật chữ trên thanh header của accordion
+    const textElement = document.getElementById('current_work_mode_text');
+    if (textElement) {
+        textElement.innerText = workModeNames[stringVal] || "Không xác định";
+    }
 
-        const parallelToggle = document.getElementById('reg_parallel_mode');
-        if (parallelToggle) parallelToggle.checked = (data.reg_parallel_mode == 1);
-
-        console.log("Đã đồng bộ trạng thái cài đặt từ thiết bị.");
-    } catch (error) {
-        console.error("Lỗi tải thông số cài đặt:", error);
+    // Tick chọn đúng ô radio tương ứng trong danh sách
+    const radioOption = document.querySelector(`input[name="reg_work_mode"][value="${stringVal}"]`);
+    if (radioOption) {
+        radioOption.checked = true;
     }
 }
 
