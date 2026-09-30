@@ -2590,27 +2590,75 @@ function updateRuntimeUI(data) {
 }
 
 
+// Hàm xử lý khi bật/tắt Toggle kiểm soát theo thời gian
+async function toggleTimeControl(element) {
+    const isEnabled = element.checked; // Trạng thái mới (true/false)
 
-function ttoggleAccordion(id) {
-    const content = document.getElementById(id);
-    const icon = document.getElementById('icon-' + id);
-    
-    if (content.classList.contains('hidden')) {
-        content.classList.remove('hidden');
-        icon.classList.add('rotate-180');
-    } else {
-        content.classList.add('hidden');
-        icon.classList.remove('rotate-180');
+    // Tạo gói tin payload để gửi xuống thiết bị
+    const payload = {
+        setting: "time_control",
+        enabled: isEnabled ? 1 : 0
+    };
+
+    try {
+        // Gửi request dạng POST/PUT (Ghi dữ liệu - Write)
+        let response = await fetch('/api/settings/write', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        let result = await response.json();
+
+        if (response.ok) {
+            console.log("Gửi lệnh write thành công:", result);
+            // Hiển thị một toast notification nhỏ báo thành công (nếu muốn)
+        } else {
+            console.error("Thiết bị từ chối lệnh write:", result);
+            // Nếu lỗi thì trả lại trạng thái cũ của toggle cho khớp thực tế
+            element.checked = !isEnabled; 
+        }
+
+    } catch (error) {
+        console.error("Lỗi kết nối mạng khi gửi lệnh write:", error);
+        element.checked = !isEnabled; // Hoàn tác trạng thái
     }
 }
+}
 
-function openSettingsModal() {
-    document.getElementById('settingsModal').classList.remove('hidden');
+// Hàm mở modal và gọi API lấy dữ liệu cấu hình mới nhất
+async function openSettingsModal() {
+    // 1. Hiển thị modal lên trước cho mượt giao diện
+    const modal = document.getElementById('settingsModal');
+    modal.classList.remove('hidden');
+
+    try {
+        // 2. Gọi API lấy dữ liệu hiện tại từ Inverter / Server
+        let response = await fetch('/api/settings/get'); // Thay đường dẫn API của bạn vào đây
+        let data = await response.json();
+
+        // 3. Đưa dữ liệu nhận được vào các ô input / trạng thái trong Modal
+        // Ví dụ cập nhật trạng thái Toggle kiểm soát theo thời gian
+        const timeToggle = document.getElementById('timeControlToggle');
+        if (timeToggle) {
+            timeToggle.checked = data.timeControlEnabled; // true hoặc false
+        }
+
+        // Cập nhật các thông số khác nếu có...
+        console.log("Đã đồng bộ dữ liệu cài đặt mới nhất:", data);
+
+    } catch (error) {
+        console.error("Lỗi khi tải cấu hình:", error);
+        // Có thể hiển thị thông báo lỗi nhẹ ở góc màn hình nếu muốn
+    }
 }
 
 function closeSettingsModal() {
     document.getElementById('settingsModal').classList.add('hidden');
 }
+
 
 
 
