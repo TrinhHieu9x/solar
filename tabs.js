@@ -415,6 +415,9 @@ const TabContents = {
             
                 <!-- Phần nội dung ẩn/hiện chứa các radio option -->
                 <div id="workModeSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
+                    <!-- Thêm thẻ input ẩn này để hàm quét được ID 2100 -->
+                    <input type="hidden" id="reg_2100">
+                
                     <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                         <span class="text-slate-200">Chế độ tự tiêu thụ</span>
                         <input type="radio" name="reg_work_mode" value="0" class="accent-emerald-500" onchange="writeRegister('reg_work_mode', this.value)">
