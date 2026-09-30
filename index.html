@@ -2580,13 +2580,11 @@ function updateRuntimeUI(data) {
     renderDashboard();
 }
 
-
-
 async function fetchInverterRegisters(ids) {
     const goodsId = localStorage.getItem('solar_GoodsID') || sessionStorage.getItem('solar_GoodsID');
     const operator = localStorage.getItem('solar_username') || sessionStorage.getItem('solar_username');
     
-    // Nếu truyền vào một mảng hoặc chuỗi các ID cần lấy (ví dụ: "2100" hoặc ["2100", "2101"])
+    // Nếu truyền vào một mảng hoặc chuỗi các ID cần lấy
     const idsString = Array.isArray(ids) ? ids.join(',') : ids;
     if (!idsString) return null;
 
@@ -2599,7 +2597,7 @@ async function fetchInverterRegisters(ids) {
         if (!response.ok) throw new Error("Server Worker lỗi");
 
         const data = await response.json(); 
-        return data; // 👉 Trả về dữ liệu để ai gọi thì tự xử lý
+        return data; // Trả về dữ liệu gốc từ API
     } catch (error) {
         console.error("Lỗi fetch Inverter data:", error);
         return null;
@@ -2613,7 +2611,6 @@ function toggleAccordionMenu(sectionId) {
     const section = document.getElementById(sectionId);
     const icon = document.getElementById('icon_' + sectionId);
     
-    // Đóng/mở box con
     if (section.classList.contains('hidden')) {
         section.classList.remove('hidden');
         if (icon) icon.classList.add('rotate-90'); // Xoay mũi tên chỉ xuống
@@ -2627,13 +2624,21 @@ function handleApiResponse(responseArray) {
     if (!Array.isArray(responseArray)) return;
 
     responseArray.forEach(item => {
+        // Hỗ trợ cả 2 dạng cấu trúc trả về từ Worker (tùy thuộc vào cách bạn thiết kế JSON trả về)
+        // Dạng 1: item = { "0": { "2100": "1" } } hoặc Dạng 2: item trực tiếp dạng object chứa regId
         for (let indexKey in item) {
             let registerObj = item[indexKey];
             
-            for (let regId in registerObj) {
-                let value = registerObj[regId];
+            // Đề phòng trường hợp item trả về phẳng luôn dạng { "2100": "1" }
+            let targetObj = (typeof registerObj === 'object' && registerObj !== null) ? registerObj : item;
+
+            for (let regId in targetObj) {
+                // Nếu lặp qua dính key điều khiển khác thì bỏ qua
+                if (typeof targetObj[regId] === 'object' && targetObj[regId] !== null) continue;
                 
-                // 1. Tự động tìm input theo ID (dạng reg_2100, reg_max_grid_power,...) và gán giá trị
+                let value = targetObj[regId];
+                
+                // A. Xử lý cho thẻ Input thông thường (text, number, hidden...)
                 let el = document.getElementById(`reg_${regId}`);
                 if (el) {
                     if (el.type === 'checkbox') {
@@ -2643,60 +2648,74 @@ function handleApiResponse(responseArray) {
                     }
                 }
 
-                // 2. Tự động tìm Radio button theo nhóm name="reg_{regId}"
+                // B. Xử lý cho nhóm Radio Button có name="reg_{regId}"
                 let radios = document.querySelectorAll(`input[name="reg_${regId}"]`);
                 radios.forEach(radio => {
                     radio.checked = (radio.value === String(value));
                 });
 
-                // 3. Tự động cập nhật Text hiển thị đi kèm (nếu có thẻ span ID dạng text_reg_XXXX)
+                // C. Tự động cập nhật Text hiển thị đi kèm (nếu có thẻ span id="text_reg_{regId}")
                 let textEl = document.getElementById(`text_reg_${regId}`);
                 if (textEl) {
-                    textEl.textContent = value;
+                    if (regId === "2100") {
+                        const modes = { "0": "Tự tiêu thụ", "1": "Ưu tiên phát lưới", "2": "Dự phòng" };
+                        textEl.textContent = modes[value] || value;
+                    } else if (regId === "2102") {
+                        const genModes = { "0": "Không bật", "1": "Máy phát điện", "2": "Tải thông minh" };
+                        textEl.textContent = genModes[value] || value;
+                    } else {
+                        textEl.textContent = value;
+                    }
                 }
             }
+            // Nếu cấu trúc là dạng phẳng ở cấp 1 thì chỉ cần chạy 1 lần tránh lặp vô công
+            if (targetObj === item) break;
         }
     });
 }
+
 async function openSettingsModal() {
     // 1. Mở modal lên
-    document.getElementById('settingsModal').classList.remove('hidden');
+    const modalEl = document.getElementById('settingsModal');
+    if (!modalEl) return;
+    modalEl.classList.remove('hidden');
 
     // 2. Tự động gom tất cả các thẻ có id bắt đầu bằng "reg_" đang có mặt trong modal này
-    const modalEl = document.getElementById('settingsModal');
-    const regElements = modalEl ? modalEl.querySelectorAll('[id^="reg_"]') : [];
+    const regElements = modalEl.querySelectorAll('[id^="reg_"]');
     const idsToFetch = Array.from(regElements).map(el => el.id.replace('reg_', ''));
 
-    if (idsToFetch.length === 0) return;
+    // Lọc bỏ các ID bị trùng lặp (nếu có nhiều element dùng chung 1 reg)
+    const uniqueIds = [...new Set(idsToFetch)];
+    if (uniqueIds.length === 0) return;
 
     // 3. Gọi hàm fetch dùng chung với danh sách các ID vừa quét được
-    const data = await fetchInverterRegisters(idsToFetch.join(','));
+    const data = await fetchInverterRegisters(uniqueIds);
 
-    // 4. Đổ dữ liệu trả về vào hàm xử lý chung tự động
-    if (data && Array.isArray(data)) {
-        data.forEach(item => {
-            const innerKey = Object.keys(item)[0];
-            const innerObj = item[innerKey];
-            const address = Object.keys(innerObj)[0];
-            const value = innerObj[address];
-
-            handleApiResponse(address, value);
-        });
+    // 4. Đổ dữ liệu trả về vào hàm xử lý chung
+    if (data) {
+        handleApiResponse(data);
     }
 }
+
 function closeSettingsModal() {
     document.getElementById('settingsModal').classList.add('hidden');
 }
 
 // Hàm ghi dữ liệu khi người dùng thay đổi lựa chọn
 async function writeRegister(regName, regValue) {
+    const goodsId = localStorage.getItem('solar_GoodsID') || sessionStorage.getItem('solar_GoodsID');
+    const operator = localStorage.getItem('solar_username') || sessionStorage.getItem('solar_username');
+
     const payload = {
         register: regName,
-        value: Number(regValue)
+        value: Number(regValue),
+        goods_id: goodsId,
+        operator: operator
     };
 
     try {
-        let response = await fetch('/api/registers/write', {
+        // Cân nhắc đổi endpoint sang Cloudflare Worker nếu hệ thống write xử lý ở đó
+        let response = await fetch('https://api.solarvn.workers.dev/write', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -2704,7 +2723,8 @@ async function writeRegister(regName, regValue) {
         
         if (response.ok) {
             console.log(`Ghi thành công [${regName} = ${regValue}]`);
-            // Sau khi ghi xong, có thể gọi lại hàm lấy dữ liệu để cập nhật lại chữ hiển thị ngoài tiêu đề cho khớp
+            // Sau khi ghi thành công, có thể gọi lại hàm fetch để đồng bộ lại giao diện
+            // fetchInverterRegisters([regName]).then(data => handleApiResponse(data));
         } else {
             console.error("Thiết bị từ chối ghi lệnh.");
         }
@@ -2712,7 +2732,6 @@ async function writeRegister(regName, regValue) {
         console.error("Lỗi kết nối khi gửi lệnh write:", error);
     }
 }
-
 
 
 
