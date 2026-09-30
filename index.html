@@ -2623,35 +2623,69 @@ function toggleAccordionMenu(sectionId) {
     }
 }
 
-// Map tên tiếng Việt cho thanh ghi 2100 (Chế độ hoạt động)
-const workModeNames = {
-    "0": "Chế độ tự tiêu thụ",
-    "1": "Chế độ ưu tiên phát lưới điện",
-    "2": "Chế độ dự phòng"
-};
+function handleRegisterValue(address, value) {
+    const stringVal = String(value);
+    const element = document.getElementById('reg_' + address);
+    if (!element) return;
 
-// Map tên tiếng Việt cho thanh ghi 2122 (Cấu hình GEN)
-const genModeNames = {
-    "0": "Tắt / Không bật",
-    "1": "Máy phát điện (Generator)",
-    "2": "Tải thông minh (Smart Load)",
-    "3": "Ghép nối AC (AC Couple)"
-};
+    // 1. Kiểm tra xem trên HTML có khai báo data-labels (dạng chọn lựa: 0, 1, 2, 3...) không
+    const labelsRaw = element.getAttribute('data-labels');
+    if (labelsRaw) {
+        try {
+            const labelsMap = JSON.parse(labelsRaw);
+            const textValue = labelsMap[stringVal] || stringVal;
+            
+            // Tự động tìm xem có thẻ span nào được chỉ định để hiện chữ hay không
+            const textTargetId = element.getAttribute('data-text-target');
+            if (textTargetId) {
+                const textEl = document.getElementById(textTargetId);
+                if (textEl) textEl.innerText = textValue;
+            }
 
+            // Tự động tick chọn radio hoặc option tương ứng nếu có
+            const radio = document.querySelector(`input[name="reg_${address}"][value="${stringVal}"]`);
+            if (radio) radio.checked = true;
+            
+            if (element.tagName === 'SELECT') element.value = stringVal;
+        } catch (e) {
+            console.error("Lỗi đọc data-labels của thanh ghi", address, e);
+        }
+        return;
+    }
+
+    // 2. Kiểm tra nếu là dạng Switch (0 / 1)
+    if (element.classList.contains('switch')) {
+        const toggleTargetId = element.getAttribute('data-toggle-target');
+        const targetEl = toggleTargetId ? document.getElementById(toggleTargetId) : null;
+
+        if (parseInt(value) === 1) {
+            element.classList.add('on');
+            if (targetEl) targetEl.classList.remove('hidden'); // Hiện vùng ẩn liên quan
+        } else {
+            element.classList.remove('on');
+            if (targetEl) targetEl.classList.add('hidden'); // Ẩn vùng liên quan đi
+        }
+        return;
+    }
+
+    // 3. Mặc định cho các loại input nhập số/chữ bình thường
+    element.value = value;
+}
 async function openSettingsModal() {
-    // 1. Mở modal lên trước cho mượt giao diện
+    // 1. Mở modal lên
     document.getElementById('settingsModal').classList.remove('hidden');
-    
-    // Đặt trạng thái đang tải cho các nhãn
-    const textElement2100 = document.getElementById('current_work_mode_text');
-    if (textElement2100) textElement2100.innerText = "Đang tải...";
 
-    const textElement2122 = document.getElementById('current_gen_mode_text'); // Giả sử bạn có thẻ hiện chữ GEN ngoài header
-    if (textElement2122) textElement2122.innerText = "Đang tải...";
+    // 2. Tự động gom tất cả các thẻ có id bắt đầu bằng "reg_" đang có mặt trong modal này
+    const modalEl = document.getElementById('settingsModal');
+    const regElements = modalEl ? modalEl.querySelectorAll('[id^="reg_"]') : [];
+    const idsToFetch = Array.from(regElements).map(el => el.id.replace('reg_', ''));
 
-    // 2. Gọi hàm fetch chung, gom cả 3 thanh ghi 2100, 214C, 2122 một lần duy nhất
-    const data = await fetchInverterRegisters("2100,214C,2122");
-    
+    if (idsToFetch.length === 0) return;
+
+    // 3. Gọi hàm fetch dùng chung với danh sách các ID vừa quét được
+    const data = await fetchInverterRegisters(idsToFetch.join(','));
+
+    // 4. Đổ dữ liệu trả về vào hàm xử lý chung tự động
     if (data && Array.isArray(data)) {
         data.forEach(item => {
             const innerKey = Object.keys(item)[0];
@@ -2659,84 +2693,10 @@ async function openSettingsModal() {
             const address = Object.keys(innerObj)[0];
             const value = innerObj[address];
 
-            // ---------------------------------------------------------
-            // 1. THANH GHI 2100: Chế độ hoạt động
-            // ---------------------------------------------------------
-            if (address === "2100") {
-                const stringVal = String(value);
-                if (textElement2100) {
-                    textElement2100.innerText = workModeNames[stringVal] || "Không xác định";
-                }
-                const radioOption = document.querySelector(`input[name="reg_work_mode"][value="${stringVal}"]`);
-                if (radioOption) {
-                    radioOption.checked = true;
-                }
-            }
-
-            // ---------------------------------------------------------
-            // 2. THANH GHI 214C: Sạc xả theo thời gian (Switch + ẩn hiện khung giờ)
-            // ---------------------------------------------------------
-            else if (address === "214C") {
-                const switchEl = document.getElementById('reg_214C'); // Nút switch chính
-                const timeConfigSection = document.getElementById('timeConfigSection'); // Khung chứa giờ giấc, loại sạc/xả ẩn/hiện
-
-                const intVal = parseInt(value);
-                if (switchEl) {
-                    if (intVal === 1) {
-                        switchEl.classList.add('on');
-                        if (timeConfigSection) timeConfigSection.classList.remove('hidden'); // Bật thì hiện khung cài đặt thời gian
-                    } else {
-                        switchEl.classList.remove('on');
-                        if (timeConfigSection) timeConfigSection.classList.add('hidden'); // Tắt thì ẩn đi cho gọn
-                    }
-                }
-            }
-
-            // ---------------------------------------------------------
-            // 3. THANH GHI 2122: Cấu hình GEN (0-3: Tắt, Máy phát, Tải thông minh, Ghép AC)
-            // ---------------------------------------------------------
-            else if (address === "2122") {
-                const stringVal = String(value);
-                
-                // Cập nhật text hiển thị trên header của GEN
-                if (textElement2122) {
-                    textElement2122.innerText = genModeNames[stringVal] || "Không xác định";
-                }
-
-                // Nếu bạn dùng Radio hoặc Select cho 2122:
-                const radioGen = document.querySelector(`input[name="reg_gen_mode"][value="${stringVal}"]`);
-                if (radioGen) {
-                    radioGen.checked = true;
-                }
-                
-                const selectGen = document.getElementById('reg_2122_select');
-                if (selectGen) {
-                    selectGen.value = stringVal;
-                }
-            }
+            handleRegisterValue(address, value);
         });
-    } else {
-        if (textElement2100) textElement2100.innerText = "Lỗi tải";
-        if (textElement2122) textElement2122.innerText = "Lỗi tải";
     }
 }
-// Hàm cập nhật giao diện
-function updateWorkModeUI(val) {
-    const stringVal = String(val);
-
-    // Cập nhật chữ trên thanh header của accordion
-    const textElement = document.getElementById('current_work_mode_text');
-    if (textElement) {
-        textElement.innerText = workModeNames[stringVal] || "Không xác định";
-    }
-
-    // Tick chọn đúng ô radio tương ứng trong danh sách
-    const radioOption = document.querySelector(`input[name="reg_work_mode"][value="${stringVal}"]`);
-    if (radioOption) {
-        radioOption.checked = true;
-    }
-}
-
 function closeSettingsModal() {
     document.getElementById('settingsModal').classList.add('hidden');
 }
