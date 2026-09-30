@@ -355,12 +355,15 @@
   }
 
   /* ==========================================
-     8. DARK MODE STYLES
+     8. DARK MODE STYLES (TÔNG XANH ĐEN / NAVY)
      ========================================== */
+  /* Nền chính toàn trang: Xanh đen đậm (#0f172a) */
   body.dark-mode {
-      background-color: #121212 !important;
+      background-color: #0f172a !important;
       color: #e2e8f0 !important;
   }
+
+  /* Khung, Card, Header, Accordion: Xanh đen vừa (#1e293b) */
   body.dark-mode header,
   body.dark-mode .top-bar,
   body.dark-mode .header,
@@ -371,55 +374,84 @@
   body.dark-mode .accordion-header,
   body.dark-mode .card,
   body.dark-mode .info-box,
-  body.dark-mode .accordion-inner {
-      background-color: #1e1e1e !important;
+  body.dark-mode .accordion-inner,
+  body.dark-mode .section-header {
+      background-color: #1e293b !important;
       color: #f8fafc !important;
-      border-color: #2d3748 !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+      border-color: #334155 !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
+
+  /* Hiệu ứng hover cho Accordion trong Dark Mode */
+  body.dark-mode .accordion-header:hover {
+      background-color: #334155 !important;
+  }
+
+  /* Nút Icon trên Topbar */
+  body.dark-mode .icon-btn {
+      background-color: #334155 !important;
+      color: #f8fafc !important;
+  }
+  body.dark-mode .icon-btn:hover {
+      background-color: #475569 !important;
+  }
+
+  /* Văn bản tiêu đề & chữ nổi bật */
   body.dark-mode h1, body.dark-mode h2, body.dark-mode h3,
   body.dark-mode .top-title,
   body.dark-mode .text-slate-800,
   body.dark-mode .text-slate-700,
+  body.dark-mode .label,
   body.dark-mode b, 
   body.dark-mode strong {
       color: #f1f5f9 !important;
   }
+
+  /* Văn bản phụ / chú thích */
   body.dark-mode .text-slate-500,
   body.dark-mode .text-slate-400,
-  body.dark-mode .info-row span {
+  body.dark-mode .info-row span,
+  body.dark-mode .unit {
       color: #94a3b8 !important;
   }
+
+  /* Ô nhập liệu (Input) & Select: Xanh xám nổi (#334155) */
   body.dark-mode select,
   body.dark-mode option,
   body.dark-mode input.val-edit, 
   body.dark-mode select.val-edit {
-      background-color: #2a2a2a !important;
-      color: #f8fafc !important;
-      border-color: #4a5568 !important;
+      background-color: #334155 !important;
+      color: #38bdf8 !important; /* Chữ xanh sáng nổi bật */
+      border-color: #475569 !important;
   }
+
   body.dark-mode #userDropdown {
-      background-color: #1e1e1e !important;
-      border-color: #2d3748 !important;
+      background-color: #1e293b !important;
+      border-color: #334155 !important;
   }
+
+  /* Đường viền phân cách */
   body.dark-mode .border,
   body.dark-mode .border-b,
   body.dark-mode .border-t {
-      border-color: rgba(255, 255, 255, 0.08) !important;
+      border-color: rgba(255, 255, 255, 0.1) !important;
   }
   body.dark-mode .accordion-header {
-      border-bottom: 1px solid #2d3748 !important;
+      border-bottom: 1px solid #334155 !important;
   }
   body.dark-mode .accordion-item.active .accordion-content {
-      border-top: 1px solid #2d3748 !important;
+      border-top: 1px solid #334155 !important;
+      background-color: #0f172a !important; /* Nền ruột accordion chìm hơn */
   }
   body.dark-mode .info-row {
-      border-bottom: 1px dashed rgba(255, 255, 255, 0.08) !important;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.1) !important;
       background: transparent !important;
   }
   body.dark-mode .accordion-item {
-      border-color: #2d3748 !important;
+      border-color: #334155 !important;
   }
+
+  /* Thẻ thông tin PV */
   body.dark-mode #pv-info-box {
       background-color: #0f172a !important;
       border-color: #1e293b !important;
@@ -432,6 +464,12 @@
   body.dark-mode #topo-pv1-volts,
   body.dark-mode #topo-pv2-volts {
       color: #e2e8f0 !important;
+  }
+
+  /* Thanh Footer dính chân trang (Fix lỗi bị lộ nền trắng) */
+  body.dark-mode .footer-actions {
+      background: rgba(15, 23, 42, 0.9) !important;
+      border-top: 1px solid #334155 !important;
   }
 
   /* ==========================================
