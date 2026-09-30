@@ -2581,6 +2581,33 @@ function updateRuntimeUI(data) {
 }
 
 
+
+async function fetchInverterRegisters(ids) {
+    const goodsId = localStorage.getItem('solar_GoodsID') || sessionStorage.getItem('solar_GoodsID');
+    const operator = localStorage.getItem('solar_username') || sessionStorage.getItem('solar_username');
+    
+    // Nếu truyền vào một mảng hoặc chuỗi các ID cần lấy (ví dụ: "2100" hoặc ["2100", "2101"])
+    const idsString = Array.isArray(ids) ? ids.join(',') : ids;
+    if (!idsString) return null;
+
+    const sunIcon = document.getElementById('sun-logo-icon');
+    if (sunIcon) sunIcon.classList.add('spinning');
+
+    try {
+        const url = `https://api.solarvn.workers.dev/read?ids=${idsString}&goods_id=${encodeURIComponent(goodsId)}&operator=${encodeURIComponent(operator)}`;
+        const response = await fetch(url, { cache: 'no-store' });
+        if (!response.ok) throw new Error("Server Worker lỗi");
+
+        const data = await response.json(); 
+        return data; // 👉 Trả về dữ liệu để ai gọi thì tự xử lý
+    } catch (error) {
+        console.error("Lỗi fetch Inverter data:", error);
+        return null;
+    } finally {
+        if (sunIcon) sunIcon.classList.remove('spinning');
+    }
+}
+    
 // Hàm bật/tắt hiệu ứng xổ xuống (Accordion)
 function toggleAccordionMenu(sectionId) {
     const section = document.getElementById(sectionId);
@@ -2603,24 +2630,41 @@ const workModeNames = {
     "2": "Chế độ dự phòng"
 };
 
-// Hàm mở modal cài đặt
 async function openSettingsModal() {
-    // 1. Mở modal lên trước cho mượt giao diện
+    // 1. Mở modal lên trước cho mượt
     document.getElementById('settingsModal').classList.remove('hidden');
     
-    // Đặt chữ "Đang tải..." trong lúc chờ dữ liệu về
+    // Đặt chữ đang tải
     const textElement = document.getElementById('current_work_mode_text');
     if (textElement) textElement.innerText = "Đang tải...";
 
-    try {
-        // 2. Chờ lấy dữ liệu thanh ghi 2100 trả về trực tiếp
-        const val = await loadInverterData('2100'); 
-        
-        // 3. Cập nhật giao diện ngay khi có kết quả
-        updateWorkModeUI(val);
+    // 2. Gọi hàm dùng chung, chỉ định rõ muốn lấy ID "2100"
+    const data = await fetchInverterRegisters("2100");
+    
+    if (data && Array.isArray(data)) {
+        // Duyệt tìm giá trị của địa chỉ 2100 trong dữ liệu trả về
+        data.forEach(item => {
+            const innerKey = Object.keys(item)[0];
+            const innerObj = item[innerKey];
+            const address = Object.keys(innerObj)[0];
+            const value = innerObj[address];
 
-    } catch (err) {
-        console.error("Lỗi tải chế độ hoạt động:", err);
+            if (address === "2100") {
+                const stringVal = String(value);
+
+                // Cập nhật chữ trên header accordion
+                if (textElement) {
+                    textElement.innerText = workModeNames[stringVal] || "Không xác định";
+                }
+
+                // Tick chọn ô radio tương ứng
+                const radioOption = document.querySelector(`input[name="reg_work_mode"][value="${stringVal}"]`);
+                if (radioOption) {
+                    radioOption.checked = true;
+                }
+            }
+        });
+    } else {
         if (textElement) textElement.innerText = "Lỗi tải";
     }
 }
