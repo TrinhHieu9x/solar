@@ -413,21 +413,15 @@ const TabContents = {
                 </div>
             
                 <!-- Phần nội dung ẩn/hiện chứa các radio option -->
-                <div id="workModeSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
-                    <!-- Thẻ input ẩn chứa mã thanh ghi (ID giả định reg_2100) -->
-                    <input type="hidden" id="reg_2100">
-                
+                 <div id="workModeSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
+                    <!-- Đặt name="reg_2100" để hàm JS tự quét và tự tick đúng giá trị "0", "1", "2" -->
                     <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                         <span class="text-slate-200">Chế độ tự tiêu thụ</span>
-                        <input type="radio" name="reg_work_mode" value="0" class="accent-emerald-500" onchange="writeRegister('reg_work_mode', this.value)">
+                        <input type="radio" name="reg_2100" value="0" class="accent-emerald-500" onchange="writeRegister('2100', this.value)">
                     </label>
                     <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                         <span class="text-slate-200">Chế độ ưu tiên phát lưới điện</span>
-                        <input type="radio" name="reg_work_mode" value="1" class="accent-emerald-500" onchange="writeRegister('reg_work_mode', this.value)">
-                    </label>
-                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
-                        <span class="text-slate-200">Chế độ dự phòng</span>
-                        <input type="radio" name="reg_work_mode" value="2" class="accent-emerald-500" onchange="writeRegister('reg_work_mode', this.value)">
+                        <input type="radio" name="reg_2100" value="1" class="accent-emerald-500" onchange="writeRegister('2100', this.value)">
                     </label>
                 </div>
             </div>
