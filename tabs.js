@@ -407,7 +407,6 @@ const TabContents = {
                         <div class="text-[11px] text-slate-400 mt-0.5">Chọn logic hoạt động cho Inverter</div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <!-- Thẻ span này sẽ hiển thị trạng thái hiện tại (ví dụ: Đang tải... hoặc tên chế độ) -->
                         <span id="current_work_mode_text" class="text-emerald-400 font-medium text-[11px]">Đang tải...</span>
                         <i id="icon_work_workModeSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
                     </div>
@@ -415,24 +414,9 @@ const TabContents = {
             
                 <!-- Phần nội dung ẩn/hiện chứa các radio option -->
                 <div id="workModeSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
-                    <!-- Thêm thẻ input ẩn này để hàm quét được ID 2100 -->
+                    <!-- Thẻ input ẩn chứa mã thanh ghi (ID giả định reg_2100) -->
                     <input type="hidden" id="reg_2100">
                 
-                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
-                        <span class="text-slate-200">Chế độ tự tiêu thụ</span>
-                        <input type="radio" name="reg_work_mode" value="0" class="accent-emerald-500" onchange="writeRegister('reg_work_mode', this.value)">
-                    </label>
-                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
-                        <span class="text-slate-200">Chế độ ưu tiên phát lưới điện</span>
-                        <input type="radio" name="reg_work_mode" value="1" class="accent-emerald-500" onchange="writeRegister('reg_work_mode', this.value)">
-                    </label>
-                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
-                        <span class="text-slate-200">Chế độ dự phòng</span>
-                        <input type="radio" name="reg_work_mode" value="2" class="accent-emerald-500" onchange="writeRegister('reg_work_mode', this.value)">
-                    </label>
-                </div>
-
-                <div id="workModeSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
                     <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                         <span class="text-slate-200">Chế độ tự tiêu thụ</span>
                         <input type="radio" name="reg_work_mode" value="0" class="accent-emerald-500" onchange="writeRegister('reg_work_mode', this.value)">
@@ -453,6 +437,9 @@ const TabContents = {
 
             <!-- 2. Kiểm soát theo thời gian -->
             <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 space-y-3">
+                <!-- Thanh ghi ẩn cho trạng thái bật/tắt tổng (ID giả định reg_2101) -->
+                <input type="hidden" id="reg_2101">
+
                 <div class="flex items-center justify-between">
                     <div>
                         <div class="font-bold text-slate-200 text-xs">Kiểm soát theo thời gian</div>
@@ -494,6 +481,9 @@ const TabContents = {
                 </div>
 
                 <div id="genModeSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
+                    <!-- Thanh ghi ẩn cho chế độ GEN (ID giả định reg_2102) -->
+                    <input type="hidden" id="reg_2102">
+
                     <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                         <span class="text-slate-200">Không bật</span>
                         <input type="radio" name="reg_gen_mode" value="0" class="accent-emerald-500" onchange="writeRegister('reg_gen_mode', this.value)">
@@ -618,8 +608,6 @@ const TabContents = {
         </div>
     </div>
 </div>
-
-
 
 
     `,
