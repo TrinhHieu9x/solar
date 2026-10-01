@@ -539,7 +539,7 @@ const TabContents = {
                     <div class="flex items-center justify-between py-1">
                         <span class="text-slate-300">Force Start-Up with PV Only</span>
                         <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="reg_force_pv" class="sr-only peer" onchange="writeRegister('reg_force_pv', this.checked ? 1 : 0)">
+                            <input type="checkbox" id="reg_2199" class="sr-only peer" onchange="writeRegister('reg_2199', this.checked ? 1 : 0)">
                             <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
                         </label>
                     </div>
