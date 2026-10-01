@@ -530,15 +530,15 @@ const TabContents = {
                     </div>
                 </div>
             </div>
-<!-- 6. Khác -->
-<div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 space-y-3">
-    <div class="font-bold text-slate-200 text-xs">Cài đặt khác</div>
+<!-- 6. Khác (Đã tinh chỉnh lại các item bên trong để không bị trùng lặp khung viền) -->
+<div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 space-y-2">
+    <div class="font-bold text-slate-200 text-xs px-1 mb-1">Cài đặt khác</div>
     
-    <div class="space-y-2.5 pt-1 border-t border-slate-800/60">
+    <div class="space-y-1.5 pt-1 border-t border-slate-800/60">
         
         <!-- Overload Restart -->
-        <div class="bg-slate-900 border border-slate-800/80 rounded-xl overflow-hidden transition-all">
-            <div onclick="toggleAccordionMenu('RestartModeSection')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-colors">
+        <div class="overflow-hidden transition-all rounded-lg border border-transparent hover:border-slate-800">
+            <div onclick="toggleAccordionMenu('RestartModeSection')" class="p-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-800/60 transition-colors rounded-lg">
                 <div class="flex-1 pr-2">
                     <div class="font-bold text-slate-200 text-xs">Overload Restart</div>
                     <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt chế độ tự khởi động lại khi quá tải</div>
@@ -549,7 +549,7 @@ const TabContents = {
                 </div>
             </div>
 
-            <div id="RestartModeSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
+            <div id="RestartModeSection" class="hidden p-2.5 bg-slate-950/40 border-t border-slate-800/40 space-y-1.5 rounded-b-lg">
                 <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                     <span class="text-slate-200">Disable</span>
                     <input type="radio" name="reg_21E4" value="0" class="accent-emerald-500" onchange="writeRegister('21E4', this.value)">
@@ -566,8 +566,8 @@ const TabContents = {
         </div>
 
         <!-- Kiểu kết nối tấm pin PV -->
-        <div class="bg-slate-900 border border-slate-800/80 rounded-xl overflow-hidden transition-all">
-            <div onclick="toggleAccordionMenu('pvConnSection')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-colors">
+        <div class="overflow-hidden transition-all rounded-lg border border-transparent hover:border-slate-800">
+            <div onclick="toggleAccordionMenu('pvConnSection')" class="p-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-800/60 transition-colors rounded-lg">
                 <div class="flex-1 pr-2">
                     <div class="font-bold text-slate-200 text-xs">Kiểu kết nối tấm pin PV</div>
                     <div class="text-[11px] text-slate-400 mt-0.5">Cấu hình cách đấu nối ngõ vào PV</div>
@@ -578,7 +578,7 @@ const TabContents = {
                 </div>
             </div>
 
-            <div id="pvConnSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
+            <div id="pvConnSection" class="hidden p-2.5 bg-slate-950/40 border-t border-slate-800/40 space-y-1.5 rounded-b-lg">
                 <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                     <span class="text-slate-200">Độc lập</span>
                     <input type="radio" name="reg_2113" value="0" class="accent-emerald-500" onchange="writeRegister('2113', this.value)">
@@ -595,8 +595,8 @@ const TabContents = {
         </div>
 
         <!-- Chức năng tiếp điểm khô -->
-        <div class="bg-slate-900 border border-slate-800/80 rounded-xl overflow-hidden transition-all">
-            <div onclick="toggleAccordionMenu('dryContactSection')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-colors">
+        <div class="overflow-hidden transition-all rounded-lg border border-transparent hover:border-slate-800">
+            <div onclick="toggleAccordionMenu('dryContactSection')" class="p-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-800/60 transition-colors rounded-lg">
                 <div class="flex-1 pr-2">
                     <div class="font-bold text-slate-200 text-xs">Chức năng tiếp điểm khô</div>
                     <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt ngõ ra tín hiệu khô (Dry Contact)</div>
@@ -607,7 +607,7 @@ const TabContents = {
                 </div>
             </div>
 
-            <div id="dryContactSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
+            <div id="dryContactSection" class="hidden p-2.5 bg-slate-950/40 border-t border-slate-800/40 space-y-1.5 rounded-b-lg">
                 <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                     <span class="text-slate-200">Tắt</span>
                     <input type="radio" name="reg_2114" value="0" class="accent-emerald-500" onchange="writeRegister('2114', this.value)">
@@ -636,7 +636,7 @@ const TabContents = {
         </div>
 
         <!-- Các cài đặt dạng Switch đơn bên dưới -->
-        <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between">
+        <div class="p-2.5 flex items-center justify-between hover:bg-slate-800/60 transition-colors rounded-lg">
             <div class="flex-1 pr-2">
                 <div class="font-bold text-slate-200 text-xs">Force Start-Up with PV Only</div>
                 <div class="text-[11px] text-slate-400 mt-0.5">Khởi động chỉ bằng nguồn PV</div>
@@ -647,7 +647,7 @@ const TabContents = {
             </label>
         </div>
 
-        <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between">
+        <div class="p-2.5 flex items-center justify-between hover:bg-slate-800/60 transition-colors rounded-lg">
             <div class="flex-1 pr-2">
                 <div class="font-bold text-slate-200 text-xs">Chuông cảnh báo</div>
                 <div class="text-[11px] text-slate-400 mt-0.5">Còi báo động hệ thống</div>
@@ -658,7 +658,7 @@ const TabContents = {
             </label>
         </div>
 
-        <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between">
+        <div class="p-2.5 flex items-center justify-between hover:bg-slate-800/60 transition-colors rounded-lg">
             <div class="flex-1 pr-2">
                 <div class="font-bold text-slate-200 text-xs">DRM</div>
                 <div class="text-[11px] text-slate-400 mt-0.5">Demand Response Modes</div>
@@ -669,7 +669,7 @@ const TabContents = {
             </label>
         </div>
 
-        <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between">
+        <div class="p-2.5 flex items-center justify-between hover:bg-slate-800/60 transition-colors rounded-lg">
             <div class="flex-1 pr-2">
                 <div class="font-bold text-slate-200 text-xs">Chức năng ghép nối AC</div>
                 <div class="text-[11px] text-slate-400 mt-0.5">AC Coupling function</div>
@@ -682,6 +682,7 @@ const TabContents = {
 
     </div>
 </div>
+
 
         <!-- Footer Modal -->
         <div class="p-3 border-t border-slate-800 bg-slate-900 flex justify-end shrink-0">
