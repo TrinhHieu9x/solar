@@ -686,9 +686,6 @@ const TabContents = {
 
         </div>
     </div>
-</div>
-
-
 
 
         <!-- Footer Modal -->
