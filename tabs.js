@@ -370,6 +370,8 @@ const TabContents = {
         </div>
     </div>
 </div>
+
+
 <!-- Modal Container -->
 <div id="settingsModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-xl rounded-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -685,7 +687,6 @@ const TabContents = {
             </div>
 
         </div>
-    </div>
 
 
         <!-- Footer Modal -->
