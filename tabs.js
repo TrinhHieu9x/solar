@@ -573,7 +573,7 @@ const TabContents = {
                     <div class="text-[11px] text-slate-400 mt-0.5">Cấu hình cách đấu nối ngõ vào PV</div>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0">
-                    <span id="text_reg_2113" class="text-slate-400 font-medium text-[11px]">Đang tải...</span>
+                    <span id="text_reg_5109" class="text-slate-400 font-medium text-[11px]">Đang tải...</span>
                     <i id="icon_pvConnSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
                 </div>
             </div>
@@ -581,15 +581,15 @@ const TabContents = {
             <div id="pvConnSection" class="hidden pt-2.5 space-y-1.5">
                 <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800 cursor-pointer">
                     <span class="text-slate-200 text-xs">Độc lập</span>
-                    <input type="radio" name="reg_2113" value="0" class="accent-emerald-500" onchange="writeRegister('2113', this.value)">
+                    <input type="radio" name="reg_5109" value="0" class="accent-emerald-500" onchange="writeRegister('5109', this.value)">
                 </label>
                 <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800 cursor-pointer">
                     <span class="text-slate-200 text-xs">Song song</span>
-                    <input type="radio" name="reg_2113" value="1" class="accent-emerald-500" onchange="writeRegister('2113', this.value)">
+                    <input type="radio" name="reg_5109" value="1" class="accent-emerald-500" onchange="writeRegister('5109', this.value)">
                 </label>
                 <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800 cursor-pointer">
                     <span class="text-slate-200 text-xs">Tự kiểm tra</span>
-                    <input type="radio" name="reg_2113" value="2" class="accent-emerald-500" onchange="writeRegister('2113', this.value)">
+                    <input type="radio" name="reg_5109" value="2" class="accent-emerald-500" onchange="writeRegister('5109', this.value)">
                 </label>
             </div>
         </div>
@@ -602,7 +602,7 @@ const TabContents = {
                     <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt ngõ ra tín hiệu khô (Dry Contact)</div>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0">
-                    <span id="text_reg_2114" class="text-slate-400 font-medium text-[11px]">Đang tải...</span>
+                    <span id="text_reg_3020" class="text-slate-400 font-medium text-[11px]">Đang tải...</span>
                     <i id="icon_dryContactSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
                 </div>
             </div>
@@ -610,27 +610,27 @@ const TabContents = {
             <div id="dryContactSection" class="hidden pt-2.5 space-y-1.5">
                 <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800 cursor-pointer">
                     <span class="text-slate-200 text-xs">Tắt</span>
-                    <input type="radio" name="reg_2114" value="0" class="accent-emerald-500" onchange="writeRegister('2114', this.value)">
+                    <input type="radio" name="reg_3020" value="0" class="accent-emerald-500" onchange="writeRegister('3020', this.value)">
                 </label>
                 <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800 cursor-pointer">
                     <span class="text-slate-200 text-xs">Chung</span>
-                    <input type="radio" name="reg_2114" value="1" class="accent-emerald-500" onchange="writeRegister('2114', this.value)">
+                    <input type="radio" name="reg_3020" value="1" class="accent-emerald-500" onchange="writeRegister('3020', this.value)">
                 </label>
                 <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800 cursor-pointer">
                     <span class="text-slate-200 text-xs">Tải thông minh</span>
-                    <input type="radio" name="reg_2114" value="2" class="accent-emerald-500" onchange="writeRegister('2114', this.value)">
+                    <input type="radio" name="reg_3020" value="2" class="accent-emerald-500" onchange="writeRegister('3020', this.value)">
                 </label>
                 <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800 cursor-pointer">
                     <span class="text-slate-200 text-xs">Chế độ nguồn kích hoạt</span>
-                    <input type="radio" name="reg_2114" value="3" class="accent-emerald-500" onchange="writeRegister('2114', this.value)">
+                    <input type="radio" name="reg_3020" value="3" class="accent-emerald-500" onchange="writeRegister('3020', this.value)">
                 </label>
                 <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800 cursor-pointer">
                     <span class="text-slate-200 text-xs">Chế độ điều khiển thủ công</span>
-                    <input type="radio" name="reg_2114" value="4" class="accent-emerald-500" onchange="writeRegister('2114', this.value)">
+                    <input type="radio" name="reg_3020" value="4" class="accent-emerald-500" onchange="writeRegister('3020', this.value)">
                 </label>
                 <label class="flex items-center justify-between p-2 rounded-lg bg-slate-950/40 hover:bg-slate-800 cursor-pointer">
                     <span class="text-slate-200 text-xs">Chế độ thời gian</span>
-                    <input type="radio" name="reg_2114" value="5" class="accent-emerald-500" onchange="writeRegister('2114', this.value)">
+                    <input type="radio" name="reg_3020" value="5" class="accent-emerald-500" onchange="writeRegister('3020', this.value)">
                 </label>
             </div>
         </div>
