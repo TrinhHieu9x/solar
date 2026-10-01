@@ -530,74 +530,147 @@ const TabContents = {
                     </div>
                 </div>
             </div>
-
-            <!-- 6. Khác -->
-            <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 space-y-3">
-                <div class="font-bold text-slate-200 text-xs">Cài đặt khác</div>
-                
-                <div class="space-y-2 pt-1 border-t border-slate-800/60">
-                    <div class="bg-slate-900 border border-slate-800/80 rounded-xl overflow-hidden transition-all">
-                    <div onclick="toggleAccordionMenu('RestartModeSection')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-colors">
-                        <div>
-                            <div class="font-bold text-slate-200 text-xs">Overload Restart</div>
-                            <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt chức năng cổng GEN</div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span id="text_reg_2112" class="text-slate-400 font-medium text-[11px]">Đang tải...</span>
-                            <i id="icon_RestartModeSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
-                        </div>
-                    </div>
-
-                <div id="RestartModeSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
-                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
-                        <span class="text-slate-200">Disable</span>
-                        <input type="radio" name="reg_2112" value="0" class="accent-emerald-500" onchange="writeRegister('2112', this.value)">
-                    </label>
-                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
-                        <span class="text-slate-200">Triple Overload</span>
-                        <input type="radio" name="reg_2112" value="1" class="accent-emerald-500" onchange="writeRegister('2112', this.value)">
-                    </label>
-                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
-                        <span class="text-slate-200">Detected Overload</span>
-                        <input type="radio" name="reg_2112" value="2" class="accent-emerald-500" onchange="writeRegister('2112', this.value)">
-                    </label>
+<!-- 6. Khác -->
+<div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 space-y-3">
+    <div class="font-bold text-slate-200 text-xs">Cài đặt khác</div>
+    
+    <div class="space-y-2 pt-1 border-t border-slate-800/60">
+        
+        <!-- Overload Restart -->
+        <div class="bg-slate-900 border border-slate-800/80 rounded-xl overflow-hidden transition-all">
+            <div onclick="toggleAccordionMenu('RestartModeSection')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-colors">
+                <div>
+                    <div class="font-bold text-slate-200 text-xs">Overload Restart</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt chế độ tự khởi động lại khi quá tải</div>
                 </div>
-               </div>
-                    <div class="flex items-center justify-between py-1">
-                        <span class="text-slate-300">Force Start-Up with PV Only</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="reg_2199" class="sr-only peer" onchange="writeRegister('reg_2199', this.checked ? 1 : 0)">
-                            <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
-                        </label>
-                    </div>
-
-                    <div class="flex items-center justify-between py-1 border-t border-slate-800/40">
-                        <span class="text-slate-300">Chuông cảnh báo</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="reg_2140" class="sr-only peer" onchange="writeRegister('reg_2140', this.checked ? 1 : 0)">
-                            <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
-                        </label>
-                    </div>
-
-                    <div class="flex items-center justify-between py-1 border-t border-slate-800/40">
-                        <span class="text-slate-300">DRM</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="reg_3088" class="sr-only peer" onchange="writeRegister('reg_3088', this.checked ? 1 : 0)">
-                            <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
-                        </label>
-                    </div>
-
-                    <div class="flex items-center justify-between py-1 border-t border-slate-800/40">
-                        <span class="text-slate-300">Chức năng ghép nối AC</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="reg_2159" class="sr-only peer" onchange="writeRegister('reg_2159', this.checked ? 1 : 0)">
-                            <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
-                        </label>
-                    </div>
+                <div class="flex items-center gap-2">
+                    <span id="text_reg_2112" class="text-slate-400 font-medium text-[11px]">Đang tải...</span>
+                    <i id="icon_RestartModeSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
                 </div>
             </div>
 
+            <div id="RestartModeSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
+                <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
+                    <span class="text-slate-200">Disable</span>
+                    <input type="radio" name="reg_2112" value="0" class="accent-emerald-500" onchange="writeRegister('2112', this.value)">
+                </label>
+                <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
+                    <span class="text-slate-200">Triple Overload</span>
+                    <input type="radio" name="reg_2112" value="1" class="accent-emerald-500" onchange="writeRegister('2112', this.value)">
+                </label>
+                <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
+                    <span class="text-slate-200">Detected Overload</span>
+                    <input type="radio" name="reg_2112" value="2" class="accent-emerald-500" onchange="writeRegister('2112', this.value)">
+                </label>
+            </div>
         </div>
+
+        <!-- Kiểu kết nối tấm pin PV (Mới thêm theo ảnh) -->
+        <div class="bg-slate-900 border border-slate-800/80 rounded-xl overflow-hidden transition-all">
+            <div onclick="toggleAccordionMenu('pvConnSection')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-colors">
+                <div>
+                    <div class="font-bold text-slate-200 text-xs">Kiểu kết nối tấm pin PV</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Cấu hình cách đấu nối ngõ vào PV</div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="text_reg_2113" class="text-slate-400 font-medium text-[11px]">Đang tải...</span>
+                    <i id="icon_pvConnSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
+                </div>
+            </div>
+
+            <div id="pvConnSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
+                <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
+                    <span class="text-slate-200">Độc lập</span>
+                    <input type="radio" name="reg_2113" value="0" class="accent-emerald-500" onchange="writeRegister('2113', this.value)">
+                </label>
+                <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
+                    <span class="text-slate-200">Song song</span>
+                    <input type="radio" name="reg_2113" value="1" class="accent-emerald-500" onchange="writeRegister('2113', this.value)">
+                </label>
+                <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
+                    <span class="text-slate-200">Tự kiểm tra</span>
+                    <input type="radio" name="reg_2113" value="2" class="accent-emerald-500" onchange="writeRegister('2113', this.value)">
+                </label>
+            </div>
+        </div>
+
+        <!-- Chức năng tiếp điểm khô (Mới thêm theo ảnh) -->
+        <div class="bg-slate-900 border border-slate-800/80 rounded-xl overflow-hidden transition-all">
+            <div onclick="toggleAccordionMenu('dryContactSection')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-colors">
+                <div>
+                    <div class="font-bold text-slate-200 text-xs">Chức năng tiếp điểm khô</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt ngõ ra tín hiệu khô (Dry Contact)</div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="text_reg_2114" class="text-slate-400 font-medium text-[11px]">Đang tải...</span>
+                    <i id="icon_dryContactSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
+                </div>
+            </div>
+
+            <div id="dryContactSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
+                <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
+                    <span class="text-slate-200">Tắt</span>
+                    <input type="radio" name="reg_2114" value="0" class="accent-emerald-500" onchange="writeRegister('2114', this.value)">
+                </label>
+                <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
+                    <span class="text-slate-200">Chung</span>
+                    <input type="radio" name="reg_2114" value="1" class="accent-emerald-500" onchange="writeRegister('2114', this.value)">
+                </label>
+                <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
+                    <span class="text-slate-200">Tải thông minh</span>
+                    <input type="radio" name="reg_2114" value="2" class="accent-emerald-500" onchange="writeRegister('2114', this.value)">
+                </label>
+                <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
+                    <span class="text-slate-200">Chế độ nguồn kích hoạt</span>
+                    <input type="radio" name="reg_2114" value="3" class="accent-emerald-500" onchange="writeRegister('2114', this.value)">
+                </label>
+                <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
+                    <span class="text-slate-200">Chế độ điều khiển thủ công</span>
+                    <input type="radio" name="reg_2114" value="4" class="accent-emerald-500" onchange="writeRegister('2114', this.value)">
+                </label>
+                <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
+                    <span class="text-slate-200">Chế độ thời gian</span>
+                    <input type="radio" name="reg_2114" value="5" class="accent-emerald-500" onchange="writeRegister('2114', this.value)">
+                </label>
+            </div>
+        </div>
+
+        <!-- Các cài đặt cũ giữ nguyên -->
+        <div class="flex items-center justify-between py-1">
+            <span class="text-slate-300">Force Start-Up with PV Only</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="reg_2199" class="sr-only peer" onchange="writeRegister('reg_2199', this.checked ? 1 : 0)">
+                <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+            </label>
+        </div>
+
+        <div class="flex items-center justify-between py-1 border-t border-slate-800/40">
+            <span class="text-slate-300">Chuông cảnh báo</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="reg_2140" class="sr-only peer" onchange="writeRegister('reg_2140', this.checked ? 1 : 0)">
+                <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+            </label>
+        </div>
+
+        <div class="flex items-center justify-between py-1 border-t border-slate-800/40">
+            <span class="text-slate-300">DRM</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="reg_3088" class="sr-only peer" onchange="writeRegister('reg_3088', this.checked ? 1 : 0)">
+                <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+            </label>
+        </div>
+
+        <div class="flex items-center justify-between py-1 border-t border-slate-800/40">
+            <span class="text-slate-300">Chức năng ghép nối AC</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="reg_2159" class="sr-only peer" onchange="writeRegister('reg_2159', this.checked ? 1 : 0)">
+                <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+            </label>
+        </div>
+
+    </div>
+</div>
+
 
         <!-- Footer Modal -->
         <div class="p-3 border-t border-slate-800 bg-slate-900 flex justify-end shrink-0">
