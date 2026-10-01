@@ -538,27 +538,27 @@ const TabContents = {
                 <div class="space-y-2 pt-1 border-t border-slate-800/60">
                 <div onclick="toggleAccordionMenu('genModeSection')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-colors">
                     <div>
-                        <div class="font-bold text-slate-200 text-xs">GEN (Máy phát điện)</div>
+                        <div class="font-bold text-slate-200 text-xs">Overload Restart</div>
                         <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt chức năng cổng GEN</div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span id="text_reg_2102" class="text-slate-400 font-medium text-[11px]">Đang tải...</span>
+                        <span id="text_reg_2112" class="text-slate-400 font-medium text-[11px]">Đang tải...</span>
                         <i id="icon_genModeSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
                     </div>
                 </div>
 
                 <div id="genModeSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
                     <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
-                        <span class="text-slate-200">Không bật</span>
-                        <input type="radio" name="reg_2102" value="0" class="accent-emerald-500" onchange="writeRegister('2102', this.value)">
+                        <span class="text-slate-200">Disable</span>
+                        <input type="radio" name="reg_2112" value="0" class="accent-emerald-500" onchange="writeRegister('2112', this.value)">
                     </label>
                     <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
-                        <span class="text-slate-200">Máy phát điện</span>
-                        <input type="radio" name="reg_2102" value="1" class="accent-emerald-500" onchange="writeRegister('2102', this.value)">
+                        <span class="text-slate-200">Triple Overload</span>
+                        <input type="radio" name="reg_2112" value="1" class="accent-emerald-500" onchange="writeRegister('2112', this.value)">
                     </label>
                     <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
-                        <span class="text-slate-200">Tải thông minh</span>
-                        <input type="radio" name="reg_2102" value="2" class="accent-emerald-500" onchange="writeRegister('2102', this.value)">
+                        <span class="text-slate-200">Detected Overload</span>
+                        <input type="radio" name="reg_212" value="2" class="accent-emerald-500" onchange="writeRegister('2112', this.value)">
                     </label>
                 </div>
 
