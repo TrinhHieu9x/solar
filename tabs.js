@@ -534,16 +534,16 @@ const TabContents = {
 <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 space-y-3">
     <div class="font-bold text-slate-200 text-xs">Cài đặt khác</div>
     
-    <div class="space-y-2 pt-1 border-t border-slate-800/60">
+    <div class="space-y-2.5 pt-1 border-t border-slate-800/60">
         
         <!-- Overload Restart -->
         <div class="bg-slate-900 border border-slate-800/80 rounded-xl overflow-hidden transition-all">
             <div onclick="toggleAccordionMenu('RestartModeSection')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-colors">
-                <div>
+                <div class="flex-1 pr-2">
                     <div class="font-bold text-slate-200 text-xs">Overload Restart</div>
                     <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt chế độ tự khởi động lại khi quá tải</div>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1.5 shrink-0">
                     <span id="text_reg_21E4" class="text-slate-400 font-medium text-[11px]">Đang tải...</span>
                     <i id="icon_RestartModeSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
                 </div>
@@ -565,14 +565,14 @@ const TabContents = {
             </div>
         </div>
 
-        <!-- Kiểu kết nối tấm pin PV (Mới thêm theo ảnh) -->
+        <!-- Kiểu kết nối tấm pin PV -->
         <div class="bg-slate-900 border border-slate-800/80 rounded-xl overflow-hidden transition-all">
             <div onclick="toggleAccordionMenu('pvConnSection')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-colors">
-                <div>
+                <div class="flex-1 pr-2">
                     <div class="font-bold text-slate-200 text-xs">Kiểu kết nối tấm pin PV</div>
                     <div class="text-[11px] text-slate-400 mt-0.5">Cấu hình cách đấu nối ngõ vào PV</div>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1.5 shrink-0">
                     <span id="text_reg_2113" class="text-slate-400 font-medium text-[11px]">Đang tải...</span>
                     <i id="icon_pvConnSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
                 </div>
@@ -594,14 +594,14 @@ const TabContents = {
             </div>
         </div>
 
-        <!-- Chức năng tiếp điểm khô (Mới thêm theo ảnh) -->
+        <!-- Chức năng tiếp điểm khô -->
         <div class="bg-slate-900 border border-slate-800/80 rounded-xl overflow-hidden transition-all">
             <div onclick="toggleAccordionMenu('dryContactSection')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-colors">
-                <div>
+                <div class="flex-1 pr-2">
                     <div class="font-bold text-slate-200 text-xs">Chức năng tiếp điểm khô</div>
                     <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt ngõ ra tín hiệu khô (Dry Contact)</div>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1.5 shrink-0">
                     <span id="text_reg_2114" class="text-slate-400 font-medium text-[11px]">Đang tải...</span>
                     <i id="icon_dryContactSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
                 </div>
@@ -635,34 +635,46 @@ const TabContents = {
             </div>
         </div>
 
-        <!-- Các cài đặt cũ giữ nguyên -->
-        <div class="flex items-center justify-between py-1">
-            <span class="text-slate-300">Force Start-Up with PV Only</span>
-            <label class="relative inline-flex items-center cursor-pointer">
+        <!-- Các cài đặt dạng Switch đơn bên dưới -->
+        <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between">
+            <div class="flex-1 pr-2">
+                <div class="font-bold text-slate-200 text-xs">Force Start-Up with PV Only</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Khởi động chỉ bằng nguồn PV</div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer shrink-0">
                 <input type="checkbox" id="reg_2199" class="sr-only peer" onchange="writeRegister('reg_2199', this.checked ? 1 : 0)">
                 <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
             </label>
         </div>
 
-        <div class="flex items-center justify-between py-1 border-t border-slate-800/40">
-            <span class="text-slate-300">Chuông cảnh báo</span>
-            <label class="relative inline-flex items-center cursor-pointer">
+        <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between">
+            <div class="flex-1 pr-2">
+                <div class="font-bold text-slate-200 text-xs">Chuông cảnh báo</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Còi báo động hệ thống</div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer shrink-0">
                 <input type="checkbox" id="reg_2140" class="sr-only peer" onchange="writeRegister('reg_2140', this.checked ? 1 : 0)">
                 <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
             </label>
         </div>
 
-        <div class="flex items-center justify-between py-1 border-t border-slate-800/40">
-            <span class="text-slate-300">DRM</span>
-            <label class="relative inline-flex items-center cursor-pointer">
+        <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between">
+            <div class="flex-1 pr-2">
+                <div class="font-bold text-slate-200 text-xs">DRM</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Demand Response Modes</div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer shrink-0">
                 <input type="checkbox" id="reg_3088" class="sr-only peer" onchange="writeRegister('reg_3088', this.checked ? 1 : 0)">
                 <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
             </label>
         </div>
 
-        <div class="flex items-center justify-between py-1 border-t border-slate-800/40">
-            <span class="text-slate-300">Chức năng ghép nối AC</span>
-            <label class="relative inline-flex items-center cursor-pointer">
+        <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between">
+            <div class="flex-1 pr-2">
+                <div class="font-bold text-slate-200 text-xs">Chức năng ghép nối AC</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">AC Coupling function</div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer shrink-0">
                 <input type="checkbox" id="reg_2159" class="sr-only peer" onchange="writeRegister('reg_2159', this.checked ? 1 : 0)">
                 <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
             </label>
@@ -670,7 +682,6 @@ const TabContents = {
 
     </div>
 </div>
-
 
         <!-- Footer Modal -->
         <div class="p-3 border-t border-slate-800 bg-slate-900 flex justify-end shrink-0">
