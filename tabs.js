@@ -506,7 +506,7 @@ const TabContents = {
                         <div class="text-[10px] text-slate-500">Giới hạn công suất lấy từ lưới AC</div>
                     </div>
                     <div class="flex items-center gap-1.5">
-                        <input type="number" id="reg_max_grid_power" class="val-edit bg-slate-800 text-emerald-400 px-2 py-1 rounded text-right w-20 text-xs border border-slate-700" onchange="writeRegister('reg_max_grid_power', this.value)">
+                        <input type="number" id="reg_2125" class="val-edit bg-slate-800 text-emerald-400 px-2 py-1 rounded text-right w-20 text-xs border border-slate-700" onchange="writeRegister('reg_2125', this.value)">
                         <span class="text-[11px] text-slate-400">W</span>
                     </div>
                 </div>
@@ -514,7 +514,7 @@ const TabContents = {
                 <div class="flex items-center justify-between pt-2 border-t border-slate-800/60">
                     <div class="text-slate-300 text-xs">Thời gian trễ (s)</div>
                     <div class="flex items-center gap-1.5">
-                        <input type="number" id="reg_peak_delay" class="val-edit bg-slate-800 text-emerald-400 px-2 py-1 rounded text-right w-20 text-xs border border-slate-700" onchange="writeRegister('reg_peak_delay', this.value)">
+                        <input type="number" id="reg_2188" class="val-edit bg-slate-800 text-emerald-400 px-2 py-1 rounded text-right w-20 text-xs border border-slate-700" onchange="writeRegister('reg_2188', this.value)">
                         <span class="text-[11px] text-slate-400">s</span>
                     </div>
                 </div>
@@ -525,7 +525,7 @@ const TabContents = {
                         <div class="text-[10px] text-slate-500">Thời gian sạc để cắt đỉnh tiêu thụ</div>
                     </div>
                     <div class="flex items-center gap-1.5">
-                        <input type="number" id="reg_peak_discharge_time" class="val-edit bg-slate-800 text-emerald-400 px-2 py-1 rounded text-right w-20 text-xs border border-slate-700" onchange="writeRegister('reg_peak_discharge_time', this.value)">
+                        <input type="number" id="reg_2189" class="val-edit bg-slate-800 text-emerald-400 px-2 py-1 rounded text-right w-20 text-xs border border-slate-700" onchange="writeRegister('reg_2189', this.value)">
                         <span class="text-[11px] text-slate-400">s</span>
                     </div>
                 </div>
