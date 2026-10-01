@@ -482,7 +482,7 @@ const TabContents = {
                     <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt hoạt động song song các inverter</div>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="reg_2103" class="sr-only peer" onchange="writeRegister('reg_2013', this.checked ? 1 : 0)">
+                    <input type="checkbox" id="reg_2143" class="sr-only peer" onchange="writeRegister('reg_2143', this.checked ? 1 : 0)">
                     <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
                 </label>
             </div>
@@ -555,7 +555,7 @@ const TabContents = {
                     <div class="flex items-center justify-between py-1 border-t border-slate-800/40">
                         <span class="text-slate-300">DRM</span>
                         <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="reg_drm" class="sr-only peer" onchange="writeRegister('reg_drm', this.checked ? 1 : 0)">
+                            <input type="checkbox" id="reg_3088" class="sr-only peer" onchange="writeRegister('reg_3088', this.checked ? 1 : 0)">
                             <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
                         </label>
                     </div>
@@ -563,7 +563,7 @@ const TabContents = {
                     <div class="flex items-center justify-between py-1 border-t border-slate-800/40">
                         <span class="text-slate-300">Chức năng ghép nối AC</span>
                         <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="reg_ac_couple" class="sr-only peer" onchange="writeRegister('reg_ac_couple', this.checked ? 1 : 0)">
+                            <input type="checkbox" id="reg_2159" class="sr-only peer" onchange="writeRegister('reg_2159', this.checked ? 1 : 0)">
                             <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
                         </label>
                     </div>
