@@ -544,7 +544,7 @@ const TabContents = {
                     <div class="text-[11px] text-slate-400 mt-0.5">Cài đặt chế độ tự khởi động lại khi quá tải</div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span id="text_reg_2112" class="text-slate-400 font-medium text-[11px]">Đang tải...</span>
+                    <span id="text_reg_21E4" class="text-slate-400 font-medium text-[11px]">Đang tải...</span>
                     <i id="icon_RestartModeSection" class="fa-solid fa-chevron-right text-[10px] text-slate-500 transition-transform duration-200"></i>
                 </div>
             </div>
@@ -552,15 +552,15 @@ const TabContents = {
             <div id="RestartModeSection" class="hidden p-3 bg-slate-950/60 border-t border-slate-800/60 space-y-1.5">
                 <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                     <span class="text-slate-200">Disable</span>
-                    <input type="radio" name="reg_2112" value="0" class="accent-emerald-500" onchange="writeRegister('2112', this.value)">
+                    <input type="radio" name="reg_21E4" value="0" class="accent-emerald-500" onchange="writeRegister('21E4', this.value)">
                 </label>
                 <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                     <span class="text-slate-200">Triple Overload</span>
-                    <input type="radio" name="reg_2112" value="1" class="accent-emerald-500" onchange="writeRegister('2112', this.value)">
+                    <input type="radio" name="reg_21E4" value="1" class="accent-emerald-500" onchange="writeRegister('21E4', this.value)">
                 </label>
                 <label class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 cursor-pointer">
                     <span class="text-slate-200">Detected Overload</span>
-                    <input type="radio" name="reg_2112" value="2" class="accent-emerald-500" onchange="writeRegister('2112', this.value)">
+                    <input type="radio" name="reg_21E4" value="2" class="accent-emerald-500" onchange="writeRegister('21E4', this.value)">
                 </label>
             </div>
         </div>
