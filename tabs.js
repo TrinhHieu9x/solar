@@ -943,6 +943,33 @@ const TabContents = {
             </div>
         </div>
     </div>
+    <!-- x. Cắt tải đỉnh -->
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>💡 CẮT TẢI ĐỈNH</span>
+            <span class="arrow">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-inner">
+                <div class="info-row">
+                    <span>Quản lý giới hạn lưới điện</span>
+                    <div class="switch" id="reg_2187" onclick="toggleSwitch(this)"></div>
+                </div>
+                <div class="info-row">
+                    <span>Điện áp đầu ra định mức <span class="unit">(V)</span></span>
+                    <input type="number" id="reg_2125" class="val-edit" value="---" step="0.1">
+                </div>
+                <div class="info-row">
+                    <span>Tối đa điện áp đầu ra dự phòng <span class="unit">(V)</span></span>
+                    <input type="number" id="reg_2188" class="val-edit" value="---" step="0.1">
+                </div>
+                <div class="info-row">
+                    <span>Tối thiểu điện áp đầu ra dự phòng <span class="unit">(V)</span></span>
+                    <input type="number" id="reg_2189" class="val-edit" value="---" step="0.1">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- 6. Điều khiển công suất -->
     <div class="accordion-item">
