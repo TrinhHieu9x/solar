@@ -956,15 +956,15 @@ const TabContents = {
                     <div class="switch" id="reg_2187" onclick="toggleSwitch(this)"></div>
                 </div>
                 <div class="info-row">
-                    <span>Công suất đầu vào tối đa từ lưới điện <span class="unit">(V)</span></span>
+                    <span>Công suất đầu vào tối đa từ lưới điện <span class="unit">(W)</span></span>
                     <input type="number" id="reg_2125" class="val-edit" value="---" step="1">
                 </div>
                 <div class="info-row">
-                    <span>Thời gian trễ (s) <span class="unit">(V)</span></span>
+                    <span>Thời gian trễ <span class="unit">(s)</span></span>
                     <input type="number" id="reg_2188" class="val-edit" value="---" step="0.1">
                 </div>
                 <div class="info-row">
-                    <span>Thời gian xả Pin lưu trữ (s) <span class="unit">(V)</span></span>
+                    <span>Thời gian xả Pin lưu trữ <span class="unit">(s)</span></span>
                     <input type="number" id="reg_2189" class="val-edit" value="---" step="0.1">
                 </div>
             </div>
