@@ -2342,7 +2342,7 @@ function updateAlarmUI(alarmValue) {
             // Dùng Promise.allSettled để gọi song song các hàm cập nhật mà không sợ 1 cái chết làm sập toàn bộ
             await Promise.allSettled([
                 //fetchRuntimeQuick(API_CONFIG.SERIAL_NUM).catch(err => console.warn("Lỗi runtime quick:", err)),
-                fetchVendorAPI().catch(err => console.warn("Lỗi vendor API:", err))
+                //fetchVendorAPI().catch(err => console.warn("Lỗi vendor API:", err))
             ]);
     
             // Sau khi cập nhật xong thì vẽ lại giao diện an toàn
