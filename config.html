@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Web EDA Mini Pro — Đi Dây Vuông Góc A*, TLV9062, Thư Viện IC, MNA & Auto-PCB</title>
+  <title>Web EDA Mini Pro — Đi Dây Vuông Góc A*, TLV9062, Lưu/Mở Dự Án JSON & Auto-PCB</title>
   <style>
     :root {
       --bg-app: #090d16;
@@ -125,9 +125,9 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      height: 38px;
-      padding: 0 11px;
+      gap: 5px;
+      height: 36px;
+      padding: 0 10px;
       border-radius: 8px;
       border: 1px solid var(--border-color);
       background: var(--bg-card);
@@ -158,6 +158,20 @@
       color: #ffffff;
       font-weight: 700;
       box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-io {
+      background: #17253b;
+      border-color: #38bdf8;
+      color: #e0f2fe;
+      font-weight: 700;
+    }
+
+    .btn-danger-soft {
+      background: rgba(239, 68, 68, 0.14);
+      border-color: #f87171;
+      color: #fecaca;
+      font-weight: 700;
     }
 
     .btn-sample {
@@ -356,6 +370,17 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
     }
 
+    .autosave-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      padding: 2px 7px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+
     .dot-indicator {
       width: 8px;
       height: 8px;
@@ -523,7 +548,7 @@
       margin-top: 10px;
     }
 
-    /* Library Search & Custom Component Builder Modal Drawer */
+    /* Library Search, Custom Component Builder & Confirmation Modals */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -551,6 +576,16 @@
       flex-direction: column;
       overflow: hidden;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+    }
+
+    .confirm-panel {
+      width: 100%;
+      max-width: 430px;
+      background: #0f172a;
+      border: 1px solid #f87171;
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
     }
 
     .modal-top {
@@ -989,11 +1024,21 @@
         <div class="brand-logo">EDA</div>
         <div class="brand-titles">
           <h1>Web EDA Mini Pro</h1>
-          <p>Orthogonal A* Schematic • TLV9062 / BAT54S • MNA Spice & Auto-PCB</p>
+          <p>Auto-Save • JSON Import/Export • Orthogonal A* • TLV9062 & Auto-PCB</p>
         </div>
       </div>
 
       <div class="header-actions">
+        <button id="btnExportJson" class="btn btn-io" title="Đóng gói sơ đồ, linh kiện custom và PCB thành file du_an_mach.json">
+          <span>💾 Lưu file (.json)</span>
+        </button>
+        <button id="btnImportJson" class="btn btn-io" title="Mở file dự án .json đã lưu từ điện thoại/máy tính">
+          <span>📂 Mở file</span>
+        </button>
+        <input id="inpImportJsonFile" type="file" accept=".json,application/json" style="display:none;" />
+        <button id="btnNewBlankProject" class="btn btn-danger-soft" title="Xóa bản nháp hiện tại để tạo mạch mới từ đầu">
+          <span>🗑️ Tạo mạch mới (Xóa trắng)</span>
+        </button>
         <button id="btnAutoLayoutSchem" class="btn btn-tidy" title="Tự động sắp xếp gọn sơ đồ theo luồng tín hiệu & đi dây vuông góc A*">
           <span>✨ Sắp xếp gọn sơ đồ</span>
         </button>
@@ -1071,11 +1116,12 @@
           </div>
         </div>
 
-        <!-- Top Right Status & Zoom Controls -->
+        <!-- Top Right Status, Auto-Save Badge & Zoom Controls -->
         <div class="floating-top-right">
           <div class="status-pill">
             <span id="statusDot" class="dot-indicator"></span>
             <span id="statusText">Chạm lần 1: Chọn & Kéo • Chạm lần 2: Sửa thông số • Chạm chân đỏ: Nối dây</span>
+            <span id="autoSaveBadge" class="autosave-badge">✓ Đã lưu tự động</span>
           </div>
           <div class="zoom-bar">
             <button id="btnZoomOut" class="zoom-btn" title="Thu nhỏ">−</button>
@@ -1241,7 +1287,7 @@
       </section>
     </main>
 
-    <!-- MODAL: COMPONENT SEARCH & EXTENDED IC LIBRARY + CUSTOM COMPONENT BUILDER -->
+    <!-- MODAL 1: COMPONENT SEARCH & EXTENDED IC LIBRARY + CUSTOM COMPONENT BUILDER -->
     <div id="libraryModal" class="modal-backdrop">
       <div class="modal-panel">
         <div class="modal-top">
@@ -1357,6 +1403,22 @@
       </div>
     </div>
 
+    <!-- MODAL 2: CONFIRM NEW BLANK PROJECT DIALOG -->
+    <div id="confirmNewModal" class="modal-backdrop">
+      <div class="confirm-panel">
+        <h3 style="font-size:15px;font-weight:800;color:#fca5a5;margin-bottom:8px;">🗑️ Xác nhận tạo mạch mới (Xóa trắng)?</h3>
+        <p style="font-size:12.5px;color:#cbd5e1;line-height:1.5;margin-bottom:16px;">
+          Thao tác này sẽ xóa toàn bộ linh kiện, dây nối trên màn hình và bản nháp đang lưu tự động trong trình duyệt để bắt đầu một dự án trống mới từ đầu. Bạn có chắc chắn muốn tiếp tục?
+        </p>
+        <div style="display:flex;justify-content:flex-end;gap:8px;">
+          <button id="btnCancelNewProject" class="btn">Hủy Bỏ</button>
+          <button id="btnConfirmNewProject" class="btn" style="background:#ef4444;border-color:#f87171;color:#fff;font-weight:700;">
+            <span>✓ Đồng Ý Xóa Trắng</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast Feedback -->
     <div id="toastBox" class="toast-box">Đã nạp mạch mẫu!</div>
   </div>
@@ -1366,24 +1428,26 @@
       'use strict';
 
       /* =========================================================================
-       * 1. APPLICATION STATE & CONFIGURATION
+       * 1. APPLICATION STATE & STORAGE KEYS
        * ========================================================================= */
       const GRID_SIZE = 20;
-      const SCHEM_ROUTE_STEP = 10; // 10px sub-grid for Manhattan A* schematic routing
+      const SCHEM_ROUTE_STEP = 10;
       const PIN_HIT_RADIUS = 15;
+      const STORAGE_KEY_PROJECT = 'web_eda_autosave_project_v1';
+      const STORAGE_KEY_CUSTOM_DEFS = 'web_eda_custom_defs';
 
       const state = {
         view: 'SCHEMATIC', // 'SCHEMATIC' | 'SIMULATION' | 'PCB'
         tool: 'SELECT',    // 'SELECT' | 'WIRE' | 'DELETE'
         components: [],
         wires: [],         // { id, fromCompId, fromPinId, toCompId, toPinId }
-        schemRoutedWires: [], // Cached orthogonal A* paths for schematic wires
-        schemJunctions: [],   // Same-net T/cross junction dots { x, y }
-        schemBridges: [],     // Different-net wire jumper arcs { x, y }
+        schemRoutedWires: [],
+        schemJunctions: [],
+        schemBridges: [],
         selectedCompId: null,
-        inspectorOpen: false, // 2-step touch logic: true ONLY on 2nd tap on selected component
+        inspectorOpen: false,
         selectedWireId: null,
-        wiringStart: null, // { compId, pinId }
+        wiringStart: null,
         pointerWorld: { x: 0, y: 0 },
         camera: {
           x: 40,
@@ -1729,7 +1793,7 @@
       };
 
       /* =========================================================================
-       * 3. HELPER UTILITIES & GEOMETRY TRANSFORMS
+       * 3. HELPER UTILITIES, AUTO-SAVE (LOCALSTORAGE) & JSON EXPORT/IMPORT
        * ========================================================================= */
       function snapToGrid(val) {
         return Math.round(val / GRID_SIZE) * GRID_SIZE;
@@ -1751,6 +1815,157 @@
         return COMPONENT_DEFS[comp.type];
       }
 
+      function getCustomDefsObject() {
+        const customObj = {};
+        Object.keys(COMPONENT_DEFS).forEach(k => {
+          if (COMPONENT_DEFS[k] && COMPONENT_DEFS[k].category === 'CUSTOM') {
+            customObj[k] = COMPONENT_DEFS[k];
+          }
+        });
+        return customObj;
+      }
+
+      function serializeProjectData() {
+        const pcbPositions = {};
+        if (state.pcbBoard && state.pcbBoard.footprints) {
+          state.pcbBoard.footprints.forEach(fp => {
+            pcbPositions[fp.compId] = { x: fp.x, y: fp.y };
+          });
+        }
+        return {
+          app: 'Web_EDA_Mini_Pro',
+          version: '4.0',
+          savedAt: new Date().toISOString(),
+          nextIdCounter: state.nextIdCounter,
+          components: state.components,
+          wires: state.wires,
+          customDefs: getCustomDefsObject(),
+          pcbPositions
+        };
+      }
+
+      function autoSaveToLocalStorage() {
+        try {
+          const payload = serializeProjectData();
+          localStorage.setItem(STORAGE_KEY_PROJECT, JSON.stringify(payload));
+          localStorage.setItem(STORAGE_KEY_CUSTOM_DEFS, JSON.stringify(payload.customDefs));
+          const badge = document.getElementById('autoSaveBadge');
+          if (badge) {
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
+            badge.textContent = `✓ Đã lưu tự động (${hh}:${mm}:${ss})`;
+          }
+        } catch (err) {
+          // Ignore sandboxed storage quota errors
+        }
+      }
+
+      function restoreProjectFromData(data, showNotification) {
+        if (!data || !Array.isArray(data.components) || !Array.isArray(data.wires)) {
+          return false;
+        }
+        if (data.customDefs && typeof data.customDefs === 'object') {
+          Object.keys(data.customDefs).forEach(k => {
+            COMPONENT_DEFS[k] = data.customDefs[k];
+          });
+        }
+        state.components = data.components;
+        state.wires = data.wires;
+        state.nextIdCounter = Number(data.nextIdCounter) || (state.components.length + state.wires.length + 25);
+        state.selectedCompId = null;
+        state.inspectorOpen = false;
+        state.selectedWireId = null;
+        state.wiringStart = null;
+        state.history = [];
+
+        // Restore PCB footprint coordinates if saved
+        if (data.pcbPositions && typeof data.pcbPositions === 'object') {
+          state.pcbBoard.footprints = state.components.map(c => {
+            const pos = data.pcbPositions[c.id];
+            return {
+              compId: c.id,
+              x: pos ? pos.x : 120,
+              y: pos ? pos.y : 120,
+              pads: []
+            };
+          });
+          generatePcbLayoutAndRoute(false);
+        } else {
+          generatePcbLayoutAndRoute(true);
+        }
+
+        saveHistorySnapshot();
+        computeSchematicWireRoutes();
+        fitSchematicToScreen();
+        updateHeaderBadges();
+        updateInspectorUI();
+        runMnaSimulation();
+
+        if (showNotification) {
+          showToast('Đã khôi phục dự án mạch thành công!');
+        }
+        return true;
+      }
+
+      function tryRestoreFromLocalStorage() {
+        try {
+          const savedCustom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_DEFS) || '{}');
+          Object.keys(savedCustom).forEach(k => {
+            if (!COMPONENT_DEFS[k]) {
+              COMPONENT_DEFS[k] = savedCustom[k];
+            }
+          });
+          const rawProj = localStorage.getItem(STORAGE_KEY_PROJECT);
+          if (!rawProj) return false;
+          const parsed = JSON.parse(rawProj);
+          if (parsed && Array.isArray(parsed.components)) {
+            restoreProjectFromData(parsed, false);
+            showToast('Đã tự động khôi phục bản vẽ đang làm dở từ bộ nhớ trình duyệt');
+            return true;
+          }
+        } catch (err) {
+          // Ignore storage read error
+        }
+        return false;
+      }
+
+      function exportProjectAsJsonFile() {
+        const data = serializeProjectData();
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'du_an_mach.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+        showToast('💾 Đã xuất và tải xuống file du_an_mach.json!');
+      }
+
+      function importProjectFromJsonFile(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+          try {
+            const parsed = JSON.parse(String(e.target.result || ''));
+            if (!parsed || !Array.isArray(parsed.components) || !Array.isArray(parsed.wires)) {
+              showToast('⚠️ File JSON không đúng định dạng dự án Web EDA!');
+              return;
+            }
+            restoreProjectFromData(parsed, false);
+            autoSaveToLocalStorage();
+            showToast(`📂 Đã mở file "${file.name}" (${state.components.length} linh kiện, ${state.wires.length} dây nối)!`);
+          } catch (err) {
+            showToast('⚠️ Không thể đọc file JSON. Vui lòng kiểm tra lại tệp!');
+          }
+        };
+        reader.readAsText(file);
+      }
+
       function saveHistorySnapshot() {
         const snap = JSON.stringify({
           components: state.components,
@@ -1758,12 +1973,14 @@
           nextIdCounter: state.nextIdCounter
         });
         if (state.history.length > 0 && state.history[state.history.length - 1] === snap) {
+          autoSaveToLocalStorage();
           return;
         }
         state.history.push(snap);
         if (state.history.length > 30) {
           state.history.shift();
         }
+        autoSaveToLocalStorage();
       }
 
       function undoLastAction() {
@@ -1779,10 +1996,12 @@
         state.selectedCompId = null;
         state.inspectorOpen = false;
         state.wiringStart = null;
+        updateHeaderBadges();
         updateInspectorUI();
         runMnaSimulation();
         computeSchematicWireRoutes();
         generatePcbLayoutAndRoute(false);
+        autoSaveToLocalStorage();
         showToast('Đã hoàn tác thao tác trước');
       }
 
@@ -1806,7 +2025,6 @@
         };
       }
 
-      // Compute outward escape direction vector (unit step on SCHEM_ROUTE_STEP grid) from component center through pin
       function getPinEscapeStep(comp, pinId) {
         const def = getComponentDef(comp);
         if (!def) return { dx: 0, dy: 0 };
@@ -1840,7 +2058,6 @@
         const rot = ((comp.rotation || 0) % 360 + 360) % 360;
         const rw = (rot === 90 || rot === 270) ? h : w;
         const rh = (rot === 90 || rot === 270) ? w : h;
-        // Shrink obstacle box slightly inside pin terminals (by 12px) so pins sit outside obstacle body
         const halfW = Math.max(14, rw * 0.5 - 12);
         const halfH = Math.max(12, rh * 0.5 - 12);
         return {
@@ -1853,7 +2070,7 @@
 
       function computeSchematicWireRoutes() {
         const netlist = extractNetlist();
-        const step = SCHEM_ROUTE_STEP; // 10px grid
+        const step = SCHEM_ROUTE_STEP;
 
         if (state.wires.length === 0) {
           state.schemRoutedWires = [];
@@ -1862,7 +2079,6 @@
           return;
         }
 
-        // Determine bounding world box for A* grid
         let minWx = Infinity, minWy = Infinity, maxWx = -Infinity, maxWy = -Infinity;
         state.components.forEach(c => {
           minWx = Math.min(minWx, c.x - 140);
@@ -1894,7 +2110,6 @@
           return gy * gCols + gx;
         }
 
-        // 1. Mark Component Symbol Bodies as Obstacles (1 = body obstacle)
         const obstacleGrid = new Uint8Array(gCols * gRows);
         state.components.forEach(comp => {
           const box = getComponentObstacleBox(comp);
@@ -1909,7 +2124,6 @@
           }
         });
 
-        // 2. Also mark all component pins with their netId so a wire never runs across an unrelated pin
         const pinOwnerGrid = new Int16Array(gCols * gRows).fill(-1);
         state.components.forEach(comp => {
           const def = getComponentDef(comp);
@@ -1921,11 +2135,10 @@
             const nodeId = netlist.pinKeyToNode.get(comp.id + ':' + p.id) ?? -2;
             const c = cellIdx(gx, gy);
             pinOwnerGrid[c] = nodeId;
-            obstacleGrid[c] = 0; // Ensure pin itself is accessible
+            obstacleGrid[c] = 0;
           });
         });
 
-        // Track horizontal & vertical wire occupancy on each cell: stores netId (+1 offset so 0 = GND is stored as 1, 0 means empty)
         const horizNetGrid = new Int16Array(gCols * gRows).fill(0);
         const vertNetGrid = new Int16Array(gCols * gRows).fill(0);
 
@@ -1960,7 +2173,6 @@
           const tx = toGx(p2.x);
           const ty = toGy(p2.y);
 
-          // Unblock immediate escape cells from start and end pins
           const sxEsc = Math.max(1, Math.min(gCols - 2, sx + esc1.dx));
           const syEsc = Math.max(1, Math.min(gRows - 2, sy + esc1.dy));
           const txEsc = Math.max(1, Math.min(gCols - 2, tx + esc2.dx));
@@ -2046,39 +2258,31 @@
               const isStartOrGoal = (nCell === startC || nCell === goalC ||
                 (nx === sxEsc && ny === syEsc) || (nx === txEsc && ny === tyEsc));
 
-              // Avoid component bodies
               if (!isStartOrGoal && obstacleGrid[nCell]) continue;
 
-              // Avoid stepping onto another net's pin terminal
               const pinOwner = pinOwnerGrid[nCell];
               if (pinOwner !== -1 && pinOwner !== netId && nCell !== goalC) continue;
 
               let stepCost = 10;
 
-              // Prefer exiting start pin along its escape direction
               if (curr === startC && (dir.dx !== esc1.dx || dir.dy !== esc1.dy)) {
                 if (esc1.dx !== 0 || esc1.dy !== 0) stepCost += 28;
               }
 
-              // Bend penalty to produce clean 90-degree corners
               if (prevDx !== dir.dx || prevDy !== dir.dy) {
                 stepCost += 18;
               }
 
-              // Check wire overlap & crossing
               const hOcc = horizNetGrid[nCell];
               const vOcc = vertNetGrid[nCell];
 
               if (dir.isHoriz) {
                 if (hOcc !== 0 && hOcc !== netTag) {
-                  // Do not overlap parallel wire of a different net!
                   stepCost += 240;
                 } else if (hOcc === netTag) {
-                  // Slight discount to share existing trace of the same net
                   stepCost -= 2;
                 }
                 if (vOcc !== 0 && vOcc !== netTag) {
-                  // Perpendicular crossing over another net (will render a Jumper Bridge!)
                   stepCost += 26;
                 }
               } else {
@@ -2113,7 +2317,6 @@
             }
             gridPoints.reverse();
           } else {
-            // Fallback 3-segment Manhattan L/Z path if completely boxed in
             const midGx = Math.round((sx + tx) * 0.5);
             gridPoints.push(
               { gx: sx, gy: sy, x: p1.x, y: p1.y },
@@ -2123,7 +2326,6 @@
             );
           }
 
-          // Record segments onto horizNetGrid / vertNetGrid
           for (let i = 0; i < gridPoints.length - 1; i++) {
             const a = gridPoints[i];
             const b = gridPoints[i + 1];
@@ -2142,7 +2344,6 @@
             }
           }
 
-          // Compress collinear points into corner vertices for crisp rendering & hit-testing
           const simplified = [];
           for (let i = 0; i < gridPoints.length; i++) {
             const pt = { x: gridPoints[i].x, y: gridPoints[i].y };
@@ -2165,11 +2366,9 @@
           });
         });
 
-        // 3. Detect Same-Net T-Junctions / 4-Way Crosses AND Different-Net Wire Bridges
-        // Break all routed wires into unit grid edges to count exact degree per grid node per net
-        const nodeDegreeMap = new Map(); // key: `${gx},${gy},${netTag}` -> Set of directions ('L','R','U','D')
-        const horizSegAtCell = new Map(); // key: `${gx},${gy}` -> netTag (for interior horizontal pass-through)
-        const vertSegAtCell = new Map();  // key: `${gx},${gy}` -> netTag (for interior vertical pass-through)
+        const nodeDegreeMap = new Map();
+        const horizSegAtCell = new Map();
+        const vertSegAtCell = new Map();
 
         function addDir(gx, gy, netTag, dirChar) {
           const k = `${gx},${gy},${netTag}`;
@@ -2220,7 +2419,6 @@
           }
         });
 
-        // Different-net perpendicular crossings -> Jumper Bridges on the horizontal wire
         const bridges = [];
         horizSegAtCell.forEach((hNetTag, cellKey) => {
           const vNetTag = vertSegAtCell.get(cellKey);
@@ -2245,9 +2443,6 @@
       function autoLayoutSchematic() {
         if (state.components.length === 0) return;
 
-        // Classify components by role for clean Left -> Right signal flow:
-        // Left: Sources (V_SRC) -> Middle-Left: Input Protection (R, D_DUAL, BAV99, D, C) -> Middle-Right: Op-Amp / ICs (TLV9062, LM358, OPAMP) -> Right: Probes / ADC
-        // Top row: V_RAIL (VCC), Bottom row: GND
         const sources = [];
         const inputProbes = [];
         const passivesAndClamps = [];
@@ -2257,7 +2452,7 @@
         const gnds = [];
 
         state.components.forEach(c => {
-          c.rotation = 0; // Reset rotation to clean standard orientation
+          c.rotation = 0;
           if (c.type === 'V_SRC') {
             sources.push(c);
           } else if (c.type === 'V_RAIL') {
@@ -2278,19 +2473,16 @@
           }
         });
 
-        // 1. Place Sources on the Left (x = 120)
         sources.forEach((c, i) => {
           c.x = 120;
           c.y = 220 + i * 160;
         });
 
-        // 2. Place Input Probes above input line (x = 220, y = 100)
         inputProbes.forEach((c, i) => {
           c.x = 220 + i * 120;
           c.y = 100;
         });
 
-        // 3. Place Passives & Clamping Diodes in spaced signal chain (x = 260 .. 580)
         let curStageX = 260;
         passivesAndClamps.forEach((c) => {
           if (c.type === 'R' || c.type === 'R_0603') {
@@ -2312,14 +2504,12 @@
           }
         });
 
-        // 4. Place Active ICs / Op-Amps (TLV9062 SOIC-8) in Middle-Right with generous routing channels
         const icBaseX = Math.max(660, curStageX + 60);
         activeICs.forEach((c, i) => {
           c.x = snapToGrid(icBaseX + i * 220);
           c.y = 220;
         });
 
-        // 5. Place Output Probes / ADC on the Far Right
         const outBaseX = activeICs.length > 0
           ? activeICs[activeICs.length - 1].x + 160
           : Math.max(760, curStageX + 80);
@@ -2328,9 +2518,7 @@
           c.y = 180 + i * 100;
         });
 
-        // 6. Place V_RAIL (VCC 3.3V) neatly along the Top Rail (y = 80), aligned near connected component
         vRails.forEach((vcc, i) => {
-          // Find connected component X if any
           const connWire = state.wires.find(w => w.fromCompId === vcc.id || w.toCompId === vcc.id);
           let targetX = 380 + i * 320;
           if (connWire) {
@@ -2346,7 +2534,6 @@
           vcc.y = 80;
         });
 
-        // 7. Place GND components neatly along the Bottom Rail (y = 380), aligned below connected component
         const usedGndX = new Set();
         gnds.forEach((gnd, i) => {
           const connWire = state.wires.find(w => w.fromCompId === gnd.id || w.toCompId === gnd.id);
@@ -2375,7 +2562,6 @@
 
       function loadHighSpeedAdcProtectionSample() {
         state.components = [
-          // 1. High-voltage Pulse Source (12V surge / -2V undershoot, 10kHz)
           {
             id: 'c_vsrc',
             type: 'V_SRC',
@@ -2391,7 +2577,6 @@
               duty: 45
             }
           },
-          // 2. Ground for Source V1-
           {
             id: 'c_gnd1',
             type: 'GND',
@@ -2401,7 +2586,6 @@
             rotation: 0,
             params: {}
           },
-          // 3. Probe on Raw Input (12V Surge)
           {
             id: 'c_prb_in',
             type: 'PROBE',
@@ -2416,7 +2600,6 @@
               color: '#f59e0b'
             }
           },
-          // 4. Series Current-Limiting Resistor R1 = 220 Ohm (0805)
           {
             id: 'c_r1',
             type: 'R',
@@ -2429,7 +2612,6 @@
               packageType: 'SMD_0805'
             }
           },
-          // 5. SOT-23 Dual Schottky Clamping Diode (BAT54S)
           {
             id: 'c_d1',
             type: 'D_DUAL',
@@ -2444,7 +2626,6 @@
               partNumber: 'BAT54S (SOT-23)'
             }
           },
-          // 6. 3.3V Reference Rail for Upper Diode Clamp
           {
             id: 'c_vcc',
             type: 'V_RAIL',
@@ -2456,7 +2637,6 @@
               voltage: 3.3
             }
           },
-          // 7. Ground for Lower Diode Clamp
           {
             id: 'c_gnd2',
             type: 'GND',
@@ -2466,7 +2646,6 @@
             rotation: 0,
             params: {}
           },
-          // 8. Anti-Aliasing RC Filter Resistor R2 = 100 Ohm (0805)
           {
             id: 'c_r2',
             type: 'R',
@@ -2479,7 +2658,6 @@
               packageType: 'SMD_0805'
             }
           },
-          // 9. Anti-Aliasing High-Speed Filter Capacitor C1 = 1.5 nF (0805)
           {
             id: 'c_c1',
             type: 'C',
@@ -2492,7 +2670,6 @@
               packageType: 'SMD_0805'
             }
           },
-          // 10. Ground for Filter Capacitor C1
           {
             id: 'c_gnd3',
             type: 'GND',
@@ -2502,7 +2679,6 @@
             rotation: 0,
             params: {}
           },
-          // 11. Dual High-Speed 10MHz Rail-to-Rail Op-Amp TLV9062 (SOIC-8, 8 pins)
           {
             id: 'c_u1',
             type: 'TLV9062',
@@ -2520,7 +2696,6 @@
               gain: 10000
             }
           },
-          // 12. 3.3V Supply Rail for TLV9062 Pin 8 (VCC)
           {
             id: 'c_vcc_op',
             type: 'V_RAIL',
@@ -2532,7 +2707,6 @@
               voltage: 3.3
             }
           },
-          // 13. Ground for TLV9062 Pin 4 (GND)
           {
             id: 'c_gnd_op',
             type: 'GND',
@@ -2542,7 +2716,6 @@
             rotation: 0,
             params: {}
           },
-          // 14. Protected High-Speed ADC Pin Probe (Connected to TLV9062 Pin 1 OUTA)
           {
             id: 'c_adc',
             type: 'PROBE',
@@ -3211,7 +3384,7 @@
                 ? `IC Op-Amp kép <b>TLV9062 (SOIC-8, 10MHz Rail-to-Rail)</b> đệm tín hiệu tại Kênh A (Chân 3 <code>INA+</code> ➔ Chân 1 <code>OUTA</code>) và giới hạn bão hòa tuyệt đối trong dải nguồn cấp [Chân 4 <code>GND</code> 0V ÷ Chân 8 <code>VCC</code> 3.3V].`
                 : ''}
             </div>
-            <div>• <b>Đi dây vuông góc & Cầu nhảy (Wire Bridge):</b> Sơ đồ nguyên lý tự động tìm đường A* vuông góc tránh đè lên ký hiệu linh kiện, vẽ chấm tròn tại ngã ba cùng mạng và vòm cung nhảy qua dây khác mạng.</div>
+            <div>• <b>Lưu trữ tự động & JSON:</b> Mọi thay đổi được tự động lưu vào <code>localStorage</code> và có thể xuất/nhập độc lập qua file <code>du_an_mach.json</code>.</div>
           `;
         }
       }
@@ -3801,12 +3974,11 @@
         zBtn.textContent = Math.round(cam.zoom * 100) + '%';
       }
 
-      // Draw a horizontal segment with semicircular Wire Bridges (Jumper Arcs) wherever it crosses a vertical wire of another net
       function drawHorizontalSegmentWithBridges(ctx, x1, x2, y, bridgesOnRow) {
         const dir = x2 >= x1 ? 1 : -1;
         const minX = Math.min(x1, x2);
         const maxX = Math.max(x1, x2);
-        const r = 6.5; // Jumper bridge radius
+        const r = 6.5;
 
         const hits = bridgesOnRow
           .filter(b => b.x > minX + r && b.x < maxX - r)
@@ -3857,7 +4029,6 @@
           }
         }
 
-        // 1. Draw A* Routed Orthogonal Wires (with Wire Jumper Bridges at different-net crossings)
         state.schemRoutedWires.forEach(rw => {
           const pts = rw.points;
           if (!pts || pts.length < 2) return;
@@ -3885,7 +4056,6 @@
           ctx.stroke();
         });
 
-        // 2. Draw Same-Net T-Junction & 4-Way Cross Dots
         state.schemJunctions.forEach(j => {
           ctx.beginPath();
           ctx.arc(j.x, j.y, 4.4, 0, Math.PI * 2);
@@ -3896,7 +4066,6 @@
           ctx.stroke();
         });
 
-        // 3. Active rubber-band orthogonal preview wire when user is connecting pins
         if (state.wiringStart) {
           const cStart = state.components.find(c => c.id === state.wiringStart.compId);
           if (cStart) {
@@ -3916,7 +4085,6 @@
           }
         }
 
-        // 4. Draw Schematic Components
         state.components.forEach(comp => {
           drawSchematicComponent(ctx, comp);
         });
@@ -3937,7 +4105,6 @@
         ctx.translate(comp.x, comp.y);
         ctx.rotate(((comp.rotation || 0) * Math.PI) / 180);
 
-        // Bright dashed selection bounding frame when selected (State 1 & State 2)
         if (isSelected) {
           ctx.fillStyle = 'rgba(6, 182, 212, 0.14)';
           ctx.strokeStyle = '#22d3ee';
@@ -4194,7 +4361,6 @@
 
         ctx.restore();
 
-        // Designator & Value Labels
         ctx.save();
         ctx.font = 'bold 11.5px sans-serif';
         ctx.fillStyle = '#f8fafc';
@@ -4225,7 +4391,6 @@
           }
         }
 
-        // If selected in State 1 (not yet editing), show floating touch hint pill above component
         if (isSelected && !state.inspectorOpen) {
           const hintText = 'Chạm lần 2: Sửa thông số';
           ctx.font = 'bold 10px sans-serif';
@@ -4240,7 +4405,6 @@
           ctx.fillText(hintText, comp.x, hy + 13);
         }
 
-        // Interactive Pin Terminals
         def.pins.forEach(pin => {
           const worldPos = getPinWorldPos(comp, pin.id);
           const isWiringOrigin = state.wiringStart &&
@@ -4313,7 +4477,7 @@
 
         ctx.fillStyle = 'rgba(255, 255, 255, 0.78)';
         ctx.font = 'bold 11px monospace';
-        ctx.fillText(`WEB-EDA-MINI PCB REV 3.2 • TLV9062 SOIC-8 & BAT54S • ${(board.width * 0.12).toFixed(0)}x${(board.height * 0.12).toFixed(0)}mm`, 44, 24);
+        ctx.fillText(`WEB-EDA-MINI PCB REV 4.0 • TLV9062 SOIC-8 & BAT54S • ${(board.width * 0.12).toFixed(0)}x${(board.height * 0.12).toFixed(0)}mm`, 44, 24);
 
         board.routes.filter(r => r.layer === 1).forEach(route => {
           drawCopperPolyline(ctx, route.points, '#3b82f6', 4.2);
@@ -4697,6 +4861,7 @@
             comp.params[key] = val;
             runMnaSimulation();
             generatePcbLayoutAndRoute(false);
+            autoSaveToLocalStorage();
           });
           inp.addEventListener('change', () => {
             saveHistorySnapshot();
@@ -4883,17 +5048,10 @@
           pins
         };
 
-        try {
-          const savedCustom = JSON.parse(localStorage.getItem('web_eda_custom_defs') || '{}');
-          savedCustom[partKey] = COMPONENT_DEFS[partKey];
-          localStorage.setItem('web_eda_custom_defs', JSON.stringify(savedCustom));
-        } catch (err) {
-          // Ignore storage error
-        }
-
         addComponentToSchematic(partKey);
+        autoSaveToLocalStorage();
         closeLibraryModal();
-        showToast(`Đã tạo linh kiện ${rawName} (${pinCount} chân) và đặt lên sơ đồ!`);
+        showToast(`Đã tạo linh kiện ${rawName} (${pinCount} chân) và lưu tự động!`);
       }
 
       function openLibraryModal(mode) {
@@ -4929,9 +5087,6 @@
 
       /* =========================================================================
        * 13. UNIFIED 2-STEP TOUCH & MOUSE INTERACTION CONTROLLER
-       *     - Tap 1 on unselected component: Select + Drag & Drop (NO modal)
-       *     - Tap 2 on ALREADY selected component (without drag): Open Properties Modal
-       *     - Tap on empty canvas: Deselect & close modal
        * ========================================================================= */
       let isPointerDown = false;
       let dragMode = null;
@@ -5032,7 +5187,6 @@
           return;
         }
 
-        // 1. Check Pin Hit for Wiring
         const hitPin = findHitPin(wpos.x, wpos.y);
         if (hitPin && state.tool !== 'DELETE') {
           if (!state.wiringStart) {
@@ -5072,7 +5226,6 @@
           }
         }
 
-        // 2. Check Component Hit (2-Step Tap-to-Select vs Tap-to-Edit)
         const hitComp = findHitComponent(wpos.x, wpos.y);
         if (hitComp) {
           if (state.tool === 'DELETE') {
@@ -5082,10 +5235,8 @@
           state.wiringStart = null;
           state.selectedWireId = null;
 
-          // Record whether this component was ALREADY selected before this tap
           wasCompAlreadySelectedOnDown = (state.selectedCompId === hitComp.id);
 
-          // State 1: Select component & prepare drag-and-drop (do NOT open modal yet!)
           state.selectedCompId = hitComp.id;
           if (!wasCompAlreadySelectedOnDown) {
             state.inspectorOpen = false;
@@ -5098,7 +5249,6 @@
           return;
         }
 
-        // 3. Check Wire Hit
         const hitWire = findHitWire(wpos.x, wpos.y);
         if (hitWire) {
           if (state.tool === 'DELETE') {
@@ -5117,7 +5267,6 @@
           return;
         }
 
-        // 4. Tap on Empty Canvas Space: Deselect current component & close Inspector modal
         state.wiringStart = null;
         state.selectedCompId = null;
         state.inspectorOpen = false;
@@ -5175,13 +5324,9 @@
       function handlePointerUp(clientX, clientY) {
         if (isPointerDown && dragMode === 'MOVE_COMP') {
           if (hasDraggedDuringTap) {
-            // Finished dragging component to a new position
             saveHistorySnapshot();
             computeSchematicWireRoutes();
           } else {
-            // Tap without dragging:
-            // State 1 -> First tap just selected the component (keep inspector closed)
-            // State 2 -> Second tap on the ALREADY selected component opens the Properties Modal!
             if (wasCompAlreadySelectedOnDown) {
               state.inspectorOpen = true;
               updateInspectorUI();
@@ -5196,7 +5341,8 @@
         } else if (isPointerDown && dragMode === 'MOVE_PCB_FP') {
           const netlist = extractNetlist();
           runPcbAutoRouterAStar(netlist);
-          showToast('Đã tự động đi dây A* lại theo vị trí Footprint mới');
+          autoSaveToLocalStorage();
+          showToast('Đã tự động đi dây A* lại & lưu vị trí Footprint');
         } else if (isPointerDown && state.wiringStart) {
           const wpos = screenToWorld(clientX, clientY);
           const endPin = findHitPin(wpos.x, wpos.y);
@@ -5400,10 +5546,62 @@
         runMnaSimulation();
       }
 
+      function clearBlankProjectAndStorage() {
+        state.components = [];
+        state.wires = [];
+        state.schemRoutedWires = [];
+        state.schemJunctions = [];
+        state.schemBridges = [];
+        state.selectedCompId = null;
+        state.inspectorOpen = false;
+        state.wiringStart = null;
+        try {
+          localStorage.removeItem(STORAGE_KEY_PROJECT);
+        } catch (err) {
+          // Ignore storage error
+        }
+        saveHistorySnapshot();
+        updateHeaderBadges();
+        updateInspectorUI();
+        runMnaSimulation();
+        generatePcbLayoutAndRoute(true);
+        const modal = document.getElementById('confirmNewModal');
+        if (modal) modal.classList.remove('open');
+        showToast('🗑️ Đã xóa trắng bản nháp — Bắt đầu dự án mạch mới!');
+      }
+
       function updateHeaderBadges() {
         const badgeComp = document.getElementById('badgeCompCount');
         if (badgeComp) badgeComp.textContent = state.components.length + ' LK';
       }
+
+      // Bind Save / Open JSON & New Blank Project Confirmation Modal
+      document.getElementById('btnExportJson').addEventListener('click', exportProjectAsJsonFile);
+
+      document.getElementById('btnImportJson').addEventListener('click', () => {
+        const fileInput = document.getElementById('inpImportJsonFile');
+        if (fileInput) {
+          fileInput.value = '';
+          fileInput.click();
+        }
+      });
+
+      document.getElementById('inpImportJsonFile').addEventListener('change', e => {
+        const file = e.target.files && e.target.files[0];
+        if (file) importProjectFromJsonFile(file);
+      });
+
+      document.getElementById('btnNewBlankProject').addEventListener('click', () => {
+        const modal = document.getElementById('confirmNewModal');
+        if (modal) modal.classList.add('open');
+      });
+
+      document.getElementById('btnCancelNewProject').addEventListener('click', () => {
+        const modal = document.getElementById('confirmNewModal');
+        if (modal) modal.classList.remove('open');
+      });
+
+      document.getElementById('btnConfirmNewProject').addEventListener('click', clearBlankProjectAndStorage);
 
       // Bind Auto-Layout Schematic Buttons
       document.getElementById('btnAutoLayoutSchem').addEventListener('click', () => {
@@ -5519,20 +5717,8 @@
       });
 
       document.getElementById('toolClear').addEventListener('click', () => {
-        state.components = [];
-        state.wires = [];
-        state.schemRoutedWires = [];
-        state.schemJunctions = [];
-        state.schemBridges = [];
-        state.selectedCompId = null;
-        state.inspectorOpen = false;
-        state.wiringStart = null;
-        saveHistorySnapshot();
-        updateHeaderBadges();
-        updateInspectorUI();
-        runMnaSimulation();
-        generatePcbLayoutAndRoute(true);
-        showToast('Đã làm mới toàn bộ bản vẽ');
+        const modal = document.getElementById('confirmNewModal');
+        if (modal) modal.classList.add('open');
       });
 
       document.getElementById('btnZoomIn').addEventListener('click', () => {
@@ -5565,12 +5751,14 @@
       document.getElementById('btnAutoPlacePCB').addEventListener('click', () => {
         generatePcbLayoutAndRoute(true);
         fitPcbToScreen();
+        autoSaveToLocalStorage();
         showToast('Đã sắp xếp tối ưu vị trí Footprint SOIC-8/SMD & đi dây lại');
       });
 
       document.getElementById('btnReroutePCB').addEventListener('click', () => {
         const netlist = extractNetlist();
         runPcbAutoRouterAStar(netlist);
+        autoSaveToLocalStorage();
         showToast('Đã chạy lại thuật toán tìm đường A* nối chính xác từng chân IC!');
       });
 
@@ -5595,21 +5783,8 @@
       });
 
       /* =========================================================================
-       * 15. MAIN ANIMATION LOOP & INITIALIZATION
+       * 15. MAIN ANIMATION LOOP & INITIALIZATION (AUTO-RESTORE ON STARTUP)
        * ========================================================================= */
-      function loadSavedCustomComponents() {
-        try {
-          const saved = JSON.parse(localStorage.getItem('web_eda_custom_defs') || '{}');
-          Object.keys(saved).forEach(k => {
-            if (!COMPONENT_DEFS[k]) {
-              COMPONENT_DEFS[k] = saved[k];
-            }
-          });
-        } catch (err) {
-          // Ignore storage error
-        }
-      }
-
       function animationLoop() {
         if (state.view === 'SCHEMATIC') {
           renderSchematicCanvas();
@@ -5629,9 +5804,12 @@
       });
 
       window.addEventListener('load', () => {
-        loadSavedCustomComponents();
         resizeCanvases();
-        loadHighSpeedAdcProtectionSample();
+        // Check localStorage first: if a saved draft exists, restore it; otherwise load the High-Speed ADC sample circuit
+        const restored = tryRestoreFromLocalStorage();
+        if (!restored) {
+          loadHighSpeedAdcProtectionSample();
+        }
         requestAnimationFrame(animationLoop);
       });
     })();
