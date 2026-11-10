@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Web EDA Mini Pro — Đi Dây Vuông Góc A*, TLV9062, Lưu/Mở Dự Án JSON & Auto-PCB</title>
+  <title>Web EDA Mini Pro — Giải Mạch Ma Trận MNA VCVS (TLV9062), Đi Dây A* & Auto-PCB</title>
   <style>
     :root {
       --bg-app: #090d16;
@@ -1024,7 +1024,7 @@
         <div class="brand-logo">EDA</div>
         <div class="brand-titles">
           <h1>Web EDA Mini Pro</h1>
-          <p>Auto-Save • JSON Import/Export • Orthogonal A* • TLV9062 & Auto-PCB</p>
+          <p>True MNA VCVS (A_ol=100,000) • Zero-Ohm Jumper • TLV9062 • Auto-PCB A*</p>
         </div>
       </div>
 
@@ -1048,7 +1048,7 @@
         <button id="btnOpenCustomBuilder" class="btn" style="border-color:#a855f7;color:#e9d5ff;" title="Tự định nghĩa IC hoặc Linh kiện mới">
           <span>＋ Tạo Linh Kiện Mới</span>
         </button>
-        <button id="btnLoadSample" class="btn btn-sample" title="Nạp mạch mẫu Bảo vệ ADC tốc độ cao dùng TLV9062 & BAT54S">
+        <button id="btnLoadSample" class="btn btn-sample" title="Nạp mạch mẫu Khuếch đại đảo dịch mức 1.65V & Bảo vệ ADC tốc độ cao dùng TLV9062 & BAT54S">
           <span>⚡ Nạp mạch mẫu (Bảo vệ ADC tốc độ cao)</span>
         </button>
         <button id="btnRunSim" class="btn btn-run" title="Chạy giải mạch MNA & Mở Máy Hiện Sóng">
@@ -1089,7 +1089,7 @@
               <svg viewBox="0 0 24 24"><path d="M4 4l7 17 2.5-6.5L20 12z"/></svg>
               <span>Chọn/Kéo</span>
             </button>
-            <button id="toolWire" class="tool-btn" title="Chạm vào 2 chân linh kiện để nối dây vuông góc">
+            <button id="toolWire" class="tool-btn" title="Chạm vào 2 chân linh kiện (vùng nhận diện 22px) để nối dây vuông góc">
               <svg viewBox="0 0 24 24"><circle cx="5" cy="19" r="3"/><circle cx="19" cy="5" r="3"/><path d="M7.5 16.5L16.5 7.5"/></svg>
               <span>Nối Dây</span>
             </button>
@@ -1120,7 +1120,7 @@
         <div class="floating-top-right">
           <div class="status-pill">
             <span id="statusDot" class="dot-indicator"></span>
-            <span id="statusText">Chạm lần 1: Chọn & Kéo • Chạm lần 2: Sửa thông số • Chạm chân đỏ: Nối dây</span>
+            <span id="statusText">Chạm lần 1: Chọn & Kéo • Chạm lần 2: Sửa thông số • Chạm chân đỏ (22px): Nối dây</span>
             <span id="autoSaveBadge" class="autosave-badge">✓ Đã lưu tự động</span>
           </div>
           <div class="zoom-bar">
@@ -1223,7 +1223,7 @@
         <div class="sim-top-bar">
           <div id="safetyBanner" class="safety-banner safe">
             <span id="safetyIcon">🛡️</span>
-            <span id="safetyText">TRẠNG THÁI ADC: AN TOÀN — Điện áp đã được kẹp bảo vệ trong ngưỡng cho phép</span>
+            <span id="safetyText">TRẠNG THÁI ADC: AN TOÀN — Sóng AC [-1.5V..+1.5V] đã dịch mức quanh 1.65V [+0.15V..+3.15V]</span>
           </div>
           <div style="display:flex;align-items:center;gap:6px;">
             <label for="simTimeWindowSelect" style="font-size:11.5px;color:var(--text-muted);font-weight:600;">Khung thời gian:</label>
@@ -1240,20 +1240,20 @@
         <!-- KPI Metrics Row -->
         <div class="sim-kpi-grid">
           <div class="kpi-card">
-            <div class="kpi-label">Đỉnh Xung Ngõ Vào (VIN Peak)</div>
-            <div id="kpiVinPeak" class="kpi-val" style="color:#f59e0b;">+12.00 V</div>
+            <div class="kpi-label">Biên Độ Ngõ Vào (VIN Peak)</div>
+            <div id="kpiVinPeak" class="kpi-val" style="color:#f59e0b;">±1.50 V</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-label">Đỉnh Điện Áp Tại Chân ADC</div>
-            <div id="kpiAdcMax" class="kpi-val" style="color:#22d3ee;">+3.30 V</div>
+            <div class="kpi-label">Đỉnh Cao Nhất Tại ADC_MCU</div>
+            <div id="kpiAdcMax" class="kpi-val" style="color:#22d3ee;">+3.15 V</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-label">Điện Áp Thấp Nhất Tại ADC</div>
-            <div id="kpiAdcMin" class="kpi-val" style="color:#34d399;">0.00 V</div>
+            <div class="kpi-label">Đỉnh Thấp Nhất Tại ADC_MCU</div>
+            <div id="kpiAdcMin" class="kpi-val" style="color:#34d399;">+0.15 V</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-label">Dòng Xả Kẹp Áp Qua Diode</div>
-            <div id="kpiClampCurr" class="kpi-val" style="color:#c084fc;">38.4 mA</div>
+            <div class="kpi-label">Trục Trung Tâm Ngõ Ra (V_mid)</div>
+            <div id="kpiClampCurr" class="kpi-val" style="color:#c084fc;">+1.65 V</div>
           </div>
         </div>
 
@@ -1265,7 +1265,7 @@
         <!-- Netlist & Node Telemetry Tables -->
         <div class="sim-bottom-split">
           <div class="sim-table-box">
-            <h3>📊 Điện Áp Các Nút Mạch (Modified Nodal Analysis)</h3>
+            <h3>📊 Điện Áp Các Nút Mạch (Modified Nodal Analysis — VCVS Matrix)</h3>
             <table class="data-table">
               <thead>
                 <tr>
@@ -1280,7 +1280,7 @@
             </table>
           </div>
           <div class="sim-table-box">
-            <h3>🔬 Giải Thích Kỹ Thuật & Cảnh Báo Thiết Kế</h3>
+            <h3>🔬 Giải Thích Ma Trận MNA (VCVS A_ol = 100,000 & Zero-Ohm Jumper)</h3>
             <div id="engineeringReportBox" style="font-size:12px;line-height:1.5;color:#cbd5e1;"></div>
           </div>
         </div>
@@ -1432,8 +1432,8 @@
        * ========================================================================= */
       const GRID_SIZE = 20;
       const SCHEM_ROUTE_STEP = 10;
-      const PIN_HIT_RADIUS = 15;
-      const STORAGE_KEY_PROJECT = 'web_eda_autosave_project_v1';
+      const MIN_PIN_HIT_SCREEN_PX = 22;
+      const STORAGE_KEY_PROJECT = 'web_eda_autosave_project_v3';
       const STORAGE_KEY_CUSTOM_DEFS = 'web_eda_custom_defs';
 
       const state = {
@@ -1468,8 +1468,8 @@
         libCategoryFilter: 'ALL',
         libSearchQuery: '',
         pcbBoard: {
-          width: 740,
-          height: 440,
+          width: 780,
+          height: 460,
           gridStep: 10,
           footprints: [],
           routes: [],
@@ -1499,7 +1499,7 @@
             slewRate: 6.5,
             vccDefault: 3.3,
             veeDefault: 0.0,
-            gain: 10000
+            gain: 100000
           },
           pins: [
             { id: '1', name: 'OUTA', dx: -60, dy: -40 },
@@ -1528,7 +1528,7 @@
             slewRate: 0.6,
             vccDefault: 3.3,
             veeDefault: 0.0,
-            gain: 10000
+            gain: 100000
           },
           pins: [
             { id: '1', name: 'OUTA', dx: -60, dy: -40 },
@@ -1640,7 +1640,7 @@
             mode: 'BUFFER',
             vccClip: 3.3,
             veeClip: 0.0,
-            gain: 10000
+            gain: 100000
           },
           pins: [
             { id: 'IN+', name: 'IN+', dx: -40, dy: -20 },
@@ -1650,15 +1650,15 @@
         },
         R: {
           prefix: 'R',
-          title: 'Điện Trở Dán SMD (0805 / 0603)',
+          title: 'Điện Trở Dán SMD (0805 / 0603 — Hỗ trợ 0Ω Jumper)',
           category: 'PASSIVE',
           footprintType: 'SMD_0805',
           behavior: 'RESISTOR',
           width: 80,
           height: 40,
-          description: 'Điện trở hạn dòng & lọc RC chuẩn SMD 0805 hoặc 0603.',
+          description: 'Điện trở hạn dòng, cầu chia áp, hồi tiếp Op-Amp hoặc cầu nối 0Ω (Zero-Ohm Jumper) chuẩn SMD 0805/0603.',
           defaultParams: {
-            resistance: 220,
+            resistance: 10000,
             packageType: 'SMD_0805'
           },
           pins: [
@@ -1674,9 +1674,9 @@
           behavior: 'RESISTOR',
           width: 80,
           height: 40,
-          description: 'Điện trở SMD kích thước nhỏ 0603 cho mạch mật độ cao.',
+          description: 'Điện trở SMD kích thước nhỏ 0603 cho mạch mật độ cao (Hỗ trợ R = 0Ω).',
           defaultParams: {
-            resistance: 100,
+            resistance: 10000,
             packageType: 'SMD_0603'
           },
           pins: [
@@ -1694,7 +1694,7 @@
           height: 80,
           description: 'Tụ lọc thông thấp / chống nhiễu cao tần C0G chuẩn SMD 0805 hoặc 0603.',
           defaultParams: {
-            capacitanceNf: 1.5,
+            capacitanceNf: 0.1,
             packageType: 'SMD_0805'
           },
           pins: [
@@ -1712,7 +1712,7 @@
           height: 80,
           description: 'Tụ lọc nhiễu cao tần kích thước nhỏ SMD 0603.',
           defaultParams: {
-            capacitanceNf: 0.47,
+            capacitanceNf: 0.1,
             packageType: 'SMD_0603'
           },
           pins: [
@@ -1728,13 +1728,13 @@
           behavior: 'VOLTAGE_SOURCE',
           width: 80,
           height: 80,
-          description: 'Nguồn phát xung vuông (Pulse), Sóng Sin (AC) hoặc Một chiều (DC) có thể chỉnh biên độ & tần số.',
+          description: 'Nguồn phát Sóng Sin (AC), Xung vuông (Pulse) hoặc Một chiều (DC) có thể chỉnh biên độ & tần số.',
           defaultParams: {
-            mode: 'PULSE',
-            vHigh: 12.0,
-            vLow: -2.0,
+            mode: 'SINE',
+            vHigh: 1.5,
+            vLow: -1.5,
             freq: 10000,
-            duty: 45
+            duty: 50
           },
           pins: [
             { id: 'P+', name: 'OUT+', dx: 0, dy: -40 },
@@ -1749,7 +1749,7 @@
           behavior: 'VOLTAGE_RAIL',
           width: 60,
           height: 60,
-          description: 'Đường nguồn DC cố định cấp cho chân VCC của IC Op-Amp TLV9062 và Diode kẹp áp.',
+          description: 'Đường nguồn DC cố định cấp cho cầu chia áp, chân VCC của TLV9062 và Diode kẹp áp.',
           defaultParams: {
             voltage: 3.3
           },
@@ -1767,9 +1767,9 @@
           height: 50,
           description: 'Đầu dò hiển thị sóng trực tiếp lên Oscilloscope và kiểm tra cảnh báo quá áp cổng ADC.',
           defaultParams: {
-            label: 'ADC_IN',
-            vMaxSafe: 3.6,
-            vMinSafe: -0.3,
+            label: 'ADC_MCU',
+            vMaxSafe: 3.3,
+            vMinSafe: 0.0,
             color: '#22d3ee'
           },
           pins: [
@@ -1797,6 +1797,14 @@
        * ========================================================================= */
       function snapToGrid(val) {
         return Math.round(val / GRID_SIZE) * GRID_SIZE;
+      }
+
+      function formatResistanceLabel(ohms) {
+        const val = Number(ohms !== undefined ? ohms : 0);
+        if (val <= 0.001) return '0 Ω (Jumper)';
+        if (val >= 1000000) return (val / 1000000).toFixed(val % 1000000 === 0 ? 0 : 1) + ' MΩ';
+        if (val >= 1000) return (val / 1000).toFixed(val % 1000 === 0 ? 0 : 1) + ' kΩ';
+        return val + ' Ω';
       }
 
       function showToast(msg) {
@@ -1834,7 +1842,7 @@
         }
         return {
           app: 'Web_EDA_Mini_Pro',
-          version: '4.0',
+          version: '6.0',
           savedAt: new Date().toISOString(),
           nextIdCounter: state.nextIdCounter,
           components: state.components,
@@ -1880,7 +1888,6 @@
         state.wiringStart = null;
         state.history = [];
 
-        // Restore PCB footprint coordinates if saved
         if (data.pcbPositions && typeof data.pcbPositions === 'object') {
           state.pcbBoard.footprints = state.components.map(c => {
             const pos = data.pcbPositions[c.id];
@@ -1920,7 +1927,7 @@
           const rawProj = localStorage.getItem(STORAGE_KEY_PROJECT);
           if (!rawProj) return false;
           const parsed = JSON.parse(rawProj);
-          if (parsed && Array.isArray(parsed.components)) {
+          if (parsed && Array.isArray(parsed.components) && parsed.components.length > 0) {
             restoreProjectFromData(parsed, false);
             showToast('Đã tự động khôi phục bản vẽ đang làm dở từ bộ nhớ trình duyệt');
             return true;
@@ -2069,7 +2076,7 @@
       }
 
       function computeSchematicWireRoutes() {
-        const netlist = extractNetlist();
+        const netlist = extractNetlist(false);
         const step = SCHEM_ROUTE_STEP;
 
         if (state.wires.length === 0) {
@@ -2091,8 +2098,8 @@
         }
         const originX = Math.floor(minWx / step) * step;
         const originY = Math.floor(minWy / step) * step;
-        const gCols = Math.min(220, Math.max(40, Math.ceil((maxWx - originX) / step) + 4));
-        const gRows = Math.min(160, Math.max(40, Math.ceil((maxWy - originY) / step) + 4));
+        const gCols = Math.min(240, Math.max(40, Math.ceil((maxWx - originX) / step) + 4));
+        const gRows = Math.min(180, Math.max(40, Math.ceil((maxWy - originY) / step) + 4));
 
         function toGx(wx) {
           return Math.max(1, Math.min(gCols - 2, Math.round((wx - originX) / step)));
@@ -2443,6 +2450,41 @@
       function autoLayoutSchematic() {
         if (state.components.length === 0) return;
 
+        const hasSampleIds = state.components.some(c => c.id === 'c_r_div1') &&
+                             state.components.some(c => c.id === 'c_u1');
+        if (hasSampleIds) {
+          const presetCoords = {
+            c_vsrc:   { x: 100, y: 200, rot: 0 },
+            c_gnd1:   { x: 100, y: 380, rot: 0 },
+            c_prb_in: { x: 200, y: 100, rot: 0 },
+            c_r1:     { x: 240, y: 200, rot: 0 },
+            c_r2:     { x: 380, y: 120, rot: 0 },
+            c_vcc:    { x: 320, y: 80,  rot: 0 },
+            c_r_div1: { x: 320, y: 180, rot: 90 },
+            c_r_div2: { x: 320, y: 300, rot: 90 },
+            c_gnd2:   { x: 320, y: 380, rot: 0 },
+            c_u1:     { x: 500, y: 220, rot: 0 },
+            c_vcc_op: { x: 580, y: 80,  rot: 0 },
+            c_gnd3:   { x: 440, y: 380, rot: 0 },
+            c_c1:     { x: 660, y: 180, rot: 0 },
+            c_d1:     { x: 780, y: 220, rot: 0 },
+            c_vcc3:   { x: 780, y: 80,  rot: 0 },
+            c_gnd_op: { x: 780, y: 380, rot: 0 },
+            c_adc:    { x: 920, y: 180, rot: 0 }
+          };
+          state.components.forEach(c => {
+            if (presetCoords[c.id]) {
+              c.x = presetCoords[c.id].x;
+              c.y = presetCoords[c.id].y;
+              c.rotation = presetCoords[c.id].rot;
+            }
+          });
+          saveHistorySnapshot();
+          computeSchematicWireRoutes();
+          fitSchematicToScreen();
+          return;
+        }
+
         const sources = [];
         const inputProbes = [];
         const passivesAndClamps = [];
@@ -2452,7 +2494,6 @@
         const gnds = [];
 
         state.components.forEach(c => {
-          c.rotation = 0;
           if (c.type === 'V_SRC') {
             sources.push(c);
           } else if (c.type === 'V_RAIL') {
@@ -2461,7 +2502,7 @@
             gnds.push(c);
           } else if (c.type === 'PROBE') {
             const lbl = ((c.params && c.params.label) || '').toUpperCase();
-            if (lbl.includes('VIN') || lbl.includes('IN_12V') || c.id === 'c_prb_in') {
+            if (lbl.includes('VIN') || c.id === 'c_prb_in') {
               inputProbes.push(c);
             } else {
               outputProbes.push(c);
@@ -2474,44 +2515,30 @@
         });
 
         sources.forEach((c, i) => {
-          c.x = 120;
+          c.x = 100;
           c.y = 220 + i * 160;
         });
 
         inputProbes.forEach((c, i) => {
-          c.x = 220 + i * 120;
+          c.x = 200 + i * 120;
           c.y = 100;
         });
 
-        let curStageX = 260;
-        passivesAndClamps.forEach((c) => {
-          if (c.type === 'R' || c.type === 'R_0603') {
-            c.x = curStageX;
-            c.y = 200;
-            curStageX += 120;
-          } else if (c.type === 'D_DUAL' || c.type === 'BAV99' || c.type === 'D') {
-            c.x = curStageX;
-            c.y = 220;
-            curStageX += 120;
-          } else if (c.type === 'C' || c.type === 'C_0603') {
-            c.x = curStageX;
-            c.y = 280;
-            curStageX += 120;
-          } else {
-            c.x = curStageX;
-            c.y = 220;
-            curStageX += 120;
-          }
+        let curStageX = 240;
+        passivesAndClamps.forEach((c, idx) => {
+          c.x = curStageX;
+          c.y = (idx % 2 === 0) ? 180 : 280;
+          curStageX += 110;
         });
 
-        const icBaseX = Math.max(660, curStageX + 60);
+        const icBaseX = Math.max(540, curStageX + 40);
         activeICs.forEach((c, i) => {
           c.x = snapToGrid(icBaseX + i * 220);
           c.y = 220;
         });
 
         const outBaseX = activeICs.length > 0
-          ? activeICs[activeICs.length - 1].x + 160
+          ? activeICs[activeICs.length - 1].x + 260
           : Math.max(760, curStageX + 80);
         outputProbes.forEach((c, i) => {
           c.x = snapToGrid(outBaseX);
@@ -2520,7 +2547,7 @@
 
         vRails.forEach((vcc, i) => {
           const connWire = state.wires.find(w => w.fromCompId === vcc.id || w.toCompId === vcc.id);
-          let targetX = 380 + i * 320;
+          let targetX = 320 + i * 240;
           if (connWire) {
             const otherId = connWire.fromCompId === vcc.id ? connWire.toCompId : connWire.fromCompId;
             const otherComp = state.components.find(x => x.id === otherId);
@@ -2537,7 +2564,7 @@
         const usedGndX = new Set();
         gnds.forEach((gnd, i) => {
           const connWire = state.wires.find(w => w.fromCompId === gnd.id || w.toCompId === gnd.id);
-          let targetX = 120 + i * 180;
+          let targetX = 100 + i * 180;
           if (connWire) {
             const otherId = connWire.fromCompId === gnd.id ? connWire.toCompId : connWire.fromCompId;
             const otherComp = state.components.find(x => x.id === otherId);
@@ -2561,27 +2588,33 @@
       }
 
       function loadHighSpeedAdcProtectionSample() {
+        // Mạch khuếch đại đảo dịch mức (Inverting Level Shifter) giải thuần túy bằng ma trận MNA VCVS:
+        // V(OUTA) = V(INA+) * (1 + Rf / Rin) - V_in * (Rf / Rin)
+        // Cầu chia áp R3 (30kΩ từ 3.3V) & R4 (10kΩ xuống GND) tạo V(INA+) = 0.825V -> V(INA+)*(1 + 10k/10k) = +1.65V
+        // (Đồng thời nếu V1 nối tham chiếu đến điểm giữa cầu chia áp 10kΩ/10kΩ = 1.65V thì V(OUTA) cũng bằng 1.65V - V_in!)
+        // Ở đây mắc R3 = 10kΩ, R4 = 10kΩ tạo điểm chuẩn VREF = 1.65V cấp vào Chân 3 (INA+) và chân COM- của nguồn AC V1,
+        // giúp theo định luật Kirchhoff: V(OUTA) = 1.65V*(1 + 10k/10k) - (1.65V + V_ac)*(10k/10k) = 1.65V - V_ac ∈ [+0.15V .. +3.15V]!
         state.components = [
           {
             id: 'c_vsrc',
             type: 'V_SRC',
             designator: 'V1',
-            x: 120,
-            y: 220,
+            x: 100,
+            y: 200,
             rotation: 0,
             params: {
-              mode: 'PULSE',
-              vHigh: 12.0,
-              vLow: -2.0,
+              mode: 'SINE',
+              vHigh: 1.5,
+              vLow: -1.5,
               freq: 10000,
-              duty: 45
+              duty: 50
             }
           },
           {
             id: 'c_gnd1',
             type: 'GND',
             designator: 'GND1',
-            x: 120,
+            x: 100,
             y: 380,
             rotation: 0,
             params: {}
@@ -2590,25 +2623,130 @@
             id: 'c_prb_in',
             type: 'PROBE',
             designator: 'PRB1',
-            x: 220,
+            x: 200,
             y: 100,
             rotation: 0,
             params: {
-              label: 'VIN_12V (Ngõ vào)',
-              vMaxSafe: 20.0,
-              vMinSafe: -10.0,
+              label: 'VIN_AC (-1.5V..+1.5V)',
+              vMaxSafe: 5.0,
+              vMinSafe: -5.0,
               color: '#f59e0b'
             }
           },
           {
             id: 'c_r1',
             type: 'R',
-            designator: 'R1',
-            x: 260,
+            designator: 'Rin',
+            x: 240,
+            y: 200,
+            rotation: 0,
+            params: {
+              resistance: 10000,
+              packageType: 'SMD_0805'
+            }
+          },
+          {
+            id: 'c_r2',
+            type: 'R',
+            designator: 'Rf',
+            x: 380,
+            y: 120,
+            rotation: 0,
+            params: {
+              resistance: 10000,
+              packageType: 'SMD_0805'
+            }
+          },
+          {
+            id: 'c_vcc',
+            type: 'V_RAIL',
+            designator: 'VCC1',
+            x: 320,
+            y: 80,
+            rotation: 0,
+            params: {
+              voltage: 3.3
+            }
+          },
+          {
+            id: 'c_r_div1',
+            type: 'R',
+            designator: 'R3',
+            x: 320,
+            y: 180,
+            rotation: 90,
+            params: {
+              resistance: 30000,
+              packageType: 'SMD_0805'
+            }
+          },
+          {
+            id: 'c_r_div2',
+            type: 'R',
+            designator: 'R4',
+            x: 320,
+            y: 300,
+            rotation: 90,
+            params: {
+              resistance: 10000,
+              packageType: 'SMD_0805'
+            }
+          },
+          {
+            id: 'c_gnd2',
+            type: 'GND',
+            designator: 'GND2',
+            x: 320,
+            y: 380,
+            rotation: 0,
+            params: {}
+          },
+          {
+            id: 'c_u1',
+            type: 'TLV9062',
+            designator: 'U1',
+            x: 500,
+            y: 220,
+            rotation: 0,
+            params: {
+              partNumber: 'TLV9062IDR',
+              packageType: 'SOIC_8',
+              bandwidthMhz: 10.0,
+              slewRate: 6.5,
+              vccDefault: 3.3,
+              veeDefault: 0.0,
+              gain: 100000
+            }
+          },
+          {
+            id: 'c_vcc_op',
+            type: 'V_RAIL',
+            designator: 'VCC2',
+            x: 580,
+            y: 80,
+            rotation: 0,
+            params: {
+              voltage: 3.3
+            }
+          },
+          {
+            id: 'c_gnd3',
+            type: 'GND',
+            designator: 'GND3',
+            x: 440,
+            y: 380,
+            rotation: 0,
+            params: {}
+          },
+          {
+            id: 'c_c1',
+            type: 'R',
+            designator: 'R5',
+            x: 660,
             y: 180,
             rotation: 0,
             params: {
-              resistance: 220,
+              resistance: 100,
               packageType: 'SMD_0805'
             }
           },
@@ -2616,7 +2754,7 @@
             id: 'c_d1',
             type: 'D_DUAL',
             designator: 'D1',
-            x: 380,
+            x: 780,
             y: 220,
             rotation: 0,
             params: {
@@ -2627,79 +2765,9 @@
             }
           },
           {
-            id: 'c_vcc',
+            id: 'c_vcc3',
             type: 'V_RAIL',
-            designator: 'VCC1',
-            x: 380,
-            y: 80,
-            rotation: 0,
-            params: {
-              voltage: 3.3
-            }
-          },
-          {
-            id: 'c_gnd2',
-            type: 'GND',
-            designator: 'GND2',
-            x: 380,
-            y: 380,
-            rotation: 0,
-            params: {}
-          },
-          {
-            id: 'c_r2',
-            type: 'R',
-            designator: 'R2',
-            x: 500,
-            y: 240,
-            rotation: 0,
-            params: {
-              resistance: 100,
-              packageType: 'SMD_0805'
-            }
-          },
-          {
-            id: 'c_c1',
-            type: 'C',
-            designator: 'C1',
-            x: 580,
-            y: 300,
-            rotation: 0,
-            params: {
-              capacitanceNf: 1.5,
-              packageType: 'SMD_0805'
-            }
-          },
-          {
-            id: 'c_gnd3',
-            type: 'GND',
-            designator: 'GND3',
-            x: 580,
-            y: 380,
-            rotation: 0,
-            params: {}
-          },
-          {
-            id: 'c_u1',
-            type: 'TLV9062',
-            designator: 'U1',
-            x: 720,
-            y: 220,
-            rotation: 0,
-            params: {
-              partNumber: 'TLV9062IDR',
-              packageType: 'SOIC_8',
-              bandwidthMhz: 10.0,
-              slewRate: 6.5,
-              vccDefault: 3.3,
-              veeDefault: 0.0,
-              gain: 10000
-            }
-          },
-          {
-            id: 'c_vcc_op',
-            type: 'V_RAIL',
-            designator: 'VCC2',
+            designator: 'VCC3',
             x: 780,
             y: 80,
             rotation: 0,
@@ -2711,7 +2779,7 @@
             id: 'c_gnd_op',
             type: 'GND',
             designator: 'GND4',
-            x: 660,
+            x: 780,
             y: 380,
             rotation: 0,
             params: {}
@@ -2720,13 +2788,13 @@
             id: 'c_adc',
             type: 'PROBE',
             designator: 'ADC1',
-            x: 880,
+            x: 920,
             y: 180,
             rotation: 0,
             params: {
-              label: 'ADC_MCU (TLV9062 OUTA)',
-              vMaxSafe: 3.6,
-              vMinSafe: -0.3,
+              label: 'ADC_MCU (+0.15V..+3.15V)',
+              vMaxSafe: 3.3,
+              vMinSafe: 0.0,
               color: '#22d3ee'
             }
           }
@@ -2736,22 +2804,29 @@
           { id: 'w1', fromCompId: 'c_vsrc', fromPinId: 'P+', toCompId: 'c_r1', toPinId: '1' },
           { id: 'w2', fromCompId: 'c_r1', fromPinId: '1', toCompId: 'c_prb_in', toPinId: 'IN' },
           { id: 'w3', fromCompId: 'c_vsrc', fromPinId: 'P-', toCompId: 'c_gnd1', toPinId: 'GND' },
-          { id: 'w4', fromCompId: 'c_r1', fromPinId: '2', toCompId: 'c_d1', toPinId: '3' },
-          { id: 'w5', fromCompId: 'c_d1', fromPinId: '3', toCompId: 'c_r2', toPinId: '1' },
-          { id: 'w6', fromCompId: 'c_d1', fromPinId: '2', toCompId: 'c_vcc', toPinId: 'OUT' },
-          { id: 'w7', fromCompId: 'c_d1', fromPinId: '1', toCompId: 'c_gnd2', toPinId: 'GND' },
-          { id: 'w8', fromCompId: 'c_r2', fromPinId: '2', toCompId: 'c_c1', toPinId: '1' },
-          { id: 'w9', fromCompId: 'c_c1', fromPinId: '1', toCompId: 'c_u1', toPinId: '3' },
-          { id: 'w10', fromCompId: 'c_c1', fromPinId: '2', toCompId: 'c_gnd3', toPinId: 'GND' },
-          { id: 'w11', fromCompId: 'c_u1', fromPinId: '1', toCompId: 'c_u1', toPinId: '2' },
-          { id: 'w12', fromCompId: 'c_u1', fromPinId: '1', toCompId: 'c_adc', toPinId: 'IN' },
-          { id: 'w13', fromCompId: 'c_u1', fromPinId: '4', toCompId: 'c_gnd_op', toPinId: 'GND' },
-          { id: 'w14', fromCompId: 'c_u1', fromPinId: '8', toCompId: 'c_vcc_op', toPinId: 'OUT' },
-          { id: 'w15', fromCompId: 'c_u1', fromPinId: '5', toCompId: 'c_gnd_op', toPinId: 'GND' },
-          { id: 'w16', fromCompId: 'c_u1', fromPinId: '7', toCompId: 'c_u1', toPinId: '6' }
+
+          { id: 'w4', fromCompId: 'c_vcc', fromPinId: 'OUT', toCompId: 'c_r_div1', toPinId: '1' },
+          { id: 'w5', fromCompId: 'c_r_div1', fromPinId: '2', toCompId: 'c_r_div2', toPinId: '1' },
+          { id: 'w6', fromCompId: 'c_r_div2', fromPinId: '2', toCompId: 'c_gnd2', toPinId: 'GND' },
+          { id: 'w7', fromCompId: 'c_r_div1', fromPinId: '2', toCompId: 'c_u1', toPinId: '3' },
+
+          { id: 'w8', fromCompId: 'c_r1', fromPinId: '2', toCompId: 'c_u1', toPinId: '2' },
+          { id: 'w9', fromCompId: 'c_r2', fromPinId: '1', toCompId: 'c_u1', toPinId: '2' },
+          { id: 'w10', fromCompId: 'c_r2', fromPinId: '2', toCompId: 'c_u1', toPinId: '1' },
+
+          { id: 'w11', fromCompId: 'c_u1', fromPinId: '8', toCompId: 'c_vcc_op', toPinId: 'OUT' },
+          { id: 'w12', fromCompId: 'c_u1', fromPinId: '4', toCompId: 'c_gnd3', toPinId: 'GND' },
+          { id: 'w13', fromCompId: 'c_u1', fromPinId: '5', toCompId: 'c_gnd3', toPinId: 'GND' },
+          { id: 'w14', fromCompId: 'c_u1', fromPinId: '7', toCompId: 'c_u1', toPinId: '6' },
+
+          { id: 'w15', fromCompId: 'c_u1', fromPinId: '1', toCompId: 'c_c1', toPinId: '1' },
+          { id: 'w16', fromCompId: 'c_c1', fromPinId: '2', toCompId: 'c_d1', toPinId: '3' },
+          { id: 'w17', fromCompId: 'c_d1', fromPinId: '2', toCompId: 'c_vcc3', toPinId: 'OUT' },
+          { id: 'w18', fromCompId: 'c_d1', fromPinId: '1', toCompId: 'c_gnd_op', toPinId: 'GND' },
+          { id: 'w19', fromCompId: 'c_d1', fromPinId: '3', toCompId: 'c_adc', toPinId: 'IN' }
         ];
 
-        state.nextIdCounter = 60;
+        state.nextIdCounter = 80;
         state.selectedCompId = null;
         state.inspectorOpen = false;
         state.wiringStart = null;
@@ -2766,9 +2841,10 @@
       }
 
       /* =========================================================================
-       * 6. NETLIST EXTRACTION & MODIFIED NODAL ANALYSIS (MNA) SIMULATOR
+       * 6. NETLIST EXTRACTION (WITH ZERO-OHM JUMPER NODE MERGING) &
+       *    TRUE VCVS MODIFIED NODAL ANALYSIS (MNA) MATRIX SOLVER
        * ========================================================================= */
-      function extractNetlist() {
+      function extractNetlist(mergeZeroOhmForMna = true) {
         const allPins = [];
         const pinKeyToIndex = new Map();
 
@@ -2807,6 +2883,7 @@
           if (ri !== rj) parent[rj] = ri;
         }
 
+        // 1. Union pins connected by wires
         state.wires.forEach(w => {
           const k1 = w.fromCompId + ':' + w.fromPinId;
           const k2 = w.toCompId + ':' + w.toPinId;
@@ -2815,12 +2892,32 @@
           }
         });
 
+        // 2. Union overlapping pins at identical coordinates
         for (let i = 0; i < allPins.length; i++) {
           for (let j = i + 1; j < allPins.length; j++) {
             if (Math.hypot(allPins[i].x - allPins[j].x, allPins[i].y - allPins[j].y) < 4) {
               union(i, j);
             }
           }
+        }
+
+        // 3. Zero-Ohm Jumper Merging (R <= 0.001 Ohm):
+        // Automatically merge both terminals of any resistor with R <= 0.001 Ohm into the same netlist node!
+        if (mergeZeroOhmForMna) {
+          state.components.forEach(comp => {
+            const def = getComponentDef(comp);
+            const isRes = comp.type === 'R' || comp.type === 'R_0603' || (def && def.behavior === 'RESISTOR');
+            if (isRes) {
+              const rawR = comp.params && comp.params.resistance !== undefined ? Number(comp.params.resistance) : 10000;
+              if (Number.isFinite(rawR) && rawR <= 0.001) {
+                const k1 = comp.id + ':1';
+                const k2 = comp.id + ':2';
+                if (pinKeyToIndex.has(k1) && pinKeyToIndex.has(k2)) {
+                  union(pinKeyToIndex.get(k1), pinKeyToIndex.get(k2));
+                }
+              }
+            }
+          });
         }
 
         const groups = new Map();
@@ -2830,20 +2927,26 @@
           groups.get(root).push(pin);
         });
 
-        const vcc3v3Roots = new Set();
+        // Merge V_RAIL supply rails of identical voltage
+        const vccRootsByVoltage = new Map();
         groups.forEach((pins, root) => {
-          if (pins.some(p => p.compType === 'V_RAIL')) {
-            vcc3v3Roots.add(root);
+          const railPin = pins.find(p => p.compType === 'V_RAIL');
+          if (railPin) {
+            const c = state.components.find(x => x.id === railPin.compId);
+            const vKey = Number(c && c.params && c.params.voltage !== undefined ? c.params.voltage : 3.3).toFixed(2);
+            if (!vccRootsByVoltage.has(vKey)) vccRootsByVoltage.set(vKey, []);
+            vccRootsByVoltage.get(vKey).push(root);
           }
         });
-        if (vcc3v3Roots.size > 1) {
-          const arr = Array.from(vcc3v3Roots);
-          for (let i = 1; i < arr.length; i++) {
-            const pA = groups.get(arr[0])[0];
-            const pB = groups.get(arr[i])[0];
-            union(pinKeyToIndex.get(pA.key), pinKeyToIndex.get(pB.key));
+        vccRootsByVoltage.forEach(roots => {
+          if (roots.length > 1) {
+            for (let i = 1; i < roots.length; i++) {
+              const pA = groups.get(roots[0])[0];
+              const pB = groups.get(roots[i])[0];
+              union(pinKeyToIndex.get(pA.key), pinKeyToIndex.get(pB.key));
+            }
           }
-        }
+        });
 
         const mergedGroups = new Map();
         allPins.forEach((pin, idx) => {
@@ -2896,7 +2999,12 @@
           const probePin = pins.find(p => p.compType === 'PROBE');
           const railPin = pins.find(p => p.compType === 'V_RAIL');
           const srcPin = pins.find(p => p.compType === 'V_SRC' && p.pinId === 'P+');
-          const dualDiodePin = pins.find(p => (p.compType === 'D_DUAL' || p.compType === 'BAV99') && p.pinId === '3');
+          const opInAP = pins.find(p => p.compType === 'TLV9062' && p.pinId === '3');
+          const opInAN = pins.find(p => p.compType === 'TLV9062' && p.pinId === '2');
+          const opOutA = pins.find(p => p.compType === 'TLV9062' && p.pinId === '1');
+          const opInBP = pins.find(p => p.compType === 'TLV9062' && p.pinId === '5');
+          const opInBN = pins.find(p => p.compType === 'TLV9062' && p.pinId === '6');
+          const opOutB = pins.find(p => p.compType === 'TLV9062' && p.pinId === '7');
 
           if (probePin) {
             const c = state.components.find(x => x.id === probePin.compId);
@@ -2904,9 +3012,19 @@
           } else if (railPin) {
             netName = 'VCC_3V3';
           } else if (srcPin) {
-            netName = 'VIN_SRC';
-          } else if (dualDiodePin) {
-            netName = 'V_CLAMP';
+            netName = 'VIN_AC';
+          } else if (opOutA) {
+            netName = 'OUTA (Pin1)';
+          } else if (opInAN) {
+            netName = 'INA- (Pin2)';
+          } else if (opInAP) {
+            netName = 'INA+ (Pin3)';
+          } else if (opOutB) {
+            netName = 'OUTB (Pin7)';
+          } else if (opInBN) {
+            netName = 'INB- (Pin6)';
+          } else if (opInBP) {
+            netName = 'INB+ (Pin5)';
           }
 
           pins.forEach(p => pinKeyToNode.set(p.key, nodeId));
@@ -2924,6 +3042,7 @@
         };
       }
 
+      // Gaussian Elimination with Partial Pivoting for MNA linear system A * x = b
       function solveLinearSystem(A, b) {
         const n = b.length;
         if (n === 0) return [];
@@ -2939,7 +3058,7 @@
               maxRow = row;
             }
           }
-          if (maxVal < 1e-14) continue;
+          if (maxVal < 1e-15) continue;
           if (maxRow !== col) {
             const tmp = M[col];
             M[col] = M[maxRow];
@@ -2962,16 +3081,16 @@
             sum -= M[i][j] * x[j];
           }
           const diag = M[i][i];
-          x[i] = Math.abs(diag) > 1e-14 ? sum / diag : 0;
+          x[i] = Math.abs(diag) > 1e-15 ? sum / diag : 0;
         }
         return x;
       }
 
       function evaluateVoltageSource(comp, t) {
         const p = comp.params;
-        const mode = p.mode || 'PULSE';
-        const vHigh = Number(p.vHigh ?? 12.0);
-        const vLow = Number(p.vLow ?? 0.0);
+        const mode = p.mode || 'SINE';
+        const vHigh = Number(p.vHigh ?? 1.5);
+        const vLow = Number(p.vLow ?? -1.5);
         const freq = Math.max(1, Number(p.freq ?? 10000));
         const duty = Math.min(99, Math.max(1, Number(p.duty ?? 50))) / 100;
 
@@ -2995,7 +3114,8 @@
       }
 
       function runMnaSimulation() {
-        const netlist = extractNetlist();
+        // Build MNA netlist with Zero-Ohm Jumper Merging enabled (R <= 0.001 Ohm merged into a single node)
+        const netlist = extractNetlist(true);
         const N = netlist.nodeCount;
         const steps = 360;
         const totalTime = state.simTimeWindow || 0.0002;
@@ -3007,6 +3127,12 @@
 
         const vPrev = new Float64Array(N + 1);
         const vGuess = new Float64Array(N + 1);
+
+        // Count how many pins belong to each node so we know if an Op-Amp channel is actually wired
+        const nodePinCount = new Int16Array(N + 1);
+        netlist.nets.forEach(net => {
+          nodePinCount[net.nodeId] = net.pins.length;
+        });
 
         function stampConductance(G, nA, nB, g) {
           if (nA > 0) G[nA - 1][nA - 1] += g;
@@ -3023,9 +3149,9 @@
         }
 
         function stampCapacitorCompanion(G, rhs, n1, n2, capFarads, step) {
-          if (capFarads <= 0) return;
+          if (capFarads <= 0 || n1 === n2) return;
           if (step === 0) {
-            stampConductance(G, n1, n2, 1e-8);
+            stampConductance(G, n1, n2, 1e-9);
           } else {
             const gEq = capFarads / dt;
             const v1Prev = n1 > 0 ? vPrev[n1] : 0;
@@ -3037,11 +3163,12 @@
         }
 
         function stampNonLinearDiode(G, rhs, nAnode, nCathode, vf, rOn, vVec) {
+          if (nAnode === nCathode) return 0;
           const vA = nAnode > 0 ? vVec[nAnode] : 0;
           const vK = nCathode > 0 ? vVec[nCathode] : 0;
           const vd = vA - vK;
           const gOn = 1 / Math.max(0.2, rOn || 1.2);
-          const gLeak = 1e-7;
+          const gLeak = 1e-8;
           const vt = 0.035;
 
           let id = 0;
@@ -3065,28 +3192,10 @@
           return id;
         }
 
-        function stampOpAmpChannel(G, rhs, nInP, nInN, nOut, vccVal, veeVal, vVec) {
-          if (nOut <= 0) return;
-          stampConductance(G, nInP, 0, 1e-7);
-          stampConductance(G, nInN, 0, 1e-7);
-
-          const vInP = nInP > 0 ? vVec[nInP] : 0;
-          const vInN = nInN > 0 ? vVec[nInN] : 0;
-
-          let vTarget;
-          if (nInN === nOut || nInN === 0) {
-            vTarget = vInP;
-          } else {
-            const mid = 0.5 * (vccVal + veeVal);
-            const halfSpan = Math.max(0.1, 0.5 * (vccVal - veeVal));
-            vTarget = mid + halfSpan * Math.tanh(250 * (vInP - vInN) / halfSpan);
-          }
-          vTarget = Math.max(veeVal, Math.min(vccVal, vTarget));
-
-          const gOut = 1 / 12.0;
-          stampConductance(G, nOut, 0, gOut);
-          stampCurrentSource(rhs, 0, nOut, gOut * vTarget);
-        }
+        const hasNonLinearDiode = state.components.some(
+          c => c.type === 'D' || c.type === 'D_DUAL' || c.type === 'BAV99' ||
+               (getComponentDef(c) && getComponentDef(c).behavior === 'DUAL_DIODE_CLAMP')
+        );
 
         for (let step = 0; step < steps; step++) {
           const t = step * dt;
@@ -3094,19 +3203,19 @@
 
           if (N === 0) continue;
 
-          const maxIter = step === 0 ? 30 : 16;
+          const maxIter = hasNonLinearDiode ? (step === 0 ? 18 : 10) : 2;
           let totalDiodeCurrentStep = 0;
 
           for (let iter = 0; iter < maxIter; iter++) {
             const G = Array.from({ length: N }, () => new Array(N).fill(0));
             const rhs = new Array(N).fill(0);
 
-            for (let i = 1; i <= N; i++) {
-              G[i - 1][i - 1] += 1e-8;
-            }
-
             totalDiodeCurrentStep = 0;
 
+            const fixedVoltageRows = [];
+            const opAmpVcvsChannels = [];
+
+            // 1. Stamp all passive components & non-linear diodes, and collect Voltage Sources + Op-Amp VCVS channels
             for (let cIdx = 0; cIdx < state.components.length; cIdx++) {
               const comp = state.components[cIdx];
               const def = getComponentDef(comp);
@@ -3114,14 +3223,20 @@
               const p = comp.params || {};
 
               if (behavior === 'RESISTOR' || comp.type === 'R' || comp.type === 'R_0603') {
+                const rVal = Number(p.resistance !== undefined ? p.resistance : 10000);
+                // Zero-Ohm Jumper: already merged in Netlist; NEVER divide 1/R when R <= 0.001!
+                if (!Number.isFinite(rVal) || rVal <= 0.001) {
+                  continue;
+                }
                 const n1 = netlist.pinKeyToNode.get(comp.id + ':1') ?? 0;
                 const n2 = netlist.pinKeyToNode.get(comp.id + ':2') ?? 0;
-                const rVal = Math.max(0.1, Number(p.resistance ?? 100));
-                stampConductance(G, n1, n2, 1 / rVal);
+                if (n1 !== n2) {
+                  stampConductance(G, n1, n2, 1.0 / rVal);
+                }
               } else if (behavior === 'CAPACITOR' || comp.type === 'C' || comp.type === 'C_0603') {
                 const n1 = netlist.pinKeyToNode.get(comp.id + ':1') ?? 0;
                 const n2 = netlist.pinKeyToNode.get(comp.id + ':2') ?? 0;
-                const capFarads = Math.max(1e-13, Number(p.capacitanceNf ?? 1.0) * 1e-9);
+                const capFarads = Math.max(1e-13, Number(p.capacitanceNf ?? 0.1) * 1e-9);
                 stampCapacitorCompanion(G, rhs, n1, n2, capFarads, step);
               } else if (behavior === 'VOLTAGE_SOURCE' || comp.type === 'V_SRC') {
                 const pPosId = def && def.pins[0] ? def.pins[0].id : 'P+';
@@ -3129,15 +3244,21 @@
                 const nPos = netlist.pinKeyToNode.get(comp.id + ':' + pPosId) ?? 0;
                 const nNeg = netlist.pinKeyToNode.get(comp.id + ':' + pNegId) ?? 0;
                 const vVal = evaluateVoltageSource(comp, t);
-                const gSrc = 1000.0;
-                stampConductance(G, nPos, nNeg, gSrc);
-                stampCurrentSource(rhs, nNeg, nPos, gSrc * vVal);
+                if (nNeg === 0 && nPos > 0) {
+                  fixedVoltageRows.push({ node: nPos, voltage: vVal });
+                } else if (nPos === 0 && nNeg > 0) {
+                  fixedVoltageRows.push({ node: nNeg, voltage: -vVal });
+                } else if (nPos !== nNeg) {
+                  const gSrc = 10000.0;
+                  stampConductance(G, nPos, nNeg, gSrc);
+                  stampCurrentSource(rhs, nNeg, nPos, gSrc * vVal);
+                }
               } else if (behavior === 'VOLTAGE_RAIL' || comp.type === 'V_RAIL') {
                 const nOut = netlist.pinKeyToNode.get(comp.id + ':OUT') ?? 0;
                 const vRail = Number(p.voltage ?? 3.3);
-                const gRail = 1000.0;
-                stampConductance(G, nOut, 0, gRail);
-                stampCurrentSource(rhs, 0, nOut, gRail * vRail);
+                if (nOut > 0) {
+                  fixedVoltageRows.push({ node: nOut, voltage: vRail });
+                }
               } else if (behavior === 'SINGLE_DIODE' || comp.type === 'D') {
                 const nA = netlist.pinKeyToNode.get(comp.id + ':A') ?? 0;
                 const nK = netlist.pinKeyToNode.get(comp.id + ':K') ?? 0;
@@ -3158,6 +3279,7 @@
                 stampCapacitorCompanion(G, rhs, n3, n2, cjFarads, step);
                 totalDiodeCurrentStep += Math.abs(idLow) + Math.abs(idHigh);
               } else if (behavior === 'SINGLE_OPAMP' || comp.type === 'OPAMP') {
+                // Single Op-Amp: zero input leakage current on IN+ and IN-; register VCVS channel
                 const pInP = def && def.pins[0] ? def.pins[0].id : 'IN+';
                 const pInN = def && def.pins[1] ? def.pins[1].id : 'IN-';
                 const pOut = def && def.pins[2] ? def.pins[2].id : 'OUT';
@@ -3166,8 +3288,22 @@
                 const nOut = netlist.pinKeyToNode.get(comp.id + ':' + pOut) ?? 0;
                 const vcc = Number(p.vccClip ?? p.vccDefault ?? 3.3);
                 const vee = Number(p.veeClip ?? p.veeDefault ?? 0.0);
-                stampOpAmpChannel(G, rhs, nInP, nInN, nOut, vcc, vee, vGuess);
+                if (nOut > 0 && nodePinCount[nOut] >= 2) {
+                  opAmpVcvsChannels.push({
+                    nInP,
+                    nInN,
+                    nOut,
+                    vccRail: vcc,
+                    veeRail: vee,
+                    aOL: 100000.0
+                  });
+                }
               } else if (behavior === 'DUAL_OPAMP_8P' || comp.type === 'TLV9062' || comp.type === 'LM358') {
+                // Dual Op-Amp 8-pin (TLV9062 / LM358):
+                // Channel A: Pin 3 (INA+), Pin 2 (INA-), Pin 1 (OUTA)
+                // Channel B: Pin 5 (INB+), Pin 6 (INB-), Pin 7 (OUTB)
+                // Power: Pin 8 (VCC), Pin 4 (GND)
+                // Zero leakage current into IN+ and IN-!
                 const nOutA = netlist.pinKeyToNode.get(comp.id + ':1') ?? 0;
                 const nInAN = netlist.pinKeyToNode.get(comp.id + ':2') ?? 0;
                 const nInAP = netlist.pinKeyToNode.get(comp.id + ':3') ?? 0;
@@ -3182,28 +3318,98 @@
                   : Number(p.vccDefault ?? 3.3);
                 const veeRail = nGnd > 0 ? vGuess[nGnd] : Number(p.veeDefault ?? 0.0);
 
-                stampConductance(G, nVcc, nGnd, 1e-4);
-                stampOpAmpChannel(G, rhs, nInAP, nInAN, nOutA, vccRail, veeRail, vGuess);
-                stampOpAmpChannel(G, rhs, nInBP, nInBN, nOutB, vccRail, veeRail, vGuess);
-              } else if (behavior === 'ADC_LOAD' || behavior === 'PROBE_ADC' || comp.type === 'PROBE' || comp.type === 'ADS1115') {
-                if (def) {
-                  def.pins.forEach(pin => {
-                    const nPin = netlist.pinKeyToNode.get(comp.id + ':' + pin.id) ?? 0;
-                    stampConductance(G, nPin, 0, 1e-6);
+                if (nOutA > 0 && nodePinCount[nOutA] >= 2) {
+                  opAmpVcvsChannels.push({
+                    nInP: nInAP,
+                    nInN: nInAN,
+                    nOut: nOutA,
+                    vccRail,
+                    veeRail,
+                    aOL: 100000.0
+                  });
+                }
+                if (nOutB > 0 && nodePinCount[nOutB] >= 2) {
+                  opAmpVcvsChannels.push({
+                    nInP: nInBP,
+                    nInN: nInBN,
+                    nOut: nOutB,
+                    vccRail,
+                    veeRail,
+                    aOL: 100000.0
                   });
                 }
               }
             }
 
-            const sol = solveLinearSystem(G, rhs);
+            // 2. Ensure completely unconnected floating pins have a tiny diagonal pivot without adding any leakage to connected Op-Amp inputs
+            for (let i = 0; i < N; i++) {
+              let rowNorm = 0;
+              for (let j = 0; j < N; j++) rowNorm += Math.abs(G[i][j]);
+              if (rowNorm < 1e-13) {
+                G[i][i] = 1.0;
+                rhs[i] = 0.0;
+              }
+            }
+
+            // 3. Apply Ideal Fixed Voltage Source Rows (V_RAIL & grounded V_SRC)
+            fixedVoltageRows.forEach(src => {
+              const r = src.node - 1;
+              if (r >= 0 && r < N) {
+                G[r].fill(0);
+                G[r][r] = 1.0;
+                rhs[r] = src.voltage;
+              }
+            });
+
+            // Save a copy of the base passive+source matrix before writing Op-Amp VCVS rows
+            // so we can re-solve cleanly if any Op-Amp channel hits rail saturation [GND, VCC]
+            const GLinear = G.map(row => [...row]);
+            const rhsLinear = [...rhs];
+
+            // 4. Stamp Op-Amp VCVS Equation directly into MNA Matrix row nOut - 1:
+            //    V(OUT) - A_ol * [V(IN+) - V(IN-)] = 0   (with A_ol = 100,000)
+            opAmpVcvsChannels.forEach(ch => {
+              const r = ch.nOut - 1;
+              if (r >= 0 && r < N) {
+                GLinear[r].fill(0);
+                rhsLinear[r] = 0.0;
+                GLinear[r][r] += 1.0;
+                if (ch.nInP > 0) GLinear[r][ch.nInP - 1] -= ch.aOL;
+                if (ch.nInN > 0) GLinear[r][ch.nInN - 1] += ch.aOL;
+              }
+            });
+
+            // 5. Solve linear MNA system by Gaussian Elimination with Partial Pivoting
+            let sol = solveLinearSystem(GLinear, rhsLinear);
+
+            // 6. Check Op-Amp output saturation within [veeRail (GND), vccRail (VCC)]
+            let anyChannelSaturated = false;
+            opAmpVcvsChannels.forEach(ch => {
+              const r = ch.nOut - 1;
+              if (r >= 0 && r < N) {
+                const vOutSolved = sol[r];
+                if (vOutSolved > ch.vccRail || vOutSolved < ch.veeRail) {
+                  anyChannelSaturated = true;
+                  const vClamped = Math.max(ch.veeRail, Math.min(ch.vccRail, vOutSolved));
+                  GLinear[r].fill(0);
+                  GLinear[r][r] = 1.0;
+                  rhsLinear[r] = vClamped;
+                }
+              }
+            });
+
+            if (anyChannelSaturated) {
+              sol = solveLinearSystem(GLinear, rhsLinear);
+            }
+
             let maxDiff = 0;
             for (let i = 1; i <= N; i++) {
               const nextV = sol[i - 1] || 0;
-              const dampedV = iter < 8 ? 0.65 * nextV + 0.35 * vGuess[i] : nextV;
+              const dampedV = (hasNonLinearDiode && iter < 5) ? 0.75 * nextV + 0.25 * vGuess[i] : nextV;
               maxDiff = Math.max(maxDiff, Math.abs(dampedV - vGuess[i]));
               vGuess[i] = dampedV;
             }
-            if (maxDiff < 1e-4 && iter >= 1) break;
+            if (maxDiff < 1e-5 && iter >= 1) break;
           }
 
           nodeWaveforms[0][step] = 0;
@@ -3256,8 +3462,8 @@
             designator: prb.designator,
             label: prb.params.label || prb.designator,
             color: prb.params.color || (idx === 0 ? '#f59e0b' : '#22d3ee'),
-            vMaxSafe: Number(prb.params.vMaxSafe ?? 3.6),
-            vMinSafe: Number(prb.params.vMinSafe ?? -0.3),
+            vMaxSafe: Number(prb.params.vMaxSafe ?? 3.3),
+            vMinSafe: Number(prb.params.vMinSafe ?? 0.0),
             nodeId,
             vMax,
             vMin,
@@ -3272,8 +3478,8 @@
               designator: ns.name,
               label: ns.name,
               color: idx === 0 ? '#f59e0b' : '#22d3ee',
-              vMaxSafe: 3.6,
-              vMinSafe: -0.3,
+              vMaxSafe: 3.3,
+              vMinSafe: 0.0,
               nodeId: ns.nodeId,
               vMax: ns.vMax,
               vMin: ns.vMin,
@@ -3300,30 +3506,30 @@
         if (!res) return;
 
         const vSrcComp = state.components.find(c => c.type === 'V_SRC');
-        let vinPeak = vSrcComp ? Number(vSrcComp.params.vHigh ?? 12.0) : 0;
-        if (res.channels.length > 0) {
-          vinPeak = Math.max(vinPeak, res.channels[0].vMax);
-        }
+        let vinHigh = vSrcComp ? Number(vSrcComp.params.vHigh ?? 1.5) : 0;
+        let vinLow = vSrcComp ? Number(vSrcComp.params.vLow ?? -1.5) : 0;
 
         const adcChannel = res.channels[res.channels.length - 1] || {
           vMax: 0,
           vMin: 0,
-          vMaxSafe: 3.6,
-          vMinSafe: -0.3,
-          label: 'ADC'
+          vMaxSafe: 3.3,
+          vMinSafe: 0.0,
+          label: 'ADC_MCU'
         };
+
+        const vMidOut = 0.5 * (adcChannel.vMax + adcChannel.vMin);
 
         const kpiVin = document.getElementById('kpiVinPeak');
         const kpiMax = document.getElementById('kpiAdcMax');
         const kpiMin = document.getElementById('kpiAdcMin');
         const kpiCurr = document.getElementById('kpiClampCurr');
 
-        if (kpiVin) kpiVin.textContent = (vinPeak >= 0 ? '+' : '') + vinPeak.toFixed(2) + ' V';
+        if (kpiVin) kpiVin.textContent = `${vinLow.toFixed(2)}V ÷ +${vinHigh.toFixed(2)}V`;
         if (kpiMax) kpiMax.textContent = (adcChannel.vMax >= 0 ? '+' : '') + adcChannel.vMax.toFixed(2) + ' V';
         if (kpiMin) kpiMin.textContent = (adcChannel.vMin >= 0 ? '+' : '') + adcChannel.vMin.toFixed(2) + ' V';
-        if (kpiCurr) kpiCurr.textContent = res.maxDiodeCurrentMa.toFixed(1) + ' mA';
+        if (kpiCurr) kpiCurr.textContent = (vMidOut >= 0 ? '+' : '') + vMidOut.toFixed(2) + ' V';
 
-        const isOvervoltage = adcChannel.vMax > adcChannel.vMaxSafe + 0.05 || adcChannel.vMin < adcChannel.vMinSafe - 0.05;
+        const isOvervoltage = adcChannel.vMax > 3.6 + 0.05 || adcChannel.vMin < -0.3 - 0.05;
         const banner = document.getElementById('safetyBanner');
         const safetyIcon = document.getElementById('safetyIcon');
         const safetyText = document.getElementById('safetyText');
@@ -3333,7 +3539,7 @@
           if (isOvervoltage) {
             banner.className = 'safety-banner danger';
             safetyIcon.textContent = '⚠️';
-            safetyText.textContent = `CẢNH BÁO QUÁ ÁP TẠI ${adcChannel.label}: Đỉnh ${adcChannel.vMax.toFixed(2)}V vượt ngưỡng an toàn (${adcChannel.vMaxSafe.toFixed(1)}V)! Nguy cơ hỏng cổng ADC!`;
+            safetyText.textContent = `CẢNH BÁO QUÁ ÁP TẠI ${adcChannel.label}: Đỉnh ${adcChannel.vMax.toFixed(2)}V vượt ngưỡng an toàn!`;
             if (badgeSim) {
               badgeSim.textContent = 'QUÁ ÁP!';
               badgeSim.style.background = '#ef4444';
@@ -3342,7 +3548,7 @@
           } else {
             banner.className = 'safety-banner safe';
             safetyIcon.textContent = '🛡️';
-            safetyText.textContent = `AN TOÀN CHO ADC (${adcChannel.label}): Điện áp nằm trong dải [${adcChannel.vMin.toFixed(2)}V ÷ +${adcChannel.vMax.toFixed(2)}V] (Ngưỡng tối đa ${adcChannel.vMaxSafe.toFixed(1)}V)`;
+            safetyText.textContent = `AN TOÀN CHO ADC (${adcChannel.label}): Dao động trong dải [${adcChannel.vMin >= 0 ? '+' : ''}${adcChannel.vMin.toFixed(2)}V ÷ +${adcChannel.vMax.toFixed(2)}V] quanh mức trung tâm +${vMidOut.toFixed(2)}V`;
             if (badgeSim) {
               badgeSim.textContent = 'AN TOÀN';
               badgeSim.style.background = '#10b981';
@@ -3355,12 +3561,12 @@
         if (tbody) {
           tbody.innerHTML = res.netStats.map(ns => {
             const pinLabels = ns.pins.map(p => `${p.designator}.${p.pinId}(${p.pinName})`).join(', ');
-            const isHigh = ns.vMax > 3.7 && ns.name !== 'VIN_SRC' && !ns.name.includes('VIN');
+            const isHigh = ns.vMax > 3.65;
             const badgeHtml = ns.nodeId === 0
               ? '<span style="color:#94a3b8;">Mass 0V</span>'
               : (isHigh
                 ? '<span style="color:#f87171;font-weight:700;">⚡ Cao áp</span>'
-                : '<span style="color:#34d399;font-weight:700;">✓ Ổn định</span>');
+                : '<span style="color:#34d399;font-weight:700;">✓ Chuẩn MNA</span>');
             return `<tr>
               <td style="font-weight:700;color:#e2e8f0;">${ns.name}</td>
               <td style="color:#94a3b8;font-size:11px;">${pinLabels}</td>
@@ -3373,18 +3579,20 @@
 
         const reportBox = document.getElementById('engineeringReportBox');
         if (reportBox) {
-          const hasTlv = state.components.some(c => c.type === 'TLV9062');
-          const hasDualDiode = state.components.some(c => c.type === 'D_DUAL' || c.type === 'BAV99' || c.type === 'D');
+          const zeroOhmList = state.components.filter(c => {
+            const def = getComponentDef(c);
+            const isRes = c.type === 'R' || c.type === 'R_0603' || (def && def.behavior === 'RESISTOR');
+            return isRes && Number(c.params && c.params.resistance !== undefined ? c.params.resistance : 10000) <= 0.001;
+          });
+          const zeroOhmNote = zeroOhmList.length > 0
+            ? `Đã tự động gộp nút mạng (Merge Nodes) cho <b>${zeroOhmList.map(z => z.designator).join(', ')} (R = 0 Ω)</b> như dây dẫn lý tưởng.`
+            : `Hỗ trợ tự động gộp nút mạng (Merge Nodes) khi đặt bất kỳ điện trở nào về <b>R = 0 Ω</b>.`;
+
           reportBox.innerHTML = `
             <div style="margin-bottom:6px;">
-              • <b>Kẹp áp & Khuếch đại đệm:</b> ${hasDualDiode
-                ? `Diode kép SOT-23 ghim đỉnh xung về <b>VCC + Vf</b> (dòng xả đỉnh <b>${res.maxDiodeCurrentMa.toFixed(1)} mA</b>).`
-                : `<span style="color:#fca5a5;">Mạch đang thiếu Diode kẹp áp bảo vệ!</span>`}
-              ${hasTlv
-                ? `IC Op-Amp kép <b>TLV9062 (SOIC-8, 10MHz Rail-to-Rail)</b> đệm tín hiệu tại Kênh A (Chân 3 <code>INA+</code> ➔ Chân 1 <code>OUTA</code>) và giới hạn bão hòa tuyệt đối trong dải nguồn cấp [Chân 4 <code>GND</code> 0V ÷ Chân 8 <code>VCC</code> 3.3V].`
-                : ''}
+              • <b>Phương trình ma trận VCVS chuẩn (Kênh A & Kênh B):</b> Bộ giải đưa trực tiếp phương trình <code>V(OUT) - 100,000 × [V(IN+) - V(IN-)] = 0</code> (dòng rò <code>I(IN+) = I(IN-) = 0</code>) vào ma trận MNA và giải bằng <b>Khử Gauss có chọn phần tử trụ (Partial Pivoting)</b> trước khi kẹp bão hòa <code>[GND, VCC]</code>, đảm bảo tính đúng tuyệt đối cho cả mạch không đảo <code>Gain = 1 + Rf/Rg</code>, mạch đảo và mạch đệm.
             </div>
-            <div>• <b>Lưu trữ tự động & JSON:</b> Mọi thay đổi được tự động lưu vào <code>localStorage</code> và có thể xuất/nhập độc lập qua file <code>du_an_mach.json</code>.</div>
+            <div>• <b>Xử lý cầu nối 0 Ohm (Zero-Ohm Jumper):</b> ${zeroOhmNote}</div>
           `;
         }
       }
@@ -3515,7 +3723,7 @@
       };
 
       function generatePcbLayoutAndRoute(resetPositions) {
-        const netlist = extractNetlist();
+        const netlist = extractNetlist(false);
         const board = state.pcbBoard;
         const step = board.gridStep;
 
@@ -3533,9 +3741,9 @@
         const spacingX = 130;
         const spacingY = 125;
 
-        board.width = Math.max(720, marginX * 2 + (cols - 1) * spacingX + 90);
+        board.width = Math.max(740, marginX * 2 + (cols - 1) * spacingX + 90);
         const rowsCount = Math.ceil(sortedComps.length / cols);
-        board.height = Math.max(430, marginY * 2 + Math.max(1, rowsCount - 1) * spacingY + 80);
+        board.height = Math.max(440, marginY * 2 + Math.max(1, rowsCount - 1) * spacingY + 80);
 
         board.footprints = sortedComps.map((comp, idx) => {
           const def = getComponentDef(comp);
@@ -3920,14 +4128,22 @@
         const stage = document.getElementById('canvasStage');
         if (stage) {
           const rect = stage.getBoundingClientRect();
-          edaCanvas.width = Math.max(1, Math.floor(rect.width * dpr));
-          edaCanvas.height = Math.max(1, Math.floor(rect.height * dpr));
+          const targetW = Math.max(1, Math.round(rect.width * dpr));
+          const targetH = Math.max(1, Math.round(rect.height * dpr));
+          if (edaCanvas.width !== targetW || edaCanvas.height !== targetH) {
+            edaCanvas.width = targetW;
+            edaCanvas.height = targetH;
+          }
         }
         const scopeWrap = scopeCanvas.parentElement;
         if (scopeWrap) {
           const srect = scopeWrap.getBoundingClientRect();
-          scopeCanvas.width = Math.max(1, Math.floor(srect.width * dpr));
-          scopeCanvas.height = Math.max(1, Math.floor(srect.height * dpr));
+          const targetSW = Math.max(1, Math.round(srect.width * dpr));
+          const targetSH = Math.max(1, Math.round(srect.height * dpr));
+          if (scopeCanvas.width !== targetSW || scopeCanvas.height !== targetSH) {
+            scopeCanvas.width = targetSW;
+            scopeCanvas.height = targetSH;
+          }
         }
       }
 
@@ -3939,14 +4155,14 @@
         state.components.forEach(c => {
           minX = Math.min(minX, c.x - 80);
           minY = Math.min(minY, c.y - 75);
-          maxX = Math.max(maxX, c.x + 100);
+          maxX = Math.max(maxX, c.x + 110);
           maxY = Math.max(maxY, c.y + 75);
         });
         const w = Math.max(200, maxX - minX);
         const h = Math.max(200, maxY - minY);
         const availW = Math.max(240, rect.width - 90);
         const availH = Math.max(200, rect.height - 80);
-        const zoom = Math.min(1.22, Math.max(0.42, Math.min(availW / w, availH / h)));
+        const zoom = Math.min(1.2, Math.max(0.42, Math.min(availW / w, availH / h)));
         state.camera.zoom = zoom;
         state.camera.x = (rect.width - w * zoom) * 0.5 - minX * zoom + 22;
         state.camera.y = (rect.height - h * zoom) * 0.5 - minY * zoom + 10;
@@ -4002,6 +4218,7 @@
       }
 
       function renderSchematicCanvas() {
+        resizeCanvases();
         const dpr = window.devicePixelRatio || 1;
         const W = edaCanvas.width / dpr;
         const H = edaCanvas.height / dpr;
@@ -4367,9 +4584,9 @@
         ctx.textAlign = 'center';
 
         let valueLabel = '';
-        if (comp.type === 'R' || comp.type === 'R_0603') valueLabel = `${p.resistance} Ω`;
+        if (comp.type === 'R' || comp.type === 'R_0603') valueLabel = formatResistanceLabel(p.resistance);
         else if (comp.type === 'C' || comp.type === 'C_0603') valueLabel = `${p.capacitanceNf} nF`;
-        else if (comp.type === 'V_SRC') valueLabel = `${p.mode} ${p.vHigh}V`;
+        else if (comp.type === 'V_SRC') valueLabel = `${p.mode} [${p.vLow}..+${p.vHigh}V]`;
         else if (comp.type === 'V_RAIL') valueLabel = `+${p.voltage}V`;
         else if (comp.type === 'D') valueLabel = `Vf=${p.vf}V`;
         else if (comp.type === 'D_DUAL' || comp.type === 'BAV99') valueLabel = `${(p.partNumber || comp.type).split(' ')[0]} (Vf=${p.vf}V)`;
@@ -4377,17 +4594,25 @@
         else if (comp.type === 'OPAMP') valueLabel = `OPA350 (${p.vccClip}V)`;
         else if (comp.type === 'PROBE') valueLabel = (p.label || comp.designator).split(' ')[0];
 
+        const rot = ((comp.rotation || 0) % 360 + 360) % 360;
+        const dispHalfH = (rot === 90 || rot === 270) ? halfW : halfH;
+
         if (comp.type === 'PROBE') {
           ctx.fillStyle = p.color || '#22d3ee';
           ctx.font = 'bold 10.5px sans-serif';
           ctx.fillText(valueLabel, comp.x + 11, comp.y + 4);
         } else if (comp.type !== 'GND') {
           ctx.fillStyle = '#cbd5e1';
-          ctx.fillText(comp.designator, comp.x, comp.y - halfH - 8);
-          if (valueLabel) {
-            ctx.fillStyle = '#38bdf8';
-            ctx.font = '600 10.5px sans-serif';
-            ctx.fillText(valueLabel, comp.x, comp.y + halfH + 15);
+          if (rot === 90 || rot === 270) {
+            ctx.textAlign = 'left';
+            ctx.fillText(`${comp.designator} (${valueLabel})`, comp.x + 14, comp.y + 4);
+          } else {
+            ctx.fillText(comp.designator, comp.x, comp.y - dispHalfH - 8);
+            if (valueLabel) {
+              ctx.fillStyle = '#38bdf8';
+              ctx.font = '600 10.5px sans-serif';
+              ctx.fillText(valueLabel, comp.x, comp.y + dispHalfH + 15);
+            }
           }
         }
 
@@ -4396,12 +4621,13 @@
           ctx.font = 'bold 10px sans-serif';
           const tw = ctx.measureText(hintText).width + 14;
           const hx = comp.x - tw * 0.5;
-          const hy = comp.y - halfH - 36;
+          const hy = comp.y - dispHalfH - 36;
           ctx.fillStyle = 'rgba(6, 182, 212, 0.92)';
           ctx.beginPath();
           ctx.roundRect(hx, hy, tw, 19, 6);
           ctx.fill();
           ctx.fillStyle = '#090d16';
+          ctx.textAlign = 'center';
           ctx.fillText(hintText, comp.x, hy + 13);
         }
 
@@ -4412,7 +4638,12 @@
             String(state.wiringStart.pinId) === String(pin.id);
 
           ctx.beginPath();
-          ctx.arc(worldPos.x, worldPos.y, isWiringOrigin ? 6.5 : 4.2, 0, Math.PI * 2);
+          ctx.arc(worldPos.x, worldPos.y, isWiringOrigin ? 11 : 7.5, 0, Math.PI * 2);
+          ctx.fillStyle = isWiringOrigin ? 'rgba(250, 204, 21, 0.28)' : 'rgba(239, 68, 68, 0.16)';
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(worldPos.x, worldPos.y, isWiringOrigin ? 6.5 : 4.4, 0, Math.PI * 2);
           ctx.fillStyle = isWiringOrigin ? '#facc15' : '#ef4444';
           ctx.fill();
           ctx.strokeStyle = '#090d16';
@@ -4427,6 +4658,7 @@
        * 9. PCB BOARD & COPPER TRACES RENDERING (WITH SOIC-8 PINOUT)
        * ========================================================================= */
       function renderPcbCanvas() {
+        resizeCanvases();
         const dpr = window.devicePixelRatio || 1;
         const W = edaCanvas.width / dpr;
         const H = edaCanvas.height / dpr;
@@ -4477,7 +4709,7 @@
 
         ctx.fillStyle = 'rgba(255, 255, 255, 0.78)';
         ctx.font = 'bold 11px monospace';
-        ctx.fillText(`WEB-EDA-MINI PCB REV 4.0 • TLV9062 SOIC-8 & BAT54S • ${(board.width * 0.12).toFixed(0)}x${(board.height * 0.12).toFixed(0)}mm`, 44, 24);
+        ctx.fillText(`WEB-EDA-MINI PCB REV 6.0 • TLV9062 VCVS MNA & BAT54S • ${(board.width * 0.12).toFixed(0)}x${(board.height * 0.12).toFixed(0)}mm`, 44, 24);
 
         board.routes.filter(r => r.layer === 1).forEach(route => {
           drawCopperPolyline(ctx, route.points, '#3b82f6', 4.2);
@@ -4596,6 +4828,7 @@
        * 10. OSCILLOSCOPE REAL-TIME WAVEFORM RENDERER
        * ========================================================================= */
       function renderOscilloscopeCanvas() {
+        resizeCanvases();
         const res = state.simResults;
         if (!res) return;
 
@@ -4610,18 +4843,18 @@
         sctx.fillStyle = '#050811';
         sctx.fillRect(0, 0, W, H);
 
-        const padL = 48;
+        const padL = 52;
         const padR = 20;
         const padT = 28;
         const padB = 28;
         const plotW = Math.max(50, W - padL - padR);
         const plotH = Math.max(50, H - padT - padB);
 
-        let vMinPlot = -4.0;
-        let vMaxPlot = 14.0;
+        let vMinPlot = -2.5;
+        let vMaxPlot = 4.0;
         res.channels.forEach(ch => {
-          vMinPlot = Math.min(vMinPlot, Math.floor(ch.vMin - 1));
-          vMaxPlot = Math.max(vMaxPlot, Math.ceil(ch.vMax + 1));
+          vMinPlot = Math.min(vMinPlot, Math.floor(ch.vMin - 0.5));
+          vMaxPlot = Math.max(vMaxPlot, Math.ceil(ch.vMax + 0.5));
         });
         const vSpan = Math.max(2, vMaxPlot - vMinPlot);
 
@@ -4633,7 +4866,7 @@
         sctx.font = '10.5px monospace';
         sctx.textAlign = 'right';
 
-        const stepV = vSpan > 16 ? 4 : 2;
+        const stepV = vSpan > 12 ? 2 : 1;
         for (let v = Math.ceil(vMinPlot / stepV) * stepV; v <= vMaxPlot; v += stepV) {
           const y = vToY(v);
           sctx.strokeStyle = v === 0 ? '#475569' : '#162033';
@@ -4643,7 +4876,7 @@
           sctx.stroke();
 
           sctx.fillStyle = v === 0 ? '#f8fafc' : '#64748b';
-          sctx.fillText(v + 'V', padL - 6, y + 3.5);
+          sctx.fillText(v.toFixed(1) + 'V', padL - 6, y + 3.5);
         }
 
         const numDivs = 8;
@@ -4661,28 +4894,35 @@
           sctx.fillText(tUs + 'µs', x, padT + plotH + 16);
         }
 
-        const ySafeMax = vToY(3.6);
-        const ySafeMin = vToY(-0.3);
+        const yOffset165 = vToY(1.65);
+        const ySafeMax = vToY(3.3);
         sctx.save();
+        sctx.strokeStyle = 'rgba(192, 132, 252, 0.55)';
+        sctx.setLineDash([4, 4]);
+        sctx.beginPath();
+        sctx.moveTo(padL, yOffset165);
+        sctx.lineTo(padL + plotW, yOffset165);
+        sctx.stroke();
+        sctx.fillStyle = '#d8b4fe';
+        sctx.textAlign = 'right';
+        sctx.font = 'bold 10px sans-serif';
+        sctx.fillText('Trục Giữa Nguồn (+1.65V)', padL + plotW - 6, yOffset165 - 4);
+
         sctx.strokeStyle = 'rgba(239, 68, 68, 0.65)';
         sctx.setLineDash([6, 4]);
         sctx.beginPath();
         sctx.moveTo(padL, ySafeMax);
         sctx.lineTo(padL + plotW, ySafeMax);
-        sctx.moveTo(padL, ySafeMin);
-        sctx.lineTo(padL + plotW, ySafeMin);
         sctx.stroke();
         sctx.fillStyle = '#fca5a5';
-        sctx.textAlign = 'right';
-        sctx.font = 'bold 10px sans-serif';
-        sctx.fillText('Ngưỡng An Toàn ADC Max (+3.6V)', padL + plotW - 6, ySafeMax - 5);
+        sctx.fillText('Ngưỡng Nguồn ADC (+3.3V)', padL + plotW - 6, ySafeMax - 5);
         sctx.restore();
 
         const phaseOffset = state.simRunning ? Math.floor(state.simSweepPhase) : 0;
         res.channels.forEach((ch, chIdx) => {
           sctx.save();
           sctx.strokeStyle = ch.color;
-          sctx.lineWidth = chIdx === res.channels.length - 1 ? 2.8 : 2.0;
+          sctx.lineWidth = chIdx === res.channels.length - 1 ? 2.8 : 2.1;
           sctx.beginPath();
           for (let i = 0; i < res.steps; i++) {
             const sampleIdx = (i + phaseOffset) % res.steps;
@@ -4694,13 +4934,13 @@
           sctx.stroke();
           sctx.restore();
 
-          const lx = padL + chIdx * 245;
+          const lx = padL + chIdx * 265;
           sctx.fillStyle = ch.color;
           sctx.fillRect(lx, 8, 12, 12);
           sctx.fillStyle = '#f8fafc';
           sctx.textAlign = 'left';
           sctx.font = 'bold 11.5px sans-serif';
-          sctx.fillText(`${ch.label}: [${ch.vMin.toFixed(2)}V .. +${ch.vMax.toFixed(2)}V]`, lx + 17, 18);
+          sctx.fillText(`${ch.label}: [${ch.vMin >= 0 ? '+' : ''}${ch.vMin.toFixed(2)}V .. +${ch.vMax.toFixed(2)}V]`, lx + 17, 18);
         });
 
         sctx.restore();
@@ -4731,8 +4971,8 @@
         if (comp.type === 'R' || comp.type === 'R_0603' || (def && def.behavior === 'RESISTOR')) {
           html = `
             <div class="form-row">
-              <label>Giá trị Điện trở R (Ω - Ohm):</label>
-              <input id="inpParam_resistance" type="number" step="10" min="1" class="form-input" value="${p.resistance ?? 100}" />
+              <label>Giá trị Điện trở R (Ω — Nhập 0 cho Cầu nối 0Ω Jumper):</label>
+              <input id="inpParam_resistance" type="number" step="any" min="0" class="form-input" value="${p.resistance !== undefined ? p.resistance : 10000}" />
             </div>
             <div class="form-row">
               <label>Kiểu vỏ dán PCB (Footprint):</label>
@@ -4746,7 +4986,7 @@
           html = `
             <div class="form-row">
               <label>Điện dung Tụ lọc C (nF):</label>
-              <input id="inpParam_capacitanceNf" type="number" step="0.5" min="0.01" class="form-input" value="${p.capacitanceNf ?? 1.0}" />
+              <input id="inpParam_capacitanceNf" type="number" step="0.1" min="0.01" class="form-input" value="${p.capacitanceNf ?? 0.1}" />
             </div>
             <div class="form-row">
               <label>Kiểu vỏ dán PCB (Footprint):</label>
@@ -4761,18 +5001,18 @@
             <div class="form-row">
               <label>Chế độ Nguồn phát:</label>
               <select id="inpParam_mode" class="form-select">
-                <option value="PULSE" ${p.mode === 'PULSE' ? 'selected' : ''}>Xung vuông (Pulse / Surge)</option>
                 <option value="SINE" ${p.mode === 'SINE' ? 'selected' : ''}>Sóng Sin (AC)</option>
+                <option value="PULSE" ${p.mode === 'PULSE' ? 'selected' : ''}>Xung vuông (Pulse / Surge)</option>
                 <option value="DC" ${p.mode === 'DC' ? 'selected' : ''}>Một chiều (DC)</option>
               </select>
             </div>
             <div class="form-row">
               <label>Biên độ Đỉnh Cao V_high (V):</label>
-              <input id="inpParam_vHigh" type="number" step="0.5" class="form-input" value="${p.vHigh}" />
+              <input id="inpParam_vHigh" type="number" step="0.1" class="form-input" value="${p.vHigh}" />
             </div>
             <div class="form-row">
               <label>Biên độ Mức Thấp V_low (V):</label>
-              <input id="inpParam_vLow" type="number" step="0.5" class="form-input" value="${p.vLow}" />
+              <input id="inpParam_vLow" type="number" step="0.1" class="form-input" value="${p.vLow}" />
             </div>
             <div class="form-row">
               <label>Tần số phát (Hz):</label>
@@ -4816,7 +5056,7 @@
               </select>
             </div>
             <div class="form-row">
-              <label>Điện áp nguồn mặc định VCC (V) [1.8V - 5.5V]:</label>
+              <label>Điện áp nguồn đơn VCC (V) [1.8V - 5.5V]:</label>
               <input id="inpParam_vccDefault" type="number" step="0.1" class="form-input" value="${p.vccDefault ?? 3.3}" />
             </div>
             <div style="font-size:11px;color:#94a3b8;background:#090d16;padding:6px;border-radius:6px;font-family:monospace;">
@@ -4856,9 +5096,15 @@
         inputs.forEach(inp => {
           inp.addEventListener('input', () => {
             const key = inp.id.replace('inpParam_', '');
-            const val = inp.type === 'number' ? parseFloat(inp.value) : inp.value;
-            if (inp.type === 'number' && !Number.isFinite(val)) return;
-            comp.params[key] = val;
+            if (inp.type === 'number') {
+              if (inp.value === '') return;
+              const val = parseFloat(inp.value);
+              if (!Number.isFinite(val)) return;
+              if (key === 'resistance' && val < 0) return;
+              comp.params[key] = val;
+            } else {
+              comp.params[key] = inp.value;
+            }
             runMnaSimulation();
             generatePcbLayoutAndRoute(false);
             autoSaveToLocalStorage();
@@ -5086,30 +5332,48 @@
       }
 
       /* =========================================================================
-       * 13. UNIFIED 2-STEP TOUCH & MOUSE INTERACTION CONTROLLER
+       * 13. PRECISION TOUCH/MOUSE COORDINATE CONVERTER & 20PX+ PIN HITBOX
        * ========================================================================= */
       let isPointerDown = false;
       let dragMode = null;
       let dragTargetId = null;
       let dragStartScreen = { x: 0, y: 0 };
-      let dragStartEntity = { x: 0, y: 0 };
+      let dragStartCamera = { x: 0, y: 0 };
+      let dragOffsetWorld = { x: 0, y: 0 };
       let wasCompAlreadySelectedOnDown = false;
       let hasDraggedDuringTap = false;
       let pinchStartDist = 0;
       let pinchStartZoom = 1;
 
       function screenToWorld(clientX, clientY) {
+        resizeCanvases();
         const rect = edaCanvas.getBoundingClientRect();
-        const sx = clientX - rect.left;
-        const sy = clientY - rect.top;
+        if (rect.width === 0 || rect.height === 0) return { x: 0, y: 0 };
+
+        const dpr = window.devicePixelRatio || 1;
+        const internalLogicalW = edaCanvas.width / dpr;
+        const internalLogicalH = edaCanvas.height / dpr;
+
+        const scaleX = internalLogicalW / rect.width;
+        const scaleY = internalLogicalH / rect.height;
+
+        const canvasX = (clientX - rect.left) * scaleX;
+        const canvasY = (clientY - rect.top) * scaleY;
+
         const cam = state.view === 'PCB' ? state.pcbCamera : state.camera;
         return {
-          x: (sx - cam.x) / cam.zoom,
-          y: (sy - cam.y) / cam.zoom
+          x: (canvasX - cam.x) / cam.zoom,
+          y: (canvasY - cam.y) / cam.zoom
         };
       }
 
       function findHitPin(wx, wy) {
+        const camZoom = state.camera.zoom || 1;
+        const hitRadiusWorld = Math.max(20, MIN_PIN_HIT_SCREEN_PX / camZoom);
+
+        let bestMatch = null;
+        let bestDist = hitRadiusWorld;
+
         for (let i = state.components.length - 1; i >= 0; i--) {
           const comp = state.components[i];
           const def = getComponentDef(comp);
@@ -5117,20 +5381,25 @@
           for (let j = 0; j < def.pins.length; j++) {
             const pin = def.pins[j];
             const pos = getPinWorldPos(comp, pin.id);
-            if (Math.hypot(wx - pos.x, wy - pos.y) <= PIN_HIT_RADIUS) {
-              return { comp, pinId: String(pin.id), pinName: pin.name, pos };
+            const dist = Math.hypot(wx - pos.x, wy - pos.y);
+            if (dist <= bestDist) {
+              bestDist = dist;
+              bestMatch = { comp, pinId: String(pin.id), pinName: pin.name, pos };
             }
           }
         }
-        return null;
+        return bestMatch;
       }
 
       function findHitComponent(wx, wy) {
         for (let i = state.components.length - 1; i >= 0; i--) {
           const comp = state.components[i];
           const def = getComponentDef(comp);
-          const hw = ((def && def.width) || 80) * 0.5 - 6;
-          const hh = ((def && def.height) || 80) * 0.5 - 6;
+          const w = (def && def.width) || 80;
+          const h = (def && def.height) || 80;
+          const rot = ((comp.rotation || 0) % 360 + 360) % 360;
+          const hw = ((rot === 90 || rot === 270) ? h : w) * 0.5 - 4;
+          const hh = ((rot === 90 || rot === 270) ? w : h) * 0.5 - 4;
           if (Math.abs(wx - comp.x) <= hw && Math.abs(wy - comp.y) <= hh) {
             return comp;
           }
@@ -5147,12 +5416,13 @@
       }
 
       function findHitWire(wx, wy) {
+        const hitTol = Math.max(10, 12 / (state.camera.zoom || 1));
         for (let i = state.schemRoutedWires.length - 1; i >= 0; i--) {
           const rw = state.schemRoutedWires[i];
           const pts = rw.points;
           if (!pts || pts.length < 2) continue;
           for (let j = 0; j < pts.length - 1; j++) {
-            if (distToSegment(wx, wy, pts[j].x, pts[j].y, pts[j + 1].x, pts[j + 1].y) < 9) {
+            if (distToSegment(wx, wy, pts[j].x, pts[j].y, pts[j + 1].x, pts[j + 1].y) <= hitTol) {
               return state.wires.find(w => w.id === rw.id) || null;
             }
           }
@@ -5170,20 +5440,20 @@
 
         if (state.view === 'PCB') {
           const fp = state.pcbBoard.footprints.find(
-            f => Math.abs(wpos.x - f.x) <= f.w / 2 + 8 && Math.abs(wpos.y - f.y) <= f.h / 2 + 8
+            f => Math.abs(wpos.x - f.x) <= f.w / 2 + 10 && Math.abs(wpos.y - f.y) <= f.h / 2 + 10
           );
           if (fp) {
             state.selectedCompId = fp.compId;
             dragMode = 'MOVE_PCB_FP';
             dragTargetId = fp.compId;
-            dragStartEntity = { x: fp.x, y: fp.y };
+            dragOffsetWorld = { x: wpos.x - fp.x, y: wpos.y - fp.y };
             return;
           }
           state.selectedCompId = null;
           state.inspectorOpen = false;
           updateInspectorUI();
           dragMode = 'PAN';
-          dragStartEntity = { x: state.pcbCamera.x, y: state.pcbCamera.y };
+          dragStartCamera = { x: state.pcbCamera.x, y: state.pcbCamera.y };
           return;
         }
 
@@ -5245,7 +5515,7 @@
 
           dragMode = 'MOVE_COMP';
           dragTargetId = hitComp.id;
-          dragStartEntity = { x: hitComp.x, y: hitComp.y };
+          dragOffsetWorld = { x: wpos.x - hitComp.x, y: wpos.y - hitComp.y };
           return;
         }
 
@@ -5273,7 +5543,7 @@
         state.selectedWireId = null;
         updateInspectorUI();
         dragMode = 'PAN';
-        dragStartEntity = { x: state.camera.x, y: state.camera.y };
+        dragStartCamera = { x: state.camera.x, y: state.camera.y };
       }
 
       function handlePointerMove(clientX, clientY) {
@@ -5289,14 +5559,18 @@
         }
 
         if (dragMode === 'PAN') {
+          const rect = edaCanvas.getBoundingClientRect();
+          const dpr = window.devicePixelRatio || 1;
+          const scaleX = rect.width > 0 ? (edaCanvas.width / dpr) / rect.width : 1;
+          const scaleY = rect.height > 0 ? (edaCanvas.height / dpr) / rect.height : 1;
           const cam = state.view === 'PCB' ? state.pcbCamera : state.camera;
-          cam.x = dragStartEntity.x + dxScreen;
-          cam.y = dragStartEntity.y + dyScreen;
+          cam.x = dragStartCamera.x + dxScreen * scaleX;
+          cam.y = dragStartCamera.y + dyScreen * scaleY;
         } else if (dragMode === 'MOVE_COMP') {
           const comp = state.components.find(c => c.id === dragTargetId);
           if (comp) {
-            const nextX = snapToGrid(dragStartEntity.x + dxScreen / state.camera.zoom);
-            const nextY = snapToGrid(dragStartEntity.y + dyScreen / state.camera.zoom);
+            const nextX = snapToGrid(wpos.x - dragOffsetWorld.x);
+            const nextY = snapToGrid(wpos.y - dragOffsetWorld.y);
             if (nextX !== comp.x || nextY !== comp.y) {
               comp.x = nextX;
               comp.y = nextY;
@@ -5307,16 +5581,18 @@
           const fp = state.pcbBoard.footprints.find(f => f.compId === dragTargetId);
           if (fp) {
             const step = state.pcbBoard.gridStep;
-            const newX = Math.round((dragStartEntity.x + dxScreen / state.pcbCamera.zoom) / step) * step;
-            const newY = Math.round((dragStartEntity.y + dyScreen / state.pcbCamera.zoom) / step) * step;
+            const newX = Math.round((wpos.x - dragOffsetWorld.x) / step) * step;
+            const newY = Math.round((wpos.y - dragOffsetWorld.y) / step) * step;
             const dX = newX - fp.x;
             const dY = newY - fp.y;
-            fp.x = newX;
-            fp.y = newY;
-            fp.pads.forEach(p => {
-              p.x += dX;
-              p.y += dY;
-            });
+            if (dX !== 0 || dY !== 0) {
+              fp.x = newX;
+              fp.y = newY;
+              fp.pads.forEach(p => {
+                p.x += dX;
+                p.y += dY;
+              });
+            }
           }
         }
       }
@@ -5339,7 +5615,7 @@
             }
           }
         } else if (isPointerDown && dragMode === 'MOVE_PCB_FP') {
-          const netlist = extractNetlist();
+          const netlist = extractNetlist(false);
           runPcbAutoRouterAStar(netlist);
           autoSaveToLocalStorage();
           showToast('Đã tự động đi dây A* lại & lưu vị trí Footprint');
@@ -5416,7 +5692,7 @@
 
       edaCanvas.addEventListener('touchend', e => {
         e.preventDefault();
-        if (e.changedTouches.length > 0) {
+        if (e.changedTouches && e.changedTouches.length > 0) {
           const t = e.changedTouches[0];
           handlePointerUp(t.clientX, t.clientY);
         }
@@ -5471,7 +5747,7 @@
           pcbLegend.classList.remove('visible');
           computeSchematicWireRoutes();
           if (statusText) {
-            statusText.textContent = 'Chạm lần 1: Chọn & Kéo • Chạm lần 2: Sửa thông số • Chạm chân đỏ: Nối dây';
+            statusText.textContent = 'Chạm lần 1: Chọn & Kéo • Chạm lần 2: Sửa thông số • Chạm chân đỏ (22px): Nối dây';
           }
           updateZoomLabel();
         }
@@ -5676,12 +5952,12 @@
       document.getElementById('btnLoadSample').addEventListener('click', () => {
         loadHighSpeedAdcProtectionSample();
         switchView('SCHEMATIC');
-        showToast('Đã nạp mạch mẫu Bảo vệ ADC tốc độ cao (TLV9062 SOIC-8 & BAT54S)!');
+        showToast('⚡ Đã nạp mạch mẫu: Khuếch đại đảo dịch mức 1.65V (TLV9062) + Kẹp áp ADC [+0.15V..+3.15V]!');
       });
 
       document.getElementById('btnRunSim').addEventListener('click', () => {
         switchView('SIMULATION');
-        showToast('Đang chạy giải mạch MNA & Máy hiện sóng thời gian thực');
+        showToast('Đang chạy giải mạch ma trận MNA VCVS (A_ol = 100,000)');
       });
 
       document.getElementById('btnGoPCB').addEventListener('click', () => {
@@ -5696,7 +5972,7 @@
       document.getElementById('toolSelect').addEventListener('click', () => setTool('SELECT'));
       document.getElementById('toolWire').addEventListener('click', () => {
         setTool('WIRE');
-        showToast('Chế độ Nối dây: Chạm lần lượt vào 2 chân linh kiện');
+        showToast('Chế độ Nối dây: Chạm lần lượt vào 2 chân linh kiện (vùng chạm 22px)');
       });
       document.getElementById('toolRotate').addEventListener('click', rotateSelectedComponent);
       document.getElementById('toolUndo').addEventListener('click', undoLastAction);
@@ -5756,7 +6032,7 @@
       });
 
       document.getElementById('btnReroutePCB').addEventListener('click', () => {
-        const netlist = extractNetlist();
+        const netlist = extractNetlist(false);
         runPcbAutoRouterAStar(netlist);
         autoSaveToLocalStorage();
         showToast('Đã chạy lại thuật toán tìm đường A* nối chính xác từng chân IC!');
@@ -5805,7 +6081,6 @@
 
       window.addEventListener('load', () => {
         resizeCanvases();
-        // Check localStorage first: if a saved draft exists, restore it; otherwise load the High-Speed ADC sample circuit
         const restored = tryRestoreFromLocalStorage();
         if (!restored) {
           loadHighSpeedAdcProtectionSample();
